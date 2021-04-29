@@ -12,7 +12,6 @@
 !> Sequential tests are only support for processor MPI_ROOT_PROC
 !------------------------------------------------------------------------------
 module testSuiteMpi_mod 
-  use mpi
   use strings_mod, only: int2string, string, stringCollection
   use testSuiteMpiContext_mod, only: testSuiteMpiContext, MPI_ROOT_PROC
   use testSuite_mod, only: testSuite

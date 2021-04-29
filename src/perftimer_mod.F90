@@ -21,7 +21,9 @@
 module perfTimer_mod
   use precision_mod, only: dp
   use error_mod, only: raiseError
+#ifdef ENABLE_MPI
   use mpi
+#endif
 
   implicit none
 
@@ -85,6 +87,9 @@ contains
     uniquePerfTimer_constructor % name = name
     uniquePerfTimer_constructor % description = description
     uniquePerfTimer_constructor % id = id
+#ifndef ENABLE_DEF
+    call raiseError(__FILE__, "uniquePerfTimer_constructor", "MPI not enabled")
+#endif
   end function uniquePerfTimer_constructor
 
 
@@ -184,7 +189,9 @@ contains
     associate ( utimer => self % allTimers(id) )
       utimer % isCounting = .true.
       utimer % isEmpty = .false.
+#ifdef ENABLE_MPI
       utimer % startWall = MPI_Wtime() ! in seconds
+#endif
     end associate 
   end subroutine setStart
 
@@ -212,7 +219,9 @@ contains
           "Given perfTimer has already done its job") 
       endif
 
+#ifdef ENABLE_MPI
       utimer % endWall = MPI_Wtime() ! in seconds
+#endif
       utimer % isCounting = .false.
     end associate
   end subroutine setEnd

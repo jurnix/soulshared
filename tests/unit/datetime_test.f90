@@ -31,7 +31,7 @@ contains
     type(timedelta) :: timediff
 
     real(real64) :: eps = tiny(1._real64)
-    integer :: i, n, ntests, tzOffset
+    integer :: i, tzOffset
     type(clock) :: clock1day, clock2days 
     type(datetime) :: tmpdt
 

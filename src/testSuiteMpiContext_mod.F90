@@ -10,7 +10,9 @@
 !> testSuiteMpiContext holds mpi info
 !------------------------------------------------------------------------------
 module testSuiteMpiContext_mod 
+#ifdef ENABLE_MPI
   use mpi
+#endif
 
   implicit none
 
@@ -20,6 +22,10 @@ module testSuiteMpiContext_mod
   logical, parameter :: ISDEBUG = .false.
 
   integer, parameter :: MPI_ROOT_PROC = 0 !< master mpi processor
+#ifndef ENABLE_MPI
+  integer, parameter :: MPI_COMM_NULL = -1
+  integer, parameter :: MPI_INFO_NULL = -1
+#endif
 
 
   type testSuiteMpiContext
@@ -77,8 +83,10 @@ contains
 
     testSuiteMpiContext_constructor % mpiComm = comm
     testSuiteMpiContext_constructor % mpiInfo = info
+#ifdef ENABLE_MPI
     call MPI_COMM_RANK(comm, testSuiteMpiContext_constructor % myid, ierr)
     call MPI_COMM_SIZE(comm, testSuiteMpiContext_constructor % npes, ierr)
+#endif
   end function testSuiteMpiContext_constructor
 
 
@@ -113,7 +121,9 @@ contains
 
     sz = 1
 
+#ifdef ENABLE_MPI
     call mpi_bcast(value, sz, MPI_LOGICAL, MPI_ROOT_PROC, self % mpiComm, ierr)
+#endif
   end subroutine bcast_logical_scalar
 
   
@@ -126,7 +136,9 @@ contains
 
     sz = size(values)
 
+#ifdef ENABLE_MPI
     call mpi_bcast(values, sz, MPI_LOGICAL, MPI_ROOT_PROC, self % mpiComm, ierr)
+#endif
   end subroutine bcast_logical
 
 
@@ -143,8 +155,10 @@ contains
     
     allocate(outValues(npes * sz))
 
+#ifdef ENABLE_MPI
     call mpi_gather(value, sz, MPI_LOGICAL, outValues, sz, &
                    MPI_LOGICAL, self % rootProc, self % mpiComm, ierr)
+#endif
 
   end subroutine gather_logical_scalar
 
@@ -162,8 +176,10 @@ contains
     
     allocate(outValues(npes * sz))
 
+#ifdef ENABLE_MPI
     call mpi_gather(values, sz, MPI_LOGICAL, outValues, sz, &
                    MPI_LOGICAL, self % rootProc, self % mpiComm, ierr)
+#endif
 
   end subroutine gather_logical
 
@@ -189,14 +205,18 @@ contains
     ! generate mpi ids from requested procs (npes)
     groupIds = [ (i, i=0, npes -1) ]
 
+#ifdef ENABLE_MPI
     ! get group id from master comm
     call MPI_Comm_group(self % mpiComm, masterMpiGroup, ierr )
 
     ! which procs belong to new group
     call MPI_Group_incl(masterMpiGroup, npes, groupIds, childMpiGroup, ierr)
+#endif
 
     if (self % myid < npes) then ! only use grouped processors
+#ifdef ENABLE_MPI
       call MPI_Comm_create_group(self % mpiComm, childMpiGroup, 0, childMpiComm, ierr) ! only involved procs
+#endif
 
       createMpiGroup = testSuiteMpiContext(childMpiComm, self % mpiInfo)
     else
@@ -213,11 +233,13 @@ contains
     integer :: ierr
     integer :: mpiGroup
 
+#ifdef ENABLE_MPI
     ! get group id
     call MPI_Comm_group(self % mpiComm, mpiGroup, ierr )
 
     call MPI_Comm_free(self % mpiComm, ierr)
     call MPI_Group_free(mpiGroup, ierr)
+#endif
   end subroutine delMpiGroup
 
 

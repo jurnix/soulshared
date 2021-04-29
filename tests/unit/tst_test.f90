@@ -67,10 +67,9 @@ contains
     use iso_c_binding
     class(testSuiteTst), intent(inout) :: self
 
-    type(tst) :: l
     class(*), pointer :: wrapper 
     integer, target :: val(8)
-    integer :: i, valuefound
+    integer :: valuefound
     type(Tst) :: t
     type(string), dimension(:), allocatable :: allkeys
     type(string), dimension(:), allocatable :: allkeysEmpty
@@ -207,7 +206,6 @@ contains
     subroutine updateVar(var)
         !< feed all history variable with new data
         type(tstNode), pointer, intent(inout)  :: var
-        class(testt), pointer :: obj
 
         select type(obj => var % value)
         type is (testt)
