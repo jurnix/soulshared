@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        : system_mod 
+! MODULE        : SHR_system_mod 
 !
 !> @author
 !> 
@@ -11,7 +11,7 @@
 !>
 !------------------------------------------------------------------------------
 !
-module system_mod
+module SHR_system_mod
 
   use, intrinsic :: iso_c_binding, only: c_int
 
@@ -36,4 +36,4 @@ module system_mod
 
 contains
 
-end module system_mod
+end module SHR_system_mod

@@ -10,9 +10,9 @@
 !> Dictionary unit tests
 !------------------------------------------------------------------------------
 module dict_test
-  use dict_mod, only: dict 
-  use strings_mod, only: string 
-  use testSuite_mod, only: testSuite
+  use SHR_dict_mod, only: dict 
+  use SHR_strings_mod, only: string 
+  use SHR_testSuite_mod, only: testSuite
 
   implicit none
 

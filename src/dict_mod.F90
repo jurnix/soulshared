@@ -11,11 +11,11 @@
 !> 
 !------------------------------------------------------------------------------
 !
-module dict_mod
+module SHR_dict_mod
 
-  use error_mod, only: raiseError
-  use tst_mod, only: tst
-  use strings_mod, only: string
+  use SHR_error_mod, only: raiseError
+  use SHR_tst_mod, only: tst
+  use SHR_strings_mod, only: string
 
   implicit none 
 
@@ -180,4 +180,4 @@ contains
   end subroutine dictfinalize
 
 
-end module dict_mod
+end module SHR_dict_mod

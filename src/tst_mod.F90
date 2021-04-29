@@ -14,10 +14,10 @@
 !> 
 !------------------------------------------------------------------------------
 !
-module tst_mod
+module SHR_tst_mod
 
-  use error_mod, only: raiseError
-  use strings_mod, only: string, printStrings, mergeStringsArray, isEmptyStringsArray 
+  use SHR_error_mod, only: raiseError
+  use SHR_strings_mod, only: string, printStrings, mergeStringsArray, isEmptyStringsArray 
 
   implicit none 
 
@@ -440,4 +440,4 @@ contains
 
   end function get
 
-end module tst_mod
+end module SHR_tst_mod

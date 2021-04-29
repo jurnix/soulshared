@@ -10,10 +10,10 @@
 !> 
 !------------------------------------------------------------------------------
 !
-module file_mod
+module SHR_file_mod
 
-  use error_mod, only: raiseError
-  use strings_mod, only: string
+  use SHR_error_mod, only: raiseError
+  use SHR_strings_mod, only: string
 
   implicit none 
 
@@ -107,4 +107,4 @@ contains
     r = self % name
   end function getName
 
-end module file_mod
+end module SHR_file_mod

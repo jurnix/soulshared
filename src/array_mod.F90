@@ -12,11 +12,11 @@
 !> array class (real sp, real dp, int)
 !> 
 !------------------------------------------------------------------------------
-module array_mod
+module SHR_array_mod
 
-  use precision_mod, only: sp, dp, eqReal
-  use error_mod, only: raiseError 
-  use strings_mod, only: string
+  use SHR_precision_mod, only: sp, dp, eqReal
+  use SHR_error_mod, only: raiseError 
+  use SHR_strings_mod, only: string
 
   implicit none
 
@@ -799,4 +799,4 @@ contains
 
   end function initArrayRange_r1d
 
-end module array_mod
+end module SHR_array_mod

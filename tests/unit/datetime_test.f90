@@ -1,7 +1,7 @@
 module datetime_test
-  use datetime_mod
+  use SHR_datetime_mod
   use iso_fortran_env, only: real64
-  use testSuite_mod, only: testSuite
+  use SHR_testSuite_mod, only: testSuite
 
   implicit none
 

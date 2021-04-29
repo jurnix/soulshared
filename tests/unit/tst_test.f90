@@ -10,9 +10,9 @@
 !> Ternary search tree unit tests
 !------------------------------------------------------------------------------
 module tst_test
-  use tst_mod, only: string, tst, tstNode
-  use strings_mod, only: equalStringsList, printStrings
-  use testSuite_mod, only: testSuite
+  use SHR_tst_mod, only: string, tst, tstNode
+  use SHR_strings_mod, only: equalStringsList, printStrings
+  use SHR_testSuite_mod, only: testSuite
 
   implicit none
 

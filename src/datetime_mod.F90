@@ -13,11 +13,11 @@
 !>   - calendar types: gregorian, 360d and noleap
 !------------------------------------------------------------------------------
 
-module datetime_mod
+module SHR_datetime_mod
 
   use iso_fortran_env, only: real32, real64
   use iso_c_binding, only: c_char, c_int, c_null_char
-  use error_mod, only: raiseError
+  use SHR_error_mod, only: raiseError
 
   implicit none
 
@@ -2057,4 +2057,4 @@ contains
 
   end subroutine timedelta_assign
 
-end module datetime_mod
+end module SHR_datetime_mod

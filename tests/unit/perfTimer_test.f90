@@ -10,10 +10,10 @@
 !> perfTimer unit tests
 !------------------------------------------------------------------------------
 module perfTimer_test
-  use system_mod, only: FortSleep
-  use precision_mod, only: dp
-  use perfTimer_mod, only: perfTimer
-  use testSuite_mod, only: testSuite
+  use SHR_system_mod, only: FortSleep
+  use SHR_precision_mod, only: dp
+  use SHR_perfTimer_mod, only: perfTimer
+  use SHR_testSuite_mod, only: testSuite
 
   use, intrinsic :: iso_c_binding, only: c_int
 

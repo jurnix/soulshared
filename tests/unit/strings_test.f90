@@ -11,14 +11,14 @@
 !------------------------------------------------------------------------------
 !
 module strings_test
-  use strings_mod, only: string, printStrings, mergeStringsArray, &
+  use SHR_strings_mod, only: string, printStrings, mergeStringsArray, &
                      isEmptyStringsArray, equalStringsList, stringsArrayToString, &
                      reverseStringsArray, stringCollection
-  use strings_mod, only: is_numeric, countsubstring, str2real, findloc
-  use strings_mod, only: isInteger, str2int
-  use strings_mod, only: int2string
-  use strings_mod, only: real2string
-  use testSuite_mod, only: testSuite
+  use SHR_strings_mod, only: is_numeric, countsubstring, str2real, findloc
+  use SHR_strings_mod, only: isInteger, str2int
+  use SHR_strings_mod, only: int2string
+  use SHR_strings_mod, only: real2string
+  use SHR_testSuite_mod, only: testSuite
 
   implicit none
 

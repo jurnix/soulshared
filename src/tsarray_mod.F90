@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        :  tsArray_mod
+! MODULE        :  SHR_tsArray_mod
 !
 !> @author
 !> Albert Jornet Puig 
@@ -26,13 +26,13 @@
 !>
 !> 
 !------------------------------------------------------------------------------
-module tsArray_mod
+module SHR_tsArray_mod
 
-  use precision_mod, only: sp, dp
-  use error_mod, only: raiseError 
-  use strings_mod, only: string
-  use datetime_mod, only: clock, timedelta
-  use array_mod, only: absArray, pAbsArray, allocAbsArray, sp_rArray, sp_rpArray, min, max
+  use SHR_precision_mod, only: sp, dp
+  use SHR_error_mod, only: raiseError 
+  use SHR_strings_mod, only: string
+  use SHR_datetime_mod, only: clock, timedelta
+  use SHR_array_mod, only: absArray, pAbsArray, allocAbsArray, sp_rArray, sp_rpArray, min, max
 
   implicit none
 
@@ -273,4 +273,4 @@ contains
 
   end function hasNewDataAvail
 
-end module tsArray_mod
+end module SHR_tsArray_mod

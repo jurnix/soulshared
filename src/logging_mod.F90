@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        :  logging_mod
+! MODULE        :  SHR_logging_mod
 !
 !> @author
 !> Albert Jornet Puig 
@@ -20,13 +20,13 @@
 !>      logging_mod:: write_char:: found values = hello
 !> 
 !------------------------------------------------------------------------------
-module logging_mod
+module SHR_logging_mod
 
 #ifdef ENABLE_MPI
   use mpi
 #endif
-  use precision_mod, only: sp, dp, eqReal
-  use error_mod, only: raiseError 
+  use SHR_precision_mod, only: sp, dp, eqReal
+  use SHR_error_mod, only: raiseError 
 
   implicit none
 
@@ -233,4 +233,4 @@ contains
   end subroutine write_logicals
 
 
-end module logging_mod
+end module SHR_logging_mod

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        : testSuiteMpi_mod 
+! MODULE        : SHR_testSuiteMpi_mod 
 !
 !> @author
 !> Albert Jornet Puig
@@ -9,7 +9,7 @@
 ! DESCRIPTION:
 !> testSuiteMpiContext holds mpi info
 !------------------------------------------------------------------------------
-module testSuiteMpiContext_mod 
+module SHR_testSuiteMpiContext_mod 
 #ifdef ENABLE_MPI
   use mpi
 #endif
@@ -267,4 +267,4 @@ contains
   end function getInfo
 
 
-end module testSuiteMpiContext_mod
+end module SHR_testSuiteMpiContext_mod

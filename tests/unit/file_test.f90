@@ -10,8 +10,8 @@
 !> file_mod unit tests
 !------------------------------------------------------------------------------
 module file_test
-  use file_mod, only: file_t, removeIfExists
-  use testSuite_mod, only: testSuite
+  use SHR_file_mod, only: file_t, removeIfExists
+  use SHR_testSuite_mod, only: testSuite
 
   implicit none
 

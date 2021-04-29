@@ -9,9 +9,9 @@
 ! DESCRIPTION:
 !> a testSuite contains multiple unit tests. 
 !------------------------------------------------------------------------------
-module testSuite_mod 
+module SHR_testSuite_mod 
   use iso_fortran_env, only: real64
-  use error_mod, only: raiseError
+  use SHR_error_mod, only: raiseError
 
   implicit none
 
@@ -160,4 +160,4 @@ contains
     print '(71("-"))'
   end subroutine printBreakLine
 
-end module testSuite_mod
+end module SHR_testSuite_mod

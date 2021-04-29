@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        : testSuiteMpi_mod 
+! MODULE        : SHR_testSuiteMpi_mod 
 !
 !> @author
 !> Albert Jornet Puig
@@ -11,7 +11,7 @@
 !> Parallel (mpi) tests
 !> Sequential tests are only support for processor MPI_ROOT_PROC
 !------------------------------------------------------------------------------
-module testSuiteMpi_mod 
+module SHR_testSuiteMpi_mod 
   use strings_mod, only: int2string, string, stringCollection
   use testSuiteMpiContext_mod, only: testSuiteMpiContext, MPI_ROOT_PROC
   use testSuite_mod, only: testSuite
@@ -219,4 +219,4 @@ contains
 
   end subroutine run
 
-end module testSuiteMpi_mod
+end module SHR_testSuiteMpi_mod

@@ -10,10 +10,10 @@
 !> common array subroutines 
 !------------------------------------------------------------------------------
 module array_test
-  use testSuite_mod, only: testSuite
-  use precision_mod, only: sp
+  use SHR_testSuite_mod, only: testSuite
+  use SHR_precision_mod, only: sp
 
-  use array_mod, only: initArrayRange
+  use SHR_array_mod, only: initArrayRange
 
   implicit none
 

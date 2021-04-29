@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        : perfTimer_mod 
+! MODULE        : SHR_perfTimer_mod 
 !
 !> @author
 !> Albert Jornet Puig
@@ -18,9 +18,9 @@
 !>
 !> otherwise it uses Fortran intrinsics
 !------------------------------------------------------------------------------
-module perfTimer_mod
-  use precision_mod, only: dp
-  use error_mod, only: raiseError
+module SHR_perfTimer_mod
+  use SHR_precision_mod, only: dp
+  use SHR_error_mod, only: raiseError
 #ifdef ENABLE_MPI
   use mpi
 #endif
@@ -282,4 +282,4 @@ contains
 
   end function toString_perfTimer
 
-end module perfTimer_mod
+end module SHR_perfTimer_mod

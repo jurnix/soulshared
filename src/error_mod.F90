@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        : error_mod 
+! MODULE        : SHR_error_mod 
 !
 !> @author
 !> 
@@ -10,10 +10,10 @@
 !> Provide a standarized subroutine call 
 !------------------------------------------------------------------------------
 !
-module error_mod
+module SHR_error_mod
 
   use, intrinsic:: iso_fortran_env, only: stderr=>error_unit
-  use system_mod, only: abort
+  use SHR_system_mod, only: abort
 
   implicit none 
 
@@ -64,4 +64,4 @@ contains
   end subroutine raiseError
 
 
-end module error_mod
+end module SHR_error_mod

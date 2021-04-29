@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        : strings_mod 
+! MODULE        : SHR_strings_mod 
 !
 !> @author
 !> Albert Jornet Puig
@@ -12,9 +12,9 @@
 !> 
 !------------------------------------------------------------------------------
 !
-module strings_mod
+module SHR_strings_mod
 
-  use precision_mod, only: sp, dp
+  use SHR_precision_mod, only: sp, dp
 
   implicit none 
 
@@ -934,4 +934,4 @@ contains
     enddo
   end function isInteger
 
-end module strings_mod
+end module SHR_strings_mod

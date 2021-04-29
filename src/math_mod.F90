@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        :  maths_mod
+! MODULE        :  SHR_maths_mod
 !
 !> @author
 !> Albert Jornet Puig 
@@ -12,9 +12,9 @@
 !> 
 !> 
 !------------------------------------------------------------------------------
-module maths_mod
+module SHR_maths_mod
 
-  use precision_mod, only: sp, dp
+  use SHR_precision_mod, only: sp, dp
 
   implicit none
 
@@ -77,4 +77,4 @@ contains
 
 
 
-end module maths_mod
+end module SHR_maths_mod

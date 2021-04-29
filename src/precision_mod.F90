@@ -10,7 +10,7 @@
 !> Define default real and integer precision 
 !------------------------------------------------------------------------------
 
-module precision_mod
+module SHR_precision_mod
 
   use iso_fortran_env, only: int16,int32,int64
   use iso_fortran_env, only: real32,real64,real128
@@ -103,4 +103,4 @@ contains
 
   end function eqReal_sp
 
-endmodule precision_mod
+endmodule SHR_precision_mod

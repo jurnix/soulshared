@@ -9,8 +9,8 @@
 ! DESCRIPTION:
 !>
 !------------------------------------------------------------------------------
-module adarray_mod 
-  use precision_mod, only: sp
+module SHR_adarray_mod 
+  use SHR_precision_mod, only: sp
 
   implicit none
 
@@ -23,5 +23,5 @@ module adarray_mod
 
   contains
 
-end module adarray_mod
+end module SHR_adarray_mod
 
