@@ -88,7 +88,8 @@ contains
     uniquePerfTimer_constructor % description = description
     uniquePerfTimer_constructor % id = id
 #ifndef ENABLE_DEF
-    call raiseError(__FILE__, "uniquePerfTimer_constructor", "MPI not enabled")
+    call raiseError(__FILE__, "uniquePerfTimer_constructor", &
+            "MPI not enabled")
 #endif
   end function uniquePerfTimer_constructor
 
@@ -169,7 +170,8 @@ contains
     class(perfTimer), intent(inout) :: self
 
     if (self % idCounter > MAX_PERFTIMERS) then
-      call raiseError(__FILE__, "getNewId", "Maximum number of perfTimers reached")
+      call raiseError(__FILE__, "getNewId", &
+              "Maximum number of perfTimers reached")
     endif
 
     self % idCounter = self % idCounter + 1 
@@ -183,7 +185,8 @@ contains
     integer, intent(in) :: id !< timerId
 
     if (id < 1 .or. id > MAX_PERFTIMERS)  then
-      call raiseError(__FILE__, "setStart", "Given perfTimer id outside bounds")
+      call raiseError(__FILE__, "setStart", &
+              "Given perfTimer id outside bounds")
     endif
 
     associate ( utimer => self % allTimers(id) )
@@ -204,7 +207,8 @@ contains
     integer :: perfStatus
 
     if (id < 1 .or. id > MAX_PERFTIMERS)  then
-      call raiseError(__FILE__, "setEnd", "Given perfTimer id outside bounds")
+      call raiseError(__FILE__, "setEnd", &
+              "Given perfTimer id outside bounds")
     endif
 
     associate ( utimer => self % allTimers(id) )

@@ -232,7 +232,8 @@ contains
     else
       ! not supported
       write(tmp,*) self % operation
-      call raiseError(__FILE__, "update", "Operation mode not recognized (1 to 5)", &
+      call raiseError(__FILE__, "update", &
+                      "Operation mode not recognized (1 to 5)", &
                       "Operation found: "//trim(adjustl(tmp)))
     endif
 

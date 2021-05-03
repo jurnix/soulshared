@@ -23,13 +23,15 @@ contains
 
   subroutine raiseNotImplementedError()
     !< customized error to raise when implementation is not yet done
-    call raiseError(__FILE__, "raiseUnexpectedError", "Feature not yet implemented")
+    call raiseError(__FILE__, "raiseUnexpectedError", &
+            "Feature not yet implemented")
   end subroutine raiseNotImplementedError
 
 
   subroutine raiseUnexpectedError()
     !< customized error to raise when it should never take place
-    call raiseError(__FILE__, "raiseUnexpectedError", "Unexpected condition reached")
+    call raiseError(__FILE__, "raiseUnexpectedError", &
+            "Unexpected condition reached")
   end subroutine raiseUnexpectedError
 
 

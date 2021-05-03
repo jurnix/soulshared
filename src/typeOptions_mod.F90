@@ -1598,7 +1598,8 @@ contains
       endif
 
     class default
-      call raiseError(__FILE__, "equiv_option_reals", "Not implemented type")
+      call raiseError(__FILE__, "equiv_option_reals", &
+              "Not implemented type")
     end select
     
   end function equiv_option_reals
@@ -1639,7 +1640,8 @@ contains
       endif
 
     class default
-      call raiseError(__FILE__, "equiv_option_ints", "Not implemented type")
+      call raiseError(__FILE__, "equiv_option_ints", &
+              "Not implemented type")
     end select
     
   end function equiv_option_ints
@@ -1674,7 +1676,8 @@ contains
         equiv_option_files = .true.
       endif
     class default
-      call raiseError(__FILE__, "equiv_option_files", "Not implemented type")
+      call raiseError(__FILE__, "equiv_option_files", &
+              "Not implemented type")
     end select
     
   end function equiv_option_files
@@ -1719,7 +1722,8 @@ contains
       endif
 
     class default
-      call raiseError(__FILE__, "equiv_option_datetimes", "Not implemented type")
+      call raiseError(__FILE__, "equiv_option_datetimes", &
+              "Not implemented type")
     end select
     
   end function equiv_option_datetimes
@@ -1761,7 +1765,8 @@ contains
       endif
 
     class default
-      call raiseError(__FILE__, "equiv_option_timedeltas", "Not implemented type")
+      call raiseError(__FILE__, "equiv_option_timedeltas", &
+              "Not implemented type")
     end select
     
   end function equiv_option_timedeltas
@@ -2748,7 +2753,8 @@ contains
         equiv_option_bool = .true.
       endif
     class default
-      call raiseError(__FILE__, "equiv_option_bool", "Not implemented type")
+      call raiseError(__FILE__, "equiv_option_bool", &
+              "Not implemented type")
     end select
     
   end function equiv_option_bool
@@ -2813,7 +2819,8 @@ contains
         allocate(r(nelems))
         r(:) = self % defVal
       else
-        call raiseError(__FILE__, "getVal_option_bools", "No value defined yet")
+        call raiseError(__FILE__, "getVal_option_bools", &
+                "No value defined yet")
       endif
     endif
 
