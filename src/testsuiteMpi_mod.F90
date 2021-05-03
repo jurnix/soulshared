@@ -12,10 +12,10 @@
 !> Sequential tests are only support for processor MPI_ROOT_PROC
 !------------------------------------------------------------------------------
 module SHR_testSuiteMpi_mod 
-  use strings_mod, only: int2string, string, stringCollection
-  use testSuiteMpiContext_mod, only: testSuiteMpiContext, MPI_ROOT_PROC
-  use testSuite_mod, only: testSuite
-  use error_mod, only: raiseError
+  use SHR_strings_mod, only: int2string, string, stringCollection
+  use SHR_testSuiteMpiContext_mod, only: testSuiteMpiContext, MPI_ROOT_PROC
+  use SHR_testSuite_mod, only: testSuite
+  use SHR_error_mod, only: raiseError
 
   implicit none
 
