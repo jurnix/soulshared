@@ -87,7 +87,7 @@ contains
     uniquePerfTimer_constructor % name = name
     uniquePerfTimer_constructor % description = description
     uniquePerfTimer_constructor % id = id
-#ifndef ENABLE_DEF
+#ifndef ENABLE_MPI
     call raiseError(__FILE__, "uniquePerfTimer_constructor", &
             "MPI not enabled")
 #endif
