@@ -415,7 +415,8 @@ contains
     else 
       ! not supported
       write(tmp, *) ndims
-      call raiseError(__FILE__, SNAME, "Dimensions not implemented: "//tmp)
+      call raiseError(__FILE__, SNAME, &
+              "Dimensions not implemented: "//tmp)
     endif
 
   end function sp_rArray_constructor_def
@@ -512,11 +513,13 @@ contains
       type is (sp_rpArray)
         minTotal = min_sp_realAllocArray_vs_sp_realPointArray(absAlloc, absPoint)
       class default
-        call raiseError(__FILE__, "min_sp_AbsAllocArray_vs_sp_AbsPointArray", &
+        call raiseError(__FILE__, &
+                "min_sp_AbsAllocArray_vs_sp_AbsPointArray", &
                 "Unexpected type", "Required sp_rpArray")
       end select ! absPoint
     class default
-      call raiseError(__FILE__, "min_sp_AbsAllocArray_vs_sp_AbsPointArray", &
+      call raiseError(__FILE__, &
+              "min_sp_AbsAllocArray_vs_sp_AbsPointArray", &
                 "Unexpected type", "sp_rArray")
     end select ! absAlloc
 !    write(*,*) "array_mod:: min_sp_AbsAllocArray_vs_sp_AbsPointArray:: done"
