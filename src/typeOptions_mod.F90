@@ -1557,7 +1557,8 @@ contains
         equiv_option_str = .true.
       endif
     class default
-      call raiseError(__FILE__, "equiv_option_str", "Not implemented type")
+      call raiseError(__FILE__, "equiv_option_str", &
+              "Not implemented type")
     end select
     
   end function equiv_option_str
