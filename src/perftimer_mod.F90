@@ -280,7 +280,9 @@ contains
         write(tmp, *) diffTime
         r = "Performance timer: "// name //" ("//descrp//") = " // adjustl(trim(tmp)) // " secs"
       else
-        call raiseError(__FILE__, "toString_perfTimer", "Unexpected outcome")
+        call raiseError(__FILE__, &
+                "toString_perfTimer", &
+                "Unexpected outcome")
       endif
     end associate
 
