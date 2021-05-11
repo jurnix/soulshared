@@ -173,7 +173,7 @@ contains
     endif
 
     if (self % myid == MPI_ROOT_PROC) then
-      ntests = self % currMpiTests 
+      ntests = self % currMpiTests + self % currTests
       if (ISDEBUG) write(*,*) "testSuiteMpi_mod:: report:: ntests =", ntests
 
       ! sequential tests
