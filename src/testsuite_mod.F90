@@ -76,9 +76,10 @@ contains
           "Reached the number of tests allowed in testCase "// self % name, & 
            "Increase them to avoid this error") 
     end if
-!    write(*,*) "assert:: currTests=", self % currTests
-!    write(*,*) "assert:: size ( results )", size(self % results)
     self % results(self % currTests) = condition
+    write(*,*) "assert:: current sequential tests done =", self % currTests
+    write(*,*) "assert:: sequential results =", self % results(1:self % currTests)
+    write(*,*) "assert:: done"
 
   end subroutine assert
 

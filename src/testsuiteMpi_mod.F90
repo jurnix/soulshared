@@ -99,6 +99,8 @@ contains
            "Increase them to avoid this error") 
     end if
     self % mpiResults(self % currMpiTests) = condition
+    if (ISDEBUG) write (*,*) self % myid, ":: testSuiteMpi_mod:: current mpi tests done = ", self % currMpiTests
+    if (ISDEBUG) write (*,*) self % myid, ":: testSuiteMpi_mod:: mpiResults = ", self % mpiResults(self % currMpiTests)
     if (ISDEBUG) write (*,*) self % myid, ":: testSuiteMpi_mod:: assert:: done"
 
   end subroutine passert
@@ -140,7 +142,6 @@ contains
     ! the total number of test passes and failures.
     !ilogical, optional, intent(out) :: test_failed
 
-    integer :: ntests
     character(len=60) :: str, str1
 
     logical, allocatable :: allMpiResults(:)
@@ -149,41 +150,51 @@ contains
     logical, allocatable :: tmp(:)
     integer :: itest
     integer :: seqFailure, seqSuccess
+    integer :: mpiFailure, mpiSuccess
+    integer :: allCurrentTests
 
     rootTestsSize = self % npes * self % currMpiTests
 
     allocate(allMpiResults(self % currMpiTests))
 
     if (ISDEBUG) write(*,*) self % myid, ":: unittestMpi_mod:: report:: mpiResults=", self % mpiResults(1:self % currMpiTests)
-    if (ISDEBUG) write(*,*) self % myid, ":: unittestMpi_mod:: report:: rootTestsSize=", rootTestsSize
+!    if (ISDEBUG) write(*,*) self % myid, ":: unittestMpi_mod:: report:: rootTestsSize=", rootTestsSize
 
     ! collect results from other procs
     do itest = 1 , self % currMpiTests 
-      if (ISDEBUG) write(*,*) self % myid, ":: unittestMpi_mod:: report:: itest, size (s % mpiResults)=", &
-                                        itest, size(self % mpiResults)
-      call self % mpiCtxt % gather(self % mpiResults, tmp)
+      if (ISDEBUG) write(*,*) self % myid, ":: unittestMpi_mod:: report:: itest, mpi result=", &
+                                        itest, self % mpiResults(itest)
+      call self % mpiCtxt % gather(self % mpiResults(itest), tmp)
+      if (ISDEBUG) write(*,*) self % myid, ":: unittestMpi_mod:: report:: itest, mpi result gathered=", &
+                                        tmp
 
-      ! final result
+      ! results from each proc are Ok?
+      ! if yes, successful unit test
+      ! else no, failed unit test
       allMpiResults(itest) = all(tmp .eqv. .true.)
     enddo
     if (ISDEBUG) write(*,*) self % myid, ":: unittestMpi_mod:: do done"
 
     if (ISDEBUG) then
-      if (self % mpiCtxt % isRootProc() ) write(*,*) self % myid, ":: unittestMpi_mod:: report:: allMpiResults=", allMpiResults
+      if (self % mpiCtxt % isRootProc() ) &
+              write(*,*) self % myid, ":: unittestMpi_mod:: report:: allMpiResults=", allMpiResults(1:self % currMpiTests)
     endif
 
     if (self % myid == MPI_ROOT_PROC) then
-      ntests = self % currMpiTests + self % currTests
-      if (ISDEBUG) write(*,*) "testSuiteMpi_mod:: report:: ntests =", ntests
+      allCurrentTests = self % currMpiTests + self % currTests
+      if (ISDEBUG) write(*,*) "testSuiteMpi_mod:: report:: total tests done (seq + par)=", allCurrentTests
 
       ! sequential tests
       seqSuccess = count(self % results(1:self % currTests))
       seqFailure = count(self % results(1:self % currTests) .eqv. .false.)
       ! parallel tests
-      self % nsuccess = count(allMpiResults) + seqSuccess 
-      self % nfailure = count(allMpiResults .eqv. .false.) + seqFailure
+      mpiSuccess = count(allMpiResults)
+      mpiFailure = count(allMpiResults .eqv. .false.)
+      ! all tests
+      self % nsuccess = mpiSuccess + seqSuccess 
+      self % nfailure = mpiFailure + seqFailure
 
-      write (str, '(a, a, i3, a)') self % name, ' ran a total of ', ntests, ' tests :'
+      write (str, '(a, a, i3, a)') self % name, ' ran a total of ', allCurrentTests, ' tests :'
       write (str1, '(i3, a, i3, a)') self % nsuccess, ' tests PASSED,  ', &
                             self % nfailure, ' tests FAILED.'
 
