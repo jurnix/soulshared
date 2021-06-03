@@ -22,6 +22,8 @@ module SHR_array_mod
 
   private
 
+  public :: trimArrayIndex
+
   public :: closestNumber2Index, PREFER_FIRST, PREFER_LAST, unique, initArrayRange
 
   public :: absArray , allocAbsArray, sp_rpArray !, ipArray, dp_rpReal, sp_rpReal !< pointer array
@@ -801,5 +803,44 @@ contains
     enddo
 
   end function initArrayRange_r1d
+
+
+  integer function trimArrayIndex(array, direction)
+    !< it returns the 1st index found as True in 'array'
+    !< direction ("start", "end"): from which position start searching
+    logical, intent(in) :: array(:)
+    character(*), intent(in), optional :: direction !< start, end
+
+    integer :: startidx, endidx, stepidx
+    integer :: ipos
+
+    startidx = 1
+    endidx = size(array) 
+    stepidx = 1
+    trimArrayIndex = 1
+    if (present(direction)) then
+      if (direction == "start") then
+        ! nothing
+      else if (direction == "end") then
+        startidx = size(array)
+        trimArrayIndex = size(array)
+        endidx = 1
+        stepidx = -1
+      else
+        ! error
+        call raiseError(__FILE__, "trimArrayIndex", &
+                "Unexpected direction found ('start' and 'end' allowed)", &
+                "direction: "//direction)
+      endif
+    endif
+
+    do ipos = startidx, endidx, stepidx
+      if (.not. array(ipos)) then
+        trimArrayIndex = trimArrayIndex + stepidx
+      else
+        exit ! found
+      endif
+    enddo
+  end function trimArrayIndex
 
 end module SHR_array_mod
