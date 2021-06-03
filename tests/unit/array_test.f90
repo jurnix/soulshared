@@ -40,7 +40,6 @@ contains
                         "initArrayRange(2.,1.,-0.25) .eq. [2,1.75,1.5,1.25,1.] == T" )
 
     ! trimArrayIndex
-    write(*,*) "array_test:: trimArrayIndex=", trimArrayIndex( [.false., .false., .true., .true.] ) 
     call self % assert ( trimArrayIndex( [.false., .false., .true., .true.] ) == 3, &
             "trimArrayIndex( [F F T T] ) == 3"  )
     call self % assert ( trimArrayIndex( [.true., .true., .true., .true.], direction="start" ) == 1, &

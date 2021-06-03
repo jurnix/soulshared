@@ -77,9 +77,9 @@ contains
            "Increase them to avoid this error") 
     end if
     self % results(self % currTests) = condition
-    write(*,*) "assert:: current sequential tests done =", self % currTests
-    write(*,*) "assert:: sequential results =", self % results(1:self % currTests)
-    write(*,*) "assert:: done"
+!    write(*,*) "assert:: current sequential tests done =", self % currTests
+!    write(*,*) "assert:: sequential results =", self % results(1:self % currTests)
+!    write(*,*) "assert:: done"
 
   end subroutine assert
 

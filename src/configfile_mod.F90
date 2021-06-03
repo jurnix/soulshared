@@ -180,7 +180,7 @@ module SHR_configFile_mod
       values = self % parser % getOptionValues(inKey)
       sectionName = self % parser % getOptionSection(inKey)
 
-      write(*,*) "configfile_mod:: build:: key, nvalues= ", key, size(values), values(1) % toString()
+!      write(*,*) "configfile_mod:: build:: key, nvalues= ", key, size(values), values(1) % toString()
 
       ! discover its type
       if (all(is_numeric(values))) then ! is a number
@@ -188,18 +188,18 @@ module SHR_configFile_mod
         if (all(isInteger(values))) then ! is integer
 
           call str2int(values, ivalues, stats)
-          write(*,*) "configfile_mod:: build:: key= ", key,  ", inkey=", inkey, ", section=", sectionName, " is integer", ivalues
+!          write(*,*) "configfile_mod:: build:: key= ", key,  ", inkey=", inkey, ", section=", sectionName, " is integer", ivalues
           call self % addOption(sectionName, key, ivalues)
 
         else ! is real
           call str2real(values, rvalues)
-          write(*,*) "configfile_mod:: build:: key= ", key,  ", inkey=", inkey, ", section=", sectionName, " is real", rvalues
+!          write(*,*) "configfile_mod:: build:: key= ", key,  ", inkey=", inkey, ", section=", sectionName, " is real", rvalues
           call self % addOption(sectionName, key, rvalues)
         endif
       else !  is a string
 
-        write(*,*) "configfile_mod:: build:: key= ", key,  ", inkey=", inkey, ", section=", sectionName
-        write(*,*) "configfile_mod:: build:: values= ", values(1) % toString()
+!        write(*,*) "configfile_mod:: build:: key= ", key,  ", inkey=", inkey, ", section=", sectionName
+!        write(*,*) "configfile_mod:: build:: values= ", values(1) % toString()
         call self % addOption(sectionName, key, values)
       endif
       
@@ -314,8 +314,8 @@ module SHR_configFile_mod
     newOption % val = val
 
     sc = stringCollection(val)
-    write(*,*) "configfile_mod:: addOption_sr:: section, key, values=", &
-                sectionName, ", ", optionName, ", ", sc % toString()
+!    write(*,*) "configfile_mod:: addOption_sr:: section, key, values=", &
+!                sectionName, ", ", optionName, ", ", sc % toString()
     call ptrSection % addOption(optionName, newOption)
 
   end subroutine addOption_sr
@@ -346,7 +346,7 @@ module SHR_configFile_mod
     newOption % sectionKey = sectionName
     newOption % val = val
 
-    write(*,*) "configfile_mod:: addOption_ir:: section, key, val=", sectionName, optionName, val
+!    write(*,*) "configfile_mod:: addOption_ir:: section, key, val=", sectionName, optionName, val
     call ptrSection % addOption(optionName, newOption)
 
   end subroutine addOption_ir
@@ -395,8 +395,8 @@ module SHR_configFile_mod
     newOption % sectionKey = sectionName
     newOption % val = val
 
-    write(*,*) "configfile_mod:: addOption_rr:: section, key, val=", &
-            sectionName, ", "  , optionName, ", ", val
+!    write(*,*) "configfile_mod:: addOption_rr:: section, key, val=", &
+!            sectionName, ", "  , optionName, ", ", val
     call ptrSection % addOption(optionName, newOption)
 
   end subroutine addOption_rr
@@ -462,7 +462,7 @@ module SHR_configFile_mod
 
     if ( .not. self % existsSection(sectionName) ) then
       existsOption = .false.
-      write(*,*) "configfile_mod:: existsOption:: section exists? nope"
+!      write(*,*) "configfile_mod:: existsOption:: section exists? nope"
       return
     endif
 

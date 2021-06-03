@@ -304,7 +304,7 @@ contains
               "Component: "//name)
     endif
  
-    write(*,*) "cfgOptions_mod:: addComponent:: new component, name=", name
+!    write(*,*) "cfgOptions_mod:: addComponent:: new component, name=", name
 
     allocate(newComponent)
     call newComponent % initialize(name)
@@ -365,7 +365,7 @@ contains
     type(timedelta), intent(in), optional :: minTD, maxTD
     type(datetime), intent(in), optional :: minDT, maxDT
 
-    write (*,*) "cfgOptions_mod:: def:: new option defined for ",  comName,", " , optName
+!    write (*,*) "cfgOptions_mod:: def:: new option defined for ",  comName,", " , optName
 
     if (optType == CFG_INTS) then
       call this % def_int(comName, optName, description, nargs, defValI, minI, maxI, choicesI)
@@ -706,7 +706,7 @@ contains
     logical :: hasOptionInCfgFile
     type(datetime), allocatable :: optDts(:)
 
-    write(*,*) "cfgOptions_mod:: def_datetimes:: comp, key =", compName, key
+!    write(*,*) "cfgOptions_mod:: def_datetimes:: comp, key =", compName, key
     ! find component
     comp => this % getComponent(compName)
 
@@ -721,14 +721,14 @@ contains
 
     ! value in config file?
     hasConfigFile = this % hasCfgFile()
-    write(*,*) "cfgOptions_mod:: def_datetimes:: has config file?", hasConfigFile
+!    write(*,*) "cfgOptions_mod:: def_datetimes:: has config file?", hasConfigFile
 
     if (hasConfigFile) then
       hasOptionInCfgFile = this % cfgFile % existsOption(compName, key)
-      write(*,*) "cfgOptions_mod:: def_datetimes:: has option in config file?", hasOptionInCfgFile
+!      write(*,*) "cfgOptions_mod:: def_datetimes:: has option in config file?", hasOptionInCfgFile
       if (hasOptionInCfgFile) then ! yes
         call this % cfgFile % getOption(compName, key, optDts) ! load value
-        write(*,*) "cfgOptions_mod:: def_datetimes:: setting value ", optDts(1) % toString()
+!        write(*,*) "cfgOptions_mod:: def_datetimes:: setting value ", optDts(1) % toString()
         call newOption % setVal(optDts)
       else ! nope
         if (.not. present(default)) then ! rely on default value
