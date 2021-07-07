@@ -313,6 +313,9 @@ module SHR_datetime_mod
 
     procedure :: findEquivalentCurrentTime
     procedure :: getCalendarType => getCalendarType_clock
+
+    procedure :: equiv_clock
+    generic :: operator(==) => equiv_clock
   end type clock
 
   interface clock
@@ -475,6 +478,24 @@ contains
                 "start time calendar: "//clock_constructor % startTime % toString() )
     endif
   end function clock_constructor
+
+
+  elemental pure logical function equiv_clock(m0, m1)
+    !< true if m0 and m1 have the same attributes
+    class(clock), intent(in) :: m0
+    class(clock), intent(in) :: m1
+
+    equiv_clock = m0 % startTime == m1 % startTime .and. &
+                  m0 % stopTime == m1 % stopTime .and. &
+                  m0 % currentTime == m1 % currentTime .and. &
+                  m0 % prevTime == m1 % prevTime .and. &
+                  m0 % nextTime == m1 % nextTime .and. &
+                  m0 % tickInterval  == m1 % tickInterval .and. &
+                  m0 % alarm .eqv. m1 % alarm .and. &
+                  m0 % started .eqv. m1 % started  .and. &
+                  m0 % stopped .eqv. m1 % stopped .and. &
+                  m0 % nullified .eqv. m1 % nullified 
+  end function equiv_clock
 
 
   logical function isBeginYear(self)
