@@ -1677,6 +1677,18 @@ contains
             "clock2days % findEquivalentCurrentTime(clock1day) .eq. dt(1900, 1, 5) == T" )
 
 
+    ! ==
+    clock1day = clock(startTime=datetime(1900, 1, 1), &
+              stopTime=datetime(1901, 1, 1), &
+              currentTime=datetime(1900, 1, 6), & ! current time
+              tickInterval=timedelta(days=1))
+    call self % assert( clock1day == clock1day, &
+            "clock1day .eq. clock1day == T" )
+
+    call self % assert( .not. (clock1day == clock2days), &
+            "clock1day .eq. clock2days == F" )
+
+
   end subroutine test_datetime
 
 end module datetime_test

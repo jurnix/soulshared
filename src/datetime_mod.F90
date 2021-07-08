@@ -314,7 +314,7 @@ module SHR_datetime_mod
     procedure :: findEquivalentCurrentTime
     procedure :: getCalendarType => getCalendarType_clock
 
-    procedure :: equiv_clock
+    procedure, private :: equiv_clock
     generic :: operator(==) => equiv_clock
   end type clock
 
@@ -491,10 +491,10 @@ contains
                   m0 % prevTime == m1 % prevTime .and. &
                   m0 % nextTime == m1 % nextTime .and. &
                   m0 % tickInterval  == m1 % tickInterval .and. &
-                  m0 % alarm .eqv. m1 % alarm .and. &
-                  m0 % started .eqv. m1 % started  .and. &
-                  m0 % stopped .eqv. m1 % stopped .and. &
-                  m0 % nullified .eqv. m1 % nullified 
+                  (m0 % alarm .eqv. m1 % alarm) .and. &
+                  (m0 % started .eqv. m1 % started)  .and. & 
+                  (m0 % stopped .eqv. m1 % stopped) .and. &
+                  (m0 % nullified .eqv. m1 % nullified)
   end function equiv_clock
 
 

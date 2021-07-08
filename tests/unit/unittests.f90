@@ -42,7 +42,7 @@ program unittest
   type(testSuiteOopExtends) :: tsOOPExtends
 
   ! declare tests
-  call tsDatetime % init("Datetime test", 320)
+  call tsDatetime % init("Datetime test", 330)
   call tsTst % init("Ternary search tree test", 30)
   call tsStrings % init("Strings test", 70)
   call tsDict % init("Dict test", 10)
