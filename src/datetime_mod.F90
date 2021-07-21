@@ -303,6 +303,7 @@ module SHR_datetime_mod
     procedure :: isBeginMonth, isEndMonth
     procedure :: isBeginDay, isEndDay
     procedure :: isBeginClock, isEndClock
+    procedure :: getTickIntervals
     procedure :: totalTickIntervals
     procedure :: currentTickIntervals
     !
@@ -584,6 +585,14 @@ contains
                         "The clock is null")
     isEndClock = self % currentTime .eq. self % stopTime
   end function isEndClock
+
+
+  function getTickIntervals(self) result (timestep)
+    !< it returns the time step
+    class(clock), intent(in) :: self
+    type(timedelta) :: timestep
+    timestep = self % tickInterval
+  end function getTickIntervals
 
 
   integer function currentTickIntervals(self) result (tsteps)
