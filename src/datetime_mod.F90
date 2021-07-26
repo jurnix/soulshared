@@ -317,6 +317,8 @@ module SHR_datetime_mod
 
     procedure, private :: equiv_clock
     generic :: operator(==) => equiv_clock
+
+    procedure :: isInAbsoluteBounds
   end type clock
 
   interface clock
@@ -764,6 +766,24 @@ contains
 
     getCalendarType_clock = self % startTime % getCalendarType()
   end function getCalendarType_clock
+
+
+  logical function isInAbsoluteBounds(self, date)
+    !< true if the given 'date' is in between start and stop datetime
+    class(clock), intent(in) :: self
+    type(datetime), intent(in) :: date
+
+    isInAbsoluteBounds = .true.
+    if (self % startTime > date) then
+      isInAbsoluteBounds = .false.
+      return
+    endif
+
+    if (self % stopTime < date) then
+      isInAbsoluteBounds = .false.
+      return
+    endif
+  end function isInAbsoluteBounds
 
 
   pure elemental type(datetime) function datetime_constructor( &

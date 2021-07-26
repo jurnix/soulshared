@@ -1688,6 +1688,12 @@ contains
     call self % assert( .not. (clock1day == clock2days), &
             "clock1day .eq. clock2days == F" )
 
+    call self % assert(clock1day % isInAbsoluteBounds(datetime(1900,1,1)), &
+            "datetime(1-6) % isInAbsoluteBounds(1) .  == T")
+
+    call self % assert(.not. clock1day % isInAbsoluteBounds(datetime(1900,1,7)), &
+            "datetime(1-6) % isInAbsoluteBounds(7) == F")
+
 
   end subroutine test_datetime
 
