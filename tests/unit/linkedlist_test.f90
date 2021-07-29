@@ -37,7 +37,6 @@ contains
 
     type(linkedList) :: list
     class(*), pointer :: general_pointer
-    class(*), pointer :: getter
     
     type(LinkedListNode), pointer :: indexnode
 
