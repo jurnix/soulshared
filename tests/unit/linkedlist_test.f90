@@ -7,7 +7,7 @@
 !> Albert Jornet Puig
 !
 ! DESCRIPTION:
-!> Linked list unit tests
+!> Linked list unit tests. Adaptation from:
 !> 
 !> https://github.com/thomasms/fortsraw/blob/master/examples/linked_list/main.F90
 !------------------------------------------------------------------------------
@@ -110,6 +110,8 @@ contains
 
 
   subroutine printvalues(node)
+    !< Function to traverse linked list, it runs for every object found.
+    !< Print basic types only.
     type(LinkedListNode), pointer, intent(inout)  :: node
 
     select type(p => node%value)
@@ -122,7 +124,6 @@ contains
     class default
       write(*, "(A)") "ERROR!"
     end select
-
   end subroutine printvalues
 
 end module linkedList_test
