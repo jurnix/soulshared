@@ -1622,6 +1622,12 @@ contains
               datetime(2014, 1, 3, 0, 0, 0), &
               timedelta(days=1))
 
+    call self % assert( c % getStartTime() == datetime(2014,1,1), &
+            "clock(2014,1,1) % getStartTime() .eq. datetime(2014.1.1) == T")
+
+    call self % assert( c % getStopTime() == datetime(2014,1,3), &
+            "clock(2014,1,3) % getStopTime() .eq. datetime(2014.1.3) == T")
+
     call self % assert( c % isBeginClock(), "clock(2014,1,1) % isBeginClock() == T" )
     
     call self % assert(.not. c % isEndClock(), "clock(2014,1,1) % isBeginClock() ==  F" )

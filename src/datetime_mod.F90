@@ -293,6 +293,8 @@ module SHR_datetime_mod
     logical :: stopped = .false.
     logical :: nullified = .false. !< it is considered not defined
   contains
+    procedure :: getStartTime
+    procedure :: getStopTime
     procedure :: reset
     procedure :: tick
     procedure :: toString => toString_clock
@@ -784,6 +786,20 @@ contains
       return
     endif
   end function isInAbsoluteBounds
+
+
+  elemental type(datetime) function getStartTime(self)
+    !< it returns the clock start time
+    class(clock), intent(in) :: self
+    getStartTime = self % startTime
+  end function getStartTime
+
+
+  elemental type(datetime) function getStopTime(self)
+    !< it returns the clock stop time
+    class(clock), intent(in) :: self
+    getStopTime = self % stopTime
+  end function getStopTime
 
 
   pure elemental type(datetime) function datetime_constructor( &
