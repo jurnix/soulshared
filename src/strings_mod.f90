@@ -357,7 +357,6 @@ contains
     !< this, from
     class(string), intent(in) :: self
     character(len=:), allocatable, intent(in out) :: chars
-
     chars = self % val
   end subroutine assign_toChars
 
@@ -621,17 +620,12 @@ contains
 
   subroutine printStrings(strings)
     !< print an array of strings
-    type(string), allocatable, intent(in) :: strings(:)
+    type(string), intent(in) :: strings(:)
     integer :: i
-
-    if (.not. allocated(strings)) then
-       !write(*,*) "print arrays of strings: nothing to do"
-       return
-    endif
 
 !    write(*,*) "print array of strings:"
     do i=1, size(strings)
-      write(*,*) adjustl(strings(i) % val)
+      write(*,*) "'", strings(i) % val, "'"
     enddo
   end subroutine printStrings
 
