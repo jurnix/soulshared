@@ -1650,6 +1650,29 @@ contains
     call self % assert( c % totalTickIntervals() == 2, &
             "clock(2014,1,1 to 2014,1,2) % totalTickIntervals() .eq. 2 ==  T" )
 
+    c = clock(datetime(1900,1,1), &
+              datetime(1901,1,1), &
+              timedelta(days=1))
+    ! totalTickIntervals
+    call self % assert( c % totalTickIntervals() == 365, &
+            "clock(1900, 1901, days=1) % totalTickIntervals() .eq. 365 ==  T" )
+
+
+    c = clock(datetime(1900,1,1), &
+              datetime(1900,1,2), &
+              timedelta(days=1))
+    ! totalTickIntervals
+    call self % assert( c % totalTickIntervals() == 1, &
+            "clock(-1900,1,1-, -1900,1,2-, days=1) % totalTickIntervals() .eq. 1 ==  T" )
+
+
+    c = clock(datetime(1900,1,1), &
+              datetime(1900,1,1), &
+              timedelta(days=1))
+    ! totalTickIntervals
+    call self % assert( c % totalTickIntervals() == 0, &
+            "clock(1900, 1900, days=1) % totalTickIntervals() .eq. 0 ==  T" )
+
 
     ! findEquivalentDatetime
     clock1day = clock(startTime=datetime(1900, 1, 1), &
