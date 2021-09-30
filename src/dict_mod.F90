@@ -26,7 +26,6 @@ module SHR_dict_mod
   end type dictWrapperArray_type
 
   type :: dict 
-  private
     type(tst), allocatable :: d 
   contains
 
@@ -60,7 +59,7 @@ contains
     !< insert a new element into the dict with key = value
     !< In case it already exists the key, it overrides its value
     class(dict), intent(inout) :: this
-    character(len=*), intent(in) :: key
+    character(len=*), intent(in), target :: key
     class(*), pointer, intent(in) :: value
     
     call this % d % insert(key, value)
@@ -99,7 +98,7 @@ contains
     !< redefines key's value
     !< if it does not exists it is added as well
     class(dict), intent(inout) :: this
-    character(len=*), intent(in) :: key
+    character(len=*), intent(in), target :: key
     class(*), pointer, intent(in) :: value
 
     call this % d % insert(key, value)

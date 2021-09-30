@@ -41,6 +41,7 @@ module SHR_linkedList_mod
         procedure :: reset
         procedure :: length
         procedure :: traverse
+        procedure :: remove
         procedure, private :: cleanup
         final :: listfinalize
 
@@ -273,6 +274,52 @@ contains
         class(LinkedListNode), pointer :: tail !< output
         tail => this % tail
     end function getTail
+
+
+    ! remove element at 'index'
+    ! it not exists then an error is raised
+    subroutine remove(this, index)
+        class(LinkedList), intent(inout) :: this
+        integer, intent(in), optional :: index
+        type(LinkedListNode), pointer :: indexnode ! next, value
+        type(LinkedListNode), pointer :: prevIndexNode ! next, value
+        integer :: i
+        
+        ! is index in bounds?
+        if(index <= 0 .or. index > this%size)then 
+          ! error
+          return
+        end if
+
+        nullify(prevIndexNode)
+        indexnode => this%head
+
+        ! is first?
+        if (index == 1) then
+          this % head => indexNode % next
+        else ! (index > 1) then ! 
+
+          ! find current and prev node
+          do i=1, (index-1)
+            prevIndexNode => indexNode
+            indexnode => indexnode%next
+          end do
+
+          ! skip removed element
+          prevIndexNode % next => indexNode % next
+        endif
+
+        ! is tail?
+        if (index == this % size) then
+          this % tail => prevIndexNode
+        endif
+
+        nullify(indexNode % value)
+        nullify(indexNode % next)
+        this % size = this % size - 1
+        deallocate(indexNode)
+
+    end subroutine remove
 
 end module SHR_linkedList_mod
 

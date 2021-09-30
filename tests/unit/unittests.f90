@@ -16,6 +16,7 @@ program unittest
   use tst_test, only: testSuiteTst
   use strings_test, only: testSuiteStrings
   use dict_test, only: testSuiteDict
+  use orderedDict_test, only: testSuiteOrderedDict
   use array_test, only: testSuiteArray
   use perfTimer_test, only: testSuitePerfTimer
   use file_test, only: testSuiteFile
@@ -33,6 +34,7 @@ program unittest
   type(testSuiteTst) :: tsTst
   type(testSuiteStrings) :: tsStrings
   type(testSuiteDict) :: tsDict
+  type(testSuiteOrderedDict) :: tsOrderedDict
   type(testSuiteArray) :: tsArray
   type(testSuitePerfTimer) :: tsPerfTimer
   type(testSuiteFile) :: tsFile
@@ -48,6 +50,7 @@ program unittest
   call tsTst % init("Ternary search tree test", 30)
   call tsStrings % init("Strings test", 70)
   call tsDict % init("Dict test", 10)
+  call tsOrderedDict % init("Ordered dict test", 10)
   call tsArray % init("Array test", 20)
   call tsPerfTimer % init("Performance timer test", 20)
   call tsFile % init("File test", 10)
@@ -63,6 +66,7 @@ program unittest
   call tsTst % run() 
   call tsStrings % run() 
   call tsDict % run() 
+  call tsOrderedDict % run() 
   call tsArray % run() 
   call tsPerfTimer % run() 
   call tsFile % run() 
@@ -79,6 +83,7 @@ program unittest
   call tsTst % report() 
   call tsStrings % report() 
   call tsDict % report() 
+  call tsOrderedDict % report() 
   call tsArray % report() 
   call tsPerfTimer % report() 
   call tsFile % report()
@@ -94,6 +99,7 @@ program unittest
       .not. tsTst % isSuccessful() .or. &
       .not. tsStrings % isSuccessful() .or. & 
       .not. tsDict % isSuccessful() .or. &
+      .not. tsOrderedDict % isSuccessful() .or. &
       .not. tsArray % isSuccessful() .or. &
       .not. tsPerfTimer % isSuccessful() .or. &
       .not. tsFile % isSuccessful() .or. &

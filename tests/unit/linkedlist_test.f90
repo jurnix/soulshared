@@ -39,6 +39,7 @@ contains
     class(*), pointer :: general_pointer
     
     type(LinkedListNode), pointer :: indexnode
+    integer, allocatable :: intVals(:)
 
     if (ISLOG) write(*, "(A)") "Appending integer value..."
     allocate(general_pointer, source=4)
@@ -105,6 +106,32 @@ contains
     call list%reset()
     if (ISLOG) write(*, "(A, I2.1)") "Size after reset: ", list%length()
     call self % assert(list%length() == 0, "list % length() .eq. 0 (after reset) = T")
+
+
+
+    ! add 5 elements
+    allocate(general_pointer, source=1)
+    call list % append(general_pointer)
+    allocate(general_pointer, source=2)
+    call list % append(general_pointer)
+    allocate(general_pointer, source=3)
+    call list % append(general_pointer)
+    allocate(general_pointer, source=4)
+    call list % append(general_pointer)
+    allocate(general_pointer, source=5)
+    call list % append(general_pointer)
+
+    ! remove last
+    call list % remove(5)
+    call list % remove(3)
+    call list % remove(1)
+
+    intVals = extractIntValues(list)
+    call self % assert(all(intVals == [2,4]), "list .eq. (2,4) = T")
+
+
+    if (ISLOG) write(*, "(A, I2.1)") "Size: ", list%length()
+    call self % assert(list%length() == 2, "list % length() .eq. 2 = T")
     
   end subroutine defineTestCases
 
@@ -125,6 +152,34 @@ contains
       write(*, "(A)") "ERROR!"
     end select
   end subroutine printvalues
+
+
+  function extractIntValues(list) result (values)
+    !< Gather all values from list into an array 'values'
+    class(linkedList), intent(inout) :: list
+    integer, allocatable :: values(:)
+    integer :: counter, nelems
+    
+    counter = 0
+    nelems = list % length()
+    allocate(values(nelems))
+
+    call list % traverse(gatherIntValues)
+
+  contains
+
+    subroutine gatherIntValues(node)
+      !< Function to traverse linked list, it runs for every object found.
+      !< Print basic types only.
+      type(LinkedListNode), pointer, intent(inout)  :: node
+      select type(p => node%value)
+      type is(integer)
+        counter = counter + 1
+        values(counter) = p
+      end select
+    end subroutine gatherIntValues
+
+  end function extractIntValues
 
 end module linkedList_test
 
