@@ -120,11 +120,14 @@ contains
     type(string), allocatable :: keys(:) !< output
     integer :: ielem, nelems
 
+    write(*,*) "linkedlist_mod:: getAllKeys:: start..."
+
     ielem = 1
     nelems = this % getSize()
     if (allocated(keys)) deallocate(keys)
     allocate(keys(nelems)) 
     call this % keys % traverse(extractStrings)
+    write(*,*) "linkedlist_mod:: getAllKeys:: done"
 
     contains
 
@@ -132,10 +135,12 @@ contains
         !< cast linkedListNode value to string
         type(LinkedListNode), pointer, intent(inout)  :: node
         select type(wrap => node % value)
-        type is (string)
-           keys(ielem) = wrap
+        type is (character(*))
+           keys(ielem) = string(wrap)
+           write(*,*) "linkedlist_mod:: extractStrings:: key =", wrap 
         class default
-           ! assert
+           call raiseError(__FILE__, "extractStrings", &
+                   "Unexpected type found")
         end select
         ielem = ielem + 1
       end subroutine extractStrings

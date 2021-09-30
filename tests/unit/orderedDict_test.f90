@@ -1,17 +1,17 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! PROGRAM        : dict_test 
+! PROGRAM        : orderedDict_test 
 !
 !> @author
 !> Albert Jornet Puig
 !
 ! DESCRIPTION:
-!> Dictionary unit tests
+!> Ordered Dictionary unit test
 !------------------------------------------------------------------------------
 module orderedDict_test
   use SHR_orderedDict_mod, only: orderedDict 
-  use SHR_strings_mod, only: string 
+  use SHR_strings_mod, only: string, stringCollection
   use SHR_testSuite_mod, only: testSuite
 
   implicit none
@@ -33,6 +33,7 @@ contains
 
     type(ordereDdict) :: o
     class(*), pointer :: wrapper
+    type(stringCollection) :: sc ! debug only
     type(string), allocatable :: expAllKeys(:)
 
 
@@ -58,6 +59,13 @@ contains
     expAllKeys(2) = string("second")
     expAllKeys(3) = string("third")
     expAllKeys(4) = string("fourth")
+
+    sc = stringCollection(expAllKeys)
+    write(*,*) "testSuiteOrderedDict_test:: expected =", sc % toString()
+
+    sc = stringCollection(o % getAllKeys())
+    write(*,*) "testSuiteOrderedDict_test:: found =", sc % toString()
+
     call self % assert(all(o % getAllKeys() == expAllKeys), &
             "o % getAllKeys() .eq. [first, second, third, fourth] == T")
 
