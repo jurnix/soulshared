@@ -43,6 +43,9 @@ module SHR_linkedList_mod
         procedure :: traverse
         procedure, private :: cleanup
         final :: listfinalize
+
+        procedure :: getHead
+        procedure :: getTail
     end type LinkedList
 
     !> extends LinkedList but makes use of a cached last node
@@ -254,6 +257,22 @@ contains
         call this%cleanup()
 
     end subroutine cachedlistfinalize
+
+
+        !> Return head
+    function getHead(this) result (head)
+        class(LinkedList), intent(in) :: this
+        class(LinkedListNode), pointer :: head !< output
+        head => this % head
+    end function getHead
+
+
+    !> Return tail
+    function getTail(this) result (tail)
+        class(LinkedList), intent(in) :: this
+        class(LinkedListNode), pointer :: tail !< output
+        tail => this % tail
+    end function getTail
 
 end module SHR_linkedList_mod
 
