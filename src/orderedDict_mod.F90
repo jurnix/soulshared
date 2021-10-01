@@ -107,10 +107,13 @@ contains
     character(len=*), intent(in), target :: key
     class(*), pointer, intent(in) :: value
     class(*), pointer :: wrap
+    class(string), pointer :: strKey
 !    write(*,*) "orderedDict_mod:: set:: key = '", key, "' ..."
     if (.not. this % hasKey(key)) then
 !      write(*,*) "orderedDict_mod:: set:: key not found, so inserting ..."
-      wrap => key
+      allocate(strKey)
+      strKey = string(key)
+      wrap => strKey
       call this % keys % append(wrap)
     endif
 !    write(*,*) "orderedDict_mod:: set:: done"
