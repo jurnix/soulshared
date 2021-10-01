@@ -26,6 +26,7 @@ program unittest
   use cfgOptions_test, only: testSuiteCfgOptions
   use oopExtends_test, only: testSuiteOopExtends
   use linkedList_test, only: testSuiteLinkedList
+  use set_test, only: testSuiteSet
 
   implicit none
 
@@ -44,6 +45,7 @@ program unittest
   type(testSuiteCfgOptions) :: tsCfgOptions
   type(testSuiteOopExtends) :: tsOOPExtends
   type(testSuiteLinkedList) :: tsLinkedList
+  type(testSuiteSet) :: tsSet
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -60,6 +62,7 @@ program unittest
   call tsTypeOptions % init("(CFG) Type options test", 40)
   call tsCfgOptions % init("(CFG) Cfg options test", 20)
   call tsLinkedList % init("Linked list test", 10)
+  call tsSet % init("Set test", 10)
 
   ! run all tests 
   call tsDatetime % run()
@@ -76,6 +79,7 @@ program unittest
   call tsCfgOptions % run() 
   call tsOOPExtends % run() 
   call tsLinkedList % run() 
+  call tsSet % run() 
 
 
   ! show results
@@ -93,6 +97,7 @@ program unittest
   call tsCfgOptions % report() 
   call tsOOPExtends % report()
   call tsLinkedList % report() 
+  call tsSet % report() 
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -108,7 +113,8 @@ program unittest
       .not. tsTypeOptions % isSuccessful() .or. & 
       .not. tsCfgOptions % isSuccessful() .or. & 
       .not. tsOOPExtends % isSuccessful() .or. &
-      .not. tsLinkedList % isSuccessful() &
+      .not. tsLinkedList % isSuccessful() .or. &
+      .not. tsSet % isSuccessful() &
       ) stop 1
 
 end program unittest
