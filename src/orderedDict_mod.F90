@@ -66,29 +66,32 @@ contains
     !< remove key and its value from the dictionary
     class(orderedDict), intent(inout) :: this
     character(len=*), intent(in) :: key
-    class(*), pointer :: wrap
     logical :: isKeyFound
     integer :: ielem
-    type(string), pointer :: str
+    type(LinkedListNode), pointer :: node
+
+!    write(*,*) "orderedDict_mod:: remove:: key = '", key, "' ..."
 
     isKeyFound = .false.
     call this % dict % remove(key)
 
     ! search key
     do ielem = 1, this % keys % length()
-      wrap => this % keys % atindex(ielem)
-      select type(wrap)
-      type is (string)
-        str => wrap
-        if (str == key) then
+      node => this % keys % atindex(ielem)
+      select type(wrap => node % value)
+      type is (character(*))
+        if (wrap == key) then
           isKeyFound = .true.
           exit ! found!
         endif
       class default
         !assert
+        call raiseError(__FILE__, "remove", &
+                "Unexpected type found")
       end select
     enddo
     if (isKeyFound) call this % keys % remove(ielem)
+!    write(*,*) "orderedDict_mod:: remove:: done"
   end subroutine remove
 
 
@@ -99,11 +102,14 @@ contains
     character(len=*), intent(in), target :: key
     class(*), pointer, intent(in) :: value
     class(*), pointer :: wrap
-    call this % d % insert(key, value)
+!    write(*,*) "orderedDict_mod:: set:: key = '", key, "' ..."
     if (.not. this % hasKey(key)) then
+!      write(*,*) "orderedDict_mod:: set:: key not found, so inserting ..."
       wrap => key
       call this % keys % append(wrap)
     endif
+!    write(*,*) "orderedDict_mod:: set:: done"
+    call this % d % insert(key, value)
   end subroutine set
 
 
@@ -120,14 +126,15 @@ contains
     type(string), allocatable :: keys(:) !< output
     integer :: ielem, nelems
 
-    write(*,*) "linkedlist_mod:: getAllKeys:: start..."
+!    write(*,*) "linkedlist_mod:: getAllKeys:: start..."
 
     ielem = 1
     nelems = this % getSize()
+!    write(*,*) "linkedlist_mod:: getAllKeys:: elems = ", nelems
     if (allocated(keys)) deallocate(keys)
     allocate(keys(nelems)) 
     call this % keys % traverse(extractStrings)
-    write(*,*) "linkedlist_mod:: getAllKeys:: done"
+!    write(*,*) "linkedlist_mod:: getAllKeys:: done"
 
     contains
 
@@ -136,8 +143,8 @@ contains
         type(LinkedListNode), pointer, intent(inout)  :: node
         select type(wrap => node % value)
         type is (character(*))
+!           write(*,*) "linkedlist_mod:: extractStrings:: ielem, key, size=", ielem, wrap, size(keys)
            keys(ielem) = string(wrap)
-           write(*,*) "linkedlist_mod:: extractStrings:: key =", wrap 
         class default
            call raiseError(__FILE__, "extractStrings", &
                    "Unexpected type found")

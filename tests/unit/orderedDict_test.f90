@@ -61,10 +61,10 @@ contains
     expAllKeys(4) = string("fourth")
 
     sc = stringCollection(expAllKeys)
-    write(*,*) "testSuiteOrderedDict_test:: expected =", sc % toString()
+!    write(*,*) "testSuiteOrderedDict_test:: expected =", sc % toString()
 
     sc = stringCollection(o % getAllKeys())
-    write(*,*) "testSuiteOrderedDict_test:: found =", sc % toString()
+!    write(*,*) "testSuiteOrderedDict_test:: found =", sc % toString()
 
     call self % assert(all(o % getAllKeys() == expAllKeys), &
             "o % getAllKeys() .eq. [first, second, third, fourth] == T")
@@ -72,11 +72,21 @@ contains
     ! hasKey
     call self % assert(o % hasKey("first"), "o % getKey(first) == T")
 
+
     ! remove
     call o % remove("fourth")
 
-    call self % assert(all(o % getAllKeys() == expAllKeys(1:3)), &
+    expAllKeys = [string("first"), string("second"), string("third")]
+
+    sc = stringCollection(expAllKeys)
+!    write(*,*) "testSuiteOrderedDict_test:: expected =", sc % toString()
+
+    sc = stringCollection(o % getAllKeys())
+!    write(*,*) "testSuiteOrderedDict_test:: found =", sc % toString()
+
+    call self % assert(all(o % getAllKeys() == expAllKeys), &
             "o % getAllKeys() .eq. [first, second, third] == T")
+
 
     allocate(wrapper, source=60)
     call o % insert("fifth", wrapper)
@@ -89,6 +99,7 @@ contains
             "o % getAllKeys() .eq. [first, second, third, fifth, sithx] == T")
 
 
+
     ! override value from existing key
     allocate(wrapper, source=10)
     call o % set("fifth", wrapper)
@@ -96,6 +107,15 @@ contains
     expAllKeys = [string("first"), string("second"), string("third"), string("fifth"), string("sixth") ]
     call self % assert(all(o % getAllKeys() == expAllKeys), &
             "o % getAllKeys() .eq. [first, second, third, fifth, sithx] == T")
+
+    ! remove
+    call o % remove("third")
+    call o % remove("fifth")
+    call o % remove("sixth")
+    call o % remove("first")
+    call o % remove("second")
+    call self % assert(size(o % getAllKeys()) == 0, &
+            "o % getAllKeys() .eq. [] == T")
 
   end subroutine defineTestCases
 
