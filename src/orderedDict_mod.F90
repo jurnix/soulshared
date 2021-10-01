@@ -56,9 +56,14 @@ contains
     character(len=*), intent(in), target :: key
     class(*), pointer, intent(in) :: value
     class(*), pointer :: wrap
-    wrap => key    
+    type(string), pointer :: str
+!    write(*,*) "orderedDict_mod:: insertObject:: inserting '", key, "' ..."
+    allocate(str)
+    str = string(key)
+    wrap => str
     call this % keys % append(wrap)
     call this % dict % insert(key, value) ! parent
+!    write(*,*) "orderedDict_mod:: insertObject:: done"
   end subroutine insertObject
 
 
@@ -79,7 +84,7 @@ contains
     do ielem = 1, this % keys % length()
       node => this % keys % atindex(ielem)
       select type(wrap => node % value)
-      type is (character(*))
+      type is (string)
         if (wrap == key) then
           isKeyFound = .true.
           exit ! found!
@@ -142,9 +147,9 @@ contains
         !< cast linkedListNode value to string
         type(LinkedListNode), pointer, intent(inout)  :: node
         select type(wrap => node % value)
-        type is (character(*))
-!           write(*,*) "linkedlist_mod:: extractStrings:: ielem, key, size=", ielem, wrap, size(keys)
-           keys(ielem) = string(wrap)
+        type is (string)
+!           write(*,*) "linkedlist_mod:: extractStrings:: ielem, key, size=", ielem, wrap % toString(), size(keys)
+           keys(ielem) = wrap !string(wrap)
         class default
            call raiseError(__FILE__, "extractStrings", &
                    "Unexpected type found")
