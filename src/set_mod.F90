@@ -219,6 +219,7 @@ contains
        !> discover type for 'node % value' and 'values'
        !> if same type then it compares their values
        type(LinkedListNode), pointer, intent(in)  :: node
+       class(wrapObject), allocatable :: nodeObj
 
        allocate(nodeObj)
        call nodeObj % init(node % value)
