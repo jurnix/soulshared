@@ -40,7 +40,7 @@ contains
     class(testSuiteSet), intent(inout) :: self
     class(*), pointer :: wrap
     class(stringEQ), pointer :: temperature
-    type(set) :: s
+    type(set) :: s, c
 
     s = set()
 
@@ -66,8 +66,41 @@ contains
     call s % append(wrap)
     nullify(wrap)
 
-
     call self % assert(s % length() == 5, "s % length() .eq. 5 = T")
+
+    ! same list
+    c = set()
+
+    allocate(wrap, source=3.141516_dp)
+    call c % append(wrap)
+    nullify(wrap)
+
+    allocate(wrap, source="home")
+    call c % append(wrap)
+    nullify(wrap)
+
+    allocate(wrap, source=25)
+    call c % append(wrap)
+    nullify(wrap)
+
+    allocate(wrap, source=1.0_sp)
+    call c % append(wrap)
+    nullify(wrap)
+
+    allocate(temperature) ! eqObject_abs
+    temperature % chars = "temp"
+    wrap => temperature
+    call c % append(wrap)
+    nullify(wrap)
+    call self % assert(s == c, "s .eq. c = T")
+
+    allocate(wrap, source=25.0_sp)
+    call s % append(wrap)
+    nullify(wrap)
+
+    call self % assert(.not. s == c, "s .eq. c = F")
+    call self % assert(s .in. c, "s .in. c = T")
+    call self % assert(.not. (c .in. s), "c .in. s = F")
 
   end subroutine defineTestCases
 
@@ -84,9 +117,19 @@ contains
       pStringEq => obj
     class default
       ! error, different types
-      call raiseError(__FILE__, "eq_object_stringEq", "")
+      call raiseError(__FILE__, "eq_object_stringEq", &
+              "Unexpected type found but expecting 'stringEq'")
     end select
 
+    if (.not. allocated(self % chars)) then
+      call raiseError(__FILE__, "stringEq not initialized", &
+              "Object must be initialized")
+    endif
+    if (.not. allocated(pStringEq % chars)) then
+      call raiseError(__FILE__, &
+              "'other' stringEq object not initialized", &
+              "Object must be initialized")
+    endif
     eq_object_stringEq = (self % chars == pStringEq % chars)
   end function eq_object_stringEq
 

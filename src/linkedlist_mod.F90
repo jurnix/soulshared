@@ -41,6 +41,7 @@ module SHR_linkedList_mod
         procedure :: reset
         procedure :: length
         procedure :: traverse
+        procedure :: traverse_safe
         procedure :: remove
         procedure, private :: cleanup
         final :: listfinalize
@@ -80,7 +81,7 @@ contains
         class(LinkedList), intent(inout) :: this
         class(*), intent(in), pointer    :: value
 
-        type(LinkedListNode), pointer :: node_ptr, next_ptr, current_ptr
+        type(LinkedListNode), pointer :: node_ptr
 
         ! Create a new node and set the value
         allocate(node_ptr)
@@ -119,6 +120,28 @@ contains
         end do
 
     end subroutine traverse
+
+    !> Traverse the list with no modifications allowed (safe)
+    recursive subroutine traverse_safe(this, iterator_func_safe)
+        class(LinkedList), intent(in) :: this
+        interface
+            subroutine iterator_func_safe(node)
+                import LinkedListNode
+                type(LinkedListNode), pointer, intent(in)  :: node
+            end subroutine iterator_func_safe
+        end interface
+
+        type(LinkedListNode), pointer :: current_ptr, temp_ptr
+
+        current_ptr => this%head
+        do while(associated(current_ptr))
+            nullify(temp_ptr)
+            temp_ptr => current_ptr%next
+            call iterator_func_safe(current_ptr)
+            current_ptr => temp_ptr
+        end do
+
+    end subroutine traverse_safe
 
     !> Reset the list and cleanup
     subroutine reset(this)
@@ -185,8 +208,6 @@ contains
     !> Clean up - deallocation of the nodes in the list
     subroutine cleanup(this)
         class(LinkedList), intent(inout) :: this
-
-        type(LinkedListNode), pointer    :: current_ptr
 
         call this%traverse(destroyall)
         nullify(this%head)

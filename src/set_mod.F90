@@ -53,7 +53,12 @@ module SHR_set_mod
   contains
      procedure :: append 
      procedure :: exists
-!     final :: setfinalize
+     procedure :: eq_set
+     procedure :: in_set
+
+     generic :: operator(==) => eq_set     
+     generic :: operator(.eq.) => eq_set     
+     generic :: operator(.in.) => in_set
   end type set 
 
   interface set 
@@ -71,7 +76,7 @@ contains
 
     write(*,*) "set_mod:: append:: starting..."
 
-    ! discover dest type
+    ! discover 'value' type
     select type(wrap => value) 
     type is (integer)
             write(*,*) "set_mod:: append:: integer type found"
@@ -90,16 +95,81 @@ contains
     end select
 
     if (.not. this % exists(value)) then
-      write(*,*) "set_mod:: append:: object not found in 'set'"
+      write(*,*) "set_mod:: append:: object not found in 'set'. Appending..."
       call this % linkedlist % append(value)
     endif
     write(*,*) "set_mod:: append:: done"
   end subroutine append
 
 
+  logical function in_set(self, other)
+    !< true if all 'other' elements are found in 'self'
+    class(set), intent(in) :: self
+    class(set), intent(in) :: other
+    integer :: nelems, ielem
+    logical, allocatable :: hasSameValues(:)
+
+    ielem = 0 
+    nelems = other % length()
+    allocate(hasSameValues(nelems))
+    hasSameValues = .false.
+
+    ! each value found in 'other' set?
+    call other % traverse_safe(searchElem)
+    in_set = all(hasSameValues)
+  contains
+
+    subroutine searchElem(node)
+       !< search node value into 'other' set
+       type(LinkedListNode), pointer, intent(in)  :: node
+       ielem = ielem + 1
+       hasSameValues(ielem) = self % exists(node % value)
+    end subroutine 
+  end function in_set
+
+
+  logical function eq_set(self, other)
+    !< true if other is equal to self
+    !< equal is defined as the same object
+    !< with no specific order
+    class(set), intent(in) :: self
+    class(set), intent(in) :: other
+    integer :: nelems, ielem
+    logical, allocatable :: hasSameValues(:)
+    logical :: hasSameLen
+
+    write(*,*) "set_mod:: eq_set:: starting..."
+
+    ielem = 0 
+    nelems = self % length()
+    write(*,*) "set_mod:: eq_set:: elements found =", nelems
+    allocate(hasSameValues(nelems))
+    hasSameValues = .false.
+
+    ! both lists have same length?
+    hasSameLen = (self % length() == other % length())
+
+    eq_set = .false.
+    if (hasSameLen) then
+      ! each value found in 'other' set?
+      call self % traverse_safe(searchElem)
+      eq_set = all(hasSameValues)
+    endif
+    write(*,*) "set_mod:: eq_set:: done"
+  contains
+
+    subroutine searchElem(node)
+       !< search node value into 'other' set
+       type(LinkedListNode), pointer, intent(in)  :: node
+       ielem = ielem + 1
+       hasSameValues(ielem) = other % exists(node % value)
+    end subroutine 
+  end function eq_set
+
+
   logical function exists(this, value)
     !< true if key is found in set
-    class(set), intent(inout) :: this
+    class(set), intent(in) :: this
     class(*), intent(in), pointer :: value
     integer :: nelems, ielem
     logical, allocatable :: hasSameValues(:)
@@ -111,7 +181,7 @@ contains
     allocate(hasSameValues(nelems))
     hasSameValues = .false.
 
-    call this % traverse(existsObject)
+    call this % traverse_safe(existsObject)
 
     exists = any(hasSameValues)
 !    write (*,*) "set_mod:: exists:: done"
@@ -121,13 +191,15 @@ contains
        !> sets exists(ielem) as true if current object exists
        !> discover type for 'node % value' and 'values'
        !> if same type then it compares their values
-       type(LinkedListNode), pointer, intent(inout)  :: node
+       type(LinkedListNode), pointer, intent(in)  :: node
        integer, pointer :: intsrc, intdst
        real(kind=sp), pointer :: rspsrc, rspdst
        real(kind=dp), pointer :: rdpsrc, rdpdst
        character(:), pointer :: chrsrc, chrdst
        class(eqObject_abs), pointer :: objsrc, objdst
 
+       intsrc => null()
+       intdst => null()
        rspsrc => null()
        rspdst => null()
        rdpsrc => null()
