@@ -12,10 +12,14 @@
 !>
 !> Based on https://docs.python.org/3.9/library/stdtypes.html#set
 !>
-!> Unordered
+!> Unordered, unique elements (not repeated)
 !>
-!> Support basic types and eqObject_abs for derived types
-!> Derived types must be comparable
+!> Support basic types and eqObject_abs for derived types:
+!>
+!> - Supported basic types: integer, real(sp), real(dp) and character
+!> - Derived types must be a subclass of eqObject_abs. It implements
+!> eq_Object procedure so any given class can be compared.
+!> Required by exists procedure.
 !>
 !------------------------------------------------------------------------------
 !
@@ -66,6 +70,37 @@ module SHR_set_mod
   end interface set
 
 
+  !< current wrapObject type
+  integer, parameter :: WRAP_OBJ_TYPE_NONE=-1
+  integer, parameter :: WRAP_OBJ_TYPE_INT=0
+  integer, parameter :: WRAP_OBJ_TYPE_RSP=1
+  integer, parameter :: WRAP_OBJ_TYPE_RDP=2
+  integer, parameter :: WRAP_OBJ_TYPE_CHAR=3
+  integer, parameter :: WRAP_OBJ_TYPE_EQO=4 !< eqObject
+
+
+  ! setObject generic container for 'set' data structure
+  type, extends(eqObject_abs) :: wrapObject
+    class(*), pointer :: obj => null()
+
+    !< cast value
+    class(eqObject_abs), pointer :: eqObj => null()
+    integer, pointer :: intObj => null()
+    character(:), pointer :: chrObj => null()
+    real(kind=sp), pointer :: rspObj => null()
+    real(kind=dp), pointer :: rdpObj => null()
+
+    integer :: type !< NONE=-1, 0=int, 1=rsp, 2=rdp, 3=char, 4=eqObject_abs
+  contains
+    procedure :: init => init_wrapObject !< constructor_wrapObject
+    procedure :: eq_object => eq_wrapObject
+  end type wrapObject
+
+
+  interface wrapObject
+    module procedure constructor_wrapObject
+  end interface wrapObject
+
 contains
 
 
@@ -74,25 +109,11 @@ contains
     class(set), intent(inout) :: this
     class(*), intent(in), pointer :: value
 
+    class(wrapObject), allocatable :: wrapObj
     write(*,*) "set_mod:: append:: starting..."
 
-    ! discover 'value' type
-    select type(wrap => value) 
-    type is (integer)
-            write(*,*) "set_mod:: append:: integer type found"
-    type is (character(*))
-            write(*,*) "set_mod:: append:: char type found"
-    type is (real(kind=sp))
-            write(*,*) "set_mod:: append:: real sp type found"
-    type is (real(kind=dp))
-            write(*,*) "set_mod:: append:: real dp type found"
-    class is (eqObject_abs)
-            write(*,*) "set_mod:: append:: eqObject_abs type found"
-    class default
-      !< assert
-      call raiseError(__FILE__, "append", &
-              "Unsupported type found")
-    end select
+    allocate(wrapObj)
+    call wrapObj % init(value)
 
     if (.not. this % exists(value)) then
       write(*,*) "set_mod:: append:: object not found in 'set'. Appending..."
@@ -171,8 +192,10 @@ contains
     !< true if key is found in set
     class(set), intent(in) :: this
     class(*), intent(in), pointer :: value
+
     integer :: nelems, ielem
     logical, allocatable :: hasSameValues(:)
+    class(wrapObject), allocatable :: valueWrapObj
 
 !    write (*,*) "set_mod:: exists:: starting..."
     ielem = 0 
@@ -180,6 +203,10 @@ contains
 !    write (*,*) "set_mod:: exists:: nelems =", nelems
     allocate(hasSameValues(nelems))
     hasSameValues = .false.
+
+    allocate(valueWrapObj)
+!    valueWrapObj => wrapObject(value)
+    call valueWrapObj % init(value)
 
     call this % traverse_safe(existsObject)
 
@@ -192,88 +219,12 @@ contains
        !> discover type for 'node % value' and 'values'
        !> if same type then it compares their values
        type(LinkedListNode), pointer, intent(in)  :: node
-       integer, pointer :: intsrc, intdst
-       real(kind=sp), pointer :: rspsrc, rspdst
-       real(kind=dp), pointer :: rdpsrc, rdpdst
-       character(:), pointer :: chrsrc, chrdst
-       class(eqObject_abs), pointer :: objsrc, objdst
 
-       intsrc => null()
-       intdst => null()
-       rspsrc => null()
-       rspdst => null()
-       rdpsrc => null()
-       rdpdst => null()
-       chrsrc => null()
-       chrdst => null()
-       objsrc => null()
-       objdst => null()
+       allocate(nodeObj)
+       call nodeObj % init(node % value)
 
        ielem = ielem + 1
-
-       ! discover source type
-       select type(wrap => node % value)
-       type is (integer)
-         write(*,*) "set_mod:: exists:: existsObject:: src is int"
-         intsrc => wrap
-       type is (character(*))
-         write(*,*) "set_mod:: exists:: existsObject:: src is chars"
-         chrsrc => wrap
-       type is (real(kind=sp))
-         write(*,*) "set_mod:: exists:: existsObject:: src is rsp"
-         rspsrc => wrap
-       type is (real(kind=dp))
-         write(*,*) "set_mod:: exists:: existsObject:: src is rdp"
-         rdpsrc => wrap
-       class is (eqObject_abs)
-         write(*,*) "set_mod:: exists:: existsObject:: src is eqObject_abs"
-         objsrc => wrap
-       class default
-         !< assert
-         call raiseError(__FILE__, "existsObject", &
-                 "Unexpected source type found")
-       end select
-
-       ! discover dest type
-       select type(wrap => value) 
-       type is (integer)
-         write(*,*) "set_mod:: exists:: existsObject:: dst is int"
-         intdst => wrap
-       type is (character(*))
-         write(*,*) "set_mod:: exists:: existsObject:: dst is chars"
-         chrdst => wrap
-       type is (real(kind=sp))
-         write(*,*) "set_mod:: exists:: existsObject:: dst is rsp"
-         rspdst => wrap
-       type is (real(kind=dp))
-         write(*,*) "set_mod:: exists:: existsObject:: dst is rdp"
-         rdpdst => wrap
-       class is (eqObject_abs)
-         write(*,*) "set_mod:: exists:: existsObject:: dst is eqObject_abs"
-         objdst => wrap
-       class default
-         !< assert
-         call raiseError(__FILE__, "existsObject", &
-                 "Unexpected destination type found")
-       end select
-
-       ! same value?
-       if (associated(intdst) .and. associated(intsrc)) then
-         hasSameValues(ielem) = (intsrc == intdst)
-       else if (associated(chrdst) .and. associated(chrsrc) ) then
-         write(*,*) "set_mod:: exists:: existsObject:: both chars type"
-         hasSameValues(ielem) = (chrsrc == chrdst)
-       else if (associated(rspdst) .and. associated(rspsrc) ) then
-         hasSameValues(ielem) = (rspsrc == rspdst)
-       else if (associated(rdpdst) .and. associated(rdpsrc) ) then
-         hasSameValues(ielem) = (rdpsrc == rdpdst)
-       else if (associated(objdst) .and. associated(objsrc)) then
-         hasSameValues(ielem) = (objsrc == objdst)
-       else 
-         ! different types
-         hasSameValues(ielem) = .false.
-       endif
-
+       hasSameValues(ielem) = (nodeObj == valueWrapObj)
     end subroutine existsObject
 
   end function exists
@@ -304,5 +255,98 @@ contains
     end subroutine toSet
 
   end function set_constructor_from_linkedlist
+
+
+  logical function eq_wrapObject(self, other)
+    !< true if self and other are the same type and have the same values
+    !< false if same type and different values
+    !< false if different types
+    !< error if other is not an otherWrapObj
+    class(wrapObject), intent(in) :: self
+    class(eqObject_abs), intent(in) :: other
+
+    class(wrapObject), pointer :: otherWrapObj
+
+    ! cast 'other' to wrapObject
+    select type(wrap => other)
+    class is (wrapObject)
+      otherWrapObj => wrap
+    class default
+      !< error
+      call raiseError(__FILE__, "eq_wrapObject", &
+              "Unexpected 'other' class type found", &
+              "It is only allowed wrapObject type")
+    end select
+
+    if (self % type /= otherWrapObj % type) then
+      eq_wrapObject = .false.
+      return
+    endif
+
+    if (self % type == WRAP_OBJ_TYPE_INT) then
+      eq_wrapObject = (self % intObj == otherWrapObj % intObj)
+    else if (self % type == WRAP_OBJ_TYPE_CHAR) then
+      eq_wrapObject = (self % chrObj == otherWrapObj % chrObj)
+    else if (self % type == WRAP_OBJ_TYPE_RSP) then
+      eq_wrapObject = (self % rspObj == otherWrapObj % rspObj)
+    else if (self % type == WRAP_OBJ_TYPE_RDP) then
+      eq_wrapObject = (self % rdpObj == otherWrapObj % rdpObj)
+    else if (self % type == WRAP_OBJ_TYPE_EQO) then
+      eq_wrapObject = (self % eqObj == otherWrapObj % eqObj)
+    else
+      !< assert
+      call raiseError(__FILE__, "eq_wrapObject", &
+              "Unexpected error found", &
+              "Non supported and misterious type found")
+    endif
+
+  end function eq_wrapObject
+
+
+  type(wrapObject) function constructor_wrapObject(obj)
+    !< wrap unlimited polymorhpic type
+    class(*), intent(in), pointer :: obj
+    call constructor_wrapObject % init(obj)
+  end function constructor_wrapObject
+
+
+  subroutine init_wrapObject(self, obj)
+    !< initialize wrapObject
+    !< Wrap unlimited polymorhpic type
+    class(wrapObject), intent(inout) :: self
+    class(*), intent(in), pointer :: obj
+
+    self % obj => obj
+    self % type = -1
+
+    ! discover and cast type
+    select type(wrap => obj) 
+    type is (integer)
+      write(*,*) "set_mod:: self:: integer type found"
+      self % type = WRAP_OBJ_TYPE_INT
+      self % intObj => wrap
+    type is (character(*))
+      write(*,*) "set_mod:: self:: char type found"
+      self % type = WRAP_OBJ_TYPE_CHAR
+      self % chrObj => wrap
+    type is (real(kind=sp))
+      write(*,*) "set_mod:: self:: real sp type found"
+      self % type = WRAP_OBJ_TYPE_RSP
+      self % rspObj => wrap
+    type is (real(kind=dp))
+      write(*,*) "set_mod:: self:: real dp type found"
+      self % type = WRAP_OBJ_TYPE_RDP
+      self % rdpObj => wrap
+    class is (eqObject_abs)
+      write(*,*) "set_mod:: self:: eqObject_abs type found"
+      self % type = WRAP_OBJ_TYPE_EQO
+      self % eqObj => wrap
+    class default
+      !< assert
+      call raiseError(__FILE__, "init_wrapObject", &
+              "Unsupported type found", &
+              "Supported types: int, char, rsp, dsp and eqObject_abs")
+    end select
+  end subroutine init_wrapObject
 
 end module SHR_set_mod
