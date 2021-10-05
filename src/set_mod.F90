@@ -21,35 +21,20 @@
 !> eq_Object procedure so any given class can be compared.
 !> Required by exists procedure.
 !>
+!> 'Set' uses wrapObject to ensure given values are all supported
+!>
 !------------------------------------------------------------------------------
 !
 module SHR_set_mod
 
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp, dp
+  use SHR_objects_mod, only: SHR_eqObject_abs, wrapObject
   use SHR_linkedlist_mod, only: linkedlist, linkedListNode
 
   implicit none 
 
-  public :: set, eqObject_abs
-
-
-  type, abstract :: eqObject_abs !< equal unlimited polymorphic type
-                                 !< for non basic types
-  contains
-    procedure(iface_eq_object), deferred :: eq_object
-    generic :: operator(==) => eq_object
-  end type eqObject_abs
-
-
-  abstract interface
-    logical function iface_eq_object(self, other)
-      import eqObject_abs
-      !< true if self and other are not the same
-      class(eqObject_abs), intent(in) :: self
-      class(eqObject_abs), intent(in) :: other
-    end function iface_eq_object
-  end interface 
+  public :: set
 
 
   type, extends(linkedlist) :: set 
@@ -69,37 +54,6 @@ module SHR_set_mod
     module procedure set_constructor_from_linkedlist, set_constructor_empty
   end interface set
 
-
-  !< current wrapObject type
-  integer, parameter :: WRAP_OBJ_TYPE_NONE=-1
-  integer, parameter :: WRAP_OBJ_TYPE_INT=0
-  integer, parameter :: WRAP_OBJ_TYPE_RSP=1
-  integer, parameter :: WRAP_OBJ_TYPE_RDP=2
-  integer, parameter :: WRAP_OBJ_TYPE_CHAR=3
-  integer, parameter :: WRAP_OBJ_TYPE_EQO=4 !< eqObject
-
-
-  ! setObject generic container for 'set' data structure
-  type, extends(eqObject_abs) :: wrapObject
-    class(*), pointer :: obj => null()
-
-    !< cast value
-    class(eqObject_abs), pointer :: eqObj => null()
-    integer, pointer :: intObj => null()
-    character(:), pointer :: chrObj => null()
-    real(kind=sp), pointer :: rspObj => null()
-    real(kind=dp), pointer :: rdpObj => null()
-
-    integer :: type !< NONE=-1, 0=int, 1=rsp, 2=rdp, 3=char, 4=eqObject_abs
-  contains
-    procedure :: init => init_wrapObject !< constructor_wrapObject
-    procedure :: eq_object => eq_wrapObject
-  end type wrapObject
-
-
-  interface wrapObject
-    module procedure constructor_wrapObject
-  end interface wrapObject
 
 contains
 
@@ -256,98 +210,5 @@ contains
     end subroutine toSet
 
   end function set_constructor_from_linkedlist
-
-
-  logical function eq_wrapObject(self, other)
-    !< true if self and other are the same type and have the same values
-    !< false if same type and different values
-    !< false if different types
-    !< error if other is not an otherWrapObj
-    class(wrapObject), intent(in) :: self
-    class(eqObject_abs), intent(in) :: other
-
-    class(wrapObject), pointer :: otherWrapObj
-
-    ! cast 'other' to wrapObject
-    select type(wrap => other)
-    class is (wrapObject)
-      otherWrapObj => wrap
-    class default
-      !< error
-      call raiseError(__FILE__, "eq_wrapObject", &
-              "Unexpected 'other' class type found", &
-              "It is only allowed wrapObject type")
-    end select
-
-    if (self % type /= otherWrapObj % type) then
-      eq_wrapObject = .false.
-      return
-    endif
-
-    if (self % type == WRAP_OBJ_TYPE_INT) then
-      eq_wrapObject = (self % intObj == otherWrapObj % intObj)
-    else if (self % type == WRAP_OBJ_TYPE_CHAR) then
-      eq_wrapObject = (self % chrObj == otherWrapObj % chrObj)
-    else if (self % type == WRAP_OBJ_TYPE_RSP) then
-      eq_wrapObject = (self % rspObj == otherWrapObj % rspObj)
-    else if (self % type == WRAP_OBJ_TYPE_RDP) then
-      eq_wrapObject = (self % rdpObj == otherWrapObj % rdpObj)
-    else if (self % type == WRAP_OBJ_TYPE_EQO) then
-      eq_wrapObject = (self % eqObj == otherWrapObj % eqObj)
-    else
-      !< assert
-      call raiseError(__FILE__, "eq_wrapObject", &
-              "Unexpected error found", &
-              "Non supported and misterious type found")
-    endif
-
-  end function eq_wrapObject
-
-
-  type(wrapObject) function constructor_wrapObject(obj)
-    !< wrap unlimited polymorhpic type
-    class(*), intent(in), pointer :: obj
-    call constructor_wrapObject % init(obj)
-  end function constructor_wrapObject
-
-
-  subroutine init_wrapObject(self, obj)
-    !< initialize wrapObject
-    !< Wrap unlimited polymorhpic type
-    class(wrapObject), intent(inout) :: self
-    class(*), intent(in), pointer :: obj
-
-    self % obj => obj
-    self % type = -1
-
-    ! discover and cast type
-    select type(wrap => obj) 
-    type is (integer)
-      write(*,*) "set_mod:: self:: integer type found"
-      self % type = WRAP_OBJ_TYPE_INT
-      self % intObj => wrap
-    type is (character(*))
-      write(*,*) "set_mod:: self:: char type found"
-      self % type = WRAP_OBJ_TYPE_CHAR
-      self % chrObj => wrap
-    type is (real(kind=sp))
-      write(*,*) "set_mod:: self:: real sp type found"
-      self % type = WRAP_OBJ_TYPE_RSP
-      self % rspObj => wrap
-    type is (real(kind=dp))
-      write(*,*) "set_mod:: self:: real dp type found"
-      self % type = WRAP_OBJ_TYPE_RDP
-      self % rdpObj => wrap
-    class is (eqObject_abs)
-      write(*,*) "set_mod:: self:: eqObject_abs type found"
-      self % type = WRAP_OBJ_TYPE_EQO
-      self % eqObj => wrap
-    class default
-      !< assert
-      call raiseError(__FILE__, "init_wrapObject", &
-              "Unsupported type found", &
-              "Supported types: int, char, rsp, dsp and eqObject_abs")
-    end select
-  end subroutine init_wrapObject
 
 end module SHR_set_mod

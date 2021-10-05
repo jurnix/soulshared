@@ -12,7 +12,8 @@
 module set_test
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp, dp
-  use SHR_set_mod, only: set, eqObject_abs
+  use SHR_set_mod, only: set
+  use SHR_objects_mod, only: SHR_eqObject_abs
   use SHR_testSuite_mod, only: testSuite
 
   implicit none
@@ -27,7 +28,7 @@ module set_test
   end type 
 
 
-  type, extends(eqObject_abs) :: stringEQ
+  type, extends(SHR_eqObject_abs) :: stringEQ
     character(:), allocatable :: chars
   contains
     procedure :: eq_object => eq_object_StringEq 
@@ -109,7 +110,7 @@ contains
     !< true if self and other are not the same
     !< keep it simple for unit tests purpose only
     class(stringEq), intent(in) :: self
-    class(eqObject_abs), intent(in) :: other
+    class(SHR_eqObject_abs), intent(in) :: other
     class(stringEq), pointer :: pstringEq
 
     select type(obj => other)
