@@ -28,6 +28,8 @@ program unittest
   use linkedList_test, only: testSuiteLinkedList
   use set_test, only: testSuiteSet
 
+  use shr_arrayRealDim_test, only: testSuiteArrayRealDim
+
   implicit none
 
   ! declare each test
@@ -46,6 +48,7 @@ program unittest
   type(testSuiteOopExtends) :: tsOOPExtends
   type(testSuiteLinkedList) :: tsLinkedList
   type(testSuiteSet) :: tsSet
+  type(testSuiteArrayRealDim) :: tsArrayRealDim
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -63,6 +66,7 @@ program unittest
   call tsCfgOptions % init("(CFG) Cfg options test", 20)
   call tsLinkedList % init("Linked list test", 10)
   call tsSet % init("Set test", 10)
+  call tsArrayRealDim % init("ArrayRealDim test", 20)
 
   ! run all tests 
   call tsDatetime % run()
@@ -80,6 +84,7 @@ program unittest
   call tsOOPExtends % run() 
   call tsLinkedList % run() 
   call tsSet % run() 
+  call tsArrayRealDim % run() 
 
 
   ! show results
@@ -98,6 +103,7 @@ program unittest
   call tsOOPExtends % report()
   call tsLinkedList % report() 
   call tsSet % report() 
+  call tsArrayRealDim % report() 
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -114,7 +120,8 @@ program unittest
       .not. tsCfgOptions % isSuccessful() .or. & 
       .not. tsOOPExtends % isSuccessful() .or. &
       .not. tsLinkedList % isSuccessful() .or. &
-      .not. tsSet % isSuccessful() &
+      .not. tsSet % isSuccessful() .or. &
+      .not. tsArrayRealDim % isSuccessful() &
       ) stop 1
 
 end program unittest
