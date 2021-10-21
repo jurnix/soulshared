@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 3.9)
 project(soulshared)
 enable_language(Fortran)
 
+find_program(FYPP fypp)
+if(NOT FYPP)
+  message(FATAL_ERROR "Preprocessor fypp could not be found")
+endif()
+
 # custom compiler flags
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     set(dialect "-ffree-form -std=f2008 -fimplicit-none")
@@ -23,6 +28,10 @@ endif()
 set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${optimizedMode}")
 set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${debugMode}")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${dialect}")
+
+# include cmake modules
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+include(fypp)
 
 # Place lib and binary files
 # dynamic libraries

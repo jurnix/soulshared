@@ -3,10 +3,14 @@
 #
 set(LIBNAME "soulshared")
 
+# fypp to F90 (preprocess)
+file(GLOB_RECURSE sources-fpp *.fpp)
+fypp_preprocess("${sources-fpp}" sources-postpp)
+
 # scan source code files
 file(GLOB_RECURSE sources  *.f90 *.F90 *.h)
 
-add_library(${LIBNAME}_lib STATIC ${sources})
+add_library(${LIBNAME}_lib STATIC ${sources} ${sources-postpp})
 
 # create as lib
 if (ENABLE_MPI)

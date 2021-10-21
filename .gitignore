@@ -61,3 +61,6 @@ build/
 bin/
 lib/
 extern/
+
+# Generated files by fypp
+src/common.F90
