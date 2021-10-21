@@ -8,7 +8,10 @@
 !
 ! DESCRIPTION:
 !
-!> 
+!> Interface SHR_eqObject_abs enforces classes to implement '=='
+!>
+!> wrapObject is a generic type used by structures. It controls
+!> which types are allowed.
 !------------------------------------------------------------------------------
 !
 module SHR_objects_mod

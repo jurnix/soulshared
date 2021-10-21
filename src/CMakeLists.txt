@@ -20,3 +20,7 @@ else()
   target_include_directories(${LIBNAME}_lib PUBLIC )
   target_link_libraries(${LIBNAME}_lib PUBLIC  )
 endif()
+
+add_subdirectory(arrays)
+add_subdirectory(testing)
+add_subdirectory(structures)
