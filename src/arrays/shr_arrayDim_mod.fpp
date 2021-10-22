@@ -248,7 +248,7 @@ contains
     ${ITYPE}$, intent(in) :: end
     ${ITYPE}$, intent(in), optional :: step !< default = 1.0
 
-    real(kind=sp) :: inStep
+    ${ITYPE}$ :: inStep
     character(5) :: negVal
 
     inStep = 1.0
@@ -262,7 +262,7 @@ contains
     endif
 
     self % name = name
-!    self % values = initArrayRange(start, end, inStep)
+    self % values = initArrayRange(start, end, inStep)
     self % size = size(self % values)
     self % start = start
     self % end = end

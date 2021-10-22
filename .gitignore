@@ -65,3 +65,4 @@ extern/
 # Generated files by fypp
 src/common.F90
 src/arrays/shr_arrayDim_mod.F90
+src/arrays/array_mod.F90

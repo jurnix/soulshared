@@ -12,6 +12,10 @@
 !> array class (real sp, real dp, int)
 !> 
 !------------------------------------------------------------------------------
+
+#:include "../common.fpp"
+
+
 module SHR_array_mod
 
   use SHR_precision_mod, only: sp, dp, eqReal
@@ -35,7 +39,9 @@ module SHR_array_mod
   public :: min, max
 
   interface initArrayRange
-    module procedure initArrayRange_r1d
+#:for IKIND, ITYPE, IHEADER in ALL_KINDS_TYPES
+    module procedure initArrayRange_${IHEADER}$
+#:endfor
   end interface
 
   ! overload min built in subroutine to accept absArray
@@ -747,25 +753,27 @@ contains
   end function unique
 
 
-  function initArrayRange_r1d(cstart, cend, csteps) result (newArray)
+#:for IKIND, ITYPE, IHEADER in ALL_KINDS_TYPES
+
+  function initArrayRange_${IHEADER}$(cstart, cend, csteps) result (newArray)
     !< create a new array generating values starting from 'start' to 'end'
     !< in 'steps'. 
     !< input: initRealArrayRange(89.5, -89.5, -0.5) -> 89.5, 89, ... to ...,-89,-89.5
     !< input: initRealArrayRange(-89.5, 89.5, 0.5) -> -89.5,-89, ... to ..., 89, 89.5
     !<  if cstart is bigger than cend, then csteps must be negative
     !<     cstart is smaller than cend, then csteps must be positive
-    real(kind=sp), intent(in) :: cstart
-    real(kind=sp), intent(in) :: cend
-    real(kind=sp), intent(in) :: csteps
+    ${ITYPE}$, intent(in) :: cstart
+    ${ITYPE}$, intent(in) :: cend
+    ${ITYPE}$, intent(in) :: csteps
 
-    real(kind=sp), allocatable :: newArray(:)
+    ${ITYPE}$, allocatable :: newArray(:)
 
     real(kind=sp) :: span !< 
     real(kind=sp) :: cvalue !< calculated value
     integer :: length !< of the new array  
     integer :: i
     character(len=200) :: tmp
-    character(len=*) , parameter :: SNAME = "initArrayRange_r1d"
+    character(len=*) , parameter :: SNAME = "initArrayRange_${IHEADER}$"
 
     if (cstart > cend) then
       if (csteps > 0) then ! is positive
@@ -802,7 +810,9 @@ contains
       cvalue = cvalue + csteps
     enddo
 
-  end function initArrayRange_r1d
+  end function initArrayRange_${IHEADER}$
+
+#:endfor
 
 
   integer function trimArrayIndex(array, direction)
