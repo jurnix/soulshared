@@ -46,7 +46,7 @@ module SHR_arrayDim_mod
 
   abstract interface
 
-    pure subroutine iface_copy(self, from)
+    elemental pure subroutine iface_copy(self, from)
       !< copy ncOtherDim_mod to another
       import :: shr_arrayDim
       class(shr_arrayDim), intent(inout) :: self
@@ -115,18 +115,67 @@ contains
   !========= arrayRealDim ===========
   !
 
+!!#:for IKIND, ITYPE, IHEADER in ALL_KINDS_TYPES
 
-  pure subroutine copy_arrayRealDim(self, from)
+  elemental pure subroutine copy_arrayRealDim(self, from)
     !< copy ncOtherDim_mod to another
     class(shr_arrayRealDim), intent(inout) :: self
     class(shr_arrayDim), intent(in) :: from
+
+    select type (from)
+      type is (shr_arrayRealDim)
+        self % name = from % name !< parent
+        self % size = from % size !< parent
+        self % start = from % start
+        self % end = from % end
+        self % step = from % step
+        self % values = from % values
+      class default
+        !< unexpected type found
+    end select
   end subroutine copy_arrayRealDim 
 
 
-  logical function equal_arrayRealDim(self, other)
+  elemental logical function equal_arrayRealDim(self, other)
     !< true if self and other are not the same
     class(shr_arrayRealDim), intent(in) :: self
     class(SHR_eqObject_abs), intent(in) :: other
+
+    logical :: hasSameAttrs, hasSameValues
+    logical :: areBothValuesAllocated, areBothValuesDeallocated
+    logical :: haveSameSize
+
+    hasSameValues = .false.
+    hasSameAttrs = .false.
+    areBothValuesAllocated = .false.
+    areBothValuesDeallocated = .false.
+    equal_arrayRealDim = .false.
+
+    select type(other)
+      type is (shr_arrayRealDim)
+        hasSameAttrs = (self % name == other % name) .and. &
+                            self % size == other % size .and. &
+                            self % start == other % start .and. &
+                            self % end == other % end .and. &
+                            self % step == other % step
+
+        ! todo, compare allocatable arrays
+        areBothValuesAllocated = (allocated(self % values) .and. allocated(other % values))
+        areBothValuesDeallocated = (.not. allocated(self % values) .and. .not. allocated(other % values))
+
+        if (areBothValuesAllocated) then
+          haveSameSize = (size(self % values) == size(other % values)) ! same size?
+          if (haveSameSize) hasSameValues = ( all(self % values == other % values) )
+        else if (areBothValuesDeallocated) then
+          hasSameValues = .true.
+        else
+          hasSameValues = .false.
+        endif
+      class default
+        !< unexpected type error
+    end select
+
+    equal_arrayRealDim = (hasSameAttrs .and. hasSameValues)
   end function equal_arrayRealDim
 
 
@@ -227,5 +276,7 @@ contains
       return
     endif
   end function isInBounds_arrayRealDim
+
+!!#:endfor
 
 end module SHR_arrayDim_mod

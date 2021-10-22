@@ -43,7 +43,7 @@ module SHR_objects_mod
 
 
   abstract interface
-    logical function iface_eq_object(self, other)
+    elemental logical function iface_eq_object(self, other)
       import SHR_eqObject_abs
       !< true if self and other are not the same
       class(SHR_eqObject_abs), intent(in) :: self
@@ -89,7 +89,7 @@ module SHR_objects_mod
 contains
 
 
-  logical function eq_wrapObject(self, other)
+  elemental logical function eq_wrapObject(self, other)
     !< true if self and other are the same type and have the same values
     !< false if same type and different values
     !< false if different types
@@ -105,9 +105,9 @@ contains
       otherWrapObj => wrap
     class default
       !< error
-      call raiseError(__FILE__, "eq_wrapObject", &
-              "Unexpected 'other' class type found", &
-              "It is only allowed wrapObject type")
+!      call raiseError(__FILE__, "eq_wrapObject", &
+!              "Unexpected 'other' class type found", &
+!              "It is only allowed wrapObject type")
     end select
 
     if (self % type /= otherWrapObj % type) then
@@ -127,9 +127,10 @@ contains
       eq_wrapObject = (self % eqObj == otherWrapObj % eqObj)
     else
       !< assert
-      call raiseError(__FILE__, "eq_wrapObject", &
-              "Unexpected error found", &
-              "Non supported and misterious type found")
+!      call raiseError(__FILE__, "eq_wrapObject", &
+!              "Unexpected error found", &
+!              "Non supported and misterious type found")
+      eq_wrapObject = .false.
     endif
 
   end function eq_wrapObject

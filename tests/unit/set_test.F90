@@ -106,7 +106,7 @@ contains
   end subroutine defineTestCases
 
 
-  logical function eq_object_stringEq(self, other)
+  elemental logical function eq_object_stringEq(self, other)
     !< true if self and other are not the same
     !< keep it simple for unit tests purpose only
     class(stringEq), intent(in) :: self
@@ -118,18 +118,14 @@ contains
       pStringEq => obj
     class default
       ! error, different types
-      call raiseError(__FILE__, "eq_object_stringEq", &
-              "Unexpected type found but expecting 'stringEq'")
+      eq_object_stringEq = .false.
     end select
 
     if (.not. allocated(self % chars)) then
-      call raiseError(__FILE__, "stringEq not initialized", &
-              "Object must be initialized")
+      eq_object_stringEq = .false.
     endif
     if (.not. allocated(pStringEq % chars)) then
-      call raiseError(__FILE__, &
-              "'other' stringEq object not initialized", &
-              "Object must be initialized")
+      eq_object_stringEq = .false.
     endif
     eq_object_stringEq = (self % chars == pStringEq % chars)
   end function eq_object_stringEq
