@@ -21,6 +21,7 @@ else()
   target_link_libraries(${LIBNAME}_lib PUBLIC  )
 endif()
 
+add_subdirectory(config)
 add_subdirectory(arrays)
 add_subdirectory(testing)
 add_subdirectory(structures)
