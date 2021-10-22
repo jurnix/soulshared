@@ -11,9 +11,11 @@
 !>
 !> 
 !------------------------------------------------------------------------------
+#:include "../common.fpp"
+
 module SHR_arrayDim_mod
 
-  use SHR_precision_mod, only: sp!, dp, eqReal
+  use SHR_precision_mod, only: sp, dp !, eqReal
   use SHR_objects_mod, only: shr_eqObject_abs
   use SHR_strings_mod, only: string
   use SHR_error_mod, only: raiseError 
@@ -21,7 +23,11 @@ module SHR_arrayDim_mod
 
   implicit none
 
-  public :: shr_arrayRealDim
+#:for IKIND, ITYPE, IHEADER in ALL_KINDS_TYPES
+
+  public :: shr_array${IHEADER}$Dim
+
+#:endfor
 
   private
 
@@ -56,25 +62,29 @@ module SHR_arrayDim_mod
   end interface
 
 
-  type, extends(shr_arrayDim) :: shr_arrayRealDim
-    real(kind=sp) :: start, end, step
-    real(kind=sp), allocatable :: values(:)
+#:for IKIND, ITYPE, IHEADER in ALL_KINDS_TYPES
+
+  type, extends(shr_arrayDim) :: shr_array${IHEADER}$Dim
+    ${ITYPE}$ :: start, end, step
+    ${ITYPE}$, allocatable :: values(:)
   contains
-    procedure :: init => init_arrayRealDim
+    procedure :: init => init_array${IHEADER}$Dim
 
-    procedure :: copy => copy_arrayRealDim
-    procedure :: eq_object => equal_arrayRealDim
+    procedure :: copy => copy_array${IHEADER}$Dim
+    procedure :: eq_object => equal_array${IHEADER}$Dim
 
-    procedure :: getIndex_arrayRealDim
-    generic :: getIndex => getIndex_arrayRealDim
+    procedure :: getIndex_array${IHEADER}$Dim
+    generic :: getIndex => getIndex_array${IHEADER}$Dim
 
-    procedure :: isInBounds_arrayRealDim
-    generic :: isInBounds => isInBounds_arrayRealDim
+    procedure :: isInBounds_array${IHEADER}$Dim
+    generic :: isInBounds => isInBounds_array${IHEADER}$Dim
 
-    procedure :: getStart_arrayRealDim
-    procedure :: getEnd_arrayRealDim
-    procedure :: getStep_arrayRealDim
-  end type shr_arrayRealDim
+    procedure :: getStart_array${IHEADER}$Dim
+    procedure :: getEnd_array${IHEADER}$Dim
+    procedure :: getStep_array${IHEADER}$Dim
+  end type shr_array${IHEADER}$Dim
+
+#:endfor
 
 contains
 
@@ -115,15 +125,15 @@ contains
   !========= arrayRealDim ===========
   !
 
-!!#:for IKIND, ITYPE, IHEADER in ALL_KINDS_TYPES
+#:for IKIND, ITYPE, IHEADER in ALL_KINDS_TYPES
 
-  elemental pure subroutine copy_arrayRealDim(self, from)
+  elemental pure subroutine copy_array${IHEADER}$Dim(self, from)
     !< copy ncOtherDim_mod to another
-    class(shr_arrayRealDim), intent(inout) :: self
+    class(shr_array${IHEADER}$Dim), intent(inout) :: self
     class(shr_arrayDim), intent(in) :: from
 
     select type (from)
-      type is (shr_arrayRealDim)
+      type is (shr_array${IHEADER}$Dim)
         self % name = from % name !< parent
         self % size = from % size !< parent
         self % start = from % start
@@ -133,12 +143,12 @@ contains
       class default
         !< unexpected type found
     end select
-  end subroutine copy_arrayRealDim 
+  end subroutine copy_array${IHEADER}$Dim 
 
 
-  elemental logical function equal_arrayRealDim(self, other)
+  elemental logical function equal_array${IHEADER}$Dim(self, other)
     !< true if self and other are not the same
-    class(shr_arrayRealDim), intent(in) :: self
+    class(shr_array${IHEADER}$Dim), intent(in) :: self
     class(SHR_eqObject_abs), intent(in) :: other
 
     logical :: hasSameAttrs, hasSameValues
@@ -149,10 +159,10 @@ contains
     hasSameAttrs = .false.
     areBothValuesAllocated = .false.
     areBothValuesDeallocated = .false.
-    equal_arrayRealDim = .false.
+    equal_array${IHEADER}$Dim = .false.
 
     select type(other)
-      type is (shr_arrayRealDim)
+      type is (shr_array${IHEADER}$Dim)
         hasSameAttrs = (self % name == other % name) .and. &
                             self % size == other % size .and. &
                             self % start == other % start .and. &
@@ -175,11 +185,11 @@ contains
         !< unexpected type error
     end select
 
-    equal_arrayRealDim = (hasSameAttrs .and. hasSameValues)
-  end function equal_arrayRealDim
+    equal_array${IHEADER}$Dim = (hasSameAttrs .and. hasSameValues)
+  end function equal_array${IHEADER}$Dim
 
 
-  elemental integer function getIndex_arrayRealDim(self, value) result (idx)
+  elemental integer function getIndex_array${IHEADER}$Dim(self, value) result (idx)
     !< Given value comprised in between start and end
     !< it returns its position in an array (1 to N)
     !< it returns -1 if value is outside bounds
@@ -188,8 +198,8 @@ contains
     !< getIndex(2) -> 1
     !< getIndex(10) -> 5
     !< getIndex(9) -> 4
-    class(shr_arrayRealDim), intent(in) :: self
-    real(kind=sp), intent(in) :: value
+    class(shr_array${IHEADER}$Dim), intent(in) :: self
+    ${ITYPE}$, intent(in) :: value
 
     real(kind=sp) :: calc
 
@@ -206,37 +216,37 @@ contains
       idx = idx + 1
     end do
 !    write(*,*) "getIndex_ncRealDim: idx =", idx
-  end function getIndex_arrayRealDim
+  end function getIndex_array${IHEADER}$Dim
 
 
-  elemental real(kind=sp) function getStart_arrayRealDim(self)
+  elemental ${ITYPE}$ function getStart_array${IHEADER}$Dim(self)
     !< it returns its start value
-    class(shr_arrayRealDim), intent(in) :: self
-    getStart_arrayRealDim = self % start
-  end function getStart_arrayRealDim
+    class(shr_array${IHEADER}$Dim), intent(in) :: self
+    getStart_array${IHEADER}$Dim = self % start
+  end function getStart_array${IHEADER}$Dim
 
 
-  elemental real(kind=sp) function getEnd_arrayRealDim(self)
+  elemental ${ITYPE}$ function getEnd_array${IHEADER}$Dim(self)
     !< end value
-    class(shr_arrayRealDim), intent(in) :: self
-    getEnd_arrayRealDim = self % end
-  end function getEnd_arrayRealDim
+    class(shr_array${IHEADER}$Dim), intent(in) :: self
+    getEnd_array${IHEADER}$Dim = self % end
+  end function getEnd_array${IHEADER}$Dim
 
 
-  elemental real(kind=sp) function getStep_arrayRealDim(self)
+  elemental ${ITYPE}$ function getStep_array${IHEADER}$Dim(self)
     !< it returs step
-    class(shr_arrayRealDim), intent(in) :: self
-    getStep_arrayRealDim = self % step
-  end function getStep_arrayRealDim
+    class(shr_array${IHEADER}$Dim), intent(in) :: self
+    getStep_array${IHEADER}$Dim = self % step
+  end function getStep_array${IHEADER}$Dim
 
 
-  subroutine init_arrayRealDim(self, name, start, end, step)
+  subroutine init_array${IHEADER}$Dim(self, name, start, end, step)
     !< initialize ncRealDim
-    class(shr_arrayRealDim), intent(inout) :: self
+    class(shr_array${IHEADER}$Dim), intent(inout) :: self
     character(*), intent(in) :: name
-    real(kind=sp), intent(in) :: start
-    real(kind=sp), intent(in) :: end
-    real(kind=sp), intent(in), optional :: step !< default = 1.0
+    ${ITYPE}$, intent(in) :: start
+    ${ITYPE}$, intent(in) :: end
+    ${ITYPE}$, intent(in), optional :: step !< default = 1.0
 
     real(kind=sp) :: inStep
     character(5) :: negVal
@@ -252,31 +262,31 @@ contains
     endif
 
     self % name = name
-    self % values = initArrayRange(start, end, inStep)
+!    self % values = initArrayRange(start, end, inStep)
     self % size = size(self % values)
     self % start = start
     self % end = end
     self % step = inStep
-  end subroutine init_arrayRealDim
+  end subroutine init_array${IHEADER}$Dim
 
 
-  elemental logical function isInBounds_arrayRealDim(self, value)
+  elemental logical function isInBounds_array${IHEADER}$Dim(self, value)
     !< true if given 'value' is in between start and end bounds
-    class(shr_arrayRealDim), intent(in) :: self
-    real(kind=sp), intent(in) :: value
+    class(shr_array${IHEADER}$Dim), intent(in) :: self
+    ${ITYPE}$, intent(in) :: value
 
-    isInBounds_arrayRealDim = .true.
+    isInBounds_array${IHEADER}$Dim = .true.
     if (self % start > value) then
-      isInBounds_arrayRealDim = .false.
+      isInBounds_array${IHEADER}$Dim = .false.
       return
     endif
 
     if (self % end < value) then
-      isInBounds_arrayRealDim = .false.
+      isInBounds_array${IHEADER}$Dim = .false.
       return
     endif
-  end function isInBounds_arrayRealDim
+  end function isInBounds_array${IHEADER}$Dim
 
-!!#:endfor
+#:endfor
 
 end module SHR_arrayDim_mod

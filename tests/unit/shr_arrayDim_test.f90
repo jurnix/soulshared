@@ -13,7 +13,7 @@ module shr_arrayRealDim_test
   use SHR_testSuite_mod, only: testSuite
   use SHR_precision_mod, only: sp
 
-  use shr_arrayDim_mod, only: shr_arrayRealDim
+  use shr_arrayDim_mod, only: shr_arrayRspDim
 !  use SIO_ncDimBounds_mod, only: ncDimBounds, ncDimBoundsHolder
 
 !  use SIO_ncBoundsArgs_mod, only: ncBoundsArgsReal
@@ -35,11 +35,11 @@ contains
   subroutine defineTestCases(self)
     use iso_c_binding
     class(testSuiteArrayRealDim), intent(inout) :: self
-    class(shr_arrayRealDim), allocatable :: levels
-    class(shr_arrayRealDim), allocatable :: logs
+    class(shr_arrayRspDim), allocatable :: levels
+    class(shr_arrayRspDim), allocatable :: logs
 
-    class(shr_arrayRealDim), allocatable :: logsSame
-    class(shr_arrayRealDim), allocatable :: levelsCopied
+    class(shr_arrayRspDim), allocatable :: logsSame
+    class(shr_arrayRspDim), allocatable :: levelsCopied
 !    type(ncDimBoundsHolder), allocatable :: expBounds(:), foundBounds(:)
 !    logical :: haveSameSize, haveSameBounds
 !    class(ncBoundsArgsReal), allocatable :: args
