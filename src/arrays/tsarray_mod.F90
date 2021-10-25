@@ -32,13 +32,22 @@ module SHR_tsArray_mod
   use SHR_error_mod, only: raiseError 
   use SHR_strings_mod, only: string
   use SHR_datetime_mod, only: clock, timedelta
-  use SHR_array_mod, only: absArray, pAbsArray, allocAbsArray, sp_rArray, sp_rpArray, min, max
+  use SHR_array_mod, only: arrayAbs!, pAbsArray, allocAbsArray, sp_rArray, sp_rpArray, min, max
 
   implicit none
 
   private
 
   public :: tsArray, TSARRAY_OP_AVE, TSARRAY_OP_MIN, TSARRAY_OP_MAX, TSARRAY_OP_FIRST, TSARRAY_OP_LAST
+
+  ! created only to compile
+  type sp_rArray
+  end type
+
+  ! created only to compile
+  type sp_rpArray
+  end type
+
 
   ! tsArray operation modes
   integer, parameter :: TSARRAY_OP_AVE = 1 !< average
@@ -48,7 +57,7 @@ module SHR_tsArray_mod
   integer, parameter :: TSARRAY_OP_LAST = 5 !< last value 
 
   !< timeScaled Array. It only support data pointer
-  type, extends(absArray) :: tsArray !< temporal array (clock), infered todo- support >1 ts variable for the same
+  type, extends(arrayAbs) :: tsArray !< temporal array (clock), infered todo- support >1 ts variable for the same
     type(clock) :: internalTime !< sync from simulations clock
     integer :: operation !< what to do when rescaling to another time sacle
     type(timedelta) :: newTs !< new variable time scale (always bigger the clock timestep)
@@ -58,8 +67,8 @@ module SHR_tsArray_mod
     logical :: isFirstTs        !< true at the beginning of the tsArray timestep
     logical :: isLastTs         !< true at the end of the tsArray timestep
 
-    class(pAbsArray), allocatable :: pdata !< feeding data(pointer)
-    class(allocAbsArray), allocatable :: opData !< temporary data calculated according to 'operation'
+!    class(pAbsArray), allocatable :: pdata !< feeding data(pointer)
+!    class(allocAbsArray), allocatable :: opData !< temporary data calculated according to 'operation'
 
     integer :: aveCounter !< accumulate counter to do average
     logical :: hasStarted 
@@ -122,7 +131,7 @@ contains
     class(tsArray), intent(inout) :: self
     real(kind=sp), allocatable, intent(out) :: r(:)
 
-    class(allocAbsArray), pointer :: wrap
+!    class(allocAbsArray), pointer :: wrap
 
     if (.not. self % hasNewDataAvail()) then
       call raiseError(__FILE__, "getData_r1_tsArray", &
@@ -130,13 +139,13 @@ contains
     endif
 !    write(*,*) "array_mod:: getData_r1_tsArray:: allocated(opData)? ", allocated(self % opData)
 
-    select type(wrap => self % opData)
-    type is (sp_rArray)
-      call wrap % getData_r1_sp_rArray(r)
-    class default
+!    select type(wrap => self % opData)
+!    type is (sp_rArray)
+!      call wrap % getData_r1_sp_rArray(r)
+!    class default
       ! not implemented error
-      call raiseError(__FILE__, "getData_r1_tsArray", "Class/Type not found")
-    end select ! self
+!      call raiseError(__FILE__, "getData_r1_tsArray", "Class/Type not found")
+!    end select ! self
 
 !    write(*,*) "array_mod:: getData_r1_tsArray:: r=", r
   end subroutine getData_r1_tsArray
@@ -158,7 +167,7 @@ contains
     real(kind=sp) :: initVal !< default value to initialize tsArray
 
     tsArray_constructor_r1 % name = name
-    tsArray_constructor_r1 % dimsName = dimsName
+!    tsArray_constructor_r1 % dimsName = dimsName
     tsArray_constructor_r1 % internalTime = sClock
     tsArray_constructor_r1 % operation = operation
     tsArray_constructor_r1 % newTs = timeScale
@@ -176,8 +185,8 @@ contains
     initVal = tsArray_constructor_r1 % getInitVal(operation)
 
     dimsSize(1) = size(dimsName, dim=1)
-    tsArray_constructor_r1 % pData = sp_rpArray(name, dimsName, pdata)
-    tsArray_constructor_r1 % opData = sp_rArray(name//"Ts", dimsName, dimsSize, initVal) !< init accum to 0
+!    tsArray_constructor_r1 % pData = sp_rpArray(name, dimsName, pdata)
+!    tsArray_constructor_r1 % opData = sp_rArray(name//"Ts", dimsName, dimsSize, initVal) !< init accum to 0
     tsArray_constructor_r1 % aveCounter = 0
     tsArray_constructor_r1 % isFirstTs = .false. 
     tsArray_constructor_r1 % isLastTs = .false.
@@ -205,29 +214,29 @@ contains
     self % isFirstTs = (self % counterTs == self % getInitCounterTs(self % internalTime % tickInterval))
 
     ! reinitialize calculated data
-    if (self % isFirstTs) self % opData = self % getInitVal(self % operation)
+!    if (self % isFirstTs) self % opData = self % getInitVal(self % operation)
 
     ! apply next time step
     call self % internalTime % tick()
     self % counterTs = self % counterTs + self % internalTime % tickInterval
 
     if (self % operation == TSARRAY_OP_AVE) then
-      self % opData = self % opData + self % pData
+!      self % opData = self % opData + self % pData
       self % aveCounter = self % aveCounter + 1
 
     else if (self % operation == TSARRAY_OP_MIN) then
-      self % opData = min(self % opData, self % pData)
+!      self % opData = min(self % opData, self % pData)
 
     else if (self % operation == TSARRAY_OP_MAX) then
-      self % opData = max(self % opData, self % pData)
+!      self % opData = max(self % opData, self % pData)
 
     else if (self % operation == TSARRAY_OP_FIRST) then
       if (self % isFirstTs) then
-        self % opData = self % pData
+!        self % opData = self % pData
       endif
 
     else if (self % operation == TSARRAY_OP_LAST) then
-      if (self % isLastTs) self % opData = self % pData
+!      if (self % isLastTs) self % opData = self % pData
 
     else
       ! not supported
@@ -240,7 +249,7 @@ contains
     if (self % isLastTs) then
        if (self % operation == TSARRAY_OP_AVE) then
          ! apply average
-         self % opData = self % opData / self % aveCounter
+!         self % opData = self % opData / self % aveCounter
          self % aveCounter = 0
        endif
        self % counterTs = self % internalTime % tickInterval - self % internalTime % tickInterval

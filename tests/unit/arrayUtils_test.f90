@@ -9,19 +9,19 @@
 ! DESCRIPTION:
 !> common array subroutines 
 !------------------------------------------------------------------------------
-module array_test
+module arrayUtils_test
   use SHR_testSuite_mod, only: testSuite
   use SHR_precision_mod, only: sp
 
-  use SHR_array_mod, only: initArrayRange, trimArrayIndex
+  use SHR_arrayUtils_mod, only: initArrayRange, trimArrayIndex
 
   implicit none
 
   private
-  public :: testSuiteArray
+  public :: testSuiteArrayUtils
 
 
-  type, extends(testSuite) :: testSuiteArray
+  type, extends(testSuite) :: testSuiteArrayUtils
     contains
       procedure :: define => defineTestCases
   end type 
@@ -31,7 +31,7 @@ contains
 
   subroutine defineTestCases(self)
     use iso_c_binding
-    class(testSuiteArray), intent(inout) :: self
+    class(testSuiteArrayUtils), intent(inout) :: self
 
     ! initRealArrayRange
     call self % assert ( all(initArrayRange(1.,2.,0.25) == [1.,1.25,1.5,1.75,2.0]), &
@@ -53,5 +53,5 @@ contains
 
   end subroutine defineTestCases
 
-end module array_test
+end module arrayUtils_test
 

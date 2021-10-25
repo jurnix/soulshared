@@ -19,10 +19,11 @@ module SHR_arrayDim_mod
   use SHR_objects_mod, only: shr_eqObject_abs
   use SHR_strings_mod, only: string
   use SHR_error_mod, only: raiseError 
-  use SHR_array_mod, only: initArrayRange
+  use SHR_arrayUtils_mod, only: initArrayRange
 
   implicit none
 
+  public :: shr_arrayDim
 #:for IKIND, ITYPE, IHEADER in ALL_KINDS_TYPES
 
   public :: shr_array${IHEADER}$Dim

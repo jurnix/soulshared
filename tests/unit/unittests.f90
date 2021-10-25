@@ -17,7 +17,7 @@ program unittest
   use strings_test, only: testSuiteStrings
   use dict_test, only: testSuiteDict
   use orderedDict_test, only: testSuiteOrderedDict
-  use array_test, only: testSuiteArray
+  use arrayUtils_test, only: testSuiteArrayUtils
   use perfTimer_test, only: testSuitePerfTimer
   use file_test, only: testSuiteFile
   use configParser_test, only: testSuiteConfigParser
@@ -38,7 +38,7 @@ program unittest
   type(testSuiteStrings) :: tsStrings
   type(testSuiteDict) :: tsDict
   type(testSuiteOrderedDict) :: tsOrderedDict
-  type(testSuiteArray) :: tsArray
+  type(testSuiteArrayUtils) :: tsArrayUtils
   type(testSuitePerfTimer) :: tsPerfTimer
   type(testSuiteFile) :: tsFile
   type(testSuiteConfigParser) :: tsConfigParser
@@ -56,7 +56,7 @@ program unittest
   call tsStrings % init("Strings test", 70)
   call tsDict % init("Dict test", 10)
   call tsOrderedDict % init("Ordered dict test", 10)
-  call tsArray % init("Array test", 20)
+  call tsArrayUtils % init("Array utils test", 20)
   call tsPerfTimer % init("Performance timer test", 20)
   call tsFile % init("File test", 10)
   call tsOOPExtends % init("OOP Extends test", 10)
@@ -74,7 +74,7 @@ program unittest
   call tsStrings % run() 
   call tsDict % run() 
   call tsOrderedDict % run() 
-  call tsArray % run() 
+  call tsArrayUtils % run() 
   call tsPerfTimer % run() 
   call tsFile % run() 
   call tsConfigParser % run() 
@@ -93,7 +93,7 @@ program unittest
   call tsStrings % report() 
   call tsDict % report() 
   call tsOrderedDict % report() 
-  call tsArray % report() 
+  call tsArrayUtils % report() 
   call tsPerfTimer % report() 
   call tsFile % report()
   call tsConfigParser % report() 
@@ -111,7 +111,7 @@ program unittest
       .not. tsStrings % isSuccessful() .or. & 
       .not. tsDict % isSuccessful() .or. &
       .not. tsOrderedDict % isSuccessful() .or. &
-      .not. tsArray % isSuccessful() .or. &
+      .not. tsArrayUtils % isSuccessful() .or. &
       .not. tsPerfTimer % isSuccessful() .or. &
       .not. tsFile % isSuccessful() .or. &
       .not. tsConfigParser % isSuccessful() .or. & 
