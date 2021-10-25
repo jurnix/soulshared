@@ -78,6 +78,7 @@ contains
       !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
       class(shr_arrayRsp), intent(inout) :: self
       real(kind=sp), intent(in) :: other
+      self % data = other
   end subroutine copy_scalar_rsp
 
 
@@ -86,22 +87,25 @@ contains
       !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
       class(shr_arrayRsp), intent(inout) :: self
       class(shr_arrayRsp), intent(in) :: other
+      self % data = other % data
   end subroutine copy_array
 
 
   pure function add_array_scalar_rsp(left, right) Result(total)
-    !< 
+    !< addition shr_arrayRsp and scalar rsp
     class(shr_arrayRsp), intent(in) :: left
     real(kind=sp), intent(in) :: right
     class(shr_arrayRsp), allocatable :: total !< output
+    total = left % data + right
   end function add_array_scalar_rsp
 
 
   pure function add_array_array(left, right) Result(total)
-    !< 
+    !< addition from shr_arrayRsp and shr_arrayRsp
     class(shr_arrayRsp), intent(in) :: left
     class(shr_arrayRsp), intent(in) :: right
     class(shr_arrayRsp), allocatable :: total !< output
+    total = left % data + right % data
   end function add_array_array
 
 end module SHR_array_mod
