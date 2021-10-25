@@ -19,6 +19,7 @@ module SHR_arrayContainer_mod
   use SHR_precision_mod, only: sp! dp, eqReal
 !  use SHR_error_mod, only: raiseError 
 !  use SHR_strings_mod, only: string
+  use shr_arrayDim_mod, only: shr_arrayDim
 
   implicit none
 
@@ -29,9 +30,12 @@ module SHR_arrayContainer_mod
 
   type, abstract :: shr_arrayContainer
     integer :: ndims !< total number of dimensions
+    class(shr_arrayDim), allocatable :: dimensions(:)
   contains
     ! getDims
     procedure :: getDims
+
+    procedure :: init 
 
     ! copy
     procedure(iface_copy_scalar_rsp), deferred :: copy_scalar_rsp
@@ -102,5 +106,14 @@ contains
     class(shr_arrayContainer), intent(in) :: self
     getDims = self % ndims
   end function getDims
+
+
+  pure subroutine init(self, dimensions)
+    !< initialize shr_arrayContainer
+    class(shr_arrayContainer), intent(inout) :: self
+    class(shr_arrayDim), intent(in) :: dimensions(:)
+    self % dimensions = dimensions
+    self % ndims = size(dimensions)
+  end subroutine init
 
 end module SHR_arrayContainer_mod

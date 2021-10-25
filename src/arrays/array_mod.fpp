@@ -24,6 +24,8 @@ module SHR_array_mod
   use SHR_arrayDim_mod, only: shr_arrayDim
   use shr_arrayContainer_mod, only: shr_arrayContainer
 
+  use shr_arrayContainerAllocatable_mod, only: shr_arrayContainerAllocatable
+
   implicit none
 
   private
@@ -55,6 +57,9 @@ module SHR_array_mod
   ! type specific array, real - kind single precision -
   type, extends(arrayAbs) :: shr_arrayRsp !< apply each type and kind
   contains
+    !< operations: add, sub, div, mul
+    !< type: real, int
+    !< kind: single, double
 
     procedure :: init_array_rsp
     generic :: init => init_array_rsp
@@ -90,6 +95,9 @@ contains
     self % units = units
     self % description = description
     self % dims = dimensions
+
+    allocate( shr_arrayContainerAllocatable :: self % data )
+
 
   end subroutine init_array_rsp
 

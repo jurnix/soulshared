@@ -17,6 +17,7 @@
 module SHR_arrayContainerAllocatable_mod
 
   use SHR_precision_mod, only: sp! dp, eqReal
+  use shr_arrayDim_mod, only: shr_arrayDim
   use shr_arrayContainer_mod, only: shr_arrayContainer
 !  use SHR_error_mod, only: raiseError 
 !  use SHR_strings_mod, only: string
@@ -35,6 +36,8 @@ module SHR_arrayContainerAllocatable_mod
     real(kind=sp), allocatable :: r4(:,:,:,:)
     real(kind=sp), allocatable :: r5(:,:,:,:,:) ! MAXRANK
   contains
+    procedure :: init
+
     !< available: add, sub, div, mull
     !< kind: sp, dp
     !< rank: 1 to MAXRANK
@@ -45,10 +48,47 @@ module SHR_arrayContainerAllocatable_mod
     procedure :: copy_scalar_rsp
     procedure :: copy_array_raw_rsp_1
     procedure :: copy_arrayContainer
+
+    final :: destroy_class
   end type shr_arrayContainerAllocatable
 
 
 contains
+
+
+  pure subroutine init(self, dimensions)
+    !< initialize shr_arrayContainer
+    class(shr_arrayContainerAllocatable), intent(inout) :: self
+    class(shr_arrayDim), intent(in) :: dimensions(:)
+
+    integer, allocatable :: alldims(:)
+    integer :: first, second, third, fourth, fifth
+
+    !< common to all arrayContainer
+    self % dimensions = dimensions
+    self % ndims = size(dimensions)
+
+    first = alldims(1)
+    if (self % ndims <= 2) second = alldims(2)
+    if (self % ndims <= 3) third = alldims(3)
+    if (self % ndims <= 4) fourth = alldims(4)
+    if (self % ndims <= 5) fifth = alldims(5)
+
+    !< customized init
+    if (self % ndims == 1) then
+      allocate(self % r1(first))
+    else if (self % ndims == 2) then
+      allocate(self % r2(first, second))
+    else if (self % ndims == 3) then
+      allocate(self % r3(first, second, third))
+    else if (self % ndims == 4) then
+      allocate(self % r4(first, second, third, fourth))
+    else if (self % ndims == 5) then
+      allocate(self % r5(first, second, third, fourth, fifth))
+    else
+      !< unexpected
+    endif
+  end subroutine init
 
 
   pure function add_arrayContainerAllocatable(left, right) Result(total)
@@ -111,5 +151,19 @@ contains
       class(shr_arrayContainerAllocatable), intent(inout) :: self
       class(shr_arrayContainer), intent(in) :: other
   end subroutine copy_arrayContainer
+
+
+  subroutine destroy_class(self)
+    !< destroy class
+    type(shr_arrayContainerAllocatable), intent(inout) :: self
+
+    deallocate(self % dimensions)
+
+    if (allocated(self % r1)) deallocate(self % r1)
+    if (allocated(self % r2)) deallocate(self % r2)
+    if (allocated(self % r3)) deallocate(self % r3)
+    if (allocated(self % r4)) deallocate(self % r4)
+    if (allocated(self % r5)) deallocate(self % r5)
+  end subroutine destroy_class
 
 end module SHR_arrayContainerAllocatable_mod
