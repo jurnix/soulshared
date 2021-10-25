@@ -35,12 +35,14 @@ module SHR_arrayContainer_mod
 
     ! copy
     procedure(iface_copy_scalar_rsp), deferred :: copy_scalar_rsp
+    procedure(iface_copy_array_raw_rsp_1), deferred :: copy_array_raw_rsp_1
     procedure(iface_copy_arrayContainer), deferred :: copy_arrayContainer
 
     generic, public :: assignment(=) => copy_scalar_rsp, copy_arrayContainer
 
     ! add
     procedure(iface_add_scalar_rsp), deferred :: add_scalar_rsp
+    procedure(iface_add_array_raw_rsp_1), deferred :: add_array_raw_rsp_1
     procedure(iface_add_arrayContainer), deferred :: add_arrayContainer
     generic, public :: operator(+) => add_scalar_rsp, add_arrayContainer
 !    procedure(iface_sub_arrayContainer), deferred :: sub_arrayContainer
@@ -57,6 +59,13 @@ module SHR_arrayContainer_mod
       class(shr_arrayContainer), allocatable :: total
     end function iface_add_arrayContainer
 
+    pure function iface_add_array_raw_rsp_1(left, right) Result(total)
+      import :: shr_arrayContainer, sp
+      class(shr_arrayContainer), intent(in) :: left
+      real(kind=sp), intent(in) :: right(:)
+      class(shr_arrayContainer), allocatable :: total(:)
+    end function iface_add_array_raw_rsp_1
+
     pure function iface_add_scalar_rsp(left, right) Result(total)
       import :: shr_arrayContainer, sp
       class(shr_arrayContainer), intent(in) :: left
@@ -71,6 +80,12 @@ module SHR_arrayContainer_mod
       class(shr_arrayContainer), intent(inout) :: self
       real(kind=sp), intent(in) :: other
     end subroutine iface_copy_scalar_rsp
+
+    pure subroutine iface_copy_array_raw_rsp_1(self, other)
+      import :: shr_arrayContainer, sp
+      class(shr_arrayContainer), intent(inout) :: self
+      real(kind=sp), intent(in) :: other(:)
+    end subroutine iface_copy_array_raw_rsp_1
 
     pure subroutine iface_copy_arrayContainer(self, other)
       import :: shr_arrayContainer

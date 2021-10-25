@@ -27,54 +27,23 @@ module SHR_arrayContainerAllocatable_mod
 
   public :: shr_arrayContainerAllocatable
 
-
-!  type :: arrayRsp
-!    class(shr_arrayContainer), allocatable :: container
-!  contains
-!    procedure :: add_arrayRsp
-!    generic, public :: operator(+) => add_arrayRsp
-
-!    procedure :: copy_arrayRsp
-!    generic, public :: assignment(=) => copy_arrayRsp
-
-!    procedure :: equal_arrayRsp
-!    generic, public :: operator(==) => equal_arrayRsp
-!  end type arrayRsp
-
-  !< -------
-
-
-!  type, abstract :: shr_arrayContainer
- ! contains
- !   procedure(iface_add_arrayContainer), deferred :: add_arrayContainer
- !   generic, public :: operator(+) => add_arrayContainer
-!    procedure(iface_sub_arrayContainer), deferred :: sub_arrayContainer
-!    procedure(iface_div_arrayContainer), deferred :: div_arrayContainer
-!    procedure(iface_mul_arrayContainer), deferred :: mul_arrayContainer
- ! end type
-
-
- ! abstract interface
- !   pure function iface_add_arrayContainer(left, right) Result(total)
- !     import :: shr_arrayContainer
- !     class(shr_arrayContainer), intent(in) :: left, right
-!      class(shr_arrayContainer), allocatable :: total
-!    end function iface_add_arrayContainer
-!  end interface
-
-
-  ! data types
-  type, extends(shr_arrayContainer) :: shr_arrayContainerAllocatable !< allocatable single precision array
+  !< allocatable single precision array
+  type, extends(shr_arrayContainer) :: shr_arrayContainerAllocatable 
     real(kind=sp), allocatable :: r1(:)
     real(kind=sp), allocatable :: r2(:,:)
     real(kind=sp), allocatable :: r3(:,:,:)
     real(kind=sp), allocatable :: r4(:,:,:,:)
     real(kind=sp), allocatable :: r5(:,:,:,:,:) ! MAXRANK
   contains
+    !< available: add, sub, div, mull
+    !< kind: sp, dp
+    !< rank: 1 to MAXRANK
     procedure :: add_scalar_rsp
+    procedure :: add_array_raw_rsp_1
     procedure :: add_arrayContainer => add_arrayContainerAllocatable
 
     procedure :: copy_scalar_rsp
+    procedure :: copy_array_raw_rsp_1
     procedure :: copy_arrayContainer
   end type shr_arrayContainerAllocatable
 
@@ -105,6 +74,14 @@ contains
   end function add_arrayContainerAllocatable
 
 
+  pure function add_array_raw_rsp_1(left, right) Result(total)
+    !<
+    class(shr_arrayContainerAllocatable), intent(in) :: left
+    real(kind=sp), intent(in) :: right(:)
+    class(shr_arrayContainer), allocatable :: total(:)
+  end function add_array_raw_rsp_1
+
+
   pure function add_scalar_rsp(left, right) Result(total)
       !< copy scalar value into array
       !< arrayCA = 24.1
@@ -119,6 +96,13 @@ contains
       class(shr_arrayContainerAllocatable), intent(inout) :: self
       real(kind=sp), intent(in) :: other
   end subroutine copy_scalar_rsp
+
+
+  pure subroutine copy_array_raw_rsp_1(self, other)
+    !< Copy to current array 'self' into 'other' rsp array
+    class(shr_arrayContainerAllocatable), intent(inout) :: self
+    real(kind=sp), intent(in) :: other(:)
+  end subroutine copy_array_raw_rsp_1
 
 
   pure subroutine copy_arrayContainer(self, other)
