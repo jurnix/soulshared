@@ -34,11 +34,13 @@ module SHR_array_mod
 
 
   type, abstract :: arrayAbs !< interface to array
+    !< array descriptor
     type(string), allocatable :: name
     class(shr_arrayDim), allocatable :: dims(:) 
     type(string), allocatable :: units
     type(string), allocatable :: description
 
+    !< array data
     class(shr_arrayContainer), allocatable :: data 
   contains
     !< add (arrayAbs, scalar, raw (matching dimensions) array)
@@ -96,8 +98,9 @@ contains
     self % description = description
     self % dims = dimensions
 
+    ! todo, creational design pattern?
     allocate( shr_arrayContainerAllocatable :: self % data )
-
+    call self % data % init(dimensions)
 
   end subroutine init_array_rsp
 

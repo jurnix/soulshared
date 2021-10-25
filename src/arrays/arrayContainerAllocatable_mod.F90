@@ -68,13 +68,13 @@ contains
     self % dimensions = dimensions
     self % ndims = size(dimensions)
 
+    !< customized init
     first = alldims(1)
     if (self % ndims <= 2) second = alldims(2)
     if (self % ndims <= 3) third = alldims(3)
     if (self % ndims <= 4) fourth = alldims(4)
     if (self % ndims <= 5) fifth = alldims(5)
 
-    !< customized init
     if (self % ndims == 1) then
       allocate(self % r1(first))
     else if (self % ndims == 2) then
