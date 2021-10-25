@@ -25,6 +25,8 @@ module SHR_arrayContainerAllocatable_mod
 
   private
 
+  public :: shr_arrayContainerAllocatable
+
 
 !  type :: arrayRsp
 !    class(shr_arrayContainer), allocatable :: container
@@ -69,9 +71,10 @@ module SHR_arrayContainerAllocatable_mod
     real(kind=sp), allocatable :: r4(:,:,:,:)
     real(kind=sp), allocatable :: r5(:,:,:,:,:) ! MAXRANK
   contains
+    procedure :: add_scalar_rsp
     procedure :: add_arrayContainer => add_arrayContainerAllocatable
 
-    procedure :: copy_scalar
+    procedure :: copy_scalar_rsp
     procedure :: copy_arrayContainer
   end type shr_arrayContainerAllocatable
 
@@ -102,12 +105,20 @@ contains
   end function add_arrayContainerAllocatable
 
 
-  pure subroutine copy_scalar(self, other)
+  pure function add_scalar_rsp(left, right) Result(total)
       !< copy scalar value into array
       !< arrayCA = 24.1
+      class(shr_arrayContainerAllocatable), intent(in) :: left 
+      real(kind=sp), intent(in) :: right 
+      class(shr_arrayContainer), allocatable :: total !< output
+  end function add_scalar_rsp
+
+
+  pure subroutine copy_scalar_rsp(self, other)
+      !< Copy to current array container allocatable
       class(shr_arrayContainerAllocatable), intent(inout) :: self
       real(kind=sp), intent(in) :: other
-  end subroutine copy_scalar
+  end subroutine copy_scalar_rsp
 
 
   pure subroutine copy_arrayContainer(self, other)

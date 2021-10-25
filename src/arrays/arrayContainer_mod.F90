@@ -28,16 +28,21 @@ module SHR_arrayContainer_mod
 
 
   type, abstract :: shr_arrayContainer
+    integer :: ndims !< total number of dimensions
   contains
+    ! getDims
+    procedure :: getDims
+
     ! copy
-    procedure(iface_copy_scalar), deferred :: copy_scalar 
+    procedure(iface_copy_scalar_rsp), deferred :: copy_scalar_rsp
     procedure(iface_copy_arrayContainer), deferred :: copy_arrayContainer
 
-    generic, public :: assignment(=) => copy_scalar, copy_arrayContainer
+    generic, public :: assignment(=) => copy_scalar_rsp, copy_arrayContainer
 
     ! add
+    procedure(iface_add_scalar_rsp), deferred :: add_scalar_rsp
     procedure(iface_add_arrayContainer), deferred :: add_arrayContainer
-    generic, public :: operator(+) => add_arrayContainer
+    generic, public :: operator(+) => add_scalar_rsp, add_arrayContainer
 !    procedure(iface_sub_arrayContainer), deferred :: sub_arrayContainer
 !    procedure(iface_div_arrayContainer), deferred :: div_arrayContainer
 !    procedure(iface_mul_arrayContainer), deferred :: mul_arrayContainer
@@ -45,17 +50,27 @@ module SHR_arrayContainer_mod
 
 
   abstract interface
+    ! add
     pure function iface_add_arrayContainer(left, right) Result(total)
       import :: shr_arrayContainer
       class(shr_arrayContainer), intent(in) :: left, right
       class(shr_arrayContainer), allocatable :: total
     end function iface_add_arrayContainer
 
-    pure subroutine iface_copy_scalar(self, other)
+    pure function iface_add_scalar_rsp(left, right) Result(total)
+      import :: shr_arrayContainer, sp
+      class(shr_arrayContainer), intent(in) :: left
+      real(kind=sp), intent(in) :: right
+      class(shr_arrayContainer), allocatable :: total
+    end function iface_add_scalar_rsp
+
+
+    ! copy
+    pure subroutine iface_copy_scalar_rsp(self, other)
       import :: shr_arrayContainer, sp
       class(shr_arrayContainer), intent(inout) :: self
       real(kind=sp), intent(in) :: other
-    end subroutine iface_copy_scalar
+    end subroutine iface_copy_scalar_rsp
 
     pure subroutine iface_copy_arrayContainer(self, other)
       import :: shr_arrayContainer
@@ -65,5 +80,12 @@ module SHR_arrayContainer_mod
   end interface
 
 contains
+
+
+  pure integer function getDims(self)
+    !< total number of dimensions
+    class(shr_arrayContainer), intent(in) :: self
+    getDims = self % ndims
+  end function getDims
 
 end module SHR_arrayContainer_mod
