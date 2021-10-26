@@ -42,13 +42,16 @@ module SHR_arrayContainer_mod
     procedure(iface_copy_array_raw_rsp_1), deferred :: copy_array_raw_rsp_1
     procedure(iface_copy_arrayContainer), deferred :: copy_arrayContainer
 
-    generic, public :: assignment(=) => copy_scalar_rsp, copy_arrayContainer
+    generic, public :: assignment(=) => copy_scalar_rsp, copy_arrayContainer, &
+            copy_array_raw_rsp_1
 
     ! add
     procedure(iface_add_scalar_rsp), deferred :: add_scalar_rsp
     procedure(iface_add_array_raw_rsp_1), deferred :: add_array_raw_rsp_1
     procedure(iface_add_arrayContainer), deferred :: add_arrayContainer
-    generic, public :: operator(+) => add_scalar_rsp, add_arrayContainer
+
+    generic, public :: operator(+) => add_scalar_rsp, add_arrayContainer, &
+            add_array_raw_rsp_1
 !    procedure(iface_sub_arrayContainer), deferred :: sub_arrayContainer
 !    procedure(iface_div_arrayContainer), deferred :: div_arrayContainer
 !    procedure(iface_mul_arrayContainer), deferred :: mul_arrayContainer
@@ -67,7 +70,7 @@ module SHR_arrayContainer_mod
       import :: shr_arrayContainer, sp
       class(shr_arrayContainer), intent(in) :: left
       real(kind=sp), intent(in) :: right(:)
-      class(shr_arrayContainer), allocatable :: total(:)
+      class(shr_arrayContainer), allocatable :: total
     end function iface_add_array_raw_rsp_1
 
     pure function iface_add_scalar_rsp(left, right) Result(total)

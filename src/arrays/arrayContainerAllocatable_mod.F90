@@ -118,7 +118,7 @@ contains
     !<
     class(shr_arrayContainerAllocatable), intent(in) :: left
     real(kind=sp), intent(in) :: right(:)
-    class(shr_arrayContainer), allocatable :: total(:)
+    class(shr_arrayContainer), allocatable :: total
   end function add_array_raw_rsp_1
 
 
@@ -163,7 +163,7 @@ contains
     if (allocated(self % r2)) deallocate(self % r2)
     if (allocated(self % r3)) deallocate(self % r3)
     if (allocated(self % r4)) deallocate(self % r4)
-    if (allocated(self % r5)) deallocate(self % r5)
+    if (allocated(self % r5)) deallocate(self % r5) ! MAXRANK
   end subroutine destroy_class
 
 end module SHR_arrayContainerAllocatable_mod

@@ -10,6 +10,19 @@
 !> Common Array subroutines
 !>
 !> array class (real sp, real dp, int)
+!>
+!> Allowed operations between types(and kind)
+!>
+!> operations: add, sub, div, mul
+!> type: real, int
+!> kind: single, double
+!>
+!> int: int + int
+!> rsp: rsp + rsp
+!>      rsp + int
+!> dsp: dsp + dsp
+!>      dsp + rsp
+!>      dsp + int
 !> 
 !------------------------------------------------------------------------------
 
@@ -59,9 +72,6 @@ module SHR_array_mod
   ! type specific array, real - kind single precision -
   type, extends(arrayAbs) :: shr_arrayRsp !< apply each type and kind
   contains
-    !< operations: add, sub, div, mul
-    !< type: real, int
-    !< kind: single, double
 
     procedure :: init_array_rsp
     generic :: init => init_array_rsp
@@ -72,7 +82,7 @@ module SHR_array_mod
     procedure :: copy_array
 
     generic, public :: assignment(=) => copy_scalar_rsp, copy_array, &
-                copy_array_raw_rsp_1
+            copy_array_raw_rsp_1
 
     ! add
     procedure :: add_array_scalar_rsp
@@ -119,6 +129,7 @@ contains
     !< copy to current array 'self' from 'other' array
     class(shr_arrayRsp), intent(inout) :: self
     real(kind=sp), intent(in) :: other(:)
+    self % data = other
   end subroutine copy_array_raw_rsp_1
 
 
@@ -131,6 +142,7 @@ contains
   end subroutine copy_array
 
 
+  ! add
   pure function add_array_scalar_rsp(left, right) Result(total)
     !< addition shr_arrayRsp and scalar rsp
     class(shr_arrayRsp), intent(in) :: left
@@ -145,6 +157,7 @@ contains
     class(shr_arrayRsp), intent(in) :: left
     real(kind=sp), intent(in) :: right(:)
     class(shr_arrayRsp), allocatable :: total !< output
+    total % data = left % data + right
   end function add_array_raw_rsp_1
 
 
