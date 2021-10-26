@@ -32,7 +32,7 @@ module SHR_arrayContainer_mod
     integer :: ndims !< total number of dimensions
     class(shr_arrayDim), allocatable :: dimensions(:)
   contains
-    ! getDims
+    procedure :: getSize
     procedure :: getDims
 
     procedure :: init 
@@ -102,6 +102,12 @@ module SHR_arrayContainer_mod
   end interface
 
 contains
+
+  pure integer function getSize(self)
+    !< array dimensions
+    class(shr_arrayContainer), intent(in) :: self
+    getSize = self % ndims
+  end function getSize
 
 
   pure integer function getDims(self)

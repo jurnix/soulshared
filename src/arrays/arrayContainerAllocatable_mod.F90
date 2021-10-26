@@ -57,7 +57,8 @@ contains
 
 
   pure subroutine init(self, dimensions)
-    !< initialize shr_arrayContainer
+    !< initialize shr_arrayContainer, overload parent subroutine
+    !< to customize child initialiation
     class(shr_arrayContainerAllocatable), intent(inout) :: self
     class(shr_arrayDim), intent(in) :: dimensions(:)
 
@@ -83,7 +84,7 @@ contains
       allocate(self % r3(first, second, third))
     else if (self % ndims == 4) then
       allocate(self % r4(first, second, third, fourth))
-    else if (self % ndims == 5) then
+    else if (self % ndims == 5) then ! MAXRANK
       allocate(self % r5(first, second, third, fourth, fifth))
     else
       !< unexpected
@@ -97,20 +98,29 @@ contains
     class(shr_arrayContainer), intent(in) :: right
     class(shr_arrayContainer), allocatable :: total !< output
 
+    if (.not. allocated(total)) deallocate(total)
     allocate(shr_arrayContainerAllocatable :: total)
 
+    !
     select type(rightArray => right)
     type is (shr_arrayContainerAllocatable)
-      if (allocated(left % r1) .and. allocated(rightArray % r1)) then
-!        total = left % r1 + rightArray % r1
-!      else
-        !< unexpected :-/
+      if (left % getSize() == 1 .and. right % getSize() == 1) then
+        total = left % r1 + rightArray % r1
+!      else if (left % getSize() == 2 .and. right % getSize() == 2) then
+!        total = left % r2 + rightArray % r2
+!      else if (left % getSize() == 3 .and. right % getSize() == 3) then
+!        total = left % r3 + rightArray % r3
+!      else if (left % getSize() == 4 .and. right % getSize() == 4) then
+!        total = left % r4 + rightArray % r4
+!      else if (left % getSize() == 5 .and. right % getSize() == 5) then !< MAXRANK
+!        total = left % r5 + rightArray % r5
+      else
+        !< unexpected, inconsistency found
       endif
-
-!    type is (shr_arrayRspPointer)
     class default
-      !< unexpected :-/
+      !< unexpected, type not found
     end select
+
   end function add_arrayContainerAllocatable
 
 
@@ -119,15 +129,24 @@ contains
     class(shr_arrayContainerAllocatable), intent(in) :: left
     real(kind=sp), intent(in) :: right(:)
     class(shr_arrayContainer), allocatable :: total
+    total = left % r1 + right
   end function add_array_raw_rsp_1
 
 
   pure function add_scalar_rsp(left, right) Result(total)
-      !< copy scalar value into array
-      !< arrayCA = 24.1
-      class(shr_arrayContainerAllocatable), intent(in) :: left 
-      real(kind=sp), intent(in) :: right 
-      class(shr_arrayContainer), allocatable :: total !< output
+    !< add scalar value into array
+    !< arrayCA = 24.1
+    class(shr_arrayContainerAllocatable), intent(in) :: left 
+    real(kind=sp), intent(in) :: right 
+    class(shr_arrayContainer), allocatable :: total !< output
+    if (left % getSize() == 1) then
+      total = left % r1 + right
+!    else if (left % getSize() == 2) then
+!      total = left % r2 + right
+!    MAXRANK
+    else
+      !< unexpected, inconsistency found
+    endif
   end function add_scalar_rsp
 
 
@@ -142,14 +161,31 @@ contains
     !< Copy to current array 'self' into 'other' rsp array
     class(shr_arrayContainerAllocatable), intent(inout) :: self
     real(kind=sp), intent(in) :: other(:)
+    if (self % getSize() == 1) then
+      self % r1 = other
+    else
+      !< unexpected, inconsistency found
+    endif
   end subroutine copy_array_raw_rsp_1
 
 
   pure subroutine copy_arrayContainer(self, other)
-      !< Copy to current array container allocatable
-      !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
-      class(shr_arrayContainerAllocatable), intent(inout) :: self
-      class(shr_arrayContainer), intent(in) :: other
+    !< Copy to current array container allocatable
+    !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
+    class(shr_arrayContainerAllocatable), intent(inout) :: self
+    class(shr_arrayContainer), intent(in) :: other
+
+    select type(otherArray => other)
+    type is (shr_arrayContainerAllocatable)
+      if (self % getSize() == 1 .and. other % getSize() == 1) then
+        self % r1 = otherArray % r1
+!      else if (self % getSize() == 2 .and. other % getSize() == 2) then
+!        self % r2 = otherArray % r2
+      !< MAXRANK
+      endif
+    class default
+      !< unexpected type found
+    end select
   end subroutine copy_arrayContainer
 
 
