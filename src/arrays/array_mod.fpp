@@ -57,6 +57,7 @@ module SHR_array_mod
     !< array data
     class(shr_arrayContainer), allocatable :: data 
   contains
+    procedure :: getName => getName_arrayAbs
     procedure :: getSize => getSize_arrayAbs
     procedure :: getDims => getDims_arrayAbs
     procedure :: getUnits => getUnits_arrayAbs
@@ -85,6 +86,13 @@ module SHR_array_mod
     procedure :: add_array_array
     generic, public :: operator(+) => add_array_scalar_rsp, add_array_array, &
             add_array_raw_rsp_1
+
+    ! equal
+    procedure :: equal_scalar_rsp
+    procedure :: equal_array_raw_rsp_1
+    procedure :: equal_array
+    generic, public :: operator(==) => equal_scalar_rsp, equal_array, &
+            equal_array_raw_rsp_1
   end type shr_arrayRsp
 
 
@@ -92,6 +100,13 @@ contains
   !
   ! arrayAbs
   !
+   
+  pure type(string) function getName_arrayAbs(self)
+    !< returns how many dimensions 
+    class(arrayAbs), intent(in) :: self
+    getName_arrayAbs = self % name
+  end function getName_arrayAbs
+
    
   pure integer function getSize_arrayAbs(self)
     !< returns how many dimensions 
@@ -181,8 +196,9 @@ contains
       self % data = other % data
   end subroutine copy_array
 
-
+  !
   ! add
+  !
   pure function add_array_scalar_rsp(left, right) Result(total)
     !< addition shr_arrayRsp and scalar rsp
     class(shr_arrayRsp), intent(in) :: left
@@ -208,5 +224,49 @@ contains
     class(shr_arrayRsp), allocatable :: total !< output
     total = left % data + right % data
   end function add_array_array
+
+  !
+  ! equal
+  !
+  elemental logical function equal_array(self, other)
+    !< true if self and other are the same
+    class(shr_arrayRsp), intent(in) :: self
+    class(shr_arrayRsp), intent(in) :: other
+
+    logical :: hasSameNAme, hasSameDims, hasSameUnits
+    logical :: hasSameDescription, hasSameData
+
+    equal_array = .false.
+
+    hasSameName = self % getName() == other % getName()
+    if (.not. hasSameName) return
+
+    hasSameDims = all(self % getDims() == other % getDims())
+    if (.not. hasSameDims) return
+
+    hasSameUnits = self % getUnits() == other % getUnits()
+    if (.not. hasSameUnits) return
+
+    hasSameDescription = self % getDescription() == other % getDescription()
+    if (.not. hasSameDescription) return
+
+    hasSameData = (self % data == other % data)
+
+    equal_array = hasSameData
+  end function equal_array
+
+
+  elemental logical function equal_scalar_rsp(self, other)
+    !< true if self and other are the same
+    class(shr_arrayRsp), intent(in) :: self
+    real(kind=sp), intent(in) :: other
+  end function equal_scalar_rsp
+
+
+  pure logical function equal_array_raw_rsp_1(self, other)
+    !< true if self and other are the same
+    class(shr_arrayRsp), intent(in) :: self
+    real(kind=sp), intent(in) :: other(:)
+  end function equal_array_raw_rsp_1
 
 end module SHR_array_mod

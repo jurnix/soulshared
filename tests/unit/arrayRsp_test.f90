@@ -13,6 +13,7 @@ module arrayRsp_test
   use SHR_testSuite_mod, only: testSuite
   use SHR_precision_mod, only: sp
 
+  use shr_strings_mod, only: string
   use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayRspDim, shr_arrayDimContainer
   use SHR_array_mod, only: shr_arrayRsp
 
@@ -66,12 +67,31 @@ contains
     temperature = 273. !< in Kelvin
     incTemp = 1.
 
+    call self % assert ( temperature % getName() == string("temperature"), &
+                "t % getName() .eq. temperature = T"  )
+
+    call self % assert ( temperature % getUnits() == string("kelvin"), &
+                "t % getUnits() .eq. kelvin = T"  )
+
+    call self % assert ( temperature % getDescription() == &
+                string("Air temperature at 1-100 meters"), &
+                "t % getDescription() .eq. 'Air temperature ...' = T"  )
+
     call self % assert ( temperature % getSize() == 1, &
                 "t % getSize() .eq. 1 = T"  )
 
     foundDims = temperature % getDims()
     call self % assert ( all(foundDims == tempDims), &
                 "t % getDims() .eq. [levels] = T"  )
+
+    call self % assert ( .not. (temperature == incTemp), &
+                "temperature .eq. inctemp = F"  )
+
+    call self % assert ( temperature == 273., &
+                "temperature .eq. 273 = T"  )
+
+    call self % assert ( temperature == temperature, &
+                "temperature .eq. temperature = T"  )
 
   end subroutine defineTestCases
 

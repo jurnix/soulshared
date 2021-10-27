@@ -45,6 +45,13 @@ module SHR_arrayContainer_mod
     generic, public :: assignment(=) => copy_scalar_rsp, copy_arrayContainer, &
             copy_array_raw_rsp_1
 
+    ! equal
+    procedure(iface_equal_arrayContainer), deferred :: equal_arrayContainer
+    procedure(iface_equal_scalar_rsp), deferred :: equal_scalar_rsp
+    procedure(iface_equal_array_raw_rsp_1), deferred :: equal_array_raw_rsp_1
+    generic, public :: operator(==) => equal_scalar_rsp, equal_arrayContainer, &
+            equal_array_raw_rsp_1
+
     ! add
     procedure(iface_add_scalar_rsp), deferred :: add_scalar_rsp
     procedure(iface_add_array_raw_rsp_1), deferred :: add_array_raw_rsp_1
@@ -59,6 +66,28 @@ module SHR_arrayContainer_mod
 
 
   abstract interface
+    ! equal
+    elemental logical function iface_equal_scalar_rsp(self, other)
+      import :: shr_arrayContainer, sp
+      !< true if self and other are the same
+      class(shr_arraycontainer), intent(in) :: self
+      real(kind=sp), intent(in) :: other
+    end function iface_equal_scalar_rsp
+
+    pure logical function iface_equal_array_raw_rsp_1(self, other)
+      import :: shr_arrayContainer, sp
+      !< true if self and other are the same
+      class(shr_arraycontainer), intent(in) :: self
+      real(kind=sp), intent(in) :: other(:)
+    end function iface_equal_array_raw_rsp_1
+
+    elemental logical function iface_equal_arrayContainer(self, other)
+      import :: shr_arrayContainer
+      !< true if self and other are the same
+      class(shr_arraycontainer), intent(in) :: self
+      class(shr_arraycontainer), intent(in) :: other
+    end function iface_equal_arrayContainer
+
     ! add
     pure function iface_add_arrayContainer(left, right) Result(total)
       import :: shr_arrayContainer

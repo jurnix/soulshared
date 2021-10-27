@@ -49,6 +49,10 @@ module SHR_arrayContainerAllocatable_mod
     procedure :: copy_array_raw_rsp_1
     procedure :: copy_arrayContainer
 
+    procedure :: equal_arrayContainer => equal_arrayContainerAllocatable
+    procedure :: equal_scalar_rsp
+    procedure :: equal_array_raw_rsp_1
+
     final :: destroy_class
   end type shr_arrayContainerAllocatable
 
@@ -191,7 +195,32 @@ contains
     end select
   end subroutine copy_arrayContainer
 
+  !
+  ! equal
+  !
+  elemental logical function equal_arrayContainerAllocatable(self, other)
+    !< true if self and other are the same
+    class(shr_arraycontainerAllocatable), intent(in) :: self
+    class(shr_arraycontainer), intent(in) :: other
+  end function equal_arrayContainerAllocatable
 
+
+  elemental logical function equal_scalar_rsp(self, other)
+    !< true if self and other are the same
+    class(shr_arraycontainerAllocatable), intent(in) :: self
+    real(kind=sp), intent(in) :: other
+  end function equal_scalar_rsp
+
+
+  pure logical function equal_array_raw_rsp_1(self, other)
+    !< true if self and other are the same
+    class(shr_arraycontainerAllocatable), intent(in) :: self
+    real(kind=sp), intent(in) :: other(:)
+  end function equal_array_raw_rsp_1
+
+  !
+  ! final
+  !
   subroutine destroy_class(self)
     !< destroy class
     type(shr_arrayContainerAllocatable), intent(inout) :: self
