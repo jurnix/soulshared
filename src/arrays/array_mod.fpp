@@ -74,11 +74,12 @@ module SHR_array_mod
 
     ! copy
     procedure :: copy_scalar_rsp
-    procedure :: copy_array_raw_rsp_1
+    procedure :: copy_array_to_raw_rsp_1
+    procedure, pass(self) :: copy_raw_rsp_1_to_array
     procedure :: copy_array
 
     generic, public :: assignment(=) => copy_scalar_rsp, copy_array, &
-            copy_array_raw_rsp_1
+            copy_array_to_raw_rsp_1, copy_raw_rsp_1_to_array
 
     ! add
     procedure :: add_array_scalar_rsp
@@ -180,12 +181,22 @@ contains
   end subroutine copy_scalar_rsp
 
 
-  pure subroutine copy_array_raw_rsp_1(self, other)
+  pure subroutine copy_raw_rsp_1_to_array(other, self)
+    !< copy from arrayRsp 'self' to 'other' array
+    !< raw array = arrayRsp
+    real(kind=sp), allocatable, intent(inout) :: other(:)
+    class(shr_arrayRsp), intent(in) :: self
+    other = self % data
+  end subroutine copy_raw_rsp_1_to_array
+
+
+  pure subroutine copy_array_to_raw_rsp_1(self, other)
     !< copy to current array 'self' from 'other' array
+    !< arrayRsp = raw array
     class(shr_arrayRsp), intent(inout) :: self
     real(kind=sp), intent(in) :: other(:)
     self % data = other
-  end subroutine copy_array_raw_rsp_1
+  end subroutine copy_array_to_raw_rsp_1
 
 
   pure subroutine copy_array(self, other)
@@ -193,7 +204,11 @@ contains
       !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
       class(shr_arrayRsp), intent(inout) :: self
       class(shr_arrayRsp), intent(in) :: other
-      self % data = other % data
+      self % name = other % getName()
+      self % dims = other % getDims()
+      self % units = other % getUnits()
+      self % description = other % getDescription()
+      allocate(self % data, source = other % data)
   end subroutine copy_array
 
   !

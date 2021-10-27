@@ -47,6 +47,7 @@ module SHR_arrayContainerAllocatable_mod
 
     procedure :: copy_scalar_rsp
     procedure :: copy_array_raw_rsp_1
+    procedure, pass(self) :: copy_raw_rsp_1_to_array !< reverse
     procedure :: copy_arrayContainer
 
     procedure :: equal_arrayContainer => equal_arrayContainerAllocatable
@@ -184,6 +185,19 @@ contains
       !< unexpected, inconsistency found
     endif
   end subroutine copy_array_raw_rsp_1
+
+
+  pure subroutine copy_raw_rsp_1_to_array(other, self)
+    !< copy self to other
+    !< reverse of 'copy_array_raw_rsp_1'
+    real(kind=sp), allocatable, intent(inout) :: other(:)
+    class(shr_arrayContainerAllocatable), intent(in) :: self
+    if (self % getSize() == 1) then
+      other = self % r1
+    else
+      !< unexpected, inconsistency found
+    endif
+  end subroutine copy_raw_rsp_1_to_array
 
 
   pure subroutine copy_arrayContainer(self, other)

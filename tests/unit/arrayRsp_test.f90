@@ -42,8 +42,8 @@ contains
     type(shr_arrayDimContainer) :: tempDims(1)
     type(shr_arrayDimContainer), allocatable :: foundDims(:)
 
-!    type(shr_arrayRsp) :: tempCopy
-!    real(kind=sp), allocatable :: tempValues(:)
+    type(shr_arrayRsp) :: tempCopy
+    real(kind=sp), allocatable :: tempValues(:)
 
 !    lat = shr_arrayDim("latitude", 1., 90., 1.)
 !    lon = shr_arrayDim("longitude", 1., 180., 1.)
@@ -92,6 +92,14 @@ contains
 
     call self % assert ( temperature == temperature, &
                 "temperature .eq. temperature = T"  )
+
+    tempCopy = temperature
+    call self % assert ( tempCopy == 273., &
+                "tempCopy .eq. 273. = T"  )
+
+    tempValues = temperature
+    call self % assert ( all(tempValues == 273.), &
+                "tempValues .eq. 273. = T"  )
 
   end subroutine defineTestCases
 

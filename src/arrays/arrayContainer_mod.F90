@@ -41,9 +41,12 @@ module SHR_arrayContainer_mod
     procedure(iface_copy_scalar_rsp), deferred :: copy_scalar_rsp
     procedure(iface_copy_array_raw_rsp_1), deferred :: copy_array_raw_rsp_1
     procedure(iface_copy_arrayContainer), deferred :: copy_arrayContainer
+    
+    ! reverse copy
+    procedure(iface_copy_raw_rsp_1_to_array), deferred, pass(self) :: copy_raw_rsp_1_to_array
 
     generic, public :: assignment(=) => copy_scalar_rsp, copy_arrayContainer, &
-            copy_array_raw_rsp_1
+            copy_array_raw_rsp_1, copy_raw_rsp_1_to_array
 
     ! equal
     procedure(iface_equal_arrayContainer), deferred :: equal_arrayContainer
@@ -122,6 +125,12 @@ module SHR_arrayContainer_mod
       class(shr_arrayContainer), intent(inout) :: self
       real(kind=sp), intent(in) :: other(:)
     end subroutine iface_copy_array_raw_rsp_1
+
+    pure subroutine iface_copy_raw_rsp_1_to_array(other, self)
+      import :: shr_arrayContainer, sp
+      real(kind=sp), allocatable, intent(inout) :: other(:)
+      class(shr_arrayContainer), intent(in) :: self
+    end subroutine iface_copy_raw_rsp_1_to_array
 
     pure subroutine iface_copy_arrayContainer(self, other)
       import :: shr_arrayContainer
