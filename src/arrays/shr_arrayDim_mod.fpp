@@ -23,7 +23,7 @@ module SHR_arrayDim_mod
 
   implicit none
 
-  public :: shr_arrayDim
+  public :: shr_arrayDim, shr_arrayDimContainer
 #:for IKIND, ITYPE, IHEADER in ALL_KINDS_TYPES
 
   public :: shr_array${IHEADER}$Dim
@@ -31,6 +31,13 @@ module SHR_arrayDim_mod
 #:endfor
 
   private
+
+
+  type :: shr_arrayDimContainer
+    class(shr_arrayDim), allocatable :: arraydim
+  contains
+    procedure :: getSize => getSize_arrayDimContainer
+  end type shr_arrayDimContainer
 
 
   type, extends(shr_eqObject_abs), abstract :: shr_arrayDim
@@ -88,7 +95,19 @@ module SHR_arrayDim_mod
 #:endfor
 
 contains
+  !
+  ! shr_arrayDimContainer
+  !
 
+  elemental integer function getSize_arrayDimContainer(self) 
+    !< it returns the dimension size
+    class(shr_arrayDimContainer), intent(in) :: self
+    getSize_arrayDimContainer = self % arrayDim % getSize()
+  end function getSize_arrayDimContainer
+
+  !
+  ! shr_arrayDim
+  !
 
   elemental function getName(self) result (name)
     !< it returns the dimenion's name

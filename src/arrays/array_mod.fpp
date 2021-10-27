@@ -34,7 +34,7 @@ module SHR_array_mod
   use SHR_precision_mod, only: sp, dp!, eqReal
 !  use SHR_error_mod, only: raiseError 
   use SHR_strings_mod, only: string
-  use SHR_arrayDim_mod, only: shr_arrayDim
+  use SHR_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
   use shr_arrayContainer_mod, only: shr_arrayContainer
 
   use shr_arrayContainerAllocatable_mod, only: shr_arrayContainerAllocatable
@@ -43,29 +43,24 @@ module SHR_array_mod
 
   private
 
-  public :: arrayAbs
+  public :: arrayAbs, shr_arrayRsp
 
 
   type, abstract :: arrayAbs !< interface to array
     !< array descriptor
     type(string), allocatable :: name
-    class(shr_arrayDim), allocatable :: dims(:) 
+!    class(shr_arrayDim), allocatable :: dims(:) 
+    type(shr_arrayDimContainer), allocatable :: dims(:) 
     type(string), allocatable :: units
     type(string), allocatable :: description
 
     !< array data
     class(shr_arrayContainer), allocatable :: data 
   contains
-    !< add (arrayAbs, scalar, raw (matching dimensions) array)
-    !< and sub, div, mul
-!    procedure(deferred), (iface_add_arrayAbs_scalar) :: add_arrayAbs_scalar
-
-    !< assignament (=)
-!    procedure :: copy_arrayAbs_scalar
-    !< arrayAbs (same type), scalar or raw array (matching dimensions)
-    !<
-    !< equal(arrayAbs (matching dimensions), raw array (matching dimesion's),
-    !<       
+    procedure :: getSize => getSize_arrayAbs
+    procedure :: getDims => getDims_arrayAbs
+    procedure :: getUnits => getUnits_arrayAbs
+    procedure :: getDescription => getDescription_arrayAbs
   end type arrayAbs
 
 
@@ -94,19 +89,64 @@ module SHR_array_mod
 
 
 contains
+  !
+  ! arrayAbs
+  !
+   
+  pure integer function getSize_arrayAbs(self)
+    !< returns how many dimensions 
+    class(arrayAbs), intent(in) :: self
+    getSize_arrayAbs = size(self % dims)
+  end function getSize_arrayAbs
+
+
+  pure function getDims_arrayAbs(self) result (dims)
+    !< returns array dimensions as an allocatable array
+    class(arrayAbs), intent(in) :: self
+!    class(shr_arrayDim), allocatable :: dims(:) !< output
+    type(shr_arrayDimContainer), allocatable :: dims(:) !< output
+    if (allocated(dims)) deallocate(dims)
+    allocate(dims, source = self % dims)
+!    dims = self % dims
+  end function getDims_arrayAbs
+
+
+  pure type(string) function getUnits_arrayAbs(self)
+    !< its returns its units
+    class(arrayAbs), intent(in) :: self
+    getUnits_arrayAbs = self % units
+  end function getUnits_arrayAbs
+
+
+  pure type(string) function getDescription_arrayAbs(self)
+    !< it returns its description
+    class(arrayAbs), intent(in) :: self
+    getDescription_arrayAbs = self % description
+  end function getDescription_arrayAbs
+
+
+  !
+  ! arrayRsp
+  !
   ! init
   pure subroutine init_array_rsp(self, name, dimensions, units, description)
     !< shr_arrayRsp initialization
     class(shr_arrayRsp), intent(inout) :: self
-    type(string), intent(in) :: name
-    class(shr_arrayDim), intent(in) :: dimensions(:)
-    type(string), intent(in) :: units
-    type(string), intent(in) :: description
+    character(*), intent(in) :: name
+!    class(shr_arrayDim), intent(in) :: dimensions(:)
+    type(shr_arrayDimContainer), intent(in) :: dimensions(:)
+    character(*), intent(in) :: units
+    character(*), intent(in) :: description
 
-    self % name = name
-    self % units = units
-    self % description = description
-    self % dims = dimensions
+    allocate(self % name)
+    self % name = string(name)
+    allocate(self % units)
+    self % units = string(units)
+    allocate(self % description)
+    self % description = string(description)
+
+!    self % dims = dimensions
+    allocate(self % dims, source = dimensions)
 
     ! todo, creational design pattern?
     allocate( shr_arrayContainerAllocatable :: self % data )

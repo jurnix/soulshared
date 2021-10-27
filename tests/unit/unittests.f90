@@ -29,6 +29,7 @@ program unittest
   use set_test, only: testSuiteSet
 
   use shr_arrayRealDim_test, only: testSuiteArrayRealDim
+  use arrayRsp_test, only: testSuiteArrayRsp
 
   implicit none
 
@@ -49,6 +50,7 @@ program unittest
   type(testSuiteLinkedList) :: tsLinkedList
   type(testSuiteSet) :: tsSet
   type(testSuiteArrayRealDim) :: tsArrayRealDim
+  type(testSuiteArrayRsp) :: tsArrayRsp
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -67,6 +69,7 @@ program unittest
   call tsLinkedList % init("Linked list test", 10)
   call tsSet % init("Set test", 10)
   call tsArrayRealDim % init("ArrayRealDim test", 20)
+  call tsArrayRsp % init("ArrayRsp test", 20)
 
   ! run all tests 
   call tsDatetime % run()
@@ -85,6 +88,7 @@ program unittest
   call tsLinkedList % run() 
   call tsSet % run() 
   call tsArrayRealDim % run() 
+  call tsArrayRsp % run() 
 
 
   ! show results
@@ -104,6 +108,7 @@ program unittest
   call tsLinkedList % report() 
   call tsSet % report() 
   call tsArrayRealDim % report() 
+  call tsArrayRsp % report() 
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -121,7 +126,8 @@ program unittest
       .not. tsOOPExtends % isSuccessful() .or. &
       .not. tsLinkedList % isSuccessful() .or. &
       .not. tsSet % isSuccessful() .or. &
-      .not. tsArrayRealDim % isSuccessful() &
+      .not. tsArrayRealDim % isSuccessful() .or. &
+      .not. tsArrayRsp % isSuccessful() &
       ) stop 1
 
 end program unittest

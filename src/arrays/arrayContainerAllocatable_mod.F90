@@ -17,7 +17,7 @@
 module SHR_arrayContainerAllocatable_mod
 
   use SHR_precision_mod, only: sp! dp, eqReal
-  use shr_arrayDim_mod, only: shr_arrayDim
+  use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
   use shr_arrayContainer_mod, only: shr_arrayContainer
 !  use SHR_error_mod, only: raiseError 
 !  use SHR_strings_mod, only: string
@@ -60,21 +60,24 @@ contains
     !< initialize shr_arrayContainer, overload parent subroutine
     !< to customize child initialiation
     class(shr_arrayContainerAllocatable), intent(inout) :: self
-    class(shr_arrayDim), intent(in) :: dimensions(:)
+!    class(shr_arrayDim), intent(in) :: dimensions(:)
+    type(shr_arrayDimContainer), intent(in) :: dimensions(:)
 
     integer, allocatable :: alldims(:)
     integer :: first, second, third, fourth, fifth
 
     !< common to all arrayContainer
-    self % dimensions = dimensions
+    !self % dimensions = dimensions
+    allocate(self % dimensions, source = dimensions)
     self % ndims = size(dimensions)
+    alldims = self % dimensions % getSize()
 
     !< customized init
     first = alldims(1)
-    if (self % ndims <= 2) second = alldims(2)
-    if (self % ndims <= 3) third = alldims(3)
-    if (self % ndims <= 4) fourth = alldims(4)
-    if (self % ndims <= 5) fifth = alldims(5)
+    if (self % ndims >= 2) second = alldims(2)
+    if (self % ndims >= 3) third = alldims(3)
+    if (self % ndims >= 4) fourth = alldims(4)
+    if (self % ndims >= 5) fifth = alldims(5)
 
     if (self % ndims == 1) then
       allocate(self % r1(first))

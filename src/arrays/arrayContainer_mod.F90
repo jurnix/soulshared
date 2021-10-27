@@ -19,7 +19,7 @@ module SHR_arrayContainer_mod
   use SHR_precision_mod, only: sp! dp, eqReal
 !  use SHR_error_mod, only: raiseError 
 !  use SHR_strings_mod, only: string
-  use shr_arrayDim_mod, only: shr_arrayDim
+  use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
 
   implicit none
 
@@ -30,7 +30,7 @@ module SHR_arrayContainer_mod
 
   type, abstract :: shr_arrayContainer
     integer :: ndims !< total number of dimensions
-    class(shr_arrayDim), allocatable :: dimensions(:)
+    type(shr_arrayDimContainer), allocatable :: dimensions(:)
   contains
     procedure :: getSize
     procedure :: getDims
@@ -120,8 +120,9 @@ contains
   pure subroutine init(self, dimensions)
     !< initialize shr_arrayContainer
     class(shr_arrayContainer), intent(inout) :: self
-    class(shr_arrayDim), intent(in) :: dimensions(:)
-    self % dimensions = dimensions
+    type(shr_arrayDimContainer), intent(in) :: dimensions(:)
+    !self % dimensions = dimensions
+    allocate(self % dimensions, source = dimensions)
     self % ndims = size(dimensions)
   end subroutine init
 
