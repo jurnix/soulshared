@@ -33,10 +33,11 @@ module SHR_arrayDim_mod
   private
 
 
-  type :: shr_arrayDimContainer
+  type, extends(shr_eqObject_abs) :: shr_arrayDimContainer
     class(shr_arrayDim), allocatable :: arraydim
   contains
     procedure :: getSize => getSize_arrayDimContainer
+    procedure :: eq_object => equal_arrayDimContainer
   end type shr_arrayDimContainer
 
 
@@ -98,6 +99,19 @@ contains
   !
   ! shr_arrayDimContainer
   !
+  elemental logical function equal_arrayDimContainer(self, other)
+    !< true if self and other are the same
+    class(shr_arrayDimContainer), intent(in) :: self
+    class(SHR_eqObject_abs), intent(in) :: other
+
+    select type(other)
+      type is (shr_arrayDimContainer)
+        equal_arrayDimContainer = (self % arrayDim == other % arrayDim)
+      class default
+        equal_arrayDimContainer = .false.
+    end select
+  end function equal_arrayDimContainer
+
 
   elemental integer function getSize_arrayDimContainer(self) 
     !< it returns the dimension size

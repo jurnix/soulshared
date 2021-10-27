@@ -39,7 +39,7 @@ contains
     type(shr_arrayRsp) :: temperature
     type(shr_arrayRsp) :: incTemp
     type(shr_arrayDimContainer) :: tempDims(1)
-!    type(shr_arrayDimContainer), allocatable :: foundDims(:)
+    type(shr_arrayDimContainer), allocatable :: foundDims(:)
 
 !    type(shr_arrayRsp) :: tempCopy
 !    real(kind=sp), allocatable :: tempValues(:)
@@ -69,9 +69,9 @@ contains
     call self % assert ( temperature % getSize() == 1, &
                 "t % getSize() .eq. 1 = T"  )
 
-!    foundDims = temperature % getDims()
-!    call self % assert ( all(foundDims == tempDims), &
-!                "t % getDims() .eq. [levels] = T"  )
+    foundDims = temperature % getDims()
+    call self % assert ( all(foundDims == tempDims), &
+                "t % getDims() .eq. [levels] = T"  )
 
   end subroutine defineTestCases
 
