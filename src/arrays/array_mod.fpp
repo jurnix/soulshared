@@ -237,7 +237,7 @@ contains
     logical :: hasSameDescription, hasSameData
 
     equal_array = .false.
-
+    ! compare array descriptor
     hasSameName = self % getName() == other % getName()
     if (.not. hasSameName) return
 
@@ -250,6 +250,7 @@ contains
     hasSameDescription = self % getDescription() == other % getDescription()
     if (.not. hasSameDescription) return
 
+    ! compare data
     hasSameData = (self % data == other % data)
 
     equal_array = hasSameData
@@ -260,6 +261,7 @@ contains
     !< true if self and other are the same
     class(shr_arrayRsp), intent(in) :: self
     real(kind=sp), intent(in) :: other
+    equal_scalar_rsp = (self % data == other)
   end function equal_scalar_rsp
 
 
@@ -267,6 +269,7 @@ contains
     !< true if self and other are the same
     class(shr_arrayRsp), intent(in) :: self
     real(kind=sp), intent(in) :: other(:)
+    equal_array_raw_rsp_1 = all(self % data == other)
   end function equal_array_raw_rsp_1
 
 end module SHR_array_mod

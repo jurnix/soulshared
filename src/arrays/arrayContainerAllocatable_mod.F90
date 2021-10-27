@@ -98,7 +98,9 @@ contains
     endif
   end subroutine init
 
-
+  !
+  ! add
+  !
   pure function add_arrayContainerAllocatable(left, right) Result(total)
     !< addition of arrayCA + arrayC 
     class(shr_arrayContainerAllocatable), intent(in) :: left
@@ -156,11 +158,19 @@ contains
     endif
   end function add_scalar_rsp
 
-
+  !
+  ! copy
+  !
   pure subroutine copy_scalar_rsp(self, other)
-      !< Copy to current array container allocatable
-      class(shr_arrayContainerAllocatable), intent(inout) :: self
-      real(kind=sp), intent(in) :: other
+    !< Copy to current array container allocatable
+    class(shr_arrayContainerAllocatable), intent(inout) :: self
+    real(kind=sp), intent(in) :: other
+    if (self % getSize() == 1) then
+      self % r1 = other 
+!    MAXRANK
+    else
+      !< unexpected, inconsistency found
+    endif
   end subroutine copy_scalar_rsp
 
 
@@ -202,6 +212,21 @@ contains
     !< true if self and other are the same
     class(shr_arraycontainerAllocatable), intent(in) :: self
     class(shr_arraycontainer), intent(in) :: other
+
+    equal_arrayContainerAllocatable = .false. 
+
+    select type(otherArray => other)
+    type is (shr_arrayContainerAllocatable)
+      if (self % getSize() == 1 .and. other % getSize() == 1) then
+        equal_arrayContainerAllocatable = all(self % r1 == otherArray % r1)
+      !elseif... MAXRANK
+      else
+        !< unexpected
+      endif
+    class default
+      !< unexpected
+      equal_arrayContainerAllocatable = .false. 
+    end select
   end function equal_arrayContainerAllocatable
 
 
@@ -209,6 +234,14 @@ contains
     !< true if self and other are the same
     class(shr_arraycontainerAllocatable), intent(in) :: self
     real(kind=sp), intent(in) :: other
+    equal_scalar_rsp = .false.
+    if (self % getSize() == 1) then
+      equal_scalar_rsp = all(self % r1 == other)
+!    MAXRANK
+    else
+      !< unexpected, inconsistency found
+      equal_scalar_rsp = .false.
+    endif
   end function equal_scalar_rsp
 
 
@@ -216,6 +249,13 @@ contains
     !< true if self and other are the same
     class(shr_arraycontainerAllocatable), intent(in) :: self
     real(kind=sp), intent(in) :: other(:)
+    equal_array_raw_rsp_1 = .false.
+    if (self % getSize() == 1) then
+      equal_array_raw_rsp_1 = all(self % r1 == other)
+    else
+      !< unexpected, inconsistency found
+      equal_array_raw_rsp_1 = .false.
+    endif
   end function equal_array_raw_rsp_1
 
   !
