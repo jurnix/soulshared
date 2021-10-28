@@ -10,7 +10,7 @@
 !> grid partitoin unit tests
 !------------------------------------------------------------------------------
 module grid_test
-  use shr_grid_mod, only: grid
+  use shr_grid_mod, only: shr_grid
   use shr_gridcell_mod, only: GRIDCELL_N_NEAST, GRIDCELL_N_NORTH, GRIDCELL_N_EAST, &
             GRIDCELL_N_SEAST, GRIDCELL_N_SOUTH, GRIDCELL_N_SWEST, GRIDCELL_N_WEST, &
             GRIDCELL_N_NWEST, shr_gridcell
@@ -34,7 +34,7 @@ contains
   subroutine defineTestCases(self)
     use iso_c_binding
     class(testSuiteGrid), intent(inout) :: self
-    type(grid) :: g
+    type(shr_grid) :: g
 
     !
     ! land       coordinates (center)   global indices 
@@ -49,7 +49,7 @@ contains
     integer, parameter :: nPartitions = 1
     type(shr_gridcell) :: gcEast, gcSeast, gcSouth, gcNeigh, gcFirst
     type(coord) :: ccenter, ccEast
-    type(grid) :: subgrid
+    type(shr_grid) :: subgrid
     real(kind=sp) :: sublimits(4)
     type(coord) :: coordOut, coordIn
     type(coord), allocatable :: allCoords(:)
@@ -61,7 +61,7 @@ contains
     real(kind=sp), allocatable :: filteredTemp(:)
     real(kind=sp) :: temp1d(3) 
 
-    g = grid(limits, resolution, curPartition, nPartitions)
+    g = shr_grid(limits, resolution, curPartition, nPartitions)
 
     !procedure :: hasNeighbourByIdx !< true if the given direction has a neighbour
     call self % assert(.not. g % hasNeighbourByIdx(1, GRIDCELL_N_NORTH), & 

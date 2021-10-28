@@ -42,10 +42,10 @@ module shr_grid_mod
 
   private
 
-  public :: grid, coord
+  public :: shr_grid, coord
 
 
-  type :: grid !< latitude and longitude have the same resolution
+  type :: shr_grid !< latitude and longitude have the same resolution
     real(kind=sp), allocatable :: lats(:) !< list all latitudes
     real(kind=sp), allocatable :: lons(:) !< list all longitudes
     real(kind=sp) :: resolution !< grid resolution
@@ -126,16 +126,16 @@ module shr_grid_mod
     procedure, private :: coord2Index
     !procedure :: lat2Index
     !procedure :: lon2Index
-  end type grid
+  end type shr_grid
 
-  interface grid
+  interface shr_grid
     module procedure :: grid_constructor
   end interface
 
 contains
 
 
-  type(grid) function grid_constructor(limits, resolution, currentPartition, totalPartitions, &
+  type(shr_grid) function grid_constructor(limits, resolution, currentPartition, totalPartitions, &
                   enabledGridcells)
     !< grid constructor
     !< in case current partition and total partitions are defined:
@@ -160,7 +160,7 @@ contains
     !< - the domain will be divided into totalParitions parts
     !< - each part is defined by a unique currentPartition number
     !< - So the whole grid is divided with a number of equal enabled gridcells
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     real(kind=sp), intent(in) :: limits(SHR_GRIDBOUNDS_NCOORDS) !< north, south, east, west (90, -90, 180, -180)
     real(kind=sp), intent(in) :: resolution
     integer, intent(in) :: currentPartition !< current number of partition
@@ -228,7 +228,7 @@ contains
 
   logical function hasNeighbourByIdx(self, idxGC, direction)
     !< given a gridcell and a direction it returns true if there is one
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     integer, intent(in) :: idxGC !< from which gridcell to request its neighbour
     integer, intent(in) :: direction !< neighbour's direction
 
@@ -242,7 +242,7 @@ contains
 
   logical function hasNeighbourByGc(self, sourceGridcell, direction)
     !< given a gridcell and a direction it returns true if there is one
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     type(shr_gridcell), intent(in) :: sourceGridcell !< from which gridcell to request its neighbour
     integer, intent(in) :: direction !< neighbour's direction
 
@@ -295,7 +295,7 @@ contains
 
   function getNeighbourByIdx(self, gcIndex, direction) result (r)
     ! given a gridcell it returns its correspoding gridcell according to the 'direction' indicated
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     integer, intent(in) :: gcIndex !< from which gridcell to request its neighbour
     integer, intent(in) :: direction !< neighbour's direction
 
@@ -307,7 +307,7 @@ contains
 
   function getNeighbourByGc(self, sGridcell, direction) result (r)
     ! given a gridcell it returns its correspoding gridcell according to the 'direction' indicated
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     type(shr_gridcell), intent(in) :: sGridcell !< from which gridcell to request its neighbour
     integer, intent(in) :: direction !< neighbour's direction
 
@@ -377,7 +377,7 @@ contains
 
   function getSubGrid(self, newLimits, newResolution, currentPartition, totalPartitions) result (newGrid)
     !< it returns new grid with those given
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     real(kind=sp), intent(in) :: newLimits(4) !< n, s, e, w
     real(kind=sp), intent(in), optional :: newResolution
     integer, intent(in), optional :: currentPartition 
@@ -386,7 +386,7 @@ contains
     integer :: inCurrentPartition, inTotalPartitions
 
     real(kind=sp) :: res
-    type(grid) :: newGrid
+    type(shr_grid) :: newGrid
 
     if ( present(newResolution) ) then
       res = newResolution
@@ -402,13 +402,13 @@ contains
       inTotalPartitions = 1
     endif
 
-    newGrid = grid(newLimits, res, inCurrentPartition, inTotalPartitions)
+    newGrid = shr_grid(newLimits, res, inCurrentPartition, inTotalPartitions)
   end function getSubGrid
 
 
   logical elemental function fitsInCoord(self, nCoord) 
     !< true the given coordinate fits in the current one if true
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     type(coord), intent(in) :: nCoord
     fitsInCoord = self % limits % fitsCoord(nCoord)
   end function fitsInCoord
@@ -416,15 +416,15 @@ contains
 
   logical elemental function fitsInGrid(self, smallerGrid) 
     !< true if the given grid fits in the current one if true
-    class(grid), intent(in) :: self
-    class(grid), intent(in) :: smallerGrid
+    class(shr_grid), intent(in) :: self
+    class(shr_grid), intent(in) :: smallerGrid
     fitsInGrid = self % limits % fitsGridBounds(smallerGrid % limits)
   end function fitsInGrid
 
 
   logical elemental function fitsInBounds(self, bounds) 
     !< true if the given bounds fits in the current grid
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     type(shr_gridBounds), intent(in) :: bounds
     fitsInBounds = self % limits % fitsGridBounds(bounds)
   end function fitsInBounds
@@ -432,7 +432,7 @@ contains
 
   logical function isGlobal(self) 
     !< the current grid represent the whole globe
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     real(kind=sp), parameter :: GLOBE(SHR_GRIDBOUNDS_NCOORDS) = (/ 90,-90,180,-180 /)
 
     isGlobal = (self % limits == GLOBE)
@@ -442,7 +442,7 @@ contains
   function getLimits(self) result (limits)
     !< return the outter most latitudes and longitudes
     !<   north, south, east, west
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     real(kind=sp) :: limits(SHR_GRIDBOUNDS_NCOORDS) !< output
 
     limits = self % limits % toArray()
@@ -450,7 +450,7 @@ contains
 
 
   function getResolution(self) result (resolution)
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     real(sp) :: resolution
 
     resolution = self % resolution 
@@ -459,7 +459,7 @@ contains
 
   function getLatCoords(self) result (allLats)
     !< return the latitude coordinates
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     real(kind=sp), allocatable :: allLats(:) !< output
 
     allLats = self % lats
@@ -468,7 +468,7 @@ contains
 
   function getLonCoords(self) result (allLons)
     !< return the longitude coordinates
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     real(kind=sp), allocatable :: allLons(:) !< output
 
     allLons = self % lons
@@ -479,7 +479,7 @@ contains
     !> return the indices of the gridcells where the coordinates match
     !> in case is in the middle of multiple gridcells, the corresponding
     !> indices are returned. At most 4 indices can be returned.
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     real(kind=sp), intent(in) :: lat
     integer, allocatable :: idxs(:) !< output, indices found
 
@@ -495,7 +495,7 @@ contains
     !> it returns the indices where the 'lon' longitude value
     !> fits into the grid longitudes. 
     !> The outputs are the indices from its unique longitude array
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     real(kind=sp), intent(in) :: lon
     integer, allocatable :: idxs(:) !< output, indices found
 
@@ -510,7 +510,7 @@ contains
   function coord2Index(self, coord, array) result (indices)
     !> Given a unique coordinate and a set of coordinates
     !< it returns the indices of the corresponding 'array' gridcells
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     real(kind=sp), intent(in) :: coord !< value to match
     real(kind=sp), intent(in) :: array(:) !< array coords to get index from
     integer, allocatable :: indices(:)
@@ -534,7 +534,7 @@ contains
 
   function getLatSize(self) result (nlats)
     !< the total number of defined latitudes
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     integer :: nlats !< output
 
     nlats = size (self % lats)
@@ -543,7 +543,7 @@ contains
 
   function getLonSize(self) result (nlons)
     !< the total number of defined latitudes
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     integer :: nlons !< output
 
     nlons = size (self % lons)
@@ -553,7 +553,7 @@ contains
   function countAllEnabledGridcells(self, partition) result (counter)
     ! it returns an integer with the total number of enabled gridcells
     !< by default it returns all gridcells
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     integer, intent(in), optional :: partition
     integer :: counter !< output
 
@@ -581,7 +581,7 @@ contains
 
   function getPartitionBounds(self, partition) result (bounds)
     !< it returns the requested 'partition' 1d bounds
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     integer, intent(in), optional :: partition
     integer :: bounds(2) !< output
     bounds = self % partitions % getPartitionBounds(partition)
@@ -592,7 +592,7 @@ contains
     ! it returns array with all the enabled gridcells coordinates.
     ! those coordinates represent the center of the gridcell
     !< by default is global
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     integer, intent(in), optional :: partition !< global or partition id
     type(coord), allocatable :: cCoords(:) !< output
 
@@ -614,7 +614,7 @@ contains
   function getAllEnabledGridcells(self, partition) result (gcs)
     ! it returns an array with all the enabled gridcells
     !< by default it returns all enabled gridcells 
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     integer, intent(in), optional :: partition
     type(shr_gridcell), allocatable :: gcs(:)
 
@@ -652,7 +652,7 @@ contains
   subroutine setGridcellStatusByIdxs(self, idxlat, idxlon, status)
     !< the corresponding gridcell from idxlat, idxlon define a new enabled status
     !< the gridcell position is calculated with idxlat and idxlon array indices
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     integer, intent(in) :: idxlat, idxlon !< array indices from lats and lons
     logical, intent(in) :: status !< new gridcell status
 
@@ -666,7 +666,7 @@ contains
 
   subroutine setGridcellStatusByCoord(self, newCoord, status)
     !< the corresponding gridcell from newCoord define a new enabled status
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     type(coord), intent(in) :: newCoord !< 
     logical, intent(in) :: status !< 
 
@@ -701,7 +701,7 @@ contains
   subroutine setAllEnabledGridcells(self, newCoords) 
     !< it defines all enabled gridscells. Those not specified
     !< are set as disabled
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     type(coord), intent(in), optional :: newCoords(:)
 
     logical, allocatable :: coordsOut(:)
@@ -739,7 +739,7 @@ contains
 
   logical function isCoordEnabled(self, newCoord) 
     !< true if the given coordinate is enabled
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     type(coord), intent(in) :: newCoord
     character(len=*), parameter :: SNAME = "isCoordEnabled_scal"
     type(shr_gridcell), allocatable :: gcs(:)
@@ -762,7 +762,7 @@ contains
     !< it transform a full spatial(2d) array into a unique enabled array (1d)
     !< 'datain' must have the same size as the grid
     !< the other non spatial dimensions are kept 
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     ${ITYPE}$, intent(in) :: datain${ranksuffix(RANK)}$ !< lat, lon
     ${ITYPE}$, allocatable :: dout${ranksuffix(RANK-1)}$
 
@@ -820,7 +820,7 @@ contains
   function filterEnabledData_${IHEADER}$_${RANK}$(self, datain, coords) result (dout)
     ! filter gridcells from the given array
     ! the given array must be 1d spatial and the grid size
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     ${ITYPE}$, intent(in) :: datain${ranksuffix(RANK)}$ !< global variable
     type(coord), intent(in) :: coords(:) !< gridcell's coordinates to filter in 
     ${ITYPE}$, allocatable :: dout${ranksuffix(RANK)}$ !< output
@@ -886,7 +886,7 @@ contains
 
   function getGridcellBySpatialIndices(self, latx, lonx) result (foundGc)
     !< return gridcell(s) given a coordinate
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     integer, intent(in) :: latx, lonx
     type(shr_gridcell) :: foundGc !< output
 
@@ -917,7 +917,7 @@ contains
 
   function getGridcellByCoord(self, c) result (r)
     !< return gridcell(s) given a coordinate
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     type(coord), intent(in) :: c
     type(shr_gridcell), allocatable :: r(:) !< output
 
@@ -956,7 +956,7 @@ contains
   function getGloIndices(self) result (allidx)
     !< return all indices from the grid
     !< each index is a unique number assigned to each gridcell 
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     integer, allocatable :: allidx(:)
     integer :: idx 
     integer :: ngcs !< total number of gridcells
@@ -973,7 +973,7 @@ contains
 
   function countAllGridcells(self) result (ngcs)
     !< return the total number of gridcells in the grid 
-    class(grid), intent(inout) :: self
+    class(shr_grid), intent(inout) :: self
     integer :: ngcs !< intent(out )
     integer :: idx
 
@@ -987,7 +987,7 @@ contains
   function getLandBounds(self, partition) result (bounds)
     !< global or loca, get gridcell indices from requested domain
     !< domain: global or local domains, from 0 to P-1. Use -1 for global domain
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     integer, intent(in), optional :: partition
     integer :: bounds(2)
     bounds = self % partitions % getPartitionBounds(partition)
@@ -997,7 +997,7 @@ contains
   function getLandIndices(self, partition) result (landIndices)
     !< global / local, get gridcell indices from requested domain
     !< domain: global or local domains, from 0 to P-1. Use -1 for global domain
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     integer, intent(in), optional :: partition
     integer, allocatable :: landIndices(:)
     type(shr_gridcell), allocatable :: enabledGCs(:) !< enabled gridcells found in 'coords'
@@ -1019,14 +1019,14 @@ contains
 
   integer function getCurrentPartitionId(self)
     !< it returns the current partition id
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     getCurrentPartitionId = self % partitions % getPartitionId()
   end function getCurrentPartitionId
 
 
   integer function getTotalPartitions(self)
     !< it returns the current partition id
-    class(grid), intent(in) :: self
+    class(shr_grid), intent(in) :: self
     getTotalPartitions = self % partitions % getTotalPartitions()
   end function getTotalPartitions
 
