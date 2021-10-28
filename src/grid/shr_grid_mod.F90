@@ -76,9 +76,9 @@ module shr_grid_mod
                         initArrayRange
   use shr_coord_mod, only: coord
   use shr_gridPartition_mod, only: grid_partition_type
-  use shr_window_mod, only: window 
-  use shr_window_mod, only: WINDOW_NCOORDS, WINDOW_NORTH, &
-             WINDOW_SOUTH, WINDOW_EAST, WINDOW_WEST
+  use shr_gridBounds_mod, only: shr_gridBounds
+  use shr_gridBounds_mod, only: SHR_GRIDBOUNDS_NCOORDS, SHR_GRIDBOUNDS_NORTH, &
+             SHR_GRIDBOUNDS_SOUTH, SHR_GRIDBOUNDS_EAST, SHR_GRIDBOUNDS_WEST
 
   implicit none
 
@@ -110,7 +110,7 @@ module shr_grid_mod
     integer :: idx !< gridcell index in repect to the overall grid (starting from top-left with 1 to ...)
     type(coord) :: center !< gridcell center
     real(kind=sp) :: resolution !< gridcell resolution
-    type(window) :: limits !< limits of the gridcell n, s, e, w
+    type(shr_gridBounds) :: limits !< limits of the gridcell n, s, e, w
     logical :: enabled !< data is used, otherwise it is ignored
   contains
     procedure :: contains
@@ -132,7 +132,7 @@ module shr_grid_mod
     real(kind=sp), allocatable :: lats(:) !< list all latitudes
     real(kind=sp), allocatable :: lons(:) !< list all longitudes
     real(kind=sp) :: resolution !< grid resolution
-    type(window) :: limits !< max/min lats/lons of the grid
+    type(shr_gridBounds) :: limits !< max/min lats/lons of the grid
 
     type(gridcell), allocatable :: gridcells(:) !< gridcells
     type(grid_partition_type), allocatable :: partitions
@@ -370,7 +370,7 @@ contains
     gridcell_constructor % idx = idx
     gridcell_constructor % center = center
     gridcell_constructor % resolution = resolution
-    gridcell_constructor % limits = window(center % lat + halfres, & ! north
+    gridcell_constructor % limits = shr_gridBounds(center % lat + halfres, & ! north
                                      center % lat - halfres, & ! south
                                      center % lon + halfres, & ! east
                                      center % lon - halfres)  ! west
@@ -389,7 +389,7 @@ contains
     !< - the domain will be divided into totalParitions parts
     !< - each part is defined by a unique currentPartition number
     !< - So the whole grid is divided with a number of equal enabled gridcells
-    real(kind=sp), intent(in) :: limits(WINDOW_NCOORDS) !< north, south, east, west (90, -90, 180, -180)
+    real(kind=sp), intent(in) :: limits(SHR_GRIDBOUNDS_NCOORDS) !< north, south, east, west (90, -90, 180, -180)
     real(kind=sp), intent(in) :: resolution
     integer, intent(in) :: currentPartition !< current number of partition
     integer, intent(in) :: totalPartitions !< total number of parts the grid is divided into
@@ -408,7 +408,7 @@ contains
     !< - each part is defined by a unique currentPartition number
     !< - So the whole grid is divided with a number of equal enabled gridcells
     class(grid), intent(inout) :: self
-    real(kind=sp), intent(in) :: limits(WINDOW_NCOORDS) !< north, south, east, west (90, -90, 180, -180)
+    real(kind=sp), intent(in) :: limits(SHR_GRIDBOUNDS_NCOORDS) !< north, south, east, west (90, -90, 180, -180)
     real(kind=sp), intent(in) :: resolution
     integer, intent(in) :: currentPartition !< current number of partition
     integer, intent(in) :: totalPartitions !< total number of parts the grid is divided into
@@ -434,12 +434,12 @@ contains
     halfres = resolution / 2.
 
     ! generate lat lon -> coordinate points the center of the gridcell
-    start = limits(WINDOW_NORTH) - halfres
-    end = limits(WINDOW_SOUTH) + halfres
+    start = limits(SHR_GRIDBOUNDS_NORTH) - halfres
+    end = limits(SHR_GRIDBOUNDS_SOUTH) + halfres
     self % lats = initArrayRange(start, end, -resolution)
 
-    start = limits(WINDOW_EAST) - halfres
-    end = limits(WINDOW_WEST) + halfres
+    start = limits(SHR_GRIDBOUNDS_EAST) - halfres
+    end = limits(SHR_GRIDBOUNDS_WEST) + halfres
     self % lons = initArrayRange(start, end, -resolution)
 
     call self % limits % init(limits)
@@ -665,22 +665,22 @@ contains
     !< true if the given grid fits in the current one if true
     class(grid), intent(in) :: self
     class(grid), intent(in) :: smallerGrid
-    fitsInGrid = self % limits % fitsWindow(smallerGrid % limits)
+    fitsInGrid = self % limits % fitsGridBounds(smallerGrid % limits)
   end function fitsInGrid
 
 
   logical elemental function fitsInBounds(self, bounds) 
     !< true if the given bounds fits in the current grid
     class(grid), intent(in) :: self
-    type(window), intent(in) :: bounds
-    fitsInBounds = self % limits % fitsWindow(bounds)
+    type(shr_gridBounds), intent(in) :: bounds
+    fitsInBounds = self % limits % fitsGridBounds(bounds)
   end function fitsInBounds
 
 
   logical function isGlobal(self) 
     !< the current grid represent the whole globe
     class(grid), intent(inout) :: self
-    real(kind=sp), parameter :: GLOBE(WINDOW_NCOORDS) = (/ 90,-90,180,-180 /)
+    real(kind=sp), parameter :: GLOBE(SHR_GRIDBOUNDS_NCOORDS) = (/ 90,-90,180,-180 /)
 
     isGlobal = (self % limits == GLOBE)
   end function isGlobal
@@ -690,7 +690,7 @@ contains
     !< return the outter most latitudes and longitudes
     !<   north, south, east, west
     class(grid), intent(inout) :: self
-    real(kind=sp) :: limits(WINDOW_NCOORDS) !< output
+    real(kind=sp) :: limits(SHR_GRIDBOUNDS_NCOORDS) !< output
 
     limits = self % limits % toArray()
   end function getLimits
