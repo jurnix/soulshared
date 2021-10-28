@@ -166,7 +166,7 @@ contains
     class(sp_rpArray), pointer :: wrapPoint
     real(kind=sp) :: initVal !< default value to initialize tsArray
 
-    tsArray_constructor_r1 % name = name
+    allocate(tsArray_constructor_r1 % name, source = string(name))
 !    tsArray_constructor_r1 % dimsName = dimsName
     tsArray_constructor_r1 % internalTime = sClock
     tsArray_constructor_r1 % operation = operation

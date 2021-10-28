@@ -81,18 +81,20 @@ contains
     if (current >= total) then
       write(tmp,*) current
       write(tmp1,*) total
-      call raiseError(__FILE__, "shr_gridPartition_initialize", &
-                                "Current partition id must smaller than total partitions", &
-                                "Current:"//tmp, &
-                                "Total:"//tmp1 )
+      call raiseError(__FILE__, &
+              "shr_gridPartition_initialize", &
+              "Current partition id must smaller than total partitions", &
+              "Current:"//tmp, &
+              "Total:"//tmp1 )
     endif
 
     ! only postive number
     if (current < 0) then
       write(tmp,*) current
-      call raiseError(__FILE__, "shr_gridPartition_initialize", &
-                                "Current partition id must be equal or bigger than 0", &
-                                "Current:"//tmp)
+      call raiseError(__FILE__, &
+              "shr_gridPartition_initialize", &
+              "Current partition id must be equal or bigger than 0", &
+              "Current:"//tmp)
     endif
 
     ! calculate how many grids for each partition

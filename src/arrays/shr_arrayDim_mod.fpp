@@ -151,7 +151,8 @@ contains
     !< dummy
     class(shr_arrayDim), intent(in) :: self
     isInBounds_dummy = .false.
-    call raiseError(__FILE__, "isInBounds_dummy", "Dummy subroutine")
+    call raiseError(__FILE__, "isInBounds_dummy", &
+            "Dummy subroutine")
   end function isInBounds_dummy
 
 

@@ -533,7 +533,8 @@ contains
       if (present(default)) then ! let's make sure default is elegible in-between choices
         allDefault = this % isValueAllowed(this % defValue)
         if (.not. allDefault) then
-          call raiseError(__FILE__, "initialize_option_timedeltas", &
+          call raiseError(__FILE__, &
+                  "initialize_option_timedeltas", &
                 "'default' value not found in 'choices'", &
                 "default(s): ", &!//this % defValue, & ! todo
                 "Choices: ")!// this % choices ) 
