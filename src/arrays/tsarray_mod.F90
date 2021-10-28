@@ -146,6 +146,9 @@ contains
       ! not implemented error
 !      call raiseError(__FILE__, "getData_r1_tsArray", "Class/Type not found")
 !    end select ! self
+     ! todo, enable unit tests properly run
+     allocate(r(1))
+     r = -1
 
 !    write(*,*) "array_mod:: getData_r1_tsArray:: r=", r
   end subroutine getData_r1_tsArray
