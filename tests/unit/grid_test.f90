@@ -10,10 +10,10 @@
 !> grid partitoin unit tests
 !------------------------------------------------------------------------------
 module grid_test
-  use shr_grid_mod, only: grid, gridcell
-  use shr_grid_mod, only: GRIDCELL_N_NEAST, GRIDCELL_N_NORTH, GRIDCELL_N_EAST, &
+  use shr_grid_mod, only: grid
+  use shr_gridcell_mod, only: GRIDCELL_N_NEAST, GRIDCELL_N_NORTH, GRIDCELL_N_EAST, &
             GRIDCELL_N_SEAST, GRIDCELL_N_SOUTH, GRIDCELL_N_SWEST, GRIDCELL_N_WEST, &
-            GRIDCELL_N_NWEST
+            GRIDCELL_N_NWEST, gridcell
   use shr_coord_mod, only: coord
   use shr_testSuite_mod, only: testSuite
   use shr_precision_mod, only: sp

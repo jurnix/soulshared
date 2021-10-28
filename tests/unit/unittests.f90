@@ -33,6 +33,7 @@ program unittest
 
   use grid_test, only: testSuiteGrid
   use gridPartition_test, only: testSuiteGridPartition
+  use gridcell_test, only: testSuiteGridCell
 
   implicit none
 
@@ -56,6 +57,7 @@ program unittest
   type(testSuiteArrayRsp) :: tsArrayRsp
   type(testSuiteGrid) :: tsGrid
   type(testSuiteGridPartition) :: tsGridPartition
+  type(testSuiteGridCell) :: tsGridcell
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -77,6 +79,7 @@ program unittest
   call tsArrayRsp % init("ArrayRsp test", 20)
   call tsGrid % init("Grid test", 40)
   call tsGridPartition % init("Grid partition test", 20)
+  call tsGridcell % init("Gridcell test", 20)
   
 
   ! run all tests 
@@ -99,6 +102,7 @@ program unittest
   call tsArrayRsp % run() 
   call tsGrid % run() 
   call tsGridPartition % run() 
+  call tsGridCell % run() 
 
 
   ! show results
@@ -121,6 +125,7 @@ program unittest
   call tsArrayRsp % report() 
   call tsGrid % report() 
   call tsGridPartition % report() 
+  call tsGridcell % report() 
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -141,7 +146,8 @@ program unittest
       .not. tsArrayRealDim % isSuccessful() .or. &
       .not. tsArrayRsp % isSuccessful() .or. &
       .not. tsGrid % isSuccessful() .or. &
-      .not. tsGridPartition % isSuccessful() &
+      .not. tsGridPartition % isSuccessful() .or. &
+      .not. tsGridcell % isSuccessful() &
       ) stop 1
 
 end program unittest
