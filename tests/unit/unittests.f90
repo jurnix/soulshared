@@ -31,6 +31,9 @@ program unittest
   use shr_arrayRealDim_test, only: testSuiteArrayRealDim
   use arrayRsp_test, only: testSuiteArrayRsp
 
+  use grid_test, only: testSuiteGrid
+  use gridPartition_test, only: testSuiteGridPartition
+
   implicit none
 
   ! declare each test
@@ -51,6 +54,8 @@ program unittest
   type(testSuiteSet) :: tsSet
   type(testSuiteArrayRealDim) :: tsArrayRealDim
   type(testSuiteArrayRsp) :: tsArrayRsp
+  type(testSuiteGrid) :: tsGrid
+  type(testSuiteGridPartition) :: tsGridPartition
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -70,6 +75,9 @@ program unittest
   call tsSet % init("Set test", 10)
   call tsArrayRealDim % init("ArrayRealDim test", 20)
   call tsArrayRsp % init("ArrayRsp test", 20)
+  call tsGrid % init("Grid test", 40)
+  call tsGridPartition % init("Grid partition test", 20)
+  
 
   ! run all tests 
   call tsDatetime % run()
@@ -89,6 +97,8 @@ program unittest
   call tsSet % run() 
   call tsArrayRealDim % run() 
   call tsArrayRsp % run() 
+  call tsGrid % run() 
+  call tsGridPartition % run() 
 
 
   ! show results
@@ -109,6 +119,8 @@ program unittest
   call tsSet % report() 
   call tsArrayRealDim % report() 
   call tsArrayRsp % report() 
+  call tsGrid % report() 
+  call tsGridPartition % report() 
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -127,7 +139,9 @@ program unittest
       .not. tsLinkedList % isSuccessful() .or. &
       .not. tsSet % isSuccessful() .or. &
       .not. tsArrayRealDim % isSuccessful() .or. &
-      .not. tsArrayRsp % isSuccessful() &
+      .not. tsArrayRsp % isSuccessful() .or. &
+      .not. tsGrid % isSuccessful() .or. &
+      .not. tsGridPartition % isSuccessful() &
       ) stop 1
 
 end program unittest
