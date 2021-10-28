@@ -17,7 +17,7 @@ module shr_coord_mod
 
   implicit none 
 
-  public :: coord 
+  public :: shr_coord 
 
   real(kind=sp), parameter :: MAXLAT = 90.
   real(kind=sp), parameter :: MINLAT = -90.
@@ -28,7 +28,7 @@ module shr_coord_mod
   real(kind=sp), parameter :: SPANLON = 360.
   
 
-  type coord
+  type shr_coord
     real(kind=sp) :: lat
     real(kind=sp) :: lon
   contains
@@ -39,15 +39,15 @@ module shr_coord_mod
 
     procedure, pass(w0), private :: coord_eq
     generic :: operator(==) => coord_eq
-  end type coord
+  end type shr_coord
 
-  interface coord
+  interface shr_coord
     module procedure :: coord_constructor
   end interface
 
 contains
 
-  type(coord) function coord_constructor(initlat, initlon)
+  type(shr_coord) function coord_constructor(initlat, initlon)
     real(kind=sp), intent(in) :: initlat
     real(kind=sp), intent(in) :: initlon
     character(len=:), allocatable :: tmp
@@ -76,20 +76,20 @@ contains
 
 
   pure elemental real(kind=sp) function getLat(self)
-    class(coord), intent(in) :: self
+    class(shr_coord), intent(in) :: self
     getLat = self % lat
   end function getLat
 
 
   pure elemental real(kind=sp) function getLon(self)
-    class(coord), intent(in) :: self
+    class(shr_coord), intent(in) :: self
     getLon = self % lon
   end function getLon
 
 
   pure function toArray(self) result (r)
     !< it returns an array with the coord data (lat and lon)
-    class(coord), intent(in) :: self
+    class(shr_coord), intent(in) :: self
     real(kind=sp), allocatable :: r(:)
     integer, parameter :: COORD_NUM = 2 !< total attributes to define a coordinate
     integer, parameter :: COORD_LAT = 1 !< latitude index in the output array
@@ -104,7 +104,7 @@ contains
 
   pure elemental logical function coord_eq(w0,w1) result (res)
     !< coords are the same if those have the same latitude and longitude  
-    class(coord), intent(in) :: w0, w1
+    class(shr_coord), intent(in) :: w0, w1
 
     res = (w0 % lat == w1 % lat .and. &
                 w0 % lon == w1 % lon )
@@ -112,7 +112,7 @@ contains
 
 
   function toString(self) result (r)
-    class(coord), intent(in) :: self
+    class(shr_coord), intent(in) :: self
     character(len=:), allocatable :: r
     character(len=10) :: clat, clon
     write(clat,'(F10.4)') self % lat

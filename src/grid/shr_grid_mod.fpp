@@ -27,7 +27,7 @@ module shr_grid_mod
   use SHR_error_mod, only: raiseError
   use SHR_arrayUtils_mod, only: unique, closestNumber2Index, PREFER_LAST, &
                         initArrayRange
-  use shr_coord_mod, only: coord
+  use shr_coord_mod, only: shr_coord
   use shr_gridPartition_mod, only: grid_partition_type
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gridBounds_mod, only: SHR_GRIDBOUNDS_NCOORDS, SHR_GRIDBOUNDS_NORTH, &
@@ -42,7 +42,7 @@ module shr_grid_mod
 
   private
 
-  public :: shr_grid, coord
+  public :: shr_grid
 
 
   type :: shr_grid !< latitude and longitude have the same resolution
@@ -146,7 +146,7 @@ contains
     real(kind=sp), intent(in) :: resolution
     integer, intent(in) :: currentPartition !< current number of partition
     integer, intent(in) :: totalPartitions !< total number of parts the grid is divided into
-    type(coord), intent(in), optional :: enabledGridcells(:) !< define which gridcells must be taken into account.
+    type(shr_coord), intent(in), optional :: enabledGridcells(:) !< define which gridcells must be taken into account.
                                                              !< Partitioning will take into account only enabled gridcells
                                                              !< to balance them.
 
@@ -165,13 +165,13 @@ contains
     real(kind=sp), intent(in) :: resolution
     integer, intent(in) :: currentPartition !< current number of partition
     integer, intent(in) :: totalPartitions !< total number of parts the grid is divided into
-    type(coord), intent(in), optional :: enabledGridcells(:) !< define which gridcells must be taken into account.
+    type(shr_coord), intent(in), optional :: enabledGridcells(:) !< define which gridcells must be taken into account.
                                                              !< Partitioning will take into account only enabled gridcells   
                                                              !< to balance them.
 
     real(kind=sp) :: halfres
     real(kind=sp) :: start, end
-    type(coord) :: ccentre
+    type(shr_coord) :: ccentre
 
     integer :: nlats, nlons, ngridcells
     integer :: nidx, idxlat, idxlon
@@ -209,7 +209,7 @@ contains
     do idxlat = 1, nlats
       do idxlon = nlons, 1, -1
         ! create all gridcells
-        ccentre = coord(self % lats(idxlat), self % lons(idxlon))
+        ccentre = shr_coord(self % lats(idxlat), self % lons(idxlon))
         self % gridcells(nidx) = shr_gridcell(nidx, resolution, ccentre)
         nidx = nidx + 1 ! provide an unique number to each gridcell
       enddo
@@ -409,7 +409,7 @@ contains
   logical elemental function fitsInCoord(self, nCoord) 
     !< true the given coordinate fits in the current one if true
     class(shr_grid), intent(in) :: self
-    type(coord), intent(in) :: nCoord
+    type(shr_coord), intent(in) :: nCoord
     fitsInCoord = self % limits % fitsCoord(nCoord)
   end function fitsInCoord
 
@@ -594,7 +594,7 @@ contains
     !< by default is global
     class(shr_grid), intent(in) :: self
     integer, intent(in), optional :: partition !< global or partition id
-    type(coord), allocatable :: cCoords(:) !< output
+    type(shr_coord), allocatable :: cCoords(:) !< output
 
     type(shr_gridcell), allocatable :: gcs(:)
     integer :: ix
@@ -667,10 +667,10 @@ contains
   subroutine setGridcellStatusByCoord(self, newCoord, status)
     !< the corresponding gridcell from newCoord define a new enabled status
     class(shr_grid), intent(inout) :: self
-    type(coord), intent(in) :: newCoord !< 
+    type(shr_coord), intent(in) :: newCoord !< 
     logical, intent(in) :: status !< 
 
-    type(coord) :: gcCoord
+    type(shr_coord) :: gcCoord
     integer, allocatable :: idx(:)
     integer :: ix
 
@@ -702,7 +702,7 @@ contains
     !< it defines all enabled gridscells. Those not specified
     !< are set as disabled
     class(shr_grid), intent(inout) :: self
-    type(coord), intent(in), optional :: newCoords(:)
+    type(shr_coord), intent(in), optional :: newCoords(:)
 
     logical, allocatable :: coordsOut(:)
     integer, allocatable :: idx(:)
@@ -740,7 +740,7 @@ contains
   logical function isCoordEnabled(self, newCoord) 
     !< true if the given coordinate is enabled
     class(shr_grid), intent(inout) :: self
-    type(coord), intent(in) :: newCoord
+    type(shr_coord), intent(in) :: newCoord
     character(len=*), parameter :: SNAME = "isCoordEnabled_scal"
     type(shr_gridcell), allocatable :: gcs(:)
 
@@ -822,7 +822,7 @@ contains
     ! the given array must be 1d spatial and the grid size
     class(shr_grid), intent(inout) :: self
     ${ITYPE}$, intent(in) :: datain${ranksuffix(RANK)}$ !< global variable
-    type(coord), intent(in) :: coords(:) !< gridcell's coordinates to filter in 
+    type(shr_coord), intent(in) :: coords(:) !< gridcell's coordinates to filter in 
     ${ITYPE}$, allocatable :: dout${ranksuffix(RANK)}$ !< output
 
     type(shr_gridcell), allocatable :: tmpGc(:) !< gridcell found in 'coords'
@@ -892,7 +892,7 @@ contains
 
     integer :: idx
     real(kind=sp) :: clat, clon
-    type(coord) :: newC
+    type(shr_coord) :: newC
     type(shr_gridcell), allocatable :: gcs(:)
     type(shr_gridcell) :: oldGC
 
@@ -901,7 +901,7 @@ contains
     ! old
 !    clat = self % lats(latx)
 !    clon = self % lons(lonx)
-!    newC = coord(clat, clon)
+!    newC = shr_coord(clat, clon)
 !    gcs = self % getGridcellByCoord(newC)
 
     ! calculate gridcell index from lat and lon array indices
@@ -918,7 +918,7 @@ contains
   function getGridcellByCoord(self, c) result (r)
     !< return gridcell(s) given a coordinate
     class(shr_grid), intent(inout) :: self
-    type(coord), intent(in) :: c
+    type(shr_coord), intent(in) :: c
     type(shr_gridcell), allocatable :: r(:) !< output
 
     !integer :: nlats, nlons

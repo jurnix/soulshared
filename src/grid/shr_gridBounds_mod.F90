@@ -14,7 +14,7 @@ module shr_gridBounds_mod
 
   use SHR_precision_mod, only: sp
   use SHR_error_mod, only: raiseError
-  use shr_coord_mod, only: coord
+  use shr_coord_mod, only: shr_coord
 
   implicit none
 
@@ -123,7 +123,7 @@ contains
   pure elemental logical function fitsCoord(self, nCoord)
     !< the given grid bounds fits in the self one
     class(shr_gridBounds), intent(in) :: self
-    type(coord), intent(in) :: nCoord
+    type(shr_coord), intent(in) :: nCoord
 
     fitsCoord = .false.
     if (self % north >= nCoord % lat .and. &

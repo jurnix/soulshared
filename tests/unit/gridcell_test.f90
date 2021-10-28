@@ -14,7 +14,7 @@ module gridcell_test
 !  use shr_gridcell_mod, only: GRIDCELL_N_NEAST, GRIDCELL_N_NORTH, GRIDCELL_N_EAST, &
 !            GRIDCELL_N_SEAST, GRIDCELL_N_SOUTH, GRIDCELL_N_SWEST, GRIDCELL_N_WEST, &
 !            GRIDCELL_N_NWEST
-  use shr_coord_mod, only: coord
+  use shr_coord_mod, only: shr_coord
   use shr_testSuite_mod, only: testSuite
 !  use shr_precision_mod, only: sp
   use shr_strings_mod, only: string
@@ -36,12 +36,12 @@ contains
     use iso_c_binding
     class(testSuiteGridCell), intent(inout) :: self
 
-    type(coord) :: center, cin, cout
+    type(shr_coord) :: center, cin, cout
     type(shr_gridcell) :: gc, gcBig
 
-    center = coord(2, -1)
-    cin = coord(3., 0.)
-    cout = coord(10., -10.)
+    center = shr_coord(2, -1)
+    cin = shr_coord(3., 0.)
+    cout = shr_coord(10., -10.)
     gc = shr_gridcell(1, 2., center, .true.)
     gcBig = shr_gridcell(2, 3., center, .true.)
 

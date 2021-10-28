@@ -18,7 +18,7 @@ module shr_gridcell_mod
 !  use SHR_error_mod, only: raiseError
 !  use SHR_arrayUtils_mod, only: unique, closestNumber2Index, PREFER_LAST, &
 !                        initArrayRange
-  use shr_coord_mod, only: coord
+  use shr_coord_mod, only: shr_coord
 !  use shr_gridPartition_mod, only: grid_partition_type
   use shr_gridBounds_mod, only: shr_gridBounds
 !  use shr_gridBounds_mod, only: SHR_GRIDBOUNDS_NCOORDS, SHR_GRIDBOUNDS_NORTH, &
@@ -49,7 +49,7 @@ module shr_gridcell_mod
 
   type shr_gridcell !< gridcell from the map
     integer :: idx !< gridcell index in repect to the overall grid (starting from top-left with 1 to ...)
-    type(coord) :: center !< gridcell center
+    type(shr_coord) :: center !< gridcell center
     real(kind=sp) :: resolution !< gridcell resolution
     type(shr_gridBounds) :: limits !< limits of the gridcell n, s, e, w
     logical :: enabled !< data is used, otherwise it is ignored
@@ -151,7 +151,7 @@ contains
   logical function contains(self, c)
     !< true if the given coordinate 'c' fits the gridcell
     class(shr_gridcell), intent(in) :: self
-    type(coord), intent(in) :: c
+    type(shr_coord), intent(in) :: c
 
     !write(*,*) "grid_mod::contains:: c=", c % toString()
     !write(*,*) "grid_mod::contains:: north, below north=", self % getNorth(), self % getNorth() >= c % lat
@@ -177,7 +177,7 @@ contains
     integer, intent(in) :: idx !< gridcell index number in respect to the whole grid
     real(kind=sp), intent(in) :: resolution !< Grid's resolution. It helps to calculates
                                             !< gridcell's limits.
-    type(coord), intent(in) :: center !< gridcell's center coordindate
+    type(shr_coord), intent(in) :: center !< gridcell's center coordindate
     !type(pGridcell), intent(in), optional :: neighbours(GRIDCELL_NNEIGHS) !< 
     logical, intent(in), optional :: enabled !< gridcell is enabled (e.g: land)
 

@@ -14,7 +14,7 @@ module grid_test
   use shr_gridcell_mod, only: GRIDCELL_N_NEAST, GRIDCELL_N_NORTH, GRIDCELL_N_EAST, &
             GRIDCELL_N_SEAST, GRIDCELL_N_SOUTH, GRIDCELL_N_SWEST, GRIDCELL_N_WEST, &
             GRIDCELL_N_NWEST, shr_gridcell
-  use shr_coord_mod, only: coord
+  use shr_coord_mod, only: shr_coord
   use shr_testSuite_mod, only: testSuite
   use shr_precision_mod, only: sp
 
@@ -48,16 +48,16 @@ contains
     integer, parameter :: curPartition = 0
     integer, parameter :: nPartitions = 1
     type(shr_gridcell) :: gcEast, gcSeast, gcSouth, gcNeigh, gcFirst
-    type(coord) :: ccenter, ccEast
+    type(shr_coord) :: ccenter, ccEast
     type(shr_grid) :: subgrid
     real(kind=sp) :: sublimits(4)
-    type(coord) :: coordOut, coordIn
-    type(coord), allocatable :: allCoords(:)
+    type(shr_coord) :: coordOut, coordIn
+    type(shr_coord), allocatable :: allCoords(:)
     type(shr_gridcell), allocatable :: allGridcells(:)
     real(kind=sp) :: mapTemp(2,2)
     real(kind=sp), allocatable :: landTemp(:)
     integer, allocatable :: gloIndices(:)
-    type(coord) :: filterCoords(2)
+    type(shr_coord) :: filterCoords(2)
     real(kind=sp), allocatable :: filteredTemp(:)
     real(kind=sp) :: temp1d(3) 
 
@@ -82,7 +82,7 @@ contains
             "grid([3, -1, 2, -2]) % getNeighbourByIdx(1, north west) == F" )
 
     !procedure :: hasNeighbourByGc !< true if the given direction has a neighbour
-    ccenter = coord(2, -1)
+    ccenter = shr_coord(2, -1)
     gcFirst = shr_gridcell(1, 2., ccenter, .true.)
     call self % assert( g % hasNeighbourByGc(gcFirst, GRIDCELL_N_EAST), & 
             "grid(1, 2, 3, 4) % hasNeighbourByGc(1, east) == T" )
@@ -91,24 +91,24 @@ contains
             "grid(1, 2, 3, 4) % hasNeighbourByGc(1, north) == F" )
 
     !procedure :: getNeighbourByGc !< it returns the pointer of the neighbouring gridcell. Error if it does not exists.
-    ccenter = coord(2, -1)
+    ccenter = shr_coord(2, -1)
     gcFirst = shr_gridcell(1, 2., ccenter, .true.)
 
-    ccEast = coord(2, 1)
+    ccEast = shr_coord(2, 1)
     gcEast = shr_gridcell(2, 2., ccEast, .true.)
     call self % assert( g % getNeighbourByGc(gcFirst, GRIDCELL_N_EAST) == gcEast, & 
             "grid([3, -1, 2, -2]) % getNeighbourByGc(1, east) .eq. 2 == T" )
    
 
     !procedure :: getNeighbourByIdx !< it returns the pointer of the neighbouring gridcell. Error if it does not exists.
-    ccenter = coord(2, 1)
+    ccenter = shr_coord(2, 1)
     gcEast = shr_gridcell(2, 2., ccenter, .true.)
     gcNeigh = g % getNeighbourByIdx(1, GRIDCELL_N_EAST)
     call self % assert( g % getNeighbourByIdx(1, GRIDCELL_N_EAST) == gcEast, & 
             "grid([3, -1, 2, -2]) % getNeighbourByIdx(1, east) .eq. 2 == T" )
 
 
-    ccenter = coord(0, 1)
+    ccenter = shr_coord(0, 1)
     gcSeast = shr_gridcell(4, 2., ccenter, .true.)
     gcNeigh = g % getNeighbourByIdx(1, GRIDCELL_N_SEAST)
 
@@ -116,7 +116,7 @@ contains
             "grid([3, -1, 2, -2]) % getNeighbourByIdx(1, south east) .eq. gc(idx=) == T" )
 
 
-    ccenter = coord(0, -1)
+    ccenter = shr_coord(0, -1)
     gcSouth = shr_gridcell(3, 2., ccenter, .true.)
     gcNeigh = g % getNeighbourByIdx(1, GRIDCELL_N_SOUTH)
 
@@ -131,12 +131,12 @@ contains
              "g % getSubgrid() % getLimits() = [1, -1, 1, -1] == T")
 
     !procedure :: fitsInWindow !< true if the given grid fits in the current one 
-    coordOut = coord(5., 1.)
+    coordOut = shr_coord(5., 1.)
     call self % assert( .not. g % fitsInCoord(coordOut), "g % fitsInCoord(5, 1) == F" )
 
     !procedure :: fitsInCoord !< true if the given coordinate fits in the current one 
-    coordOut = coord(5., 1.)
-    coordIn = coord(2., 0.)
+    coordOut = shr_coord(5., 1.)
+    coordIn = shr_coord(2., 0.)
     call self % assert( .not. g % fitsInCoord(coordOut), &
               "g([3, -1, 2, -2]) % fitsInCoord(5, 1) == F" )
     call self % assert( g % fitsInCoord(coordIn), &
@@ -184,17 +184,17 @@ contains
 
     !procedure :: getGridcellBySpatialIndices !< Given lat and lon spatial array indices it returns a coordinate from
                                               !< the center of the gridcell
-    ccenter = coord(2, 1)
+    ccenter = shr_coord(2, 1)
     gcEast = shr_gridcell(2, 2., ccenter, .true.)
     call self % assert(g % getGridcellBySpatialIndices(1, 2) == gcEast, &
               "grid([3, -1, 2, -2]) % getGridcellBySpatialIndices(2.5, -1.5) .eq. gcEast == T" )
 
     !procedure :: getGridcellByCoord !< given a coordinate it finds the gridcell
-    call self % assert(all (g % getGridcellByCoord(coord(2.5, 1.5)) == gcEast), &
+    call self % assert(all (g % getGridcellByCoord(shr_coord(2.5, 1.5)) == gcEast), &
               "grid([3, -1, 2, -2]) % getGridcellByCoord(2.5, 1.5) .eq. gcEast == T" )
 
     !procedure :: isCoordEnabled !< true if the given coordinate is enabled
-    call self % assert( g % isCoordEnabled(coord(2.5, 1.5)), &
+    call self % assert( g % isCoordEnabled(shr_coord(2.5, 1.5)), &
               "grid([3, -1, 2, -2]) % isCoordEnabled(2.5, 1.5) == T" )
 
     !procedure :: getAllEnabledGridcellsByCoords !< it returns the coordinates from the enabled gridcells
@@ -207,20 +207,20 @@ contains
               "grid([3, -1, 2, -2]) % countAllEnabledGridcells() .eq. 4 == T" )
 
     !procedure :: setAllEnabledGridcells !< it defines a new list of enable gridcells
-    call g % setAllEnabledGridcells([coord(2.5, 1.5)]) !< idx = 2
+    call g % setAllEnabledGridcells([shr_coord(2.5, 1.5)]) !< idx = 2
     call self % assert( g % countAllEnabledGridcells() == 1, &
               "grid([3, -1, 2, -2]) % setAllEnabledGridcells((2.5, 1.5)) .eq. 1 == T" )
 
     !procedure :: getAllEnabledGridcells !< it returns all enabled gridcells
     allgridcells = g % getAllEnabledGridcells()
-    ccenter = coord(2, 1)
+    ccenter = shr_coord(2, 1)
     gcEast = shr_gridcell(2, 2., ccenter, .true.)
     call self % assert( all( allgridcells == gcEast), &
             "grid([3, -1, 2, -2]) % getAllEnabledGridcells() .eq. gcEast == T" )
 
     !procedure :: setGridcellStatusByCoord !< it defines a new status for the given gridcell
                                           !< described as coordinate
-    call g % setGridcellStatusByCoord(coord(2.5, -1.5), .true.) !< idx = 1
+    call g % setGridcellStatusByCoord(shr_coord(2.5, -1.5), .true.) !< idx = 1
     allgridcells = g % getAllEnabledGridcells()
     call self % assert( size( allgridcells ) == 2, &
             "grid([3, -1, 2, -2]) % getAllEnabledGridcells() .eq. 2 == T" )
@@ -248,8 +248,8 @@ contains
 
     !< filterEnabledData_  
     temp1d = [25., 26., 27.]
-    filterCoords(1) = coord(2., -1.) !< idx = 1
-    filterCoords(2) = coord(0., -1.) !< idx = 3
+    filterCoords(1) = shr_coord(2., -1.) !< idx = 1
+    filterCoords(2) = shr_coord(0., -1.) !< idx = 3
     filteredTemp = g % filterEnabledData(temp1d, filterCoords)
 !    write(*,*) "grid_test:: filterEnabledData =", filteredTemp
     call self % assert( all( filteredTemp == [25., 27.] ), &
