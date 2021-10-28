@@ -19,12 +19,12 @@ module shr_gridPartition_mod
 
   implicit none
 
-  public :: grid_partition_type
+  public :: shr_gridPartition
 
   logical, parameter :: ISDEBUG = .false.
 
 
-  type grid_partition_type
+  type shr_gridPartition
     integer, allocatable :: total_elements !< 1 to N
     integer, allocatable :: partitions_size(:) !< number of indices in partition 
 
@@ -43,17 +43,17 @@ module shr_gridPartition_mod
     procedure :: getPartitionBounds ! (partition number) -> 
     procedure :: getTotalPartitions
     procedure :: getTotalElements
-  end type grid_partition_type
+  end type shr_gridPartition
 
 
-  interface grid_partition_type
-    procedure :: grid_partition_type_initialize
-  end interface grid_partition_type
+  interface shr_gridPartition
+    procedure :: shr_gridPartition_initialize
+  end interface shr_gridPartition
 
 contains
 
 
-  type(grid_partition_type) function grid_partition_type_initialize(current, total, gridIndices)
+  type(shr_gridPartition) function shr_gridPartition_initialize(current, total, gridIndices)
     !< grid partition type constructor
 
     integer, intent(in) :: current !< range  from 0 to n-1
@@ -69,19 +69,19 @@ contains
 
     character(len=20) :: tmp, tmp1
 
-    grid_partition_type_initialize % current_partition = current
-    grid_partition_type_initialize % total_partitions = total
-    grid_partition_type_initialize % total_elements = size(gridIndices)
-    grid_partition_type_initialize % gloIdcs = gridIndices
+    shr_gridPartition_initialize % current_partition = current
+    shr_gridPartition_initialize % total_partitions = total
+    shr_gridPartition_initialize % total_elements = size(gridIndices)
+    shr_gridPartition_initialize % gloIdcs = gridIndices
 
-!    if (ISDEBUG) write(*,*) "gridPartition_mod:: grid_partition_type_initialize:: gridIndices =", gridIndices
-    if (ISDEBUG) write(*,*) "gridPartition_mod:: grid_partition_type_initialize:: total partitions =", total
-    if (ISDEBUG) write(*,*) "gridPartition_mod:: grid_partition_type_initialize:: current partition =", current
+!    if (ISDEBUG) write(*,*) "gridPartition_mod:: shr_gridPartition_initialize:: gridIndices =", gridIndices
+    if (ISDEBUG) write(*,*) "gridPartition_mod:: shr_gridPartition_initialize:: total partitions =", total
+    if (ISDEBUG) write(*,*) "gridPartition_mod:: shr_gridPartition_initialize:: current partition =", current
 
     if (current >= total) then
       write(tmp,*) current
       write(tmp1,*) total
-      call raiseError(__FILE__, "grid_partition_type_initialize", &
+      call raiseError(__FILE__, "shr_gridPartition_initialize", &
                                 "Current partition id must smaller than total partitions", &
                                 "Current:"//tmp, &
                                 "Total:"//tmp1 )
@@ -90,7 +90,7 @@ contains
     ! only postive number
     if (current < 0) then
       write(tmp,*) current
-      call raiseError(__FILE__, "grid_partition_type_initialize", &
+      call raiseError(__FILE__, "shr_gridPartition_initialize", &
                                 "Current partition id must be equal or bigger than 0", &
                                 "Current:"//tmp)
     endif
@@ -105,38 +105,38 @@ contains
       grids_per_partition(ipart) = grids_per_partition(ipart) + 1
     end do
 
-    if (ISDEBUG) write(*,*) "gridPartition_mod:: grid_partition_type_initialize:: remaining_grids =", remaining_grids
-    if (ISDEBUG) write(*,*) "gridPartition_mod:: grid_partition_type_initialize:: grids_per_partition=", grids_per_partition
-    grid_partition_type_initialize % partitions_size = grids_per_partition
-    if (ISDEBUG) write(*,*) "gridPartition_mod:: grid_partition_type_initialize:: partition_size=", &
-            grid_partition_type_initialize % partitions_size
+    if (ISDEBUG) write(*,*) "gridPartition_mod:: shr_gridPartition_initialize:: remaining_grids =", remaining_grids
+    if (ISDEBUG) write(*,*) "gridPartition_mod:: shr_gridPartition_initialize:: grids_per_partition=", grids_per_partition
+    shr_gridPartition_initialize % partitions_size = grids_per_partition
+    if (ISDEBUG) write(*,*) "gridPartition_mod:: shr_gridPartition_initialize:: partition_size=", &
+            shr_gridPartition_initialize % partitions_size
 
     totalPartitions = total
 
     ! calculate start and end for each partition
-    allocate(grid_partition_type_initialize % startIdxs(totalPartitions) )
-    allocate(grid_partition_type_initialize % endIdxs(totalPartitions) )
+    allocate(shr_gridPartition_initialize % startIdxs(totalPartitions) )
+    allocate(shr_gridPartition_initialize % endIdxs(totalPartitions) )
 
     startidx = 1
-    endidx = grid_partition_type_initialize % getPartitionSize(0)
-    if (ISDEBUG) write(*,*) "grid_mod:: grid_partition_type_initialize:: first, start, end =", startIdx, endIdx
+    endidx = shr_gridPartition_initialize % getPartitionSize(0)
+    if (ISDEBUG) write(*,*) "grid_mod:: shr_gridPartition_initialize:: first, start, end =", startIdx, endIdx
     do ipart = 1, totalPartitions
-      grid_partition_type_initialize % startIdxs(ipart) = startidx
-      grid_partition_type_initialize % endIdxs(ipart) = endidx
-      startidx = grid_partition_type_initialize % endIdxs(ipart) + 1
+      shr_gridPartition_initialize % startIdxs(ipart) = startidx
+      shr_gridPartition_initialize % endIdxs(ipart) = endidx
+      startidx = shr_gridPartition_initialize % endIdxs(ipart) + 1
 
       if (ipart + 1 <= totalPartitions) then
-        endidx = startidx + grid_partition_type_initialize % getPartitionSize(ipart) - 1
+        endidx = startidx + shr_gridPartition_initialize % getPartitionSize(ipart) - 1
       endif
       if (ISDEBUG)  write(*,*) "grid_mod:: grid_domain_type_initialize:: start, end, ipart =", startIdx, endIdx, ipart
     enddo
 
-  end function grid_partition_type_initialize
+  end function shr_gridPartition_initialize
 
 
   integer function getPartitionSize(self, partition)
     !< it returns the number of elements for the 'current' partition 
-    class(grid_partition_type), intent(in) :: self
+    class(shr_gridPartition), intent(in) :: self
     integer, intent(in), optional :: partition !< 0 to N - 1
     character(*), parameter :: SNAME = "getPartitionSize"
     integer :: ipart
@@ -173,7 +173,7 @@ contains
 
   integer function getPartitionId(self)
     !< it returns the id from the current partition
-    class(grid_partition_type), intent(in) :: self
+    class(shr_gridPartition), intent(in) :: self
 
     getPartitionId = self % current_partition
   end function getPartitionId
@@ -181,14 +181,14 @@ contains
 
   integer function getTotalPartitions(self)
     !< it returns the number of partitions 
-    class(grid_partition_type), intent(in) :: self
+    class(shr_gridPartition), intent(in) :: self
     getTotalPartitions = self % total_partitions
   end function getTotalPartitions
 
 
   function getPartitionIndices(self, partition) result (locIndices)
     !< it returns the local indices from 'partition'
-    class(grid_partition_type), intent(in) :: self
+    class(shr_gridPartition), intent(in) :: self
     integer, intent(in), optional :: partition
     integer, allocatable :: locIndices(:)
 
@@ -219,7 +219,7 @@ contains
 
   function getPartitionBounds(self, partition) result (bounds)
     !< it returns the partition bounds (start and end) from global indices
-    class(grid_partition_type), intent(in) :: self
+    class(shr_gridPartition), intent(in) :: self
     integer, intent(in), optional :: partition !< between 1 to P
     integer :: bounds(2)
 
@@ -239,7 +239,7 @@ contains
 
   integer function getTotalElements(self)
     !< it returns the total number of elements to distribute
-    class(grid_partition_type), intent(in) :: self
+    class(shr_gridPartition), intent(in) :: self
     getTotalElements = self % total_elements
   end function getTotalElements
 

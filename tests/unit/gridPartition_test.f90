@@ -10,7 +10,7 @@
 !> grid partitoin unit tests
 !------------------------------------------------------------------------------
 module gridPartition_test
-  use shr_gridPartition_mod, only: grid_partition_type
+  use shr_gridPartition_mod, only: shr_gridPartition
   use SHR_testSuite_mod, only: testSuite
 
   implicit none
@@ -30,15 +30,15 @@ contains
     use iso_c_binding
     class(testSuiteGridPartition), intent(inout) :: self
 
-    type(grid_partition_type) :: partition
-    type(grid_partition_type) :: landPartition
+    type(shr_gridPartition) :: partition
+    type(shr_gridPartition) :: landPartition
     integer :: partSize
     integer, parameter :: indices(10) = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     integer, parameter :: landIndices(5) = [2, 4, 5, 6, 8]
     integer, allocatable :: locIndices(:)
     integer :: bounds(2)
 
-    partition = grid_partition_type(1, 3, indices)
+    partition = shr_gridPartition(1, 3, indices)
     call self % assert(.true., "partition(current=2, total=3, elements=[1,2,3,4,5,6,7,8,9,10])")
 
     ! getPartitionSize
@@ -68,7 +68,7 @@ contains
 
 
     ! grid partition with enabled gridcells
-    landPartition = grid_partition_type(1, 3, landIndices) ! partitioning = 2, 2, 1
+    landPartition = shr_gridPartition(1, 3, landIndices) ! partitioning = 2, 2, 1
     partSize = landPartition % getPartitionSize(0)
     call self % assert(partSize == 2 , "partition % getPartitionSize(0) .eq 2 == T")
     partSize = landPartition % getPartitionSize(1)

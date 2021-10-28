@@ -28,7 +28,7 @@ module shr_grid_mod
   use SHR_arrayUtils_mod, only: unique, closestNumber2Index, PREFER_LAST, &
                         initArrayRange
   use shr_coord_mod, only: shr_coord
-  use shr_gridPartition_mod, only: grid_partition_type
+  use shr_gridPartition_mod, only: shr_gridPartition
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gridBounds_mod, only: SHR_GRIDBOUNDS_NCOORDS, SHR_GRIDBOUNDS_NORTH, &
              SHR_GRIDBOUNDS_SOUTH, SHR_GRIDBOUNDS_EAST, SHR_GRIDBOUNDS_WEST
@@ -52,7 +52,7 @@ module shr_grid_mod
     type(shr_gridBounds) :: limits !< max/min lats/lons of the grid
 
     type(shr_gridcell), allocatable :: gridcells(:) !< gridcells
-    type(grid_partition_type), allocatable :: partitions
+    type(shr_gridPartition), allocatable :: partitions
   contains
     procedure :: constructor => oop_grid_constructor
     procedure :: hasNeighbourByIdx !< true if the given direction has a neighbour
@@ -222,7 +222,7 @@ contains
     allIndices = self % getLandIndices()
 
     allocate (self % partitions)
-    self % partitions = grid_partition_type(currentPartition, totalPartitions, allIndices )
+    self % partitions = shr_gridPartition(currentPartition, totalPartitions, allIndices )
   end subroutine oop_grid_constructor
 
 
