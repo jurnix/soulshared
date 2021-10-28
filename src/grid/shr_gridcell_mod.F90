@@ -28,7 +28,7 @@ module shr_gridcell_mod
 
   private
 
-  public :: gridcell
+  public :: shr_gridcell
 
   public :: GRIDCELL_NNEIGHS, GRIDCELL_N_NEAST, GRIDCELL_N_NORTH, GRIDCELL_N_EAST, &
             GRIDCELL_N_SEAST, GRIDCELL_N_SOUTH, GRIDCELL_N_SWEST, GRIDCELL_N_WEST, &
@@ -47,7 +47,7 @@ module shr_gridcell_mod
 
 
 
-  type gridcell !< gridcell from the map
+  type shr_gridcell !< gridcell from the map
     integer :: idx !< gridcell index in repect to the overall grid (starting from top-left with 1 to ...)
     type(coord) :: center !< gridcell center
     real(kind=sp) :: resolution !< gridcell resolution
@@ -62,9 +62,9 @@ module shr_gridcell_mod
 
     procedure, private :: gridcell_eq
     generic :: operator(==) => gridcell_eq
-  end type gridcell
+  end type shr_gridcell
 
-  interface gridcell
+  interface shr_gridcell
     module procedure :: gridcell_constructor
   end interface
 
@@ -74,7 +74,7 @@ contains
   pure elemental logical function gridcell_eq(gc0,gc1) result(res)
     ! `datetime` comparison operator that returns `.true.` if `d0` is
     ! equal to `d1` and `.false.` otherwise. Overloads the operator `==`.
-    class(gridcell), intent(in) :: gc0, gc1
+    class(shr_gridcell), intent(in) :: gc0, gc1
 
     logical :: sameIdx, sameCenter, sameRes, sameLimits, sameStatus
 
@@ -90,7 +90,7 @@ contains
 
   function getSpatialIdxs(self, nlons) result (idxs)
     !< it returns the spatial array indices from the current gridcell
-    class(gridcell), intent(in) :: self
+    class(shr_gridcell), intent(in) :: self
     integer, intent(in) :: nlons
     real(kind=sp) :: idxs(2) !< output (lat,lon)
 
@@ -107,28 +107,28 @@ contains
 
   real(kind=sp) function getEast(self)
     !< it returns the south latitude from the gridcell
-    class(gridcell), intent(in) :: self
+    class(shr_gridcell), intent(in) :: self
 
     getEast = self % limits % east
   end function getEast
 
   real(kind=sp) function getWest(self)
     !< it returns the south latitude from the gridcell
-    class(gridcell), intent(in) :: self
+    class(shr_gridcell), intent(in) :: self
 
     getWest = self % limits % west
   end function getWest
 
   real(kind=sp) function getSouth(self)
     !< it returns the south latitude from the gridcell
-    class(gridcell), intent(in) :: self
+    class(shr_gridcell), intent(in) :: self
 
     getSouth = self % limits % south
   end function getSouth
 
   real(kind=sp) function getNorth(self)
     !< it returns the north latitude from the gridcell
-    class(gridcell), intent(in) :: self
+    class(shr_gridcell), intent(in) :: self
 
     getNorth = self % limits % north
   end function getNorth
@@ -136,7 +136,7 @@ contains
 
   function toString_gridcell(self) result (str)
     !< character representation of the gridcell class
-    class(gridcell), intent(inout) :: self
+    class(shr_gridcell), intent(inout) :: self
     character(:), allocatable :: str
     character(100) :: idxStr, resStr
     write( idxStr, *) self % idx
@@ -150,7 +150,7 @@ contains
 
   logical function contains(self, c)
     !< true if the given coordinate 'c' fits the gridcell
-    class(gridcell), intent(in) :: self
+    class(shr_gridcell), intent(in) :: self
     type(coord), intent(in) :: c
 
     !write(*,*) "grid_mod::contains:: c=", c % toString()
@@ -170,7 +170,7 @@ contains
   end function contains
 
 
-  type(gridcell) function gridcell_constructor(idx, resolution, center, enabled)
+  type(shr_gridcell) function gridcell_constructor(idx, resolution, center, enabled)
     !< constructs a new gridcell given the grid resolution and coordinate center of 
     !< the gridcell. 
     !< By default a gridcell is enabled. When enabled it's expect data from the variables

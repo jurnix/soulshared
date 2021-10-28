@@ -13,7 +13,7 @@ module grid_test
   use shr_grid_mod, only: grid
   use shr_gridcell_mod, only: GRIDCELL_N_NEAST, GRIDCELL_N_NORTH, GRIDCELL_N_EAST, &
             GRIDCELL_N_SEAST, GRIDCELL_N_SOUTH, GRIDCELL_N_SWEST, GRIDCELL_N_WEST, &
-            GRIDCELL_N_NWEST, gridcell
+            GRIDCELL_N_NWEST, shr_gridcell
   use shr_coord_mod, only: coord
   use shr_testSuite_mod, only: testSuite
   use shr_precision_mod, only: sp
@@ -47,13 +47,13 @@ contains
     real(kind=sp), parameter :: resolution = 2.
     integer, parameter :: curPartition = 0
     integer, parameter :: nPartitions = 1
-    type(gridcell) :: gcEast, gcSeast, gcSouth, gcNeigh, gcFirst
+    type(shr_gridcell) :: gcEast, gcSeast, gcSouth, gcNeigh, gcFirst
     type(coord) :: ccenter, ccEast
     type(grid) :: subgrid
     real(kind=sp) :: sublimits(4)
     type(coord) :: coordOut, coordIn
     type(coord), allocatable :: allCoords(:)
-    type(gridcell), allocatable :: allGridcells(:)
+    type(shr_gridcell), allocatable :: allGridcells(:)
     real(kind=sp) :: mapTemp(2,2)
     real(kind=sp), allocatable :: landTemp(:)
     integer, allocatable :: gloIndices(:)
@@ -83,7 +83,7 @@ contains
 
     !procedure :: hasNeighbourByGc !< true if the given direction has a neighbour
     ccenter = coord(2, -1)
-    gcFirst = gridcell(1, 2., ccenter, .true.)
+    gcFirst = shr_gridcell(1, 2., ccenter, .true.)
     call self % assert( g % hasNeighbourByGc(gcFirst, GRIDCELL_N_EAST), & 
             "grid(1, 2, 3, 4) % hasNeighbourByGc(1, east) == T" )
 
@@ -92,24 +92,24 @@ contains
 
     !procedure :: getNeighbourByGc !< it returns the pointer of the neighbouring gridcell. Error if it does not exists.
     ccenter = coord(2, -1)
-    gcFirst = gridcell(1, 2., ccenter, .true.)
+    gcFirst = shr_gridcell(1, 2., ccenter, .true.)
 
     ccEast = coord(2, 1)
-    gcEast = gridcell(2, 2., ccEast, .true.)
+    gcEast = shr_gridcell(2, 2., ccEast, .true.)
     call self % assert( g % getNeighbourByGc(gcFirst, GRIDCELL_N_EAST) == gcEast, & 
             "grid([3, -1, 2, -2]) % getNeighbourByGc(1, east) .eq. 2 == T" )
    
 
     !procedure :: getNeighbourByIdx !< it returns the pointer of the neighbouring gridcell. Error if it does not exists.
     ccenter = coord(2, 1)
-    gcEast = gridcell(2, 2., ccenter, .true.)
+    gcEast = shr_gridcell(2, 2., ccenter, .true.)
     gcNeigh = g % getNeighbourByIdx(1, GRIDCELL_N_EAST)
     call self % assert( g % getNeighbourByIdx(1, GRIDCELL_N_EAST) == gcEast, & 
             "grid([3, -1, 2, -2]) % getNeighbourByIdx(1, east) .eq. 2 == T" )
 
 
     ccenter = coord(0, 1)
-    gcSeast = gridcell(4, 2., ccenter, .true.)
+    gcSeast = shr_gridcell(4, 2., ccenter, .true.)
     gcNeigh = g % getNeighbourByIdx(1, GRIDCELL_N_SEAST)
 
     call self % assert(g % getNeighbourByIdx(1, GRIDCELL_N_SEAST) == gcSeast, & 
@@ -117,7 +117,7 @@ contains
 
 
     ccenter = coord(0, -1)
-    gcSouth = gridcell(3, 2., ccenter, .true.)
+    gcSouth = shr_gridcell(3, 2., ccenter, .true.)
     gcNeigh = g % getNeighbourByIdx(1, GRIDCELL_N_SOUTH)
 
     call self % assert(g % getNeighbourByIdx(1, GRIDCELL_N_SOUTH) == gcSouth, & 
@@ -185,7 +185,7 @@ contains
     !procedure :: getGridcellBySpatialIndices !< Given lat and lon spatial array indices it returns a coordinate from
                                               !< the center of the gridcell
     ccenter = coord(2, 1)
-    gcEast = gridcell(2, 2., ccenter, .true.)
+    gcEast = shr_gridcell(2, 2., ccenter, .true.)
     call self % assert(g % getGridcellBySpatialIndices(1, 2) == gcEast, &
               "grid([3, -1, 2, -2]) % getGridcellBySpatialIndices(2.5, -1.5) .eq. gcEast == T" )
 
@@ -214,7 +214,7 @@ contains
     !procedure :: getAllEnabledGridcells !< it returns all enabled gridcells
     allgridcells = g % getAllEnabledGridcells()
     ccenter = coord(2, 1)
-    gcEast = gridcell(2, 2., ccenter, .true.)
+    gcEast = shr_gridcell(2, 2., ccenter, .true.)
     call self % assert( all( allgridcells == gcEast), &
             "grid([3, -1, 2, -2]) % getAllEnabledGridcells() .eq. gcEast == T" )
 

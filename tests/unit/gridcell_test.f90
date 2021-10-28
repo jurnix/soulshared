@@ -10,7 +10,7 @@
 !> gridcell unit tests
 !------------------------------------------------------------------------------
 module gridcell_test
-  use shr_gridcell_mod, only: gridcell
+  use shr_gridcell_mod, only: shr_gridcell
 !  use shr_gridcell_mod, only: GRIDCELL_N_NEAST, GRIDCELL_N_NORTH, GRIDCELL_N_EAST, &
 !            GRIDCELL_N_SEAST, GRIDCELL_N_SOUTH, GRIDCELL_N_SWEST, GRIDCELL_N_WEST, &
 !            GRIDCELL_N_NWEST
@@ -37,13 +37,13 @@ contains
     class(testSuiteGridCell), intent(inout) :: self
 
     type(coord) :: center, cin, cout
-    type(gridcell) :: gc, gcBig
+    type(shr_gridcell) :: gc, gcBig
 
     center = coord(2, -1)
     cin = coord(3., 0.)
     cout = coord(10., -10.)
-    gc = gridcell(1, 2., center, .true.)
-    gcBig = gridcell(2, 3., center, .true.)
+    gc = shr_gridcell(1, 2., center, .true.)
+    gcBig = shr_gridcell(2, 3., center, .true.)
 
     call self % assert(gc == gc, "gc(..) .eq. gc(..) = T")
     call self % assert(.not. (gc == gcBig), "gc(..) .eq. gcBig(..) = F")

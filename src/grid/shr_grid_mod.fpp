@@ -33,7 +33,7 @@ module shr_grid_mod
   use shr_gridBounds_mod, only: SHR_GRIDBOUNDS_NCOORDS, SHR_GRIDBOUNDS_NORTH, &
              SHR_GRIDBOUNDS_SOUTH, SHR_GRIDBOUNDS_EAST, SHR_GRIDBOUNDS_WEST
 
-  use shr_gridcell_mod, only: gridcell
+  use shr_gridcell_mod, only: shr_gridcell
   use shr_gridcell_mod, only: GRIDCELL_NNEIGHS, GRIDCELL_N_NEAST, GRIDCELL_N_NORTH, GRIDCELL_N_EAST, &
             GRIDCELL_N_SEAST, GRIDCELL_N_SOUTH, GRIDCELL_N_SWEST, GRIDCELL_N_WEST, &
             GRIDCELL_N_NWEST
@@ -51,7 +51,7 @@ module shr_grid_mod
     real(kind=sp) :: resolution !< grid resolution
     type(shr_gridBounds) :: limits !< max/min lats/lons of the grid
 
-    type(gridcell), allocatable :: gridcells(:) !< gridcells
+    type(shr_gridcell), allocatable :: gridcells(:) !< gridcells
     type(grid_partition_type), allocatable :: partitions
   contains
     procedure :: constructor => oop_grid_constructor
@@ -210,7 +210,7 @@ contains
       do idxlon = nlons, 1, -1
         ! create all gridcells
         ccentre = coord(self % lats(idxlat), self % lons(idxlon))
-        self % gridcells(nidx) = gridcell(nidx, resolution, ccentre)
+        self % gridcells(nidx) = shr_gridcell(nidx, resolution, ccentre)
         nidx = nidx + 1 ! provide an unique number to each gridcell
       enddo
     enddo
@@ -232,7 +232,7 @@ contains
     integer, intent(in) :: idxGC !< from which gridcell to request its neighbour
     integer, intent(in) :: direction !< neighbour's direction
 
-    type(gridcell) :: gc
+    type(shr_gridcell) :: gc
 
     gc = self % gridcells(idxGc)
     hasNeighbourByIdx = self % hasNeighbourByGc(gc, direction)
@@ -243,7 +243,7 @@ contains
   logical function hasNeighbourByGc(self, sourceGridcell, direction)
     !< given a gridcell and a direction it returns true if there is one
     class(grid), intent(in) :: self
-    type(gridcell), intent(in) :: sourceGridcell !< from which gridcell to request its neighbour
+    type(shr_gridcell), intent(in) :: sourceGridcell !< from which gridcell to request its neighbour
     integer, intent(in) :: direction !< neighbour's direction
 
     integer :: nidx !< continuous gridcell index (deal the array as only 1 dimension)
@@ -299,7 +299,7 @@ contains
     integer, intent(in) :: gcIndex !< from which gridcell to request its neighbour
     integer, intent(in) :: direction !< neighbour's direction
 
-    type(gridcell), allocatable :: r !< output
+    type(shr_gridcell), allocatable :: r !< output
 
     r = self % getNeighbourByGc(self % gridcells(gcIndex), direction)
   end function getNeighbourByIdx
@@ -308,10 +308,10 @@ contains
   function getNeighbourByGc(self, sGridcell, direction) result (r)
     ! given a gridcell it returns its correspoding gridcell according to the 'direction' indicated
     class(grid), intent(in) :: self
-    type(gridcell), intent(in) :: sGridcell !< from which gridcell to request its neighbour
+    type(shr_gridcell), intent(in) :: sGridcell !< from which gridcell to request its neighbour
     integer, intent(in) :: direction !< neighbour's direction
 
-    type(gridcell), allocatable :: r !< output
+    type(shr_gridcell), allocatable :: r !< output
 
     integer :: ngridcells
     integer :: idx !< continuous gridcell index (deal the array as only 1 dimension)
@@ -596,7 +596,7 @@ contains
     integer, intent(in), optional :: partition !< global or partition id
     type(coord), allocatable :: cCoords(:) !< output
 
-    type(gridcell), allocatable :: gcs(:)
+    type(shr_gridcell), allocatable :: gcs(:)
     integer :: ix
 
     ! discover how many gridcells are enabled
@@ -616,7 +616,7 @@ contains
     !< by default it returns all enabled gridcells 
     class(grid), intent(in) :: self
     integer, intent(in), optional :: partition
-    type(gridcell), allocatable :: gcs(:)
+    type(shr_gridcell), allocatable :: gcs(:)
 
     integer :: counter
     integer :: fidx !< found indices
@@ -742,7 +742,7 @@ contains
     class(grid), intent(inout) :: self
     type(coord), intent(in) :: newCoord
     character(len=*), parameter :: SNAME = "isCoordEnabled_scal"
-    type(gridcell), allocatable :: gcs(:)
+    type(shr_gridcell), allocatable :: gcs(:)
 
     gcs = self % getGridcellByCoord(newCoord)
     if (size(gcs) > 1) then
@@ -766,7 +766,7 @@ contains
     ${ITYPE}$, intent(in) :: datain${ranksuffix(RANK)}$ !< lat, lon
     ${ITYPE}$, allocatable :: dout${ranksuffix(RANK-1)}$
 
-    type(gridcell), allocatable :: enabledGcs(:)
+    type(shr_gridcell), allocatable :: enabledGcs(:)
 
     integer :: nlats, nlons !< latitude and longitude size
     integer :: ngcs !< number of gridcells
@@ -825,9 +825,9 @@ contains
     type(coord), intent(in) :: coords(:) !< gridcell's coordinates to filter in 
     ${ITYPE}$, allocatable :: dout${ranksuffix(RANK)}$ !< output
 
-    type(gridcell), allocatable :: tmpGc(:) !< gridcell found in 'coords'
-    type(gridcell), allocatable :: gcs(:) !< gridcell found in 'coords'
-    type(gridcell), allocatable :: enabledGcs(:) !< enabled gridcells found in 'coords'
+    type(shr_gridcell), allocatable :: tmpGc(:) !< gridcell found in 'coords'
+    type(shr_gridcell), allocatable :: gcs(:) !< gridcell found in 'coords'
+    type(shr_gridcell), allocatable :: enabledGcs(:) !< enabled gridcells found in 'coords'
     integer :: idx, i, cidx, counter !< iterator
     integer :: ngcs
     character(len=50) :: tmp, tmp1
@@ -888,13 +888,13 @@ contains
     !< return gridcell(s) given a coordinate
     class(grid), intent(inout) :: self
     integer, intent(in) :: latx, lonx
-    type(gridcell) :: foundGc !< output
+    type(shr_gridcell) :: foundGc !< output
 
     integer :: idx
     real(kind=sp) :: clat, clon
     type(coord) :: newC
-    type(gridcell), allocatable :: gcs(:)
-    type(gridcell) :: oldGC
+    type(shr_gridcell), allocatable :: gcs(:)
+    type(shr_gridcell) :: oldGC
 
 !    write(*,*) "grid_mod::getGridcellBySpatialIndices:: latx, lonx =", latx, lonx
 
@@ -919,11 +919,11 @@ contains
     !< return gridcell(s) given a coordinate
     class(grid), intent(inout) :: self
     type(coord), intent(in) :: c
-    type(gridcell), allocatable :: r(:) !< output
+    type(shr_gridcell), allocatable :: r(:) !< output
 
     !integer :: nlats, nlons
     integer :: idx !, xlat, xlon, idx
-    type(gridcell) :: gc
+    type(shr_gridcell) :: gc
 
     if (.not. self % fitsIn(c)) then
       call raiseError(__FILE__, "getGridcellByCoord", &
@@ -1000,7 +1000,7 @@ contains
     class(grid), intent(in) :: self
     integer, intent(in), optional :: partition
     integer, allocatable :: landIndices(:)
-    type(gridcell), allocatable :: enabledGCs(:) !< enabled gridcells found in 'coords'
+    type(shr_gridcell), allocatable :: enabledGCs(:) !< enabled gridcells found in 'coords'
     integer :: igc, ngcs
     if (present(partition)) then ! local (partition)
       landIndices = self % partitions % getPartitionIndices(partition)
