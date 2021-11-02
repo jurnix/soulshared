@@ -67,4 +67,5 @@ src/common.F90
 src/arrays/shr_arrayDim_mod.F90
 src/arrays/array_mod.F90
 src/arrays/shr_arrayGrid_mod.F90
+src/arrays/shr_arrayGridFull_mod.F90
 src/grid/shr_grid_mod.F90

@@ -49,7 +49,6 @@ module SHR_array_mod
   type, abstract :: arrayAbs !< interface to array
     !< array descriptor
     type(string), allocatable :: name
-!    class(shr_arrayDim), allocatable :: dims(:) 
     type(shr_arrayDimContainer), allocatable :: dims(:) 
     type(string), allocatable :: units
     type(string), allocatable :: description
@@ -149,7 +148,6 @@ contains
     !< shr_arrayRsp initialization
     class(shr_arrayRsp), intent(inout) :: self
     character(*), intent(in) :: name
-!    class(shr_arrayDim), intent(in) :: dimensions(:)
     type(shr_arrayDimContainer), intent(in) :: dimensions(:)
     character(*), intent(in) :: units
     character(*), intent(in) :: description

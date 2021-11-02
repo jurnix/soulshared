@@ -31,9 +31,10 @@
 
 module shr_arrayGrid_mod
 
-  use SHR_precision_mod, only: sp, dp!, eqReal
-!  use SHR_strings_mod, only: string
-  use SHR_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
+  use shr_precision_mod, only: sp, dp!, eqReal
+  use shr_grid_mod, only: shr_grid
+  use shr_array_mod, only: arrayAbs
+  use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
 
   implicit none
 
@@ -42,11 +43,36 @@ module shr_arrayGrid_mod
   public :: shr_arrayGrid
 
 
-  type shr_arrayGrid
+  type, extends(arrayAbs), abstract :: shr_arrayGrid
+    type(shr_grid), allocatable :: grid
   contains
+    procedure :: init !< initialization
+    procedure(iface_init_custom), deferred :: init_custom !< custom initialization for any subclass
   end type shr_arrayGrid
 
 
+  abstract interface
+    subroutine iface_init_custom(self)
+      !<
+      import :: shr_arrayGrid
+      class(shr_arrayGrid), intent(inout) :: self
+    end subroutine iface_init_custom
+  end interface
+
+
+
 contains
+
+  subroutine init(self, name, grid, dimensions, units, description)
+    !< initialize shr_arrayGrid
+    !<
+    class(shr_arrayGrid), intent(inout) :: self
+    character(*), intent(in) :: name !< array name
+    type(shr_grid), intent(in) :: grid !< grid
+    type(shr_arrayDimContainer), intent(in) :: dimensions(:) !< other dimensions (but no spatial)
+    character(*), intent(in) :: units !< dimensions
+    character(*), intent(in) :: description !< array description
+
+  end subroutine init
 
 end module shr_arrayGrid_mod
