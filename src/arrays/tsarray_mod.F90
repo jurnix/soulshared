@@ -32,7 +32,7 @@ module SHR_tsArray_mod
   use SHR_error_mod, only: raiseError 
   use SHR_strings_mod, only: string
   use SHR_datetime_mod, only: clock, timedelta
-  use SHR_array_mod, only: arrayAbs!, pAbsArray, allocAbsArray, sp_rArray, sp_rpArray, min, max
+  use SHR_array_mod, only: shr_array!, pAbsArray, allocAbsArray, sp_rArray, sp_rpArray, min, max
 
   implicit none
 
@@ -57,7 +57,7 @@ module SHR_tsArray_mod
   integer, parameter :: TSARRAY_OP_LAST = 5 !< last value 
 
   !< timeScaled Array. It only support data pointer
-  type, extends(arrayAbs) :: tsArray !< temporal array (clock), infered todo- support >1 ts variable for the same
+  type, extends(shr_array) :: tsArray !< temporal array (clock), infered todo- support >1 ts variable for the same
     type(clock) :: internalTime !< sync from simulations clock
     integer :: operation !< what to do when rescaling to another time sacle
     type(timedelta) :: newTs !< new variable time scale (always bigger the clock timestep)

@@ -34,7 +34,7 @@ module shr_arrayGrid_mod
   use shr_precision_mod, only: sp, dp!, eqReal
   use shr_grid_mod, only: shr_grid
   use shr_strings_mod, only: string
-  use shr_array_mod, only: arrayAbs
+  use shr_array_mod, only: shr_array
   use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
 
   implicit none
@@ -44,7 +44,7 @@ module shr_arrayGrid_mod
   public :: shr_arrayGrid
 
 
-  type, extends(arrayAbs), abstract :: shr_arrayGrid
+  type, extends(shr_array), abstract :: shr_arrayGrid
     type(shr_grid), allocatable :: grid
   contains
     procedure(iface_init), deferred :: init !< initialization

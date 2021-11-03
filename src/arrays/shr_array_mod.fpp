@@ -43,10 +43,10 @@ module SHR_array_mod
 
   private
 
-  public :: arrayAbs, shr_arrayRsp
+  public :: shr_array, shr_arrayRsp
 
 
-  type, abstract :: arrayAbs !< interface to array
+  type, abstract :: shr_array !< interface to array
     !< array descriptor
     type(string), allocatable :: name
     type(shr_arrayDimContainer), allocatable :: dims(:) 
@@ -56,16 +56,16 @@ module SHR_array_mod
     !< array data
     class(shr_arrayContainer), allocatable :: data 
   contains
-    procedure :: getName => getName_arrayAbs
-    procedure :: getSize => getSize_arrayAbs
-    procedure :: getDims => getDims_arrayAbs
-    procedure :: getUnits => getUnits_arrayAbs
-    procedure :: getDescription => getDescription_arrayAbs
-  end type arrayAbs
+    procedure :: getName => getName_array
+    procedure :: getSize => getSize_array
+    procedure :: getDims => getDims_array
+    procedure :: getUnits => getUnits_array
+    procedure :: getDescription => getDescription_array
+  end type shr_array
 
 
   ! type specific array, real - kind single precision -
-  type, extends(arrayAbs) :: shr_arrayRsp !< apply each type and kind
+  type, extends(shr_array) :: shr_arrayRsp !< apply each type and kind
   contains
 
     procedure :: init_array_rsp
@@ -98,46 +98,46 @@ module SHR_array_mod
 
 contains
   !
-  ! arrayAbs
+  ! array
   !
    
-  pure type(string) function getName_arrayAbs(self)
+  pure type(string) function getName_array(self)
     !< returns how many dimensions 
-    class(arrayAbs), intent(in) :: self
-    getName_arrayAbs = self % name
-  end function getName_arrayAbs
+    class(shr_array), intent(in) :: self
+    getName_array = self % name
+  end function getName_array
 
    
-  pure integer function getSize_arrayAbs(self)
+  pure integer function getSize_array(self)
     !< returns how many dimensions 
-    class(arrayAbs), intent(in) :: self
-    getSize_arrayAbs = size(self % dims)
-  end function getSize_arrayAbs
+    class(shr_array), intent(in) :: self
+    getSize_array = size(self % dims)
+  end function getSize_array
 
 
-  pure function getDims_arrayAbs(self) result (dims)
+  pure function getDims_array(self) result (dims)
     !< returns array dimensions as an allocatable array
-    class(arrayAbs), intent(in) :: self
+    class(shr_array), intent(in) :: self
 !    class(shr_arrayDim), allocatable :: dims(:) !< output
     type(shr_arrayDimContainer), allocatable :: dims(:) !< output
     if (allocated(dims)) deallocate(dims)
     allocate(dims, source = self % dims)
 !    dims = self % dims
-  end function getDims_arrayAbs
+  end function getDims_array
 
 
-  pure type(string) function getUnits_arrayAbs(self)
+  pure type(string) function getUnits_array(self)
     !< its returns its units
-    class(arrayAbs), intent(in) :: self
-    getUnits_arrayAbs = self % units
-  end function getUnits_arrayAbs
+    class(shr_array), intent(in) :: self
+    getUnits_array = self % units
+  end function getUnits_array
 
 
-  pure type(string) function getDescription_arrayAbs(self)
+  pure type(string) function getDescription_array(self)
     !< it returns its description
-    class(arrayAbs), intent(in) :: self
-    getDescription_arrayAbs = self % description
-  end function getDescription_arrayAbs
+    class(shr_array), intent(in) :: self
+    getDescription_array = self % description
+  end function getDescription_array
 
 
   !
