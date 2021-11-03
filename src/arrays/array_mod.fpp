@@ -159,7 +159,6 @@ contains
     allocate(self % description)
     self % description = string(description)
 
-!    self % dims = dimensions
     allocate(self % dims, source = dimensions)
 
     ! todo, creational design pattern?
