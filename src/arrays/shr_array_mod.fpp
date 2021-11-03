@@ -73,26 +73,43 @@ module SHR_array_mod
 
     ! copy
     procedure :: copy_scalar_rsp
-    procedure :: copy_array_to_raw_rsp_1
-    procedure, pass(self) :: copy_raw_rsp_1_to_array
+#:for RANK in RANKS
+    procedure :: copy_array_to_raw_rsp_${RANK}$
+#:endfor
+#:for RANK in RANKS
+    procedure, pass(self) :: copy_raw_rsp_${RANK}$_to_array
+#:endfor
     procedure :: copy_array
 
-    generic, public :: assignment(=) => copy_scalar_rsp, copy_array, &
-            copy_array_to_raw_rsp_1, copy_raw_rsp_1_to_array
+    generic, public :: assignment(=) => copy_scalar_rsp, copy_array!, &
+#:for RANK in RANKS
+    generic, public :: assignment(=) => copy_array_to_raw_rsp_${RANK}$
+#:endfor
+#:for RANK in RANKS
+    generic, public :: assignment(=) => copy_raw_rsp_${RANK}$_to_array
+#:endfor
 
     ! add
     procedure :: add_array_scalar_rsp
-    procedure :: add_array_raw_rsp_1
+#:for RANK in RANKS
+    procedure :: add_array_raw_rsp_${RANK}$
+#:endfor
     procedure :: add_array_array
-    generic, public :: operator(+) => add_array_scalar_rsp, add_array_array, &
-            add_array_raw_rsp_1
+    generic, public :: operator(+) => add_array_scalar_rsp, add_array_array!, &
+#:for RANK in RANKS
+    generic, public :: operator(+) =>  add_array_raw_rsp_${RANK}$
+#:endfor
 
     ! equal
     procedure :: equal_scalar_rsp
-    procedure :: equal_array_raw_rsp_1
+#:for RANK in RANKS
+    procedure :: equal_array_raw_rsp_${RANK}$
+#:endfor
     procedure :: equal_array
-    generic, public :: operator(==) => equal_scalar_rsp, equal_array, &
-            equal_array_raw_rsp_1
+    generic, public :: operator(==) => equal_scalar_rsp, equal_array!, &
+#:for RANK in RANKS
+    generic, public :: operator(==) => equal_array_raw_rsp_${RANK}$
+#:endfor
   end type shr_arrayRsp
 
 
@@ -178,22 +195,26 @@ contains
   end subroutine copy_scalar_rsp
 
 
-  pure subroutine copy_raw_rsp_1_to_array(other, self)
+#:for RANK in RANKS
+  pure subroutine copy_raw_rsp_${RANK}$_to_array(other, self)
     !< copy from arrayRsp 'self' to 'other' array
     !< raw array = arrayRsp
-    real(kind=sp), allocatable, intent(inout) :: other(:)
+    real(kind=sp), allocatable, intent(inout) :: other${ranksuffix(RANK)}$
     class(shr_arrayRsp), intent(in) :: self
-    other = self % data
-  end subroutine copy_raw_rsp_1_to_array
+!    other = self % data
+  end subroutine copy_raw_rsp_${RANK}$_to_array
+#:endfor
 
 
-  pure subroutine copy_array_to_raw_rsp_1(self, other)
+#:for RANK in RANKS
+  pure subroutine copy_array_to_raw_rsp_${RANK}$(self, other)
     !< copy to current array 'self' from 'other' array
     !< arrayRsp = raw array
     class(shr_arrayRsp), intent(inout) :: self
-    real(kind=sp), intent(in) :: other(:)
-    self % data = other
-  end subroutine copy_array_to_raw_rsp_1
+    real(kind=sp), intent(in) :: other${ranksuffix(RANK)}$
+!    self % data = other
+  end subroutine copy_array_to_raw_rsp_${RANK}$
+#:endfor
 
 
   pure subroutine copy_array(self, other)
@@ -220,13 +241,15 @@ contains
   end function add_array_scalar_rsp
 
 
-  pure function add_array_raw_rsp_1(left, right) Result(total)
+#:for RANK in RANKS
+  pure function add_array_raw_rsp_${RANK}$(left, right) Result(total)
     !< addition shr_arrayRsp and scalar rsp
     class(shr_arrayRsp), intent(in) :: left
-    real(kind=sp), intent(in) :: right(:)
+    real(kind=sp), intent(in) :: right${ranksuffix(RANK)}$
     class(shr_arrayRsp), allocatable :: total !< output
-    total % data = left % data + right
-  end function add_array_raw_rsp_1
+!    total % data = left % data + right
+  end function add_array_raw_rsp_${RANK}$
+#:endfor
 
 
   pure function add_array_array(left, right) Result(total)
@@ -277,11 +300,13 @@ contains
   end function equal_scalar_rsp
 
 
-  pure logical function equal_array_raw_rsp_1(self, other)
+#:for RANK in RANKS
+  pure logical function equal_array_raw_rsp_${RANK}$(self, other)
     !< true if self and other are the same
     class(shr_arrayRsp), intent(in) :: self
-    real(kind=sp), intent(in) :: other(:)
-    equal_array_raw_rsp_1 = all(self % data == other)
-  end function equal_array_raw_rsp_1
+    real(kind=sp), intent(in) :: other${ranksuffix(RANK)}$
+!    equal_array_raw_rsp_${RANK}$ = all(self % data == other)
+  end function equal_array_raw_rsp_${RANK}$
+#:endfor
 
 end module SHR_array_mod
