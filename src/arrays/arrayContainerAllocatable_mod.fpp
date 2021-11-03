@@ -13,6 +13,8 @@
 !> 
 !------------------------------------------------------------------------------
 
+#:include "../common.fpp"
+
 
 module SHR_arrayContainerAllocatable_mod
 
