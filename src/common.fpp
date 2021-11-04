@@ -10,6 +10,12 @@
 !> 
 !>
 !------------------------------------------------------------------------------
+#:set OPERATOR_NAMES = ['add', 'sub', 'div' ,'mul']
+
+#:set OPERATOR_SYMBOLS = ['+', '-', '/', '*']
+
+#:set OPERATOR_TYPES = list(zip(OPERATOR_NAMES, OPERATOR_SYMBOLS))
+
 
 #:set MAXRANK = 4
 

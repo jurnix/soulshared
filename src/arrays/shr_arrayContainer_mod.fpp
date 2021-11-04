@@ -67,16 +67,18 @@ module SHR_arrayContainer_mod
     generic, public :: operator(==) => equal_array_raw_rsp_${RANK}$
 #:endfor
 
-    ! add
-    procedure(iface_add_scalar_rsp), deferred :: add_scalar_rsp
-#:for RANK in RANKS
-    procedure(iface_add_array_raw_rsp_${RANK}$), deferred :: add_array_raw_rsp_${RANK}$
-#:endfor
-    procedure(iface_add_arrayContainer), deferred :: add_arrayContainer
+#:for OP_NAME, OP_SYMB in OPERATOR_TYPES
+    ! ${OP_NAME}$ (${OP_SYMB}$)
+    procedure(iface_${OP_NAME}$_scalar_rsp), deferred :: ${OP_NAME}$_scalar_rsp
+  #:for RANK in RANKS
+    procedure(iface_${OP_NAME}$_array_raw_rsp_${RANK}$), deferred :: ${OP_NAME}$_array_raw_rsp_${RANK}$
+  #:endfor
+    procedure(iface_${OP_NAME}$_arrayContainer), deferred :: ${OP_NAME}$_arrayContainer
 
-    generic, public :: operator(+) => add_scalar_rsp, add_arrayContainer!, &
-#:for RANK in RANKS
-    generic, public :: operator(+) =>  add_array_raw_rsp_${RANK}$
+    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_scalar_rsp, ${OP_NAME}$_arrayContainer!, &
+  #:for RANK in RANKS
+    generic, public :: operator(${OP_SYMB}$) =>  ${OP_NAME}$_array_raw_rsp_${RANK}$
+  #:endfor
 #:endfor
 
 !    procedure(iface_sub_arrayContainer), deferred :: sub_arrayContainer
@@ -110,28 +112,30 @@ module SHR_arrayContainer_mod
       class(shr_arraycontainer), intent(in) :: other
     end function iface_equal_arrayContainer
 
-    ! add
-    pure function iface_add_arrayContainer(left, right) Result(total)
+#:for OP_NAME, OP_SYMB in OPERATOR_TYPES
+    ! ${OP_NAME}$ (${OP_SYMB}$)
+    pure function iface_${OP_NAME}$_arrayContainer(left, right) Result(total)
       import :: shr_arrayContainer
       class(shr_arrayContainer), intent(in) :: left, right
       class(shr_arrayContainer), allocatable :: total
-    end function iface_add_arrayContainer
+    end function iface_${OP_NAME}$_arrayContainer
 
-#:for RANK in RANKS
-    pure function iface_add_array_raw_rsp_${RANK}$(left, right) Result(total)
+  #:for RANK in RANKS
+    pure function iface_${OP_NAME}$_array_raw_rsp_${RANK}$(left, right) Result(total)
       import :: shr_arrayContainer, sp
       class(shr_arrayContainer), intent(in) :: left
       real(kind=sp), intent(in) :: right${ranksuffix(RANK)}$
       class(shr_arrayContainer), allocatable :: total
-    end function iface_add_array_raw_rsp_${RANK}$
-#:endfor
+    end function iface_${OP_NAME}$_array_raw_rsp_${RANK}$
+  #:endfor
 
-    pure function iface_add_scalar_rsp(left, right) Result(total)
+    pure function iface_${OP_NAME}$_scalar_rsp(left, right) Result(total)
       import :: shr_arrayContainer, sp
       class(shr_arrayContainer), intent(in) :: left
       real(kind=sp), intent(in) :: right
       class(shr_arrayContainer), allocatable :: total
-    end function iface_add_scalar_rsp
+    end function iface_${OP_NAME}$_scalar_rsp
+#:endfor
 
 
     ! copy

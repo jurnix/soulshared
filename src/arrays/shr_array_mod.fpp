@@ -89,15 +89,17 @@ module SHR_array_mod
     generic, public :: assignment(=) => copy_raw_rsp_${RANK}$_to_array
 #:endfor
 
-    ! add
-    procedure :: add_array_scalar_rsp
-#:for RANK in RANKS
-    procedure :: add_array_raw_rsp_${RANK}$
-#:endfor
-    procedure :: add_array_array
-    generic, public :: operator(+) => add_array_scalar_rsp, add_array_array!, &
-#:for RANK in RANKS
-    generic, public :: operator(+) =>  add_array_raw_rsp_${RANK}$
+#:for OP_NAME, OP_SYMB in OPERATOR_TYPES
+    ! ${OP_NAME}$ (${OP_SYMB}$)
+    procedure :: ${OP_NAME}$_array_scalar_rsp
+  #:for RANK in RANKS
+    procedure :: ${OP_NAME}$_array_raw_rsp_${RANK}$
+  #:endfor
+    procedure :: ${OP_NAME}$_array_array
+    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_array_scalar_rsp, ${OP_NAME}$_array_array!, &
+  #:for RANK in RANKS
+    generic, public :: operator(${OP_SYMB}$) =>  ${OP_NAME}$_array_raw_rsp_${RANK}$
+  #:endfor
 #:endfor
 
     ! equal
@@ -232,36 +234,41 @@ contains
       allocate(self % data, source = other % data)
   end subroutine copy_array
 
+#:for OP_NAME, OP_SYMB in OPERATOR_TYPES
   !
-  ! add
+  ! ${OP_NAME}$, ${OP_SYMB}$
   !
-  pure function add_array_scalar_rsp(left, right) Result(total)
+
+  pure function ${OP_NAME}$_array_scalar_rsp(left, right) Result(total)
     !< addition shr_arrayRsp and scalar rsp
     class(shr_arrayRsp), intent(in) :: left
     real(kind=sp), intent(in) :: right
     class(shr_arrayRsp), allocatable :: total !< output
-    total = left % data + right
-  end function add_array_scalar_rsp
+    total = left % data ${OP_SYMB}$ right
+  end function ${OP_NAME}$_array_scalar_rsp
 
 
 #:for RANK in RANKS
-  pure function add_array_raw_rsp_${RANK}$(left, right) Result(total)
+  pure function ${OP_NAME}$_array_raw_rsp_${RANK}$(left, right) Result(total)
     !< addition shr_arrayRsp and scalar rsp
     class(shr_arrayRsp), intent(in) :: left
     real(kind=sp), intent(in) :: right${ranksuffix(RANK)}$
     class(shr_arrayRsp), allocatable :: total !< output
-    total % data = left % data + right
-  end function add_array_raw_rsp_${RANK}$
+    total % data = left % data ${OP_SYMB}$ right
+  end function ${OP_NAME}$_array_raw_rsp_${RANK}$
 #:endfor
 
 
-  pure function add_array_array(left, right) Result(total)
+  pure function ${OP_NAME}$_array_array(left, right) Result(total)
     !< addition from shr_arrayRsp and shr_arrayRsp
     class(shr_arrayRsp), intent(in) :: left
     class(shr_arrayRsp), intent(in) :: right
     class(shr_arrayRsp), allocatable :: total !< output
-    total = left % data + right % data
-  end function add_array_array
+    total = left % data ${OP_SYMB}$ right % data
+  end function ${OP_NAME}$_array_array
+
+! OP_NAME, OP_SYMB in OPERATOR_TYPES  
+#:endfor
 
   !
   ! equal

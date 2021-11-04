@@ -41,11 +41,14 @@ module SHR_arrayContainerAllocatable_mod
     !< available: add, sub, div, mull
     !< kind: sp, dp
     !< rank: 1 to MAXRANK
-    procedure :: add_scalar_rsp
-#:for RANK in RANKS          
-    procedure :: add_array_raw_rsp_${RANK}$
-#:endfor    
-    procedure :: add_arrayContainer => add_arrayContainerAllocatable
+#:for OP_NAME, OP_SYMB in OPERATOR_TYPES
+    ! ${OP_NAME}$ (${OP_SYMB}$)
+    procedure :: ${OP_NAME}$_scalar_rsp
+  #:for RANK in RANKS          
+    procedure :: ${OP_NAME}$_array_raw_rsp_${RANK}$
+  #:endfor    
+    procedure :: ${OP_NAME}$_arrayContainer => ${OP_NAME}$_arrayContainerAllocatable
+#:endfor
 
     procedure :: copy_scalar_rsp
 #:for RANK in RANKS          
@@ -94,10 +97,12 @@ contains
 !    endif
   end subroutine init
 
+
+#:for OP_NAME, OP_SYMB in OPERATOR_TYPES
   !
-  ! add
+  ! ${OP_NAME}$ (${OP_SYMB}$)
   !
-  pure function add_arrayContainerAllocatable(left, right) Result(total)
+  pure function ${OP_NAME}$_arrayContainerAllocatable(left, right) Result(total)
     !< addition of arrayCA + arrayC 
     class(shr_arrayContainerAllocatable), intent(in) :: left
     class(shr_arrayContainer), intent(in) :: right
@@ -111,7 +116,7 @@ contains
     type is (shr_arrayContainerAllocatable)
 #:for RANK in RANKS          
       if (left % getSize() == ${RANK}$ .and. right % getSize() == ${RANK}$) then
-        total = left % r${RANK}$ + rightArray % r${RANK}$
+        total = left % r${RANK}$ ${OP_SYMB}$ rightArray % r${RANK}$
       endif
 #:endfor
 !      else
@@ -121,21 +126,21 @@ contains
       !< unexpected, type not found
     end select
 
-  end function add_arrayContainerAllocatable
+  end function ${OP_NAME}$_arrayContainerAllocatable
 
 
 #:for RANK in RANKS          
-  pure function add_array_raw_rsp_${RANK}$(left, right) Result(total)
+  pure function ${OP_NAME}$_array_raw_rsp_${RANK}$(left, right) Result(total)
     !<
     class(shr_arrayContainerAllocatable), intent(in) :: left
     real(kind=sp), intent(in) :: right${ranksuffix(RANK)}$
     class(shr_arrayContainer), allocatable :: total
-    total = left % r${RANK}$ + right
-  end function add_array_raw_rsp_${RANK}$
+    total = left % r${RANK}$ ${OP_SYMB}$ right
+  end function ${OP_NAME}$_array_raw_rsp_${RANK}$
 #:endfor
 
 
-  pure function add_scalar_rsp(left, right) Result(total)
+  pure function ${OP_NAME}$_scalar_rsp(left, right) Result(total)
     !< add scalar value into array
     !< arrayCA = 24.1
     class(shr_arrayContainerAllocatable), intent(in) :: left 
@@ -143,14 +148,16 @@ contains
     class(shr_arrayContainer), allocatable :: total !< output
 #:for RANK in RANKS          
     if (left % getSize() == ${RANK}$) then
-      total = left % r${RANK}$ + right
+      total = left % r${RANK}$ ${OP_SYMB}$ right
     endif
 #:endfor
 !    MAXRANK
 !    else
       !< unexpected, inconsistency found
 !    endif
-  end function add_scalar_rsp
+  end function ${OP_NAME}$_scalar_rsp
+
+#:endfor
 
   !
   ! copy
