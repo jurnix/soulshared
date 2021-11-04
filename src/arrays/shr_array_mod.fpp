@@ -201,7 +201,7 @@ contains
     !< raw array = arrayRsp
     real(kind=sp), allocatable, intent(inout) :: other${ranksuffix(RANK)}$
     class(shr_arrayRsp), intent(in) :: self
-!    other = self % data
+    other = self % data
   end subroutine copy_raw_rsp_${RANK}$_to_array
 #:endfor
 
@@ -212,7 +212,7 @@ contains
     !< arrayRsp = raw array
     class(shr_arrayRsp), intent(inout) :: self
     real(kind=sp), intent(in) :: other${ranksuffix(RANK)}$
-!    self % data = other
+    self % data = other
   end subroutine copy_array_to_raw_rsp_${RANK}$
 #:endfor
 
@@ -222,9 +222,12 @@ contains
       !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
       class(shr_arrayRsp), intent(inout) :: self
       class(shr_arrayRsp), intent(in) :: other
+      if (.not. allocated(self % name)) allocate(self % name)
       self % name = other % getName()
-      self % dims = other % getDims()
+      allocate(self % dims, source = other % getDims())
+      if (.not. allocated(self % units)) allocate(self % units)
       self % units = other % getUnits()
+      if (.not. allocated(self % description)) allocate(self % description)
       self % description = other % getDescription()
       allocate(self % data, source = other % data)
   end subroutine copy_array
@@ -247,7 +250,7 @@ contains
     class(shr_arrayRsp), intent(in) :: left
     real(kind=sp), intent(in) :: right${ranksuffix(RANK)}$
     class(shr_arrayRsp), allocatable :: total !< output
-!    total % data = left % data + right
+    total % data = left % data + right
   end function add_array_raw_rsp_${RANK}$
 #:endfor
 
@@ -305,7 +308,7 @@ contains
     !< true if self and other are the same
     class(shr_arrayRsp), intent(in) :: self
     real(kind=sp), intent(in) :: other${ranksuffix(RANK)}$
-!    equal_array_raw_rsp_${RANK}$ = all(self % data == other)
+    equal_array_raw_rsp_${RANK}$ = all(self % data == other)
   end function equal_array_raw_rsp_${RANK}$
 #:endfor
 

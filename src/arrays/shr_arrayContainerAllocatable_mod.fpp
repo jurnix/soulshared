@@ -1,15 +1,15 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        :  shr_arrayAllocatable_mod
+! MODULE        :  shr_arrayContainerAllocatable_mod
 !
 !> @author
 !> Albert Jornet Puig 
 !
 ! DESCRIPTION:
-!> Common Array subroutines
+!> Array Container Allocatable 
 !>
-!> array class (real sp, real dp, int)
+!> Data is kept as allocatable 
 !> 
 !------------------------------------------------------------------------------
 
@@ -32,11 +32,9 @@ module SHR_arrayContainerAllocatable_mod
 
   !< allocatable single precision array
   type, extends(shr_arrayContainer) :: shr_arrayContainerAllocatable 
-    real(kind=sp), allocatable :: r1(:)
-    real(kind=sp), allocatable :: r2(:,:)
-    real(kind=sp), allocatable :: r3(:,:,:)
-    real(kind=sp), allocatable :: r4(:,:,:,:)
-    real(kind=sp), allocatable :: r5(:,:,:,:,:) ! MAXRANK
+#:for RANK in RANKS          
+    real(kind=sp), allocatable :: r${RANK}$${ranksuffix(RANK)}$
+#:endfor
   contains
     procedure :: init
 
@@ -44,17 +42,25 @@ module SHR_arrayContainerAllocatable_mod
     !< kind: sp, dp
     !< rank: 1 to MAXRANK
     procedure :: add_scalar_rsp
-    procedure :: add_array_raw_rsp_1
+#:for RANK in RANKS          
+    procedure :: add_array_raw_rsp_${RANK}$
+#:endfor    
     procedure :: add_arrayContainer => add_arrayContainerAllocatable
 
     procedure :: copy_scalar_rsp
-    procedure :: copy_array_raw_rsp_1
-    procedure, pass(self) :: copy_raw_rsp_1_to_array !< reverse
+#:for RANK in RANKS          
+    procedure :: copy_array_raw_rsp_${RANK}$
+#:endfor    
+#:for RANK in RANKS          
+    procedure, pass(self) :: copy_raw_rsp_${RANK}$_to_array !< reverse
+#:endfor    
     procedure :: copy_arrayContainer
 
     procedure :: equal_arrayContainer => equal_arrayContainerAllocatable
     procedure :: equal_scalar_rsp
-    procedure :: equal_array_raw_rsp_1
+#:for RANK in RANKS          
+    procedure :: equal_array_raw_rsp_${RANK}$
+#:endfor    
 
     final :: destroy_class
   end type shr_arrayContainerAllocatable
@@ -67,11 +73,9 @@ contains
     !< initialize shr_arrayContainer, overload parent subroutine
     !< to customize child initialiation
     class(shr_arrayContainerAllocatable), intent(inout) :: self
-!    class(shr_arrayDim), intent(in) :: dimensions(:)
     type(shr_arrayDimContainer), intent(in) :: dimensions(:)
 
     integer, allocatable :: alldims(:)
-    integer :: first, second, third, fourth, fifth
 
     !< common to all arrayContainer
     !self % dimensions = dimensions
@@ -80,25 +84,14 @@ contains
     alldims = self % dimensions % getSize()
 
     !< customized init
-    first = alldims(1)
-    if (self % ndims >= 2) second = alldims(2)
-    if (self % ndims >= 3) third = alldims(3)
-    if (self % ndims >= 4) fourth = alldims(4)
-    if (self % ndims >= 5) fifth = alldims(5)
-
-    if (self % ndims == 1) then
-      allocate(self % r1(first))
-    else if (self % ndims == 2) then
-      allocate(self % r2(first, second))
-    else if (self % ndims == 3) then
-      allocate(self % r3(first, second, third))
-    else if (self % ndims == 4) then
-      allocate(self % r4(first, second, third, fourth))
-    else if (self % ndims == 5) then ! MAXRANK
-      allocate(self % r5(first, second, third, fourth, fifth))
-    else
-      !< unexpected
+#:for RANK in RANKS          
+    if (self % ndims == ${RANK}$) then
+      allocate(self % r${RANK}$${rankConstructor(RANK,"alldims")}$)
     endif
+#:endfor
+!    else
+      !< unexpected
+!    endif
   end subroutine init
 
   !
@@ -116,19 +109,14 @@ contains
     !
     select type(rightArray => right)
     type is (shr_arrayContainerAllocatable)
-      if (left % getSize() == 1 .and. right % getSize() == 1) then
-        total = left % r1 + rightArray % r1
-!      else if (left % getSize() == 2 .and. right % getSize() == 2) then
-!        total = left % r2 + rightArray % r2
-!      else if (left % getSize() == 3 .and. right % getSize() == 3) then
-!        total = left % r3 + rightArray % r3
-!      else if (left % getSize() == 4 .and. right % getSize() == 4) then
-!        total = left % r4 + rightArray % r4
-!      else if (left % getSize() == 5 .and. right % getSize() == 5) then !< MAXRANK
-!        total = left % r5 + rightArray % r5
-      else
-        !< unexpected, inconsistency found
+#:for RANK in RANKS          
+      if (left % getSize() == ${RANK}$ .and. right % getSize() == ${RANK}$) then
+        total = left % r${RANK}$ + rightArray % r${RANK}$
       endif
+#:endfor
+!      else
+!        !< unexpected, inconsistency found
+!      endif
     class default
       !< unexpected, type not found
     end select
@@ -136,13 +124,15 @@ contains
   end function add_arrayContainerAllocatable
 
 
-  pure function add_array_raw_rsp_1(left, right) Result(total)
+#:for RANK in RANKS          
+  pure function add_array_raw_rsp_${RANK}$(left, right) Result(total)
     !<
     class(shr_arrayContainerAllocatable), intent(in) :: left
-    real(kind=sp), intent(in) :: right(:)
+    real(kind=sp), intent(in) :: right${ranksuffix(RANK)}$
     class(shr_arrayContainer), allocatable :: total
-    total = left % r1 + right
-  end function add_array_raw_rsp_1
+    total = left % r${RANK}$ + right
+  end function add_array_raw_rsp_${RANK}$
+#:endfor
 
 
   pure function add_scalar_rsp(left, right) Result(total)
@@ -151,14 +141,15 @@ contains
     class(shr_arrayContainerAllocatable), intent(in) :: left 
     real(kind=sp), intent(in) :: right 
     class(shr_arrayContainer), allocatable :: total !< output
-    if (left % getSize() == 1) then
-      total = left % r1 + right
-!    else if (left % getSize() == 2) then
-!      total = left % r2 + right
-!    MAXRANK
-    else
-      !< unexpected, inconsistency found
+#:for RANK in RANKS          
+    if (left % getSize() == ${RANK}$) then
+      total = left % r${RANK}$ + right
     endif
+#:endfor
+!    MAXRANK
+!    else
+      !< unexpected, inconsistency found
+!    endif
   end function add_scalar_rsp
 
   !
@@ -168,38 +159,44 @@ contains
     !< Copy to current array container allocatable
     class(shr_arrayContainerAllocatable), intent(inout) :: self
     real(kind=sp), intent(in) :: other
-    if (self % getSize() == 1) then
-      self % r1 = other 
-!    MAXRANK
-    else
-      !< unexpected, inconsistency found
+#:for RANK in RANKS          
+    if (self % getSize() == ${RANK}$) then
+      self % r${RANK}$ = other 
     endif
+#:endfor
+!    MAXRANK
+!    else
+!      !< unexpected, inconsistency found
+!    endif
   end subroutine copy_scalar_rsp
 
 
-  pure subroutine copy_array_raw_rsp_1(self, other)
+#:for RANK in RANKS          
+  pure subroutine copy_array_raw_rsp_${RANK}$(self, other)
     !< Copy to current array 'self' into 'other' rsp array
     class(shr_arrayContainerAllocatable), intent(inout) :: self
-    real(kind=sp), intent(in) :: other(:)
-    if (self % getSize() == 1) then
-      self % r1 = other
+    real(kind=sp), intent(in) :: other${ranksuffix(RANK)}$
+    if (self % getSize() == ${RANK}$) then
+      self % r${RANK}$ = other
     else
       !< unexpected, inconsistency found
     endif
-  end subroutine copy_array_raw_rsp_1
+  end subroutine copy_array_raw_rsp_${RANK}$
+#:endfor
 
-
-  pure subroutine copy_raw_rsp_1_to_array(other, self)
+#:for RANK in RANKS
+  pure subroutine copy_raw_rsp_${RANK}$_to_array(other, self)
     !< copy self to other
     !< reverse of 'copy_array_raw_rsp_1'
-    real(kind=sp), allocatable, intent(inout) :: other(:)
+    real(kind=sp), allocatable, intent(inout) :: other${ranksuffix(RANK)}$
     class(shr_arrayContainerAllocatable), intent(in) :: self
-    if (self % getSize() == 1) then
-      other = self % r1
+    if (self % getSize() == ${RANK}$) then
+      other = self % r${RANK}$
     else
       !< unexpected, inconsistency found
     endif
-  end subroutine copy_raw_rsp_1_to_array
+  end subroutine copy_raw_rsp_${RANK}$_to_array
+#:endfor
 
 
   pure subroutine copy_arrayContainer(self, other)
@@ -210,12 +207,15 @@ contains
 
     select type(otherArray => other)
     type is (shr_arrayContainerAllocatable)
-      if (self % getSize() == 1 .and. other % getSize() == 1) then
-        self % r1 = otherArray % r1
+#:for RANK in RANKS
+      if (self % getSize() == ${RANK}$ .and. other % getSize() == ${RANK}$) then
+        self % r${RANK}$ = otherArray % r${RANK}$
+      endif
+#:endfor
 !      else if (self % getSize() == 2 .and. other % getSize() == 2) then
 !        self % r2 = otherArray % r2
       !< MAXRANK
-      endif
+!      endif
     class default
       !< unexpected type found
     end select
@@ -233,12 +233,14 @@ contains
 
     select type(otherArray => other)
     type is (shr_arrayContainerAllocatable)
-      if (self % getSize() == 1 .and. other % getSize() == 1) then
-        equal_arrayContainerAllocatable = all(self % r1 == otherArray % r1)
-      !elseif... MAXRANK
-      else
-        !< unexpected
+#:for RANK in RANKS
+      if (self % getSize() == ${RANK}$ .and. other % getSize() == ${RANK}$) then
+        equal_arrayContainerAllocatable = all(self % r${RANK}$ == otherArray % r${RANK}$)
       endif
+#:endfor
+!      else
+        !< unexpected
+!      endif
     class default
       !< unexpected
       equal_arrayContainerAllocatable = .false. 
@@ -251,28 +253,33 @@ contains
     class(shr_arraycontainerAllocatable), intent(in) :: self
     real(kind=sp), intent(in) :: other
     equal_scalar_rsp = .false.
-    if (self % getSize() == 1) then
-      equal_scalar_rsp = all(self % r1 == other)
-!    MAXRANK
-    else
-      !< unexpected, inconsistency found
-      equal_scalar_rsp = .false.
+#:for RANK in RANKS
+    if (self % getSize() == ${RANK}$) then
+      equal_scalar_rsp = all(self % r${RANK}$ == other)
     endif
+#:endfor
+!    MAXRANK
+!    else
+      !< unexpected, inconsistency found
+!      equal_scalar_rsp = .false.
+!    endif
   end function equal_scalar_rsp
 
 
-  pure logical function equal_array_raw_rsp_1(self, other)
+#:for RANK in RANKS
+  pure logical function equal_array_raw_rsp_${RANK}$(self, other)
     !< true if self and other are the same
     class(shr_arraycontainerAllocatable), intent(in) :: self
-    real(kind=sp), intent(in) :: other(:)
-    equal_array_raw_rsp_1 = .false.
-    if (self % getSize() == 1) then
-      equal_array_raw_rsp_1 = all(self % r1 == other)
+    real(kind=sp), intent(in) :: other${ranksuffix(RANK)}$
+    equal_array_raw_rsp_${RANK}$ = .false.
+    if (self % getSize() == ${RANK}$) then
+      equal_array_raw_rsp_${RANK}$ = all(self % r${RANK}$ == other)
     else
       !< unexpected, inconsistency found
-      equal_array_raw_rsp_1 = .false.
+      equal_array_raw_rsp_${RANK}$ = .false.
     endif
-  end function equal_array_raw_rsp_1
+  end function equal_array_raw_rsp_${RANK}$
+#:endfor
 
   !
   ! final
@@ -283,11 +290,9 @@ contains
 
     deallocate(self % dimensions)
 
+#:for RANK in RANKS
     if (allocated(self % r1)) deallocate(self % r1)
-    if (allocated(self % r2)) deallocate(self % r2)
-    if (allocated(self % r3)) deallocate(self % r3)
-    if (allocated(self % r4)) deallocate(self % r4)
-    if (allocated(self % r5)) deallocate(self % r5) ! MAXRANK
+#:endfor
   end subroutine destroy_class
 
 end module SHR_arrayContainerAllocatable_mod

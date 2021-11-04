@@ -48,14 +48,42 @@
 
 #:set RSHIFTRANKS = range(2, MAXRANK+2)
 
+!
+!def rankConstructor(ranks, dname):
+!    """
+!    Generate allocate dimensions for fortran
+!    genrank(4, "d") -> "(d1,d2,d3,d4)"
+!    
+!    usage:
+!      allocate(var(rankConstructor(4,"d"))) 
+!
+!    output:
+!      allocate(var(d1,d2,d3,d4))
+!    """
+!    # create each dimension rank name
+!    valoutput = [dname+str(rank) for rank in range(ranks)]
+!    # concatenate array with ","
+!    output_str = ','.join(map(str, output))
+!    # include parenthesis
+!    return "(" + output_str + ")"
+!
+#:def rankConstructor(RANKS,DNAMES)
+#:set output = [DNAMES+"("+str(rank)+")" for rank in range(1,RANKS+1)]
+#:set output_str = ','.join(map(str, output))
+$:"(" + output_str + ")"
+#:enddef rankConstructor
+
+! ranksuffix(3) -> (:,:,:)
 #:def ranksuffix(RANK)
 $:'' if RANK == 0 else '(' + ':' + ',:' * (RANK - 1) + ')'
 #:enddef ranksuffix
 
+! rankimplicit(3) -> ,:,:,:
 #:def rankimplicit(RANK)
 $:'' if RANK == 0 else ',:' * (RANK) 
 #:enddef rankimplicit
 
+! rankexplicit(4,?) -> ??
 #:def rankexplicit(RANK,dimsize)
 $:'' if RANK == 0 else (',' + str(dimsize)) * (RANK) 
 #:enddef rankexplicit
