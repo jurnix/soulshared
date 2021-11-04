@@ -18,7 +18,7 @@
 
 module SHR_arrayContainer_mod
 
-  use SHR_precision_mod, only: sp! dp, eqReal
+  use SHR_precision_mod, only: sp, dp!, eqReal
 !  use SHR_error_mod, only: raiseError 
 !  use SHR_strings_mod, only: string
   use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
@@ -29,6 +29,8 @@ module SHR_arrayContainer_mod
 
   public :: shr_arrayContainer
 
+  public :: shr_arrayContainerRsp
+
 
   type, abstract :: shr_arrayContainer
     integer :: ndims !< total number of dimensions
@@ -38,31 +40,36 @@ module SHR_arrayContainer_mod
     procedure :: getDims
 
     procedure :: init 
+  end type shr_arrayContainer
+
+
+  type, extends(shr_arrayContainer), abstract :: shr_arrayContainerRsp
+  contains
 
     ! copy
     procedure(iface_copy_scalar_rsp), deferred :: copy_scalar_rsp
 #:for RANK in RANKS
     procedure(iface_copy_array_raw_rsp_${RANK}$), deferred :: copy_array_raw_rsp_${RANK}$
 #:endfor
-    procedure(iface_copy_arrayContainer), deferred :: copy_arrayContainer
+    procedure(iface_copy_arrayContainerRsp), deferred :: copy_arrayContainerRsp
     
     ! reverse copy
 #:for RANK in RANKS
     procedure(iface_copy_raw_rsp_${RANK}$_to_array), deferred, pass(self) :: copy_raw_rsp_${RANK}$_to_array
 #:endfor
 
-    generic, public :: assignment(=) => copy_scalar_rsp, copy_arrayContainer!, &
+    generic, public :: assignment(=) => copy_scalar_rsp, copy_arrayContainerRsp!, &
 #:for RANK in RANKS
     generic, public :: assignment(=) => copy_array_raw_rsp_${RANK}$, copy_raw_rsp_${RANK}$_to_array
 #:endfor
 
     ! equal
-    procedure(iface_equal_arrayContainer), deferred :: equal_arrayContainer
+    procedure(iface_equal_arrayContainerRsp), deferred :: equal_arrayContainerRsp
     procedure(iface_equal_scalar_rsp), deferred :: equal_scalar_rsp
 #:for RANK in RANKS
     procedure(iface_equal_array_raw_rsp_${RANK}$), deferred :: equal_array_raw_rsp_${RANK}$
 #:endfor
-    generic, public :: operator(==) => equal_scalar_rsp, equal_arrayContainer!, &
+    generic, public :: operator(==) => equal_scalar_rsp, equal_arrayContainerRsp!, &
 #:for RANK in RANKS
     generic, public :: operator(==) => equal_array_raw_rsp_${RANK}$
 #:endfor
@@ -73,99 +80,96 @@ module SHR_arrayContainer_mod
   #:for RANK in RANKS
     procedure(iface_${OP_NAME}$_array_raw_rsp_${RANK}$), deferred :: ${OP_NAME}$_array_raw_rsp_${RANK}$
   #:endfor
-    procedure(iface_${OP_NAME}$_arrayContainer), deferred :: ${OP_NAME}$_arrayContainer
+    procedure(iface_${OP_NAME}$_arrayContainerRsp), deferred :: ${OP_NAME}$_arrayContainerRsp
 
-    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_scalar_rsp, ${OP_NAME}$_arrayContainer!, &
+    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_scalar_rsp, ${OP_NAME}$_arrayContainerRsp !, &
   #:for RANK in RANKS
     generic, public :: operator(${OP_SYMB}$) =>  ${OP_NAME}$_array_raw_rsp_${RANK}$
   #:endfor
 #:endfor
 
-!    procedure(iface_sub_arrayContainer), deferred :: sub_arrayContainer
-!    procedure(iface_div_arrayContainer), deferred :: div_arrayContainer
-!    procedure(iface_mul_arrayContainer), deferred :: mul_arrayContainer
   end type
 
 
   abstract interface
     ! equal
     elemental logical function iface_equal_scalar_rsp(self, other)
-      import :: shr_arrayContainer, sp
+      import :: shr_arrayContainerRsp, sp
       !< true if self and other are the same
-      class(shr_arraycontainer), intent(in) :: self
+      class(shr_arraycontainerRsp), intent(in) :: self
       real(kind=sp), intent(in) :: other
     end function iface_equal_scalar_rsp
 
 #:for RANK in RANKS
     pure logical function iface_equal_array_raw_rsp_${RANK}$(self, other)
-      import :: shr_arrayContainer, sp
+      import :: shr_arrayContainerRsp, sp
       !< true if self and other are the same
-      class(shr_arraycontainer), intent(in) :: self
+      class(shr_arraycontainerRsp), intent(in) :: self
       real(kind=sp), intent(in) :: other${ranksuffix(RANK)}$
     end function iface_equal_array_raw_rsp_${RANK}$
 #:endfor
 
-    elemental logical function iface_equal_arrayContainer(self, other)
-      import :: shr_arrayContainer
+    elemental logical function iface_equal_arrayContainerRsp(self, other)
+      import :: shr_arrayContainerRsp
       !< true if self and other are the same
-      class(shr_arraycontainer), intent(in) :: self
-      class(shr_arraycontainer), intent(in) :: other
-    end function iface_equal_arrayContainer
+      class(shr_arraycontainerRsp), intent(in) :: self
+      class(shr_arraycontainerRsp), intent(in) :: other
+    end function iface_equal_arrayContainerRsp
 
 #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
     ! ${OP_NAME}$ (${OP_SYMB}$)
-    pure function iface_${OP_NAME}$_arrayContainer(left, right) Result(total)
-      import :: shr_arrayContainer
-      class(shr_arrayContainer), intent(in) :: left, right
-      class(shr_arrayContainer), allocatable :: total
-    end function iface_${OP_NAME}$_arrayContainer
+    pure function iface_${OP_NAME}$_arrayContainerRsp(left, right) Result(total)
+      import :: shr_arrayContainerRsp
+      class(shr_arrayContainerRsp), intent(in) :: left, right
+      class(shr_arrayContainerRsp), allocatable :: total
+    end function iface_${OP_NAME}$_arrayContainerRsp
 
   #:for RANK in RANKS
     pure function iface_${OP_NAME}$_array_raw_rsp_${RANK}$(left, right) Result(total)
-      import :: shr_arrayContainer, sp
-      class(shr_arrayContainer), intent(in) :: left
+      import :: shr_arrayContainerRsp, sp
+      class(shr_arrayContainerRsp), intent(in) :: left
       real(kind=sp), intent(in) :: right${ranksuffix(RANK)}$
-      class(shr_arrayContainer), allocatable :: total
+      class(shr_arrayContainerRsp), allocatable :: total
     end function iface_${OP_NAME}$_array_raw_rsp_${RANK}$
   #:endfor
 
     pure function iface_${OP_NAME}$_scalar_rsp(left, right) Result(total)
-      import :: shr_arrayContainer, sp
-      class(shr_arrayContainer), intent(in) :: left
+      import :: shr_arrayContainerRsp, sp
+      class(shr_arrayContainerRsp), intent(in) :: left
       real(kind=sp), intent(in) :: right
-      class(shr_arrayContainer), allocatable :: total
+      class(shr_arrayContainerRsp), allocatable :: total
     end function iface_${OP_NAME}$_scalar_rsp
 #:endfor
 
 
     ! copy
     pure subroutine iface_copy_scalar_rsp(self, other)
-      import :: shr_arrayContainer, sp
-      class(shr_arrayContainer), intent(inout) :: self
+      import :: shr_arrayContainerRsp, sp
+      class(shr_arrayContainerRsp), intent(inout) :: self
       real(kind=sp), intent(in) :: other
     end subroutine iface_copy_scalar_rsp
 
 #:for RANK in RANKS
     pure subroutine iface_copy_array_raw_rsp_${RANK}$(self, other)
-      import :: shr_arrayContainer, sp
-      class(shr_arrayContainer), intent(inout) :: self
+      import :: shr_arrayContainerRsp, sp
+      class(shr_arrayContainerRsp), intent(inout) :: self
       real(kind=sp), intent(in) :: other${ranksuffix(RANK)}$
     end subroutine iface_copy_array_raw_rsp_${RANK}$
 #:endfor
 
 #:for RANK in RANKS
     pure subroutine iface_copy_raw_rsp_${RANK}$_to_array(other, self)
-      import :: shr_arrayContainer, sp
+      import :: shr_arrayContainerRsp, sp
       real(kind=sp), allocatable, intent(inout) :: other${ranksuffix(RANK)}$
-      class(shr_arrayContainer), intent(in) :: self
+      class(shr_arrayContainerRsp), intent(in) :: self
     end subroutine iface_copy_raw_rsp_${RANK}$_to_array
 #:endfor
 
-    pure subroutine iface_copy_arrayContainer(self, other)
-      import :: shr_arrayContainer
-      class(shr_arrayContainer), intent(inout) :: self
-      class(shr_arrayContainer), intent(in) :: other
-    end subroutine iface_copy_arrayContainer
+    pure subroutine iface_copy_arrayContainerRsp(self, other)
+      import :: shr_arrayContainerRsp
+      class(shr_arrayContainerRsp), intent(inout) :: self
+      class(shr_arrayContainerRsp), intent(in) :: other
+    end subroutine iface_copy_arrayContainerRsp
   end interface
 
 contains

@@ -10,20 +10,24 @@
 !> 
 !>
 !------------------------------------------------------------------------------
-#:set OPERATOR_NAMES = ['add', 'sub', 'div' ,'mul']
+#:set OPERATOR_NAMES = ['add']
+!, 'sub', 'div' ,'mul']
 
-#:set OPERATOR_SYMBOLS = ['+', '-', '/', '*']
+#:set OPERATOR_SYMBOLS = ['+']
+!, '-', '/', '*']
 
 #:set OPERATOR_TYPES = list(zip(OPERATOR_NAMES, OPERATOR_SYMBOLS))
 
 
-#:set MAXRANK = 4
+#:set MAXRANK = 2
 
 #:set NEXTRANK = int(MAXRANK) + 1
 
-#:set REAL_KINDS = ['sp', 'dp']
+#:set REAL_KINDS = ['sp']
+!, 'dp']
 
-#:set REAL_HEADERS = ['rsp', 'rdp']
+#:set REAL_HEADERS = ['rsp'] 
+!, 'rdp']
 
 #:set REAL_TYPES = ["real(kind={})".format(k) for k in REAL_KINDS]
 
@@ -45,7 +49,8 @@
 ! function_iX
 
 
-#:set ALL_KINDS_TYPES = REAL_KINDS_TYPES + INT_KINDS_TYPES
+#:set ALL_KINDS_TYPES = REAL_KINDS_TYPES 
+! + INT_KINDS_TYPES
 
 
 #:set RANKS = range(1, MAXRANK+1)

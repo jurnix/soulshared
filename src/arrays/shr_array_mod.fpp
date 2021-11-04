@@ -35,9 +35,9 @@ module SHR_array_mod
 !  use SHR_error_mod, only: raiseError 
   use SHR_strings_mod, only: string
   use SHR_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
-  use shr_arrayContainer_mod, only: shr_arrayContainer
+  use shr_arrayContainer_mod, only: shr_arrayContainer, shr_arrayContainerRsp
 
-  use shr_arrayContainerAllocatable_mod, only: shr_arrayContainerAllocatable
+  use shr_arrayContainerAllocatable_mod, only: shr_arrayContainerRspAllocatable
 
   implicit none
 
@@ -52,9 +52,6 @@ module SHR_array_mod
     type(shr_arrayDimContainer), allocatable :: dims(:) 
     type(string), allocatable :: units
     type(string), allocatable :: description
-
-    !< array data
-    class(shr_arrayContainer), allocatable :: data 
   contains
     procedure :: getName => getName_array
     procedure :: getSize => getSize_array
@@ -66,6 +63,9 @@ module SHR_array_mod
 
   ! type specific array, real - kind single precision -
   type, extends(shr_array) :: shr_arrayRsp !< apply each type and kind
+
+    !< array data
+    class(shr_arrayContainerRsp), allocatable :: data 
   contains
 
     procedure :: init_array_rsp
@@ -181,7 +181,7 @@ contains
     allocate(self % dims, source = dimensions)
 
     ! todo, creational design pattern?
-    allocate( shr_arrayContainerAllocatable :: self % data )
+    allocate( shr_arrayContainerRspAllocatable :: self % data )
     call self % data % init(dimensions)
 
   end subroutine init_array_rsp

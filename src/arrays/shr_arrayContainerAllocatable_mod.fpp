@@ -20,7 +20,7 @@ module SHR_arrayContainerAllocatable_mod
 
   use SHR_precision_mod, only: sp! dp, eqReal
   use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
-  use shr_arrayContainer_mod, only: shr_arrayContainer
+  use shr_arrayContainer_mod, only: shr_arrayContainer, shr_arrayContainerRsp
 !  use SHR_error_mod, only: raiseError 
 !  use SHR_strings_mod, only: string
 
@@ -28,10 +28,10 @@ module SHR_arrayContainerAllocatable_mod
 
   private
 
-  public :: shr_arrayContainerAllocatable
+  public :: shr_arrayContainerRspAllocatable
 
   !< allocatable single precision array
-  type, extends(shr_arrayContainer) :: shr_arrayContainerAllocatable 
+  type, extends(shr_arrayContainerRsp) :: shr_arrayContainerRspAllocatable 
 #:for RANK in RANKS          
     real(kind=sp), allocatable :: r${RANK}$${ranksuffix(RANK)}$
 #:endfor
@@ -47,7 +47,7 @@ module SHR_arrayContainerAllocatable_mod
   #:for RANK in RANKS          
     procedure :: ${OP_NAME}$_array_raw_rsp_${RANK}$
   #:endfor    
-    procedure :: ${OP_NAME}$_arrayContainer => ${OP_NAME}$_arrayContainerAllocatable
+    procedure :: ${OP_NAME}$_arrayContainerRsp => ${OP_NAME}$_arrayContainerRspAllocatable
 #:endfor
 
     procedure :: copy_scalar_rsp
@@ -57,16 +57,16 @@ module SHR_arrayContainerAllocatable_mod
 #:for RANK in RANKS          
     procedure, pass(self) :: copy_raw_rsp_${RANK}$_to_array !< reverse
 #:endfor    
-    procedure :: copy_arrayContainer
+    procedure :: copy_arrayContainerRsp
 
-    procedure :: equal_arrayContainer => equal_arrayContainerAllocatable
+    procedure :: equal_arrayContainerRsp => equal_arrayContainerRspAllocatable
     procedure :: equal_scalar_rsp
 #:for RANK in RANKS          
     procedure :: equal_array_raw_rsp_${RANK}$
 #:endfor    
 
     final :: destroy_class
-  end type shr_arrayContainerAllocatable
+  end type shr_arrayContainerRspAllocatable
 
 
 contains
@@ -75,7 +75,7 @@ contains
   pure subroutine init(self, dimensions)
     !< initialize shr_arrayContainer, overload parent subroutine
     !< to customize child initialiation
-    class(shr_arrayContainerAllocatable), intent(inout) :: self
+    class(shr_arrayContainerRspAllocatable), intent(inout) :: self
     type(shr_arrayDimContainer), intent(in) :: dimensions(:)
 
     integer, allocatable :: alldims(:)
@@ -102,18 +102,18 @@ contains
   !
   ! ${OP_NAME}$ (${OP_SYMB}$)
   !
-  pure function ${OP_NAME}$_arrayContainerAllocatable(left, right) Result(total)
+  pure function ${OP_NAME}$_arrayContainerRspAllocatable(left, right) Result(total)
     !< addition of arrayCA + arrayC 
-    class(shr_arrayContainerAllocatable), intent(in) :: left
-    class(shr_arrayContainer), intent(in) :: right
-    class(shr_arrayContainer), allocatable :: total !< output
+    class(shr_arrayContainerRspAllocatable), intent(in) :: left
+    class(shr_arrayContainerRsp), intent(in) :: right
+    class(shr_arrayContainerRsp), allocatable :: total !< output
 
     if (.not. allocated(total)) deallocate(total)
-    allocate(shr_arrayContainerAllocatable :: total)
+    allocate(shr_arrayContainerRspAllocatable :: total)
 
     !
     select type(rightArray => right)
-    type is (shr_arrayContainerAllocatable)
+    type is (shr_arrayContainerRspAllocatable)
 #:for RANK in RANKS          
       if (left % getSize() == ${RANK}$ .and. right % getSize() == ${RANK}$) then
         total = left % r${RANK}$ ${OP_SYMB}$ rightArray % r${RANK}$
@@ -126,15 +126,15 @@ contains
       !< unexpected, type not found
     end select
 
-  end function ${OP_NAME}$_arrayContainerAllocatable
+  end function ${OP_NAME}$_arrayContainerRspAllocatable
 
 
 #:for RANK in RANKS          
   pure function ${OP_NAME}$_array_raw_rsp_${RANK}$(left, right) Result(total)
     !<
-    class(shr_arrayContainerAllocatable), intent(in) :: left
+    class(shr_arrayContainerRspAllocatable), intent(in) :: left
     real(kind=sp), intent(in) :: right${ranksuffix(RANK)}$
-    class(shr_arrayContainer), allocatable :: total
+    class(shr_arrayContainerRsp), allocatable :: total
     total = left % r${RANK}$ ${OP_SYMB}$ right
   end function ${OP_NAME}$_array_raw_rsp_${RANK}$
 #:endfor
@@ -143,9 +143,9 @@ contains
   pure function ${OP_NAME}$_scalar_rsp(left, right) Result(total)
     !< add scalar value into array
     !< arrayCA = 24.1
-    class(shr_arrayContainerAllocatable), intent(in) :: left 
+    class(shr_arrayContainerRspAllocatable), intent(in) :: left 
     real(kind=sp), intent(in) :: right 
-    class(shr_arrayContainer), allocatable :: total !< output
+    class(shr_arrayContainerRsp), allocatable :: total !< output
 #:for RANK in RANKS          
     if (left % getSize() == ${RANK}$) then
       total = left % r${RANK}$ ${OP_SYMB}$ right
@@ -164,7 +164,7 @@ contains
   !
   pure subroutine copy_scalar_rsp(self, other)
     !< Copy to current array container allocatable
-    class(shr_arrayContainerAllocatable), intent(inout) :: self
+    class(shr_arrayContainerRspAllocatable), intent(inout) :: self
     real(kind=sp), intent(in) :: other
 #:for RANK in RANKS          
     if (self % getSize() == ${RANK}$) then
@@ -181,7 +181,7 @@ contains
 #:for RANK in RANKS          
   pure subroutine copy_array_raw_rsp_${RANK}$(self, other)
     !< Copy to current array 'self' into 'other' rsp array
-    class(shr_arrayContainerAllocatable), intent(inout) :: self
+    class(shr_arrayContainerRspAllocatable), intent(inout) :: self
     real(kind=sp), intent(in) :: other${ranksuffix(RANK)}$
     if (self % getSize() == ${RANK}$) then
       self % r${RANK}$ = other
@@ -196,7 +196,7 @@ contains
     !< copy self to other
     !< reverse of 'copy_array_raw_rsp_1'
     real(kind=sp), allocatable, intent(inout) :: other${ranksuffix(RANK)}$
-    class(shr_arrayContainerAllocatable), intent(in) :: self
+    class(shr_arrayContainerRspAllocatable), intent(in) :: self
     if (self % getSize() == ${RANK}$) then
       other = self % r${RANK}$
     else
@@ -206,14 +206,14 @@ contains
 #:endfor
 
 
-  pure subroutine copy_arrayContainer(self, other)
+  pure subroutine copy_arrayContainerRsp(self, other)
     !< Copy to current array container allocatable
     !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
-    class(shr_arrayContainerAllocatable), intent(inout) :: self
-    class(shr_arrayContainer), intent(in) :: other
+    class(shr_arrayContainerRspAllocatable), intent(inout) :: self
+    class(shr_arrayContainerRsp), intent(in) :: other
 
     select type(otherArray => other)
-    type is (shr_arrayContainerAllocatable)
+    type is (shr_arrayContainerRspAllocatable)
 #:for RANK in RANKS
       if (self % getSize() == ${RANK}$ .and. other % getSize() == ${RANK}$) then
         self % r${RANK}$ = otherArray % r${RANK}$
@@ -226,23 +226,23 @@ contains
     class default
       !< unexpected type found
     end select
-  end subroutine copy_arrayContainer
+  end subroutine copy_arrayContainerRsp
 
   !
   ! equal
   !
-  elemental logical function equal_arrayContainerAllocatable(self, other)
+  elemental logical function equal_arrayContainerRspAllocatable(self, other)
     !< true if self and other are the same
-    class(shr_arraycontainerAllocatable), intent(in) :: self
-    class(shr_arraycontainer), intent(in) :: other
+    class(shr_arrayContainerRspAllocatable), intent(in) :: self
+    class(shr_arraycontainerRsp), intent(in) :: other
 
-    equal_arrayContainerAllocatable = .false. 
+    equal_arrayContainerRspAllocatable = .false. 
 
     select type(otherArray => other)
-    type is (shr_arrayContainerAllocatable)
+    type is (shr_arrayContainerRspAllocatable)
 #:for RANK in RANKS
       if (self % getSize() == ${RANK}$ .and. other % getSize() == ${RANK}$) then
-        equal_arrayContainerAllocatable = all(self % r${RANK}$ == otherArray % r${RANK}$)
+        equal_arrayContainerRspAllocatable = all(self % r${RANK}$ == otherArray % r${RANK}$)
       endif
 #:endfor
 !      else
@@ -250,14 +250,14 @@ contains
 !      endif
     class default
       !< unexpected
-      equal_arrayContainerAllocatable = .false. 
+      equal_arrayContainerRspAllocatable = .false. 
     end select
-  end function equal_arrayContainerAllocatable
+  end function equal_arrayContainerRspAllocatable
 
 
   elemental logical function equal_scalar_rsp(self, other)
     !< true if self and other are the same
-    class(shr_arraycontainerAllocatable), intent(in) :: self
+    class(shr_arrayContainerRspAllocatable), intent(in) :: self
     real(kind=sp), intent(in) :: other
     equal_scalar_rsp = .false.
 #:for RANK in RANKS
@@ -276,7 +276,7 @@ contains
 #:for RANK in RANKS
   pure logical function equal_array_raw_rsp_${RANK}$(self, other)
     !< true if self and other are the same
-    class(shr_arraycontainerAllocatable), intent(in) :: self
+    class(shr_arrayContainerRspAllocatable), intent(in) :: self
     real(kind=sp), intent(in) :: other${ranksuffix(RANK)}$
     equal_array_raw_rsp_${RANK}$ = .false.
     if (self % getSize() == ${RANK}$) then
@@ -293,7 +293,7 @@ contains
   !
   subroutine destroy_class(self)
     !< destroy class
-    type(shr_arrayContainerAllocatable), intent(inout) :: self
+    type(shr_arrayContainerRspAllocatable), intent(inout) :: self
 
     deallocate(self % dimensions)
 
