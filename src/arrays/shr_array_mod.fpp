@@ -35,15 +35,23 @@ module SHR_array_mod
 !  use SHR_error_mod, only: raiseError 
   use SHR_strings_mod, only: string
   use SHR_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
-  use shr_arrayContainer_mod, only: shr_arrayContainer, shr_arrayContainerRsp
+  use shr_arrayContainer_mod, only: shr_arrayContainer
+#:for _, _, IHEADER  in ALL_KINDS_TYPES
+  use shr_arrayContainer_mod, only: shr_arrayContainer${IHEADER}$
+#:endfor
 
-  use shr_arrayContainerAllocatable_mod, only: shr_arrayContainerRspAllocatable
+#:for _, _, IHEADER  in ALL_KINDS_TYPES
+  use shr_arrayContainerAllocatable_mod, only: shr_arrayContainer${IHEADER}$Allocatable
+#:endfor
 
   implicit none
 
   private
 
-  public :: shr_array, shr_arrayRsp
+  public :: shr_array
+#:for _, _, IHEADER  in ALL_KINDS_TYPES
+  public :: shr_array${IHEADER}$
+#:endfor
 
 
   type, abstract :: shr_array !< interface to array
@@ -61,58 +69,63 @@ module SHR_array_mod
   end type shr_array
 
 
-  ! type specific array, real - kind single precision -
-  type, extends(shr_array) :: shr_arrayRsp !< apply each type and kind
+#:for IKIND, ITYPE, IHEADER  in ALL_KINDS_TYPES
+  !
+  ! ${IHEADER}$, ${ITYPE}$, ${IKIND}$
+  !
+  type, extends(shr_array) :: shr_array${IHEADER}$ !< apply each type and kind
 
     !< array data
-    class(shr_arrayContainerRsp), allocatable :: data 
+    class(shr_arrayContainer${IHEADER}$), allocatable :: data 
   contains
 
-    procedure :: init_array_rsp
-    generic :: init => init_array_rsp
+    procedure :: init_array_${IHEADER}$
+    generic :: init => init_array_${IHEADER}$
 
     ! copy
-    procedure :: copy_scalar_rsp
-#:for RANK in RANKS
-    procedure :: copy_array_to_raw_rsp_${RANK}$
-#:endfor
-#:for RANK in RANKS
-    procedure, pass(self) :: copy_raw_rsp_${RANK}$_to_array
-#:endfor
-    procedure :: copy_array
+    procedure :: copy_scalar_${IHEADER}$
+  #:for RANK in RANKS
+    procedure :: copy_array_to_raw_${IHEADER}$_${RANK}$
+  #:endfor
+  #:for RANK in RANKS
+    procedure, pass(self) :: copy_raw_${IHEADER}$_${RANK}$_to_array
+  #:endfor
+    procedure :: copy_array_${IHEADER}$
 
-    generic, public :: assignment(=) => copy_scalar_rsp, copy_array!, &
-#:for RANK in RANKS
-    generic, public :: assignment(=) => copy_array_to_raw_rsp_${RANK}$
-#:endfor
-#:for RANK in RANKS
-    generic, public :: assignment(=) => copy_raw_rsp_${RANK}$_to_array
-#:endfor
+    generic, public :: assignment(=) => copy_scalar_${IHEADER}$, copy_array_${IHEADER}$!, &
+  #:for RANK in RANKS
+    generic, public :: assignment(=) => copy_array_to_raw_${IHEADER}$_${RANK}$
+  #:endfor
+  #:for RANK in RANKS
+    generic, public :: assignment(=) => copy_raw_${IHEADER}$_${RANK}$_to_array
+  #:endfor
 
-#:for OP_NAME, OP_SYMB in OPERATOR_TYPES
+  #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
     ! ${OP_NAME}$ (${OP_SYMB}$)
-    procedure :: ${OP_NAME}$_array_scalar_rsp
-  #:for RANK in RANKS
-    procedure :: ${OP_NAME}$_array_raw_rsp_${RANK}$
+    procedure :: ${OP_NAME}$_array_scalar_${IHEADER}$
+    #:for RANK in RANKS
+    procedure :: ${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
+    #:endfor
+    procedure :: ${OP_NAME}$_array_array_${IHEADER}$
+    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_array_scalar_${IHEADER}$, ${OP_NAME}$_array_array_${IHEADER}$!, &
+    #:for RANK in RANKS
+    generic, public :: operator(${OP_SYMB}$) =>  ${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
+    #:endfor
   #:endfor
-    procedure :: ${OP_NAME}$_array_array
-    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_array_scalar_rsp, ${OP_NAME}$_array_array!, &
-  #:for RANK in RANKS
-    generic, public :: operator(${OP_SYMB}$) =>  ${OP_NAME}$_array_raw_rsp_${RANK}$
-  #:endfor
-#:endfor
 
     ! equal
-    procedure :: equal_scalar_rsp
-#:for RANK in RANKS
-    procedure :: equal_array_raw_rsp_${RANK}$
+    procedure :: equal_scalar_${IHEADER}$
+  #:for RANK in RANKS
+    procedure :: equal_array_raw_${IHEADER}$_${RANK}$
+  #:endfor
+    procedure :: equal_array_${IHEADER}$
+    generic, public :: operator(==) => equal_scalar_${IHEADER}$, equal_array_${IHEADER}$!, &
+  #:for RANK in RANKS
+    generic, public :: operator(==) => equal_array_raw_${IHEADER}$_${RANK}$
+  #:endfor
+  end type shr_array${IHEADER}$
 #:endfor
-    procedure :: equal_array
-    generic, public :: operator(==) => equal_scalar_rsp, equal_array!, &
-#:for RANK in RANKS
-    generic, public :: operator(==) => equal_array_raw_rsp_${RANK}$
-#:endfor
-  end type shr_arrayRsp
+! for IKIND, ITYPE, IHEADER  in ALL_KINDS_TYPES
 
 
 contains
@@ -159,13 +172,13 @@ contains
   end function getDescription_array
 
 
+#:for IKIND, ITYPE, IHEADER  in ALL_KINDS_TYPES
   !
-  ! arrayRsp
+  ! ${IHEADER}$, ${ITYPE}$, ${IKIND}$
   !
-  ! init
-  pure subroutine init_array_rsp(self, name, dimensions, units, description)
+  pure subroutine init_array_${IHEADER}$(self, name, dimensions, units, description)
     !< shr_arrayRsp initialization
-    class(shr_arrayRsp), intent(inout) :: self
+    class(shr_array${IHEADER}$), intent(inout) :: self
     character(*), intent(in) :: name
     type(shr_arrayDimContainer), intent(in) :: dimensions(:)
     character(*), intent(in) :: units
@@ -181,49 +194,49 @@ contains
     allocate(self % dims, source = dimensions)
 
     ! todo, creational design pattern?
-    allocate( shr_arrayContainerRspAllocatable :: self % data )
+    allocate( shr_arrayContainer${IHEADER}$Allocatable :: self % data )
     call self % data % init(dimensions)
 
-  end subroutine init_array_rsp
+  end subroutine init_array_${IHEADER}$
 
 
   ! copy
-  pure subroutine copy_scalar_rsp(self, other)
+  pure subroutine copy_scalar_${IHEADER}$(self, other)
       !< Copy to current array container allocatable
       !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
-      class(shr_arrayRsp), intent(inout) :: self
-      real(kind=sp), intent(in) :: other
+      class(shr_array${IHEADER}$), intent(inout) :: self
+      ${ITYPE}$, intent(in) :: other
       self % data = other
-  end subroutine copy_scalar_rsp
+  end subroutine copy_scalar_${IHEADER}$
 
 
-#:for RANK in RANKS
-  pure subroutine copy_raw_rsp_${RANK}$_to_array(other, self)
-    !< copy from arrayRsp 'self' to 'other' array
-    !< raw array = arrayRsp
-    real(kind=sp), allocatable, intent(inout) :: other${ranksuffix(RANK)}$
-    class(shr_arrayRsp), intent(in) :: self
+  #:for RANK in RANKS
+  pure subroutine copy_raw_${IHEADER}$_${RANK}$_to_array(other, self)
+    !< copy from array${IHEADER}$ 'self' to 'other' array
+    !< raw array = array${IHEADER}$
+    ${ITYPE}$, allocatable, intent(inout) :: other${ranksuffix(RANK)}$
+    class(shr_array${IHEADER}$), intent(in) :: self
     other = self % data
-  end subroutine copy_raw_rsp_${RANK}$_to_array
-#:endfor
+  end subroutine copy_raw_${IHEADER}$_${RANK}$_to_array
+  #:endfor
 
 
-#:for RANK in RANKS
-  pure subroutine copy_array_to_raw_rsp_${RANK}$(self, other)
+  #:for RANK in RANKS
+  pure subroutine copy_array_to_raw_${IHEADER}$_${RANK}$(self, other)
     !< copy to current array 'self' from 'other' array
-    !< arrayRsp = raw array
-    class(shr_arrayRsp), intent(inout) :: self
-    real(kind=sp), intent(in) :: other${ranksuffix(RANK)}$
+    !< array${IHEADER}$ = raw array
+    class(shr_array${IHEADER}$), intent(inout) :: self
+    ${ITYPE}$, intent(in) :: other${ranksuffix(RANK)}$
     self % data = other
-  end subroutine copy_array_to_raw_rsp_${RANK}$
-#:endfor
+  end subroutine copy_array_to_raw_${IHEADER}$_${RANK}$
+  #:endfor
 
 
-  pure subroutine copy_array(self, other)
+  pure subroutine copy_array_${IHEADER}$(self, other)
       !< Copy to current array container allocatable
       !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
-      class(shr_arrayRsp), intent(inout) :: self
-      class(shr_arrayRsp), intent(in) :: other
+      class(shr_array${IHEADER}$), intent(inout) :: self
+      class(shr_array${IHEADER}$), intent(in) :: other
       if (.not. allocated(self % name)) allocate(self % name)
       self % name = other % getName()
       allocate(self % dims, source = other % getDims())
@@ -232,56 +245,56 @@ contains
       if (.not. allocated(self % description)) allocate(self % description)
       self % description = other % getDescription()
       allocate(self % data, source = other % data)
-  end subroutine copy_array
+  end subroutine copy_array_${IHEADER}$
 
-#:for OP_NAME, OP_SYMB in OPERATOR_TYPES
+  #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
   !
   ! ${OP_NAME}$, ${OP_SYMB}$
   !
 
-  pure function ${OP_NAME}$_array_scalar_rsp(left, right) Result(total)
+  pure function ${OP_NAME}$_array_scalar_${IHEADER}$(left, right) Result(total)
     !< addition shr_arrayRsp and scalar rsp
-    class(shr_arrayRsp), intent(in) :: left
-    real(kind=sp), intent(in) :: right
-    class(shr_arrayRsp), allocatable :: total !< output
+    class(shr_array${IHEADER}$), intent(in) :: left
+    ${ITYPE}$, intent(in) :: right
+    class(shr_array${IHEADER}$), allocatable :: total !< output
     total = left % data ${OP_SYMB}$ right
-  end function ${OP_NAME}$_array_scalar_rsp
+  end function ${OP_NAME}$_array_scalar_${IHEADER}$
 
 
-#:for RANK in RANKS
-  pure function ${OP_NAME}$_array_raw_rsp_${RANK}$(left, right) Result(total)
-    !< addition shr_arrayRsp and scalar rsp
-    class(shr_arrayRsp), intent(in) :: left
-    real(kind=sp), intent(in) :: right${ranksuffix(RANK)}$
-    class(shr_arrayRsp), allocatable :: total !< output
+  #:for RANK in RANKS
+  pure function ${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$(left, right) Result(total)
+    !< addition shr_array${IHEADER}$ and scalar ${IHEADER}$
+    class(shr_array${IHEADER}$), intent(in) :: left
+    ${ITYPE}$, intent(in) :: right${ranksuffix(RANK)}$
+    class(shr_array${IHEADER}$), allocatable :: total !< output
     total % data = left % data ${OP_SYMB}$ right
-  end function ${OP_NAME}$_array_raw_rsp_${RANK}$
-#:endfor
+  end function ${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
+  #:endfor
 
 
-  pure function ${OP_NAME}$_array_array(left, right) Result(total)
+  pure function ${OP_NAME}$_array_array_${IHEADER}$(left, right) Result(total)
     !< addition from shr_arrayRsp and shr_arrayRsp
-    class(shr_arrayRsp), intent(in) :: left
-    class(shr_arrayRsp), intent(in) :: right
-    class(shr_arrayRsp), allocatable :: total !< output
+    class(shr_array${IHEADER}$), intent(in) :: left
+    class(shr_array${IHEADER}$), intent(in) :: right
+    class(shr_array${IHEADER}$), allocatable :: total !< output
     total = left % data ${OP_SYMB}$ right % data
-  end function ${OP_NAME}$_array_array
+  end function ${OP_NAME}$_array_array_${IHEADER}$
 
-! OP_NAME, OP_SYMB in OPERATOR_TYPES  
-#:endfor
+  ! OP_NAME, OP_SYMB in OPERATOR_TYPES  
+  #:endfor
 
   !
   ! equal
   !
-  elemental logical function equal_array(self, other)
+  elemental logical function equal_array_${IHEADER}$(self, other)
     !< true if self and other are the same
-    class(shr_arrayRsp), intent(in) :: self
-    class(shr_arrayRsp), intent(in) :: other
+    class(shr_array${IHEADER}$), intent(in) :: self
+    class(shr_array${IHEADER}$), intent(in) :: other
 
     logical :: hasSameNAme, hasSameDims, hasSameUnits
     logical :: hasSameDescription, hasSameData
 
-    equal_array = .false.
+    equal_array_${IHEADER}$ = .false.
     ! compare array descriptor
     hasSameName = self % getName() == other % getName()
     if (.not. hasSameName) return
@@ -298,25 +311,26 @@ contains
     ! compare data
     hasSameData = (self % data == other % data)
 
-    equal_array = hasSameData
-  end function equal_array
+    equal_array_${IHEADER}$ = hasSameData
+  end function equal_array_${IHEADER}$
 
 
-  elemental logical function equal_scalar_rsp(self, other)
+  elemental logical function equal_scalar_${IHEADER}$(self, other)
     !< true if self and other are the same
-    class(shr_arrayRsp), intent(in) :: self
-    real(kind=sp), intent(in) :: other
-    equal_scalar_rsp = (self % data == other)
-  end function equal_scalar_rsp
+    class(shr_array${IHEADER}$), intent(in) :: self
+    ${ITYPE}$, intent(in) :: other
+    equal_scalar_${IHEADER}$ = (self % data == other)
+  end function equal_scalar_${IHEADER}$
 
 
-#:for RANK in RANKS
-  pure logical function equal_array_raw_rsp_${RANK}$(self, other)
+  #:for RANK in RANKS
+  pure logical function equal_array_raw_${IHEADER}$_${RANK}$(self, other)
     !< true if self and other are the same
-    class(shr_arrayRsp), intent(in) :: self
-    real(kind=sp), intent(in) :: other${ranksuffix(RANK)}$
-    equal_array_raw_rsp_${RANK}$ = all(self % data == other)
-  end function equal_array_raw_rsp_${RANK}$
+    class(shr_array${IHEADER}$), intent(in) :: self
+    ${ITYPE}$, intent(in) :: other${ranksuffix(RANK)}$
+    equal_array_raw_${IHEADER}$_${RANK}$ = all(self % data == other)
+  end function equal_array_raw_${IHEADER}$_${RANK}$
+  #:endfor
 #:endfor
 
 end module SHR_array_mod

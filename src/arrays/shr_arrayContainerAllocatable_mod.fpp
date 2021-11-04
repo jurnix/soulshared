@@ -21,7 +21,7 @@ module SHR_arrayContainerAllocatable_mod
   use SHR_precision_mod, only: sp, dp!, eqReal
   use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
   use shr_arrayContainer_mod, only: shr_arrayContainer
-#:for IKIND, ITYPE, IHEADER  in ALL_KINDS_TYPES
+#:for _, _, IHEADER  in ALL_KINDS_TYPES
   use shr_arrayContainer_mod, only: shr_arrayContainer${IHEADER}$
 #:endfor
 !  use SHR_error_mod, only: raiseError 
@@ -31,7 +31,9 @@ module SHR_arrayContainerAllocatable_mod
 
   private
 
-  public :: shr_arrayContainerRspAllocatable
+#:for _, _, IHEADER  in ALL_KINDS_TYPES
+  public :: shr_arrayContainer${IHEADER}$Allocatable
+#:endfor
 
 #:for IKIND, ITYPE, IHEADER  in ALL_KINDS_TYPES
   !
