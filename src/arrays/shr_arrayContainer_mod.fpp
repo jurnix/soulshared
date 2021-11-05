@@ -70,14 +70,14 @@ module SHR_arrayContainer_mod
   #:endfor
 
     ! equal
-    procedure(iface_equal_arrayContainer${IHEADER}$), deferred :: equal_arrayContainer${IHEADER}$
-    procedure(iface_equal_scalar_${IHEADER}$), deferred :: equal_scalar_${IHEADER}$
+    procedure(iface_equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$), deferred :: equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$
+    procedure(iface_equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$), deferred :: equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$
   #:for RANK in RANKS
-    procedure(iface_equal_array_raw_${IHEADER}$_${RANK}$), deferred :: equal_array_raw_${IHEADER}$_${RANK}$
+    procedure(iface_equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$), deferred :: equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$
   #:endfor
-    generic, public :: operator(==) => equal_scalar_${IHEADER}$, equal_arrayContainer${IHEADER}$!, &
+    generic, public :: operator(==) => equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$, equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$!, &
   #:for RANK in RANKS
-    generic, public :: operator(==) => equal_array_raw_${IHEADER}$_${RANK}$
+    generic, public :: operator(==) => equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$
   #:endfor
 
   #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
@@ -102,28 +102,28 @@ module SHR_arrayContainer_mod
   abstract interface
 #:for IKIND, ITYPE, IHEADER  in ALL_KINDS_TYPES
     ! equal
-    elemental logical function iface_equal_scalar_${IHEADER}$(self, other)
+    elemental logical function iface_equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$(self, other)
       import :: shr_arrayContainer${IHEADER}$, ${IKIND}$
       !< true if self and other are the same
       class(shr_arraycontainer${IHEADER}$), intent(in) :: self
       ${ITYPE}$, intent(in) :: other
-    end function iface_equal_scalar_${IHEADER}$
+    end function iface_equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$
 
 #:for RANK in RANKS
-    pure logical function iface_equal_array_raw_${IHEADER}$_${RANK}$(self, other)
+    pure logical function iface_equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$(self, other)
       import :: shr_arrayContainer${IHEADER}$, ${IKIND}$
       !< true if self and other are the same
       class(shr_arraycontainer${IHEADER}$), intent(in) :: self
       ${ITYPE}$, intent(in) :: other${ranksuffix(RANK)}$
-    end function iface_equal_array_raw_${IHEADER}$_${RANK}$
+    end function iface_equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$
 #:endfor
 
-    elemental logical function iface_equal_arrayContainer${IHEADER}$(self, other)
+    elemental logical function iface_equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$(self, other)
       import :: shr_arrayContainer${IHEADER}$
       !< true if self and other are the same
       class(shr_arraycontainer${IHEADER}$), intent(in) :: self
       class(shr_arraycontainer${IHEADER}$), intent(in) :: other
-    end function iface_equal_arrayContainer${IHEADER}$
+    end function iface_equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$
 
 #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
 
