@@ -57,7 +57,7 @@ module SHR_arrayContainer_mod
   #:for RANK in RANKS
     procedure(iface_arrayContainer${IHEADER}$_copy_array_raw_${IHEADER}$_${RANK}$), deferred :: copy_arrayContainer${IHEADER}$_copy_array_raw_${IHEADER}$_${RANK}$
   #:endfor
-    procedure(iface_arrayContainer${IHEADER}$_copy_arrayContainer${IHEADER}$), deferred :: copy_arrayContainerRsp_copy_arrayContainer${IHEADER}$
+    procedure(iface_arrayContainer${IHEADER}$_copy_arrayContainer${IHEADER}$), deferred :: copy_arrayContainer${IHEADER}$_copy_arrayContainer${IHEADER}$
     
     ! reverse copy
   #:for RANK in RANKS
@@ -82,15 +82,15 @@ module SHR_arrayContainer_mod
 
   #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
     ! ${OP_NAME}$ (${OP_SYMB}$)
-    procedure(iface_${OP_NAME}$_scalar_${IHEADER}$), deferred :: ${OP_NAME}$_scalar_${IHEADER}$
+    procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$), deferred :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$
     #:for RANK in RANKS
-    procedure(iface_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$), deferred :: ${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
+    procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$), deferred :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
     #:endfor
-    procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$), deferred :: ${OP_NAME}$_arrayContainer${IHEADER}$
+    procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer${IHEADER}$), deferred :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer${IHEADER}$
 
-    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_scalar_${IHEADER}$, ${OP_NAME}$_arrayContainer${IHEADER}$ !, &
+    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$, ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer${IHEADER}$ !, &
     #:for RANK in RANKS
-    generic, public :: operator(${OP_SYMB}$) =>  ${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
+    generic, public :: operator(${OP_SYMB}$) =>  ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
     #:endfor
   #:endfor
 
@@ -128,28 +128,28 @@ module SHR_arrayContainer_mod
 #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
 
     ! ${OP_NAME}$ (${OP_SYMB}$)
-    pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$(left, right) Result(total)
+    pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer${IHEADER}$(left, right) Result(total)
       import :: shr_arrayContainer${IHEADER}$, shr_arrayContainer
       class(shr_arrayContainer${IHEADER}$), intent(in) :: left
       class(shr_arrayContainer), intent(in) :: right
       class(shr_arrayContainer${IHEADER}$), allocatable :: total
-    end function iface_${OP_NAME}$_arrayContainer${IHEADER}$
+    end function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer${IHEADER}$
 
   #:for RANK in RANKS
-    pure function iface_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$(left, right) Result(total)
+    pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$(left, right) Result(total)
       import :: shr_arrayContainer${IHEADER}$, ${IKIND}$
       class(shr_arrayContainer${IHEADER}$), intent(in) :: left
       ${ITYPE}$, intent(in) :: right${ranksuffix(RANK)}$
       class(shr_arrayContainer${IHEADER}$), allocatable :: total
-    end function iface_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
+    end function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
   #:endfor
 
-    pure function iface_${OP_NAME}$_scalar_${IHEADER}$(left, right) Result(total)
+    pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$(left, right) Result(total)
       import :: shr_arrayContainer${IHEADER}$, ${IKIND}$
       class(shr_arrayContainer${IHEADER}$), intent(in) :: left
       ${ITYPE}$, intent(in) :: right
       class(shr_arrayContainer${IHEADER}$), allocatable :: total
-    end function iface_${OP_NAME}$_scalar_${IHEADER}$
+    end function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$
 #:endfor
 
 
