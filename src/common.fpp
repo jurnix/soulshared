@@ -40,10 +40,6 @@
 #! Collected (kind, type) tuples for real types
 #:set INT_KINDS_TYPES = list(zip(INT_KINDS, INT_TYPES, INT_HEADERS))
 
-! function_rspX
-! 
-! function_iX
-
 
 #:set ALL_KINDS_TYPES = REAL_KINDS_TYPES + INT_KINDS_TYPES
 

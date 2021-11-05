@@ -126,6 +126,7 @@ module SHR_arrayContainer_mod
     end function iface_equal_arrayContainer${IHEADER}$
 
 #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
+
     ! ${OP_NAME}$ (${OP_SYMB}$)
     pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$(left, right) Result(total)
       import :: shr_arrayContainer${IHEADER}$
