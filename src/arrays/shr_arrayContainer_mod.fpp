@@ -129,8 +129,9 @@ module SHR_arrayContainer_mod
 
     ! ${OP_NAME}$ (${OP_SYMB}$)
     pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$(left, right) Result(total)
-      import :: shr_arrayContainer${IHEADER}$
-      class(shr_arrayContainer${IHEADER}$), intent(in) :: left, right
+      import :: shr_arrayContainer${IHEADER}$, shr_arrayContainer
+      class(shr_arrayContainer${IHEADER}$), intent(in) :: left
+      class(shr_arrayContainer), intent(in) :: right
       class(shr_arrayContainer${IHEADER}$), allocatable :: total
     end function iface_${OP_NAME}$_arrayContainer${IHEADER}$
 

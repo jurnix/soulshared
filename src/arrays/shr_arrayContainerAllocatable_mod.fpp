@@ -119,7 +119,7 @@ contains
   pure function ${OP_NAME}$_arrayContainer${IHEADER}$Allocatable(left, right) Result(total)
     !< addition of arrayCA + arrayC 
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(in) :: left
-    class(shr_arrayContainer${IHEADER}$), intent(in) :: right
+    class(shr_arrayContainer), intent(in) :: right
     class(shr_arrayContainer${IHEADER}$), allocatable :: total !< output
 
     if (.not. allocated(total)) deallocate(total)
