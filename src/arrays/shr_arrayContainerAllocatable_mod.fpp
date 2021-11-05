@@ -59,14 +59,14 @@ module SHR_arrayContainerAllocatable_mod
     procedure :: ${OP_NAME}$_arrayContainer${IHEADER}$ => ${OP_NAME}$_arrayContainer${IHEADER}$Allocatable
   #:endfor
 
-    procedure :: copy_scalar_${IHEADER}$
+    procedure :: copy_arrayContainer${IHEADER}$_copy_scalar_${IHEADER}$ => copy_arrayContainer${IHEADER}$Allocatable_copy_scalar_${IHEADER}$
   #:for RANK in RANKS          
-    procedure :: copy_array_raw_${IHEADER}$_${RANK}$
+    procedure :: copy_arrayContainer${IHEADER}$_copy_array_raw_${IHEADER}$_${RANK}$ => copy_arrayContainer${IHEADER}$Allocatable_copy_array_raw_${IHEADER}$_${RANK}$
   #:endfor    
   #:for RANK in RANKS          
-    procedure, pass(self) :: copy_raw_${IHEADER}$_${RANK}$_to_array !< reverse
+    procedure, pass(self) :: copy_raw_${IHEADER}$_${RANK}$_to_arrayContainer${IHEADER}$ => copy_raw_${IHEADER}$_${RANK}$_to_arrayContainer${IHEADER}$Allocatable !< reverse
   #:endfor    
-    procedure :: copy_arrayContainer${IHEADER}$
+    procedure :: copy_arrayContainer${IHEADER}$_copy_arrayContainer${IHEADER}$ => copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer${IHEADER}$
 
     procedure :: equal_arrayContainer${IHEADER}$ => equal_arrayContainer${IHEADER}$Allocatable
     procedure :: equal_scalar_${IHEADER}$
@@ -177,7 +177,7 @@ contains
   !
   ! copy
   !
-  pure subroutine copy_scalar_${IHEADER}$(self, other)
+  pure subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_scalar_${IHEADER}$(self, other)
     !< Copy to current array container allocatable
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(inout) :: self
     ${ITYPE}$, intent(in) :: other
@@ -190,11 +190,11 @@ contains
 !    else
 !      !< unexpected, inconsistency found
 !    endif
-  end subroutine copy_scalar_${IHEADER}$
+  end subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_scalar_${IHEADER}$
 
 
   #:for RANK in RANKS          
-  pure subroutine copy_array_raw_${IHEADER}$_${RANK}$(self, other)
+  pure subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_array_raw_${IHEADER}$_${RANK}$(self, other)
     !< Copy to current array 'self' into 'other' rsp array
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(inout) :: self
     ${ITYPE}$, intent(in) :: other${ranksuffix(RANK)}$
@@ -203,11 +203,11 @@ contains
     else
       !< unexpected, inconsistency found
     endif
-  end subroutine copy_array_raw_${IHEADER}$_${RANK}$
+  end subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_array_raw_${IHEADER}$_${RANK}$
   #:endfor
 
   #:for RANK in RANKS
-  pure subroutine copy_raw_${IHEADER}$_${RANK}$_to_array(other, self)
+  pure subroutine copy_raw_${IHEADER}$_${RANK}$_to_arrayContainer${IHEADER}$Allocatable(other, self)
     !< copy self to other
     !< reverse of 'copy_array_raw_rsp_1'
     ${ITYPE}$, allocatable, intent(inout) :: other${ranksuffix(RANK)}$
@@ -217,11 +217,11 @@ contains
     else
       !< unexpected, inconsistency found
     endif
-  end subroutine copy_raw_${IHEADER}$_${RANK}$_to_array
+  end subroutine copy_raw_${IHEADER}$_${RANK}$_to_arrayContainer${IHEADER}$Allocatable
   #:endfor
 
 
-  pure subroutine copy_arrayContainer${IHEADER}$(self, other)
+  pure subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer${IHEADER}$(self, other)
     !< Copy to current array container allocatable
     !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(inout) :: self
@@ -241,7 +241,7 @@ contains
     class default
       !< unexpected type found
     end select
-  end subroutine copy_arrayContainer${IHEADER}$
+  end subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer${IHEADER}$
 
   !
   ! equal

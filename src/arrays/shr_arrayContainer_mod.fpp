@@ -53,20 +53,20 @@ module SHR_arrayContainer_mod
   contains
 
     ! copy
-    procedure(iface_copy_scalar_${IHEADER}$), deferred :: copy_scalar_${IHEADER}$
+    procedure(iface_arrayContainer${IHEADER}$_copy_scalar_${IHEADER}$), deferred :: copy_arrayContainer${IHEADER}$_copy_scalar_${IHEADER}$
   #:for RANK in RANKS
-    procedure(iface_copy_array_raw_${IHEADER}$_${RANK}$), deferred :: copy_array_raw_${IHEADER}$_${RANK}$
+    procedure(iface_arrayContainer${IHEADER}$_copy_array_raw_${IHEADER}$_${RANK}$), deferred :: copy_arrayContainer${IHEADER}$_copy_array_raw_${IHEADER}$_${RANK}$
   #:endfor
-    procedure(iface_copy_arrayContainer${IHEADER}$), deferred :: copy_arrayContainer${IHEADER}$
+    procedure(iface_arrayContainer${IHEADER}$_copy_arrayContainer${IHEADER}$), deferred :: copy_arrayContainerRsp_copy_arrayContainer${IHEADER}$
     
     ! reverse copy
   #:for RANK in RANKS
-    procedure(iface_copy_raw_${IHEADER}$_${RANK}$_to_array), deferred, pass(self) :: copy_raw_${IHEADER}$_${RANK}$_to_array
+    procedure(iface_copy_raw_${IHEADER}$_${RANK}$_to_arrayContainer${IHEADER}$), deferred, pass(self) :: copy_raw_${IHEADER}$_${RANK}$_to_arrayContainer${IHEADER}$
   #:endfor
 
-    generic, public :: assignment(=) => copy_scalar_${IHEADER}$, copy_arrayContainer${IHEADER}$!, &
+    generic, public :: assignment(=) => copy_arrayContainer${IHEADER}$_copy_scalar_${IHEADER}$, copy_arrayContainer${IHEADER}$_copy_arrayContainer${IHEADER}$!, &
   #:for RANK in RANKS
-    generic, public :: assignment(=) => copy_array_raw_${IHEADER}$_${RANK}$, copy_raw_${IHEADER}$_${RANK}$_to_array
+    generic, public :: assignment(=) => copy_arrayContainer${IHEADER}$_copy_array_raw_${IHEADER}$_${RANK}$, copy_raw_${IHEADER}$_${RANK}$_to_arrayContainer${IHEADER}$
   #:endfor
 
     ! equal
@@ -154,33 +154,33 @@ module SHR_arrayContainer_mod
 
 
     ! copy
-    pure subroutine iface_copy_scalar_${IHEADER}$(self, other)
+    pure subroutine iface_arrayContainer${IHEADER}$_copy_scalar_${IHEADER}$(self, other)
       import :: shr_arrayContainer${IHEADER}$, ${IKIND}$
       class(shr_arrayContainer${IHEADER}$), intent(inout) :: self
       ${ITYPE}$, intent(in) :: other
-    end subroutine iface_copy_scalar_${IHEADER}$
+    end subroutine iface_arrayContainer${IHEADER}$_copy_scalar_${IHEADER}$
 
 #:for RANK in RANKS
-    pure subroutine iface_copy_array_raw_${IHEADER}$_${RANK}$(self, other)
+    pure subroutine iface_arrayContainer${IHEADER}$_copy_array_raw_${IHEADER}$_${RANK}$(self, other)
       import :: shr_arrayContainer${IHEADER}$, ${IKIND}$
       class(shr_arrayContainer${IHEADER}$), intent(inout) :: self
       ${ITYPE}$, intent(in) :: other${ranksuffix(RANK)}$
-    end subroutine iface_copy_array_raw_${IHEADER}$_${RANK}$
+    end subroutine iface_arrayContainer${IHEADER}$_copy_array_raw_${IHEADER}$_${RANK}$
 #:endfor
 
 #:for RANK in RANKS
-    pure subroutine iface_copy_raw_${IHEADER}$_${RANK}$_to_array(other, self)
+    pure subroutine iface_copy_raw_${IHEADER}$_${RANK}$_to_arrayContainer${IHEADER}$(other, self)
       import :: shr_arrayContainer${IHEADER}$, ${IKIND}$
       ${ITYPE}$, allocatable, intent(inout) :: other${ranksuffix(RANK)}$
       class(shr_arrayContainer${IHEADER}$), intent(in) :: self
-    end subroutine iface_copy_raw_${IHEADER}$_${RANK}$_to_array
+    end subroutine iface_copy_raw_${IHEADER}$_${RANK}$_to_arrayContainer${IHEADER}$
 #:endfor
 
-    pure subroutine iface_copy_arrayContainer${IHEADER}$(self, other)
+    pure subroutine iface_arrayContainer${IHEADER}$_copy_arrayContainer${IHEADER}$(self, other)
       import :: shr_arrayContainer${IHEADER}$
       class(shr_arrayContainer${IHEADER}$), intent(inout) :: self
       class(shr_arrayContainer${IHEADER}$), intent(in) :: other
-    end subroutine iface_copy_arrayContainer${IHEADER}$
+    end subroutine iface_arrayContainer${IHEADER}$_copy_arrayContainer${IHEADER}$
 #:endfor
 ! for IKIND, ITYPE, IHEADER  in ALL_KINDS_TYPES
   end interface
