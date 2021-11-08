@@ -52,10 +52,14 @@ module SHR_arrayContainerAllocatable_mod
     !< rank: 1 to MAXRANK
   #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
     ! ${OP_NAME}$ (${OP_SYMB}$)
+    ! ${OP_NAME}$ (${OP_SYMB}$ arrayContainer op scalar)
     procedure :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$ => ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_scalar_${IHEADER}$
+
+    ! ${OP_NAME}$ (${OP_SYMB}$ arrayContainer op <type, kind> array)
     #:for RANK in RANKS          
     procedure :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$ => ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
     #:endfor    
+    ! ${OP_NAME}$ (${OP_SYMB}$ arrayContainer op arrayContainer)
     procedure :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer => ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_arrayContainer
   #:endfor
 
@@ -82,9 +86,12 @@ module SHR_arrayContainerAllocatable_mod
   ! copy (arrayContainer = arrayContainer)
     procedure :: copy_arrayContainer${IHEADER}$_copy_arrayContainer => copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer
 
+    ! equal (arrayContainer == arrayContainer)
     procedure :: equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$ => equal_arrayContainer${IHEADER}$Allocatable_equal_arrayContainer${IHEADER}$
+    ! equal (arrayContainer == <type, kind> scalar)
     procedure :: equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$ => equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADER}$
   #:for RANK in RANKS          
+    ! equal (arrayContainer == <type, kind> array)
     procedure :: equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$ => equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADER}$_${RANK}$
   #:endfor    
 

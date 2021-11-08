@@ -89,10 +89,12 @@ module SHR_arrayContainer_mod
     #:endfor
   #:endfor
 
-    ! equal
+    ! equal (arrayContainer == arrayContainer)
     procedure(iface_equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$), deferred :: equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$
+    ! equal (arrayContainer == <type, kind> scalar)
     procedure(iface_equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$), deferred :: equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$
   #:for RANK in RANKS
+    ! equal (arrayContainer == <type, kind> array)
     procedure(iface_equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$), deferred :: equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$
   #:endfor
     generic, public :: operator(==) => equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$, equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$!, &
@@ -102,10 +104,13 @@ module SHR_arrayContainer_mod
 
   #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
     ! ${OP_NAME}$ (${OP_SYMB}$)
+    ! ${OP_NAME}$ (${OP_SYMB}$) (arrayContainer op <type, kind> scalar)
     procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$), deferred :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$
     #:for RANK in RANKS
+    ! ${OP_NAME}$ (${OP_SYMB}$) (arrayContainer op <type, kind> array)
     procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$), deferred :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
     #:endfor
+    ! ${OP_NAME}$ (${OP_SYMB}$) (arrayContainer op arrayContainer)
     procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer), deferred :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer
 
     generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$, ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer !, &
