@@ -17,13 +17,6 @@
 !> type: real, int
 !> kind: single, double
 !>
-!> int: int + int
-!> rsp: rsp + rsp
-!>      rsp + int
-!> dsp: dsp + dsp
-!>      dsp + rsp
-!>      dsp + int
-!> 
 !------------------------------------------------------------------------------
 
 #:include "../common.fpp"
