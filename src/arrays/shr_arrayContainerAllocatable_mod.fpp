@@ -87,12 +87,21 @@ module SHR_arrayContainerAllocatable_mod
     procedure :: copy_arrayContainer${IHEADER}$_copy_arrayContainer => copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer
 
     ! equal (arrayContainer == arrayContainer)
-    procedure :: equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$ => equal_arrayContainer${IHEADER}$Allocatable_equal_arrayContainer${IHEADER}$
+    procedure :: equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$ => &
+            equal_arrayContainer${IHEADER}$Allocatable_equal_arrayContainer${IHEADER}$
+
     ! equal (arrayContainer == <type, kind> scalar)
-    procedure :: equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$ => equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADER}$
-  #:for RANK in RANKS          
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
+    procedure :: equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADERSRC}$ => &
+    equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADERSRC}$
+  #:endfor
+
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
+    #:for RANK in RANKS          
     ! equal (arrayContainer == <type, kind> array)
-    procedure :: equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$ => equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADER}$_${RANK}$
+    procedure :: equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADERSRC}$_${RANK}$ => &
+    equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADERSRC}$_${RANK}$
+    #:endfor    
   #:endfor    
 
     final :: destroy_class_${IHEADER}$
@@ -305,36 +314,40 @@ contains
   end function equal_arrayContainer${IHEADER}$Allocatable_equal_arrayContainer${IHEADER}$
 
 
-  elemental logical function equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADER}$(self, other)
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
+  elemental logical function equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADERSRC}$(self, other)
     !< true if self and other are the same
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(in) :: self
-    ${ITYPE}$, intent(in) :: other
-    equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADER}$ = .false.
+    ${ITYPESRC}$, intent(in) :: other
+    equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADERSRC}$ = .false.
   #:for RANK in RANKS
     if (self % getSize() == ${RANK}$) then
-      equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADER}$ = all(self % r${RANK}$ == other)
+      equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADERSRC}$ = all(self % r${RANK}$ == other)
     endif
   #:endfor
 !    else
       !< unexpected, inconsistency found
-!      equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADER}$ = .false.
+!      equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADERSRC}$ = .false.
 !    endif
-  end function equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADER}$
+  end function equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADERSRC}$
+  #:endfor
 
 
-  #:for RANK in RANKS
-  pure logical function equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADER}$_${RANK}$(self, other)
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
+    #:for RANK in RANKS
+  pure logical function equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADERSRC}$_${RANK}$(self, other)
     !< true if self and other are the same
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(in) :: self
-    ${ITYPE}$, intent(in) :: other${ranksuffix(RANK)}$
-    equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADER}$_${RANK}$ = .false.
+    ${ITYPESRC}$, intent(in) :: other${ranksuffix(RANK)}$
+    equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADERSRC}$_${RANK}$ = .false.
     if (self % getSize() == ${RANK}$) then
-      equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADER}$_${RANK}$ = all(self % r${RANK}$ == other)
+      equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADERSRC}$_${RANK}$ = all(self % r${RANK}$ == other)
     else
       !< unexpected, inconsistency found
-      equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADER}$_${RANK}$ = .false.
+      equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADERSRC}$_${RANK}$ = .false.
     endif
-  end function equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADER}$_${RANK}$
+  end function equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADERSRC}$_${RANK}$
+    #:endfor
   #:endfor
 
   !

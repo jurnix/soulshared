@@ -91,15 +91,29 @@ module SHR_arrayContainer_mod
 
     ! equal (arrayContainer == arrayContainer)
     procedure(iface_equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$), deferred :: equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$
+
     ! equal (arrayContainer == <type, kind> scalar)
-    procedure(iface_equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$), deferred :: equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$
+#:for _, _, IHEADERSRC in ALL_KINDS_TYPES
+    procedure(iface_equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADERSRC}$), deferred :: &
+    equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADERSRC}$
+#:endfor
+
   #:for RANK in RANKS
     ! equal (arrayContainer == <type, kind> array)
-    procedure(iface_equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$), deferred :: equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$
+    #:for _, _, IHEADERSRC in ALL_KINDS_TYPES
+    procedure(iface_equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADERSRC}$_${RANK}$), deferred :: &
+    equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADERSRC}$_${RANK}$
+    #:endfor
   #:endfor
-    generic, public :: operator(==) => equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$, equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$!, &
+
+  #:for _, _, IHEADERSRC in ALL_KINDS_TYPES
+    generic, public :: operator(==) => equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADERSRC}$
+  #:endfor 
+    generic, public :: operator(==) => equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$
   #:for RANK in RANKS
-    generic, public :: operator(==) => equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$
+    #:for _, _, IHEADERSRC in ALL_KINDS_TYPES
+    generic, public :: operator(==) => equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADERSRC}$_${RANK}$
+    #:endfor
   #:endfor
 
   #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
@@ -126,21 +140,25 @@ module SHR_arrayContainer_mod
 
   abstract interface
 #:for IKIND, ITYPE, IHEADER  in ALL_KINDS_TYPES
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC  in ALL_KINDS_TYPES
     ! equal
-    elemental logical function iface_equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$(self, other)
-      import :: shr_arrayContainer${IHEADER}$, ${IKIND}$
+    elemental logical function iface_equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADERSRC}$(self, other)
+      import :: shr_arrayContainer${IHEADER}$, ${IKINDSRC}$
       !< true if self and other are the same
       class(shr_arraycontainer${IHEADER}$), intent(in) :: self
-      ${ITYPE}$, intent(in) :: other
-    end function iface_equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADER}$
+      ${ITYPESRC}$, intent(in) :: other
+    end function iface_equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADERSRC}$
+  #:endfor
 
 #:for RANK in RANKS
-    pure logical function iface_equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$(self, other)
-      import :: shr_arrayContainer${IHEADER}$, ${IKIND}$
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC  in ALL_KINDS_TYPES
+    pure logical function iface_equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADERSRC}$_${RANK}$(self, other)
+      import :: shr_arrayContainer${IHEADER}$, ${IKINDSRC}$
       !< true if self and other are the same
       class(shr_arraycontainer${IHEADER}$), intent(in) :: self
-      ${ITYPE}$, intent(in) :: other${ranksuffix(RANK)}$
-    end function iface_equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADER}$_${RANK}$
+      ${ITYPESRC}$, intent(in) :: other${ranksuffix(RANK)}$
+    end function iface_equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADERSRC}$_${RANK}$
+  #:endfor
 #:endfor
 
     elemental logical function iface_equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$(self, other)
