@@ -7,7 +7,7 @@
 !> Albert Jornet Puig 
 !
 ! DESCRIPTION:
-!> Common Array subroutines
+!> Generic data class
 !>
 !> array class (real sp, real dp, int)
 !> 
