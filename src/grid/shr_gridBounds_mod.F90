@@ -184,7 +184,7 @@ contains
   function toArray(self) result (vals)
     !< convert grid bounds into an array(4) 
     !< each position corresponds to north, south, east, west
-    class(shr_gridBounds), intent(inout) :: self
+    class(shr_gridBounds), intent(in) :: self
     real(kind=sp) :: vals(SHR_GRIDBOUNDS_NCOORDS)
 
     vals(1) = self % north

@@ -442,7 +442,7 @@ contains
   function getLimits(self) result (limits)
     !< return the outter most latitudes and longitudes
     !<   north, south, east, west
-    class(shr_grid), intent(inout) :: self
+    class(shr_grid), intent(in) :: self
     real(kind=sp) :: limits(SHR_GRIDBOUNDS_NCOORDS) !< output
 
     limits = self % limits % toArray()
@@ -450,7 +450,7 @@ contains
 
 
   function getResolution(self) result (resolution)
-    class(shr_grid), intent(inout) :: self
+    class(shr_grid), intent(in) :: self
     real(sp) :: resolution
 
     resolution = self % resolution 
@@ -534,7 +534,7 @@ contains
 
   function getLatSize(self) result (nlats)
     !< the total number of defined latitudes
-    class(shr_grid), intent(inout) :: self
+    class(shr_grid), intent(in) :: self
     integer :: nlats !< output
 
     nlats = size (self % lats)
@@ -543,7 +543,7 @@ contains
 
   function getLonSize(self) result (nlons)
     !< the total number of defined latitudes
-    class(shr_grid), intent(inout) :: self
+    class(shr_grid), intent(in) :: self
     integer :: nlons !< output
 
     nlons = size (self % lons)
