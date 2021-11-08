@@ -17,7 +17,7 @@
 #:set OPERATOR_TYPES = list(zip(OPERATOR_NAMES, OPERATOR_SYMBOLS))
 
 
-#:set MAXRANK = 2
+#:set MAXRANK = 7
 
 #:set NEXTRANK = int(MAXRANK) + 1
 
