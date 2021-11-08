@@ -135,9 +135,14 @@ module SHR_arrayContainer_mod
     ! ${OP_NAME}$ (${OP_SYMB}$) (arrayContainer op arrayContainer)
     procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer), deferred :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer
 
-    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$, ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer !, &
-    #:for RANK in RANKS
-    generic, public :: operator(${OP_SYMB}$) =>  ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
+    #:for _, _, IHEADERSRC in ALL_KINDS_TYPES
+    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADERSRC}$
+    #:endfor
+    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer 
+    #:for _, _, IHEADERSRC in ALL_KINDS_TYPES
+      #:for RANK in RANKS
+    generic, public :: operator(${OP_SYMB}$) =>  ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$
+      #:endfor
     #:endfor
   #:endfor
 

@@ -82,46 +82,100 @@ module SHR_array_mod
     procedure :: init_array_${IHEADER}$
     generic :: init => init_array_${IHEADER}$
 
-    ! copy
-    procedure :: copy_array${IHEADER}$_scalar_${IHEADER}$
+    ! copy (shr_array = <type, kind> scalar)
+#:for _, _, IHEADERSRC in ALL_KINDS_TYPES
+    procedure :: copy_array${IHEADER}$_scalar_${IHEADERSRC}$
+#:endfor
+
+    ! copy (shr_array = <type, kind> array)
+#:for _, _, IHEADERSRC in ALL_KINDS_TYPES
   #:for RANK in RANKS
-    procedure :: copy_array${IHEADER}$_to_raw_${IHEADER}$_${RANK}$
+    procedure :: copy_array${IHEADER}$_to_raw_${IHEADERSRC}$_${RANK}$
   #:endfor
+#:endfor
+
+    ! reverse copy (<type, kind> array = shr_array)
+#:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
   #:for RANK in RANKS
-    procedure, pass(self) :: copy_raw_${IHEADER}$_${RANK}$_to_array${IHEADER}$
+    procedure, pass(self) :: copy_raw_${IHEADERSRC}$_${RANK}$_to_array${IHEADER}$
   #:endfor
+#:endfor
+
+    ! copy (shr_array = shr_array)
     procedure :: copy_array${IHEADER}$_array${IHEADER}$
 
-    generic, public :: assignment(=) => copy_array${IHEADER}$_scalar_${IHEADER}$, copy_array${IHEADER}$_array${IHEADER}$!, &
+#:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
+    generic, public :: assignment(=) => copy_array${IHEADER}$_scalar_${IHEADERSRC}$
+#:endfor
+    generic, public :: assignment(=) => copy_array${IHEADER}$_array${IHEADER}$
+
+#:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
   #:for RANK in RANKS
-    generic, public :: assignment(=) => copy_array${IHEADER}$_to_raw_${IHEADER}$_${RANK}$
+    generic, public :: assignment(=) => copy_array${IHEADER}$_to_raw_${IHEADERSRC}$_${RANK}$
   #:endfor
+#:endfor
+
+#:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
   #:for RANK in RANKS
-    generic, public :: assignment(=) => copy_raw_${IHEADER}$_${RANK}$_to_array${IHEADER}$
+    generic, public :: assignment(=) => copy_raw_${IHEADERSRC}$_${RANK}$_to_array${IHEADER}$
   #:endfor
+#:endfor
 
   #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
     ! ${OP_NAME}$ (${OP_SYMB}$)
-    procedure :: ${OP_NAME}$_array${IHEADER}$_scalar_${IHEADER}$
-    #:for RANK in RANKS
-    procedure :: ${OP_NAME}$_array${IHEADER}$_raw_${IHEADER}$_${RANK}$
+    ! ${OP_NAME}$ shr_array op <type, kind> scalar
+    #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
+    procedure :: ${OP_NAME}$_array${IHEADER}$_scalar_${IHEADERSRC}$
     #:endfor
-    procedure :: ${OP_NAME}$_array${IHEADER}$_array_${IHEADER}$
-    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_array${IHEADER}$_scalar_${IHEADER}$, ${OP_NAME}$_array${IHEADER}$_array_${IHEADER}$!, &
-    #:for RANK in RANKS
-    generic, public :: operator(${OP_SYMB}$) =>  ${OP_NAME}$_array${IHEADER}$_raw_${IHEADER}$_${RANK}$
+
+    ! ${OP_NAME}$ shr_array op <type, kind> array
+    #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
+      #:for RANK in RANKS
+      procedure :: ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$
+      #:endfor
     #:endfor
+
+    ! ${OP_NAME}$ shr_array op shr_array
+    procedure :: ${OP_NAME}$_array${IHEADER}$_array${IHEADER}$
+
+    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_array${IHEADER}$_array${IHEADER}$
+    #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
+    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_array${IHEADER}$_scalar_${IHEADERSRC}$
+    #:endfor
+
+    #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
+      #:for RANK in RANKS
+    generic, public :: operator(${OP_SYMB}$) =>  ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$
+      #:endfor
+    #:endfor
+
+    ! OP_NAME, OP_SYMB
   #:endfor
 
     ! equal
-    procedure :: equal_array${IHEADER}$_scalar_${IHEADER}$
-  #:for RANK in RANKS
-    procedure :: equal_array${IHEADER}$_raw_${IHEADER}$_${RANK}$
+    ! equal (shr_array = <type, kind> scalar)
+  #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
+    procedure :: equal_array${IHEADER}$_scalar_${IHEADERSRC}$
   #:endfor
+
+    ! equal (shr_array = <type, kind> array)
+  #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
+    #:for RANK in RANKS
+    procedure :: equal_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$
+    #:endfor
+  #:endfor
+
+    ! equal (shr_array = shr_arry)
     procedure :: equal_array${IHEADER}$_array${IHEADER}$
-    generic, public :: operator(==) => equal_array${IHEADER}$_scalar_${IHEADER}$, equal_array${IHEADER}$_array${IHEADER}$
-  #:for RANK in RANKS
-    generic, public :: operator(==) => equal_array${IHEADER}$_raw_${IHEADER}$_${RANK}$
+
+  #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
+    generic, public :: operator(==) => equal_array${IHEADER}$_scalar_${IHEADERSRC}$
+  #:endfor
+    generic, public :: operator(==) => equal_array${IHEADER}$_array${IHEADER}$
+  #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
+    #:for RANK in RANKS
+    generic, public :: operator(==) => equal_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$
+    #:endfor
   #:endfor
   end type shr_array${IHEADER}$
 #:endfor
@@ -200,36 +254,44 @@ contains
   end subroutine init_array_${IHEADER}$
 
 
-  ! copy
-  pure subroutine copy_array${IHEADER}$_scalar_${IHEADER}$(self, other)
+#:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
+  ! copy (shr_array = <type, kind> scalar)
+  pure subroutine copy_array${IHEADER}$_scalar_${IHEADERSRC}$(self, other)
       !< Copy to current array container allocatable
       !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
       class(shr_array${IHEADER}$), intent(inout) :: self
-      ${ITYPE}$, intent(in) :: other
+      ${ITYPESRC}$, intent(in) :: other
       self % data = other
-  end subroutine copy_array${IHEADER}$_scalar_${IHEADER}$
+  end subroutine copy_array${IHEADER}$_scalar_${IHEADERSRC}$
+#:endfor
 
 
+#:for IKINDTGT, ITYPETGT, IHEADERTGT in ALL_KINDS_TYPES
+  ! reverse copy ( <type, kind> array = shr_array)
   #:for RANK in RANKS
-  pure subroutine copy_raw_${IHEADER}$_${RANK}$_to_array${IHEADER}$(other, self)
+  pure subroutine copy_raw_${IHEADERTGT}$_${RANK}$_to_array${IHEADER}$(other, self)
     !< copy from array${IHEADER}$ 'self' to 'other' array
     !< raw array = array${IHEADER}$
-    ${ITYPE}$, allocatable, intent(inout) :: other${ranksuffix(RANK)}$
+    ${ITYPETGT}$, allocatable, intent(inout) :: other${ranksuffix(RANK)}$
     class(shr_array${IHEADER}$), intent(in) :: self
     other = self % data
-  end subroutine copy_raw_${IHEADER}$_${RANK}$_to_array${IHEADER}$
+  end subroutine copy_raw_${IHEADERTGT}$_${RANK}$_to_array${IHEADER}$
   #:endfor
+#:endfor
 
 
+#:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
   #:for RANK in RANKS
-  pure subroutine copy_array${IHEADER}$_to_raw_${IHEADER}$_${RANK}$(self, other)
+  ! copy (shr_array = <type, kind> array)
+  pure subroutine copy_array${IHEADER}$_to_raw_${IHEADERSRC}$_${RANK}$(self, other)
     !< copy to current array 'self' from 'other' array
     !< array${IHEADER}$ = raw array
     class(shr_array${IHEADER}$), intent(inout) :: self
-    ${ITYPE}$, intent(in) :: other${ranksuffix(RANK)}$
+    ${ITYPESRC}$, intent(in) :: other${ranksuffix(RANK)}$
     self % data = other
-  end subroutine copy_array${IHEADER}$_to_raw_${IHEADER}$_${RANK}$
+  end subroutine copy_array${IHEADER}$_to_raw_${IHEADERSRC}$_${RANK}$
   #:endfor
+#:endfor
 
 
   pure subroutine copy_array${IHEADER}$_array${IHEADER}$(self, other)
@@ -252,33 +314,39 @@ contains
   ! ${OP_NAME}$, ${OP_SYMB}$
   !
 
-  pure function ${OP_NAME}$_array${IHEADER}$_scalar_${IHEADER}$(left, right) Result(total)
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
+  pure function ${OP_NAME}$_array${IHEADER}$_scalar_${IHEADERSRC}$(left, right) Result(total)
     !< addition shr_arrayRsp and scalar rsp
     class(shr_array${IHEADER}$), intent(in) :: left
-    ${ITYPE}$, intent(in) :: right
+    ${ITYPESRC}$, intent(in) :: right
     class(shr_array${IHEADER}$), allocatable :: total !< output
     total = left % data ${OP_SYMB}$ right
-  end function ${OP_NAME}$_array${IHEADER}$_scalar_${IHEADER}$
-
-
-  #:for RANK in RANKS
-  pure function ${OP_NAME}$_array${IHEADER}$_raw_${IHEADER}$_${RANK}$(left, right) Result(total)
-    !< addition shr_array${IHEADER}$ and scalar ${IHEADER}$
-    class(shr_array${IHEADER}$), intent(in) :: left
-    ${ITYPE}$, intent(in) :: right${ranksuffix(RANK)}$
-    class(shr_array${IHEADER}$), allocatable :: total !< output
-    total % data = left % data ${OP_SYMB}$ right
-  end function ${OP_NAME}$_array${IHEADER}$_raw_${IHEADER}$_${RANK}$
+  end function ${OP_NAME}$_array${IHEADER}$_scalar_${IHEADERSRC}$
   #:endfor
 
 
-  pure function ${OP_NAME}$_array${IHEADER}$_array_${IHEADER}$(left, right) Result(total)
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
+    #:for RANK in RANKS
+
+  pure function ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$(left, right) Result(total)
+    !< addition shr_array${IHEADER}$ and scalar ${IHEADER}$
+    class(shr_array${IHEADER}$), intent(in) :: left
+    ${ITYPESRC}$, intent(in) :: right${ranksuffix(RANK)}$
+    class(shr_array${IHEADER}$), allocatable :: total !< output
+    total % data = left % data ${OP_SYMB}$ right
+  end function ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$
+
+    #:endfor
+  #:endfor
+
+
+  pure function ${OP_NAME}$_array${IHEADER}$_array${IHEADER}$(left, right) Result(total)
     !< addition from shr_arrayRsp and shr_arrayRsp
     class(shr_array${IHEADER}$), intent(in) :: left
     class(shr_array${IHEADER}$), intent(in) :: right
     class(shr_array${IHEADER}$), allocatable :: total !< output
     total = left % data ${OP_SYMB}$ right % data
-  end function ${OP_NAME}$_array${IHEADER}$_array_${IHEADER}$
+  end function ${OP_NAME}$_array${IHEADER}$_array${IHEADER}$
 
   ! OP_NAME, OP_SYMB in OPERATOR_TYPES  
   #:endfor
@@ -315,21 +383,25 @@ contains
   end function equal_array${IHEADER}$_array${IHEADER}$
 
 
-  elemental logical function equal_array${IHEADER}$_scalar_${IHEADER}$(self, other)
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
+  elemental logical function equal_array${IHEADER}$_scalar_${IHEADERSRC}$(self, other)
     !< true if self and other are the same
     class(shr_array${IHEADER}$), intent(in) :: self
-    ${ITYPE}$, intent(in) :: other
-    equal_array${IHEADER}$_scalar_${IHEADER}$ = (self % data == other)
-  end function equal_array${IHEADER}$_scalar_${IHEADER}$
+    ${ITYPESRC}$, intent(in) :: other
+    equal_array${IHEADER}$_scalar_${IHEADERSRC}$ = (self % data == other)
+  end function equal_array${IHEADER}$_scalar_${IHEADERSRC}$
+  #:endfor
 
 
-  #:for RANK in RANKS
-  pure logical function equal_array${IHEADER}$_raw_${IHEADER}$_${RANK}$(self, other)
-    !< true if self and other are the same
-    class(shr_array${IHEADER}$), intent(in) :: self
-    ${ITYPE}$, intent(in) :: other${ranksuffix(RANK)}$
-    equal_array${IHEADER}$_raw_${IHEADER}$_${RANK}$ = all(self % data == other)
-  end function equal_array${IHEADER}$_raw_${IHEADER}$_${RANK}$
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
+    #:for RANK in RANKS
+    pure logical function equal_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$(self, other)
+      !< true if self and other are the same
+      class(shr_array${IHEADER}$), intent(in) :: self
+      ${ITYPESRC}$, intent(in) :: other${ranksuffix(RANK)}$
+      equal_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$ = all(self % data == other)
+    end function equal_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$
+    #:endfor
   #:endfor
 #:endfor
 
