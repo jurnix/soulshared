@@ -53,12 +53,19 @@ module SHR_arrayContainerAllocatable_mod
   #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
     ! ${OP_NAME}$ (${OP_SYMB}$)
     ! ${OP_NAME}$ (${OP_SYMB}$ arrayContainer op scalar)
-    procedure :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$ => ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_scalar_${IHEADER}$
+    #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
+    procedure :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADERSRC}$ => &
+                 ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_scalar_${IHEADERSRC}$
+    #:endfor
 
     ! ${OP_NAME}$ (${OP_SYMB}$ arrayContainer op <type, kind> array)
-    #:for RANK in RANKS          
-    procedure :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$ => ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
-    #:endfor    
+    #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
+      #:for RANK in RANKS          
+    procedure :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$ => &
+    ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$
+      #:endfor    
+    #:endfor
+
     ! ${OP_NAME}$ (${OP_SYMB}$ arrayContainer op arrayContainer)
     procedure :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer => ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_arrayContainer
   #:endfor
@@ -176,22 +183,25 @@ contains
   end function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_arrayContainer
 
 
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
     #:for RANK in RANKS          
-    pure function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$(left, right) Result(total)
+    pure function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$(left, right) Result(total)
       !<
       class(shr_arrayContainer${IHEADER}$Allocatable), intent(in) :: left
-      ${ITYPE}$, intent(in) :: right${ranksuffix(RANK)}$
+      ${ITYPESRC}$, intent(in) :: right${ranksuffix(RANK)}$
       class(shr_arrayContainer${IHEADER}$), allocatable :: total
       total = left % r${RANK}$ ${OP_SYMB}$ right
-    end function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
+    end function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$
     #:endfor
+  #:endfor
 
 
-  pure function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_scalar_${IHEADER}$(left, right) Result(total)
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
+  pure function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_scalar_${IHEADERSRC}$(left, right) Result(total)
     !< add scalar value into array
     !< arrayCA = 24.1
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(in) :: left 
-    ${ITYPE}$, intent(in) :: right 
+    ${ITYPESRC}$, intent(in) :: right 
     class(shr_arrayContainer${IHEADER}$), allocatable :: total !< output
     #:for RANK in RANKS          
     if (left % getSize() == ${RANK}$) then
@@ -202,7 +212,8 @@ contains
 !    else
       !< unexpected, inconsistency found
 !    endif
-  end function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_scalar_${IHEADER}$
+  end function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_scalar_${IHEADERSRC}$
+  #:endfor
 
   #:endfor
   ! OP_NAME, OP_SYMB

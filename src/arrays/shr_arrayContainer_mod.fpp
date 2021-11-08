@@ -119,11 +119,19 @@ module SHR_arrayContainer_mod
   #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
     ! ${OP_NAME}$ (${OP_SYMB}$)
     ! ${OP_NAME}$ (${OP_SYMB}$) (arrayContainer op <type, kind> scalar)
-    procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$), deferred :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$
-    #:for RANK in RANKS
-    ! ${OP_NAME}$ (${OP_SYMB}$) (arrayContainer op <type, kind> array)
-    procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$), deferred :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
+    #:for _, _, IHEADERSRC in ALL_KINDS_TYPES
+    procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADERSRC}$), deferred :: &
+    ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADERSRC}$
     #:endfor
+
+    #:for _, _, IHEADERSRC in ALL_KINDS_TYPES
+      #:for RANK in RANKS
+    ! ${OP_NAME}$ (${OP_SYMB}$) (arrayContainer op <type, kind> array)
+    procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$), deferred :: &
+    ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$
+      #:endfor
+    #:endfor
+
     ! ${OP_NAME}$ (${OP_SYMB}$) (arrayContainer op arrayContainer)
     procedure(iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer), deferred :: ${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer
 
@@ -171,6 +179,7 @@ module SHR_arrayContainer_mod
 #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
 
     ! ${OP_NAME}$ (${OP_SYMB}$)
+    ! arrayContainer op arrayContainer
     pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer(left, right) Result(total)
       import :: shr_arrayContainer${IHEADER}$, shr_arrayContainer
       class(shr_arrayContainer${IHEADER}$), intent(in) :: left
@@ -178,21 +187,27 @@ module SHR_arrayContainer_mod
       class(shr_arrayContainer${IHEADER}$), allocatable :: total
     end function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer
 
-  #:for RANK in RANKS
-    pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$(left, right) Result(total)
-      import :: shr_arrayContainer${IHEADER}$, ${IKIND}$
+    ! arrayContainer op <type, kind> array
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC  in ALL_KINDS_TYPES
+    #:for RANK in RANKS
+    pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$(left, right) Result(total)
+      import :: shr_arrayContainer${IHEADER}$, ${IKINDSRC}$
       class(shr_arrayContainer${IHEADER}$), intent(in) :: left
-      ${ITYPE}$, intent(in) :: right${ranksuffix(RANK)}$
+      ${ITYPESRC}$, intent(in) :: right${ranksuffix(RANK)}$
       class(shr_arrayContainer${IHEADER}$), allocatable :: total
-    end function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADER}$_${RANK}$
+    end function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$
+    #:endfor
   #:endfor
 
-    pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$(left, right) Result(total)
-      import :: shr_arrayContainer${IHEADER}$, ${IKIND}$
+    ! arrayContainer op <type, kind> scalar
+  #:for IKINDSRC, ITYPESRC, IHEADERSRC  in ALL_KINDS_TYPES
+    pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADERSRC}$(left, right) Result(total)
+      import :: shr_arrayContainer${IHEADER}$, ${IKINDSRC}$
       class(shr_arrayContainer${IHEADER}$), intent(in) :: left
-      ${ITYPE}$, intent(in) :: right
+      ${ITYPESRC}$, intent(in) :: right
       class(shr_arrayContainer${IHEADER}$), allocatable :: total
-    end function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADER}$
+    end function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADERSRC}$
+  #:endfor
 #:endfor
 
 
