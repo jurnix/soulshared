@@ -11,7 +11,7 @@
 !------------------------------------------------------------------------------
 module arrayRsp_test
   use SHR_testSuite_mod, only: testSuite
-  use SHR_precision_mod, only: sp
+  use SHR_precision_mod, only: sp, dp
 
   use shr_strings_mod, only: string
   use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayRspDim, shr_arrayDimContainer
@@ -100,6 +100,14 @@ contains
     tempValues = temperature
     call self % assert ( all(tempValues == 273.), &
                 "tempValues .eq. 273. = T"  )
+
+    tempValues = tempValues + 1
+    call self % assert ( all(tempValues == 274.), &
+                "tempValues .eq. 274. = T"  )
+
+    tempValues = tempValues - 2.0_dp
+    call self % assert ( all(tempValues == 272.), &
+                "tempValues .eq. 272. = T"  )
 
   end subroutine defineTestCases
 
