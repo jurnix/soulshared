@@ -228,7 +228,7 @@ contains
   end function add_gridFullRsp_add_gridFullRsp 
 
 
-  ! add ( gridFullRsp + gridFullRsp )
+  ! add ( gridFullRsp + <type, kind> scalar )
   pure function add_gridFullRsp_add_scalar_rsp(left, right) Result(total)
     !< addition from shr_arrayRsp and shr_arrayRsp
     class(shr_arrayGridFullRsp), intent(in) :: left
@@ -237,7 +237,7 @@ contains
   end function add_gridFullRsp_add_scalar_rsp 
 
 
-  ! add ( gridFullRsp + gridFullRsp )
+  ! add ( gridFullRsp + <type, kind> array )
   pure function add_gridFullRsp_add_raw_rsp_1(left, right) Result(total)
     !< addition from shr_arrayRsp and shr_arrayRsp
     class(shr_arrayGridFullRsp), intent(in) :: left
