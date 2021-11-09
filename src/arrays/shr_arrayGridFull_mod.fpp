@@ -58,28 +58,28 @@ module shr_arrayGridFull_mod
 
     ! copy
     procedure :: copy_gridFullRsp_copy_scalar_rsp
-    procedure :: copy_gridFullRsp_copy_raw_rsp_1
-    procedure, pass(self) :: copy_raw_rsp_1_copy_gridFullRsp
+    procedure :: copy_gridFullRsp_copy_raw_rsp_2
+    procedure, pass(self) :: copy_raw_rsp_2_copy_gridFullRsp
     procedure :: copy_gridFullRsp_copy_gridFullRsp
 
     generic, public :: assignment(=) => copy_gridFullRsp_copy_scalar_rsp, &
-            copy_gridFullRsp_copy_raw_rsp_1, copy_raw_rsp_1_copy_gridFullRsp, &
+            copy_gridFullRsp_copy_raw_rsp_2, copy_raw_rsp_2_copy_gridFullRsp, &
             copy_gridFullRsp_copy_gridFullRsp
 
     ! add
     procedure :: add_gridFullRsp_add_scalar_rsp
-    procedure :: add_gridFullRsp_add_raw_rsp_1
+    procedure :: add_gridFullRsp_add_raw_rsp_2
     procedure :: add_gridFullRsp_add_gridFullRsp
     generic, public :: operator(+) => add_gridFullRsp_add_scalar_rsp, &
-            add_gridFullRsp_add_raw_rsp_1, add_gridFullRsp_add_gridFullRsp
+            add_gridFullRsp_add_raw_rsp_2, add_gridFullRsp_add_gridFullRsp
 
     ! equal
     procedure :: equal_gridFullRsp_equal_scalar_rsp
-    procedure :: equal_gridFullRsp_equal_raw_rsp_1
+    procedure :: equal_gridFullRsp_equal_raw_rsp_2
     procedure :: equal_gridFullRsp_equal_gridFullRsp
 
     generic, public :: operator(==) => equal_gridFullRsp_equal_scalar_rsp, &
-            equal_gridFullRsp_equal_raw_rsp_1, equal_gridFullRsp_equal_gridFullRsp
+            equal_gridFullRsp_equal_raw_rsp_2, equal_gridFullRsp_equal_gridFullRsp
   end type shr_arrayGridFullRsp
 
 
@@ -149,10 +149,10 @@ contains
 
 
   ! copy (arrayGridFullRsp = <type, kind> array) 
-  pure subroutine copy_gridFullRsp_copy_raw_rsp_1(self, other)
+  pure subroutine copy_gridFullRsp_copy_raw_rsp_2(self, other)
       !< Copy to current array container allocatable
       class(shr_arrayGridFullRsp), intent(inout) :: self
-      real(kind=sp), intent(in) :: other(:)
+      real(kind=sp), intent(in) :: other(:,:)
 
       select type(data => self % data)
       type is (shr_arrayContainerRspAllocatable)
@@ -160,13 +160,13 @@ contains
       class default
         !< unexpected class found
       end select
-  end subroutine copy_gridFullRsp_copy_raw_rsp_1
+  end subroutine copy_gridFullRsp_copy_raw_rsp_2
 
 
   ! copy ( <type, kind> array = gridFullRsp )
-  pure subroutine copy_raw_rsp_1_copy_gridFullRsp(other, self)
+  pure subroutine copy_raw_rsp_2_copy_gridFullRsp(other, self)
       !< Copy to current array container allocatable
-      real(kind=sp), allocatable, intent(inout) :: other(:)
+      real(kind=sp), allocatable, intent(inout) :: other(:,:)
       class(shr_arrayGridFullRsp), intent(in) :: self
 
       select type(data => self % data)
@@ -175,7 +175,7 @@ contains
       class default
         !< unexpected class found
       end select
-  end subroutine copy_raw_rsp_1_copy_gridFullRsp
+  end subroutine copy_raw_rsp_2_copy_gridFullRsp
 
 
   ! copy (arrayGridFullRsp = arrayGridFullRsp) 
@@ -246,18 +246,18 @@ contains
 
 
   ! equal ( gridFullRsp == <type, kind> array)
-  pure logical function equal_gridFullRsp_equal_raw_rsp_1(self, other)
+  pure logical function equal_gridFullRsp_equal_raw_rsp_2(self, other)
     !< true if self and other are the same
     class(shr_arrayGridFullRsp), intent(in) :: self
-    real(kind=sp), intent(in) :: other(:)
+    real(kind=sp), intent(in) :: other(:,:)
 
     select type(data => self % data)
     type is (shr_arrayContainerRspAllocatable)
-      equal_gridFullRsp_equal_raw_rsp_1 = all(data == other)
+      equal_gridFullRsp_equal_raw_rsp_2 = all(data == other)
     class default
       !< unexpected class found
     end select
-  end function equal_gridFullRsp_equal_raw_rsp_1
+  end function equal_gridFullRsp_equal_raw_rsp_2
 
 
   ! add ( gridFullRsp + gridFullRsp )
@@ -293,10 +293,10 @@ contains
 
 
   ! add ( gridFullRsp + <type, kind> array )
-  pure function add_gridFullRsp_add_raw_rsp_1(left, right) Result(total)
+  pure function add_gridFullRsp_add_raw_rsp_2(left, right) Result(total)
     !< addition from shr_arrayRsp and shr_arrayRsp
     class(shr_arrayGridFullRsp), intent(in) :: left
-    real(kind=sp), intent(in) :: right(:)
+    real(kind=sp), intent(in) :: right(:,:)
     class(shr_arrayGridFullRsp), allocatable :: total !< output
 
     select type(data => left % data)
@@ -305,6 +305,6 @@ contains
     class default
       !< unexpected class found
     end select
-  end function add_gridFullRsp_add_raw_rsp_1 
+  end function add_gridFullRsp_add_raw_rsp_2
 
 end module shr_arrayGridFull_mod
