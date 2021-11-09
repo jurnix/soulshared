@@ -72,18 +72,17 @@ module shr_arrayGridFull_mod
             copy_gridFullRsp_copy_gridFullRsp
 
     ! add
-!    procedure :: add_array_scalar_rsp
-!    procedure :: add_array_raw_rsp_1
-!    procedure :: add_array_array
-!    generic, public :: operator(+) => add_array_scalar_rsp, add_array_array, &
-!            add_array_raw_rsp_1
+!    procedure :: add_gridFullRsp_add_scalar_rsp
+!    procedure :: add_gridFullRsp_add_raw_rsp_1
+!    procedure :: add_gridFullRsp_add_gridFullRsp
+!    generic, public :: operator(+) =>  &
 
     ! equal
-!    procedure :: equal_scalar_rsp
-!    procedure :: equal_array_raw_rsp_1
-!    procedure :: equal_array
-!    generic, public :: operator(==) => equal_scalar_rsp, equal_array, &
-!            equal_array_raw_rsp_1
+    procedure :: equal_gridFullRsp_equal_scalar_rsp
+    procedure :: equal_gridFullRsp_equal_raw_rsp_1
+    procedure :: equal_gridFullRsp_equal_gridFullRsp
+    generic, public :: operator(==) => equal_gridFullRsp_equal_scalar_rsp, &
+            equal_gridFullRsp_equal_raw_rsp_1, equal_gridFullRsp_equal_gridFullRsp
   end type shr_arrayGridFullRsp
 
 
@@ -198,5 +197,28 @@ contains
       allocate(self % data, source = other % data)
   end subroutine copy_gridFullRsp_copy_gridFullRsp
 
+
+  ! equal ( gridFullRsp == gridFull)
+  elemental logical function equal_gridFullRsp_equal_gridFullRsp(self, other)
+    !< true if self and other are the same
+    class(shr_arrayGridFullRsp), intent(in) :: self
+    class(shr_arrayGridFull), intent(in) :: other
+  end function equal_gridFullRsp_equal_gridFullRsp
+
+
+  ! equal ( gridFullRsp == <type, kind> scalar)
+  elemental logical function equal_gridFullRsp_equal_scalar_rsp(self, other)
+    !< true if self and other are the same
+    class(shr_arrayGridFullRsp), intent(in) :: self
+    real(kind=sp), intent(in) :: other
+  end function equal_gridFullRsp_equal_scalar_rsp
+
+
+  ! equal ( gridFullRsp == <type, kind> array)
+  pure logical function equal_gridFullRsp_equal_raw_rsp_1(self, other)
+    !< true if self and other are the same
+    class(shr_arrayGridFullRsp), intent(in) :: self
+    real(kind=sp), intent(in) :: other(:)
+  end function equal_gridFullRsp_equal_raw_rsp_1
 
 end module shr_arrayGridFull_mod
