@@ -34,8 +34,14 @@ module shr_arrayGridFull_mod
   use shr_precision_mod, only: sp, dp!, eqReal
   use shr_grid_mod, only: shr_grid
   use shr_arrayGrid_mod, only: shr_arrayGrid
-  use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
+  use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer, shr_arrayRspDim
+  use shr_gridBounds_mod, only: SHR_GRIDBOUNDS_NCOORDS, SHR_GRIDBOUNDS_NORTH, &
+                   SHR_GRIDBOUNDS_SOUTH, SHR_GRIDBOUNDS_WEST, SHR_GRIDBOUNDS_EAST
   use shr_strings_mod, only: string
+
+  use shr_arrayContainer_mod, only: shr_arrayContainerRsp
+  use shr_arrayContainerAllocatable_mod, only: shr_arrayContainerRspAllocatable
+
 
   implicit none
 
@@ -55,25 +61,12 @@ module shr_arrayGridFull_mod
   ! type bindings
   type, extends(shr_arrayGridFull) :: shr_arrayGridFullRsp
   contains
-    procedure :: init
+    procedure :: init => init_fullRsp
     !< copy, equal, add/sub/mul/div
     !< copy vs shr_arrayGridFullRsp, arrayRsp, raw array, scalar
     !< equal vs shr_arrayGridFullRsp, arrayRsp, raw array, scalar
     !< add/... vs shr_arrayGridFullRsp, arrayRsp, raw array, scalar
     !<
-    !< kind, types vs :
-    !<
-    !< int: int vs int
-    !<
-    !< rsp: rsp vs rsp
-    !<      rsp vs int
-    !<
-    !< rdp: rdp vs rdp
-    !<      rdp vs rsp
-    !<      rdp vs int
-
-    !procedure :: init_array_rsp
-    !generic :: init => init_array_rsp
 
     ! copy
     procedure :: copy_scalar_rsp
@@ -103,7 +96,7 @@ module shr_arrayGridFull_mod
 contains
 
 
-  subroutine init(self, name, grid, dimensions, units, description)
+  subroutine init_fullRsp(self, name, grid, dimensions, units, description)
     !<
     class(shr_arrayGridFullRsp), intent(inout) :: self
     type(string), intent(in) :: name
@@ -111,7 +104,43 @@ contains
     type(shr_arrayDimContainer), intent(in) :: dimensions(:)
     type(string), intent(in) :: units 
     type(string), intent(in) :: description
-  end subroutine init
+
+    ! local vars
+    type(shr_arrayRspDim) :: latDim, lonDim
+    type(shr_arrayDimContainer), allocatable :: varDims(:)
+
+    real(kind=sp) :: limits(SHR_GRIDBOUNDS_NCOORDS)
+    real(kind=sp) :: gridStep, latStart, latEnd
+    real(kind=sp) :: lonStart, lonEnd
+
+    gridStep = grid % getResolution()
+    limits = grid % getLimits() ! n, s, e, w
+    latStart = limits(SHR_GRIDBOUNDS_SOUTH)
+    latEnd = limits(SHR_GRIDBOUNDS_NORTH)
+    lonStart = limits(SHR_GRIDBOUNDS_WEST)
+    lonEnd = limits(SHR_GRIDBOUNDS_EAST)
+
+    call latDim % init("latitude", latstart, latEnd, gridStep)
+    call lonDim % init("longitude", lonstart, lonEnd, gridStep)
+    allocate(varDims(size(dimensions) + 2)) !< dimensions + grid lat + grid lon
+    varDims(1) % arrayDim = latDim
+    varDims(2) % arrayDim = lonDim
+    varDims(3:) = dimensions(:)
+
+    allocate(self % dims, source=varDims)
+
+    ! taken from shr_array % init_arrayXXX(...)
+    allocate(self % name)
+    self % name = string(name)
+    allocate(self % units)
+    self % units = string(units)
+    allocate(self % description)
+    self % description = string(description)
+
+    ! todo, creational design pattern?
+    allocate( shr_arrayContainerRspAllocatable :: self % data )
+    call self % data % init(self % dims)
+  end subroutine init_fullRsp
 
 
   ! copy

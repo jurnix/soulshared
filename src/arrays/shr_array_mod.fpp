@@ -53,6 +53,9 @@ module SHR_array_mod
     type(shr_arrayDimContainer), allocatable :: dims(:) 
     type(string), allocatable :: units
     type(string), allocatable :: description
+
+    !< array data
+    class(shr_arrayContainer), allocatable :: data 
   contains
     procedure :: getName => getName_array
     procedure :: getSize => getSize_array
@@ -67,9 +70,6 @@ module SHR_array_mod
   ! ${IHEADER}$, ${ITYPE}$, ${IKIND}$
   !
   type, extends(shr_array) :: shr_array${IHEADER}$ !< apply each type and kind
-
-    !< array data
-    class(shr_arrayContainer${IHEADER}$), allocatable :: data 
   contains
 
     procedure :: init_array_${IHEADER}$
@@ -254,7 +254,13 @@ contains
       !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
       class(shr_array${IHEADER}$), intent(inout) :: self
       ${ITYPESRC}$, intent(in) :: other
-      self % data = other
+
+      select type(data => self % data)
+      type is (shr_arrayContainer${IHEADER}$Allocatable)
+        data = other
+      class default
+        !< unexpected class found
+      end select
   end subroutine copy_array${IHEADER}$_scalar_${IHEADERSRC}$
 #:endfor
 
@@ -267,7 +273,13 @@ contains
     !< raw array = array${IHEADER}$
     ${ITYPETGT}$, allocatable, intent(inout) :: other${ranksuffix(RANK)}$
     class(shr_array${IHEADER}$), intent(in) :: self
-    other = self % data
+
+    select type(data => self % data)
+    type is (shr_arrayContainer${IHEADER}$Allocatable)
+      other = data
+    class default
+      !< unexpected class found
+    end select
   end subroutine copy_raw_${IHEADERTGT}$_${RANK}$_to_array${IHEADER}$
   #:endfor
 #:endfor
@@ -281,7 +293,13 @@ contains
     !< array${IHEADER}$ = raw array
     class(shr_array${IHEADER}$), intent(inout) :: self
     ${ITYPESRC}$, intent(in) :: other${ranksuffix(RANK)}$
-    self % data = other
+
+    select type(data => self % data)
+    type is (shr_arrayContainer${IHEADER}$Allocatable)
+      data = other
+    class default
+      !< unexpected class found
+    end select
   end subroutine copy_array${IHEADER}$_to_raw_${IHEADERSRC}$_${RANK}$
   #:endfor
 #:endfor
@@ -313,7 +331,13 @@ contains
     class(shr_array${IHEADER}$), intent(in) :: left
     ${ITYPESRC}$, intent(in) :: right
     class(shr_array${IHEADER}$), allocatable :: total !< output
-    total = left % data ${OP_SYMB}$ right
+
+    select type(data => left % data)
+    type is (shr_arrayContainer${IHEADER}$Allocatable)
+      total = data ${OP_SYMB}$ right
+    class default
+      !< unexpected class found
+    end select
   end function ${OP_NAME}$_array${IHEADER}$_scalar_${IHEADERSRC}$
   #:endfor
 
@@ -326,7 +350,13 @@ contains
     class(shr_array${IHEADER}$), intent(in) :: left
     ${ITYPESRC}$, intent(in) :: right${ranksuffix(RANK)}$
     class(shr_array${IHEADER}$), allocatable :: total !< output
-    total % data = left % data ${OP_SYMB}$ right
+
+    select type(data => left % data)
+    type is (shr_arrayContainer${IHEADER}$Allocatable)
+      total % data = data ${OP_SYMB}$ right
+    class default
+      !< unexpected class found
+    end select
   end function ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$
 
     #:endfor
@@ -338,7 +368,13 @@ contains
     class(shr_array${IHEADER}$), intent(in) :: left
     class(shr_array${IHEADER}$), intent(in) :: right
     class(shr_array${IHEADER}$), allocatable :: total !< output
-    total = left % data ${OP_SYMB}$ right % data
+
+    select type(data => left % data)
+    type is (shr_arrayContainer${IHEADER}$Allocatable)
+      total = data ${OP_SYMB}$ right % data
+    class default
+      !< unexpected class found
+    end select
   end function ${OP_NAME}$_array${IHEADER}$_array${IHEADER}$
 
   ! OP_NAME, OP_SYMB in OPERATOR_TYPES  
@@ -370,7 +406,12 @@ contains
     if (.not. hasSameDescription) return
 
     ! compare data
-    hasSameData = (self % data == other % data)
+    select type(data => self % data)
+    type is (shr_arrayContainer${IHEADER}$Allocatable)
+      hasSameData = (data == other % data)
+    class default
+      !< unexpected class found
+    end select
 
     equal_array${IHEADER}$_array${IHEADER}$ = hasSameData
   end function equal_array${IHEADER}$_array${IHEADER}$
@@ -381,7 +422,12 @@ contains
     !< true if self and other are the same
     class(shr_array${IHEADER}$), intent(in) :: self
     ${ITYPESRC}$, intent(in) :: other
-    equal_array${IHEADER}$_scalar_${IHEADERSRC}$ = (self % data == other)
+    select type(data => self % data)
+    type is (shr_arrayContainer${IHEADER}$Allocatable)
+      equal_array${IHEADER}$_scalar_${IHEADERSRC}$ = (data == other)
+    class default
+      !< unexpected class found
+    end select
   end function equal_array${IHEADER}$_scalar_${IHEADERSRC}$
   #:endfor
 
@@ -392,7 +438,12 @@ contains
       !< true if self and other are the same
       class(shr_array${IHEADER}$), intent(in) :: self
       ${ITYPESRC}$, intent(in) :: other${ranksuffix(RANK)}$
-      equal_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$ = all(self % data == other)
+      select type(data => self % data)
+      type is (shr_arrayContainer${IHEADER}$Allocatable)
+        equal_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$ = all(data == other)
+      class default
+        !< unexpected class found
+      end select !
     end function equal_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$
     #:endfor
   #:endfor
