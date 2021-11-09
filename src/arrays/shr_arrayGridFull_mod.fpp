@@ -55,11 +55,6 @@ module shr_arrayGridFull_mod
   type, extends(shr_arrayGridFull) :: shr_arrayGridFullRsp
   contains
     procedure :: init => init_fullRsp
-    !< copy, equal, add/sub/mul/div
-    !< copy vs shr_arrayGridFullRsp, arrayRsp, raw array, scalar
-    !< equal vs shr_arrayGridFullRsp, arrayRsp, raw array, scalar
-    !< add/... vs shr_arrayGridFullRsp, arrayRsp, raw array, scalar
-    !<
 
     ! copy
     procedure :: copy_gridFullRsp_copy_scalar_rsp
@@ -72,15 +67,17 @@ module shr_arrayGridFull_mod
             copy_gridFullRsp_copy_gridFullRsp
 
     ! add
-!    procedure :: add_gridFullRsp_add_scalar_rsp
-!    procedure :: add_gridFullRsp_add_raw_rsp_1
-!    procedure :: add_gridFullRsp_add_gridFullRsp
-!    generic, public :: operator(+) =>  &
+    procedure :: add_gridFullRsp_add_scalar_rsp
+    procedure :: add_gridFullRsp_add_raw_rsp_1
+    procedure :: add_gridFullRsp_add_gridFullRsp
+    generic, public :: operator(+) => add_gridFullRsp_add_scalar_rsp, &
+            add_gridFullRsp_add_raw_rsp_1, add_gridFullRsp_add_gridFullRsp
 
     ! equal
     procedure :: equal_gridFullRsp_equal_scalar_rsp
     procedure :: equal_gridFullRsp_equal_raw_rsp_1
     procedure :: equal_gridFullRsp_equal_gridFullRsp
+
     generic, public :: operator(==) => equal_gridFullRsp_equal_scalar_rsp, &
             equal_gridFullRsp_equal_raw_rsp_1, equal_gridFullRsp_equal_gridFullRsp
   end type shr_arrayGridFullRsp
@@ -220,5 +217,32 @@ contains
     class(shr_arrayGridFullRsp), intent(in) :: self
     real(kind=sp), intent(in) :: other(:)
   end function equal_gridFullRsp_equal_raw_rsp_1
+
+
+  ! add ( gridFullRsp + gridFullRsp )
+  pure function add_gridFullRsp_add_gridFullRsp(left, right) Result(total)
+    !< addition from shr_arrayRsp and shr_arrayRsp
+    class(shr_arrayGridFullRsp), intent(in) :: left
+    class(shr_arrayGridFull), intent(in) :: right
+    class(shr_arrayGridFullRsp), allocatable :: total !< output
+  end function add_gridFullRsp_add_gridFullRsp 
+
+
+  ! add ( gridFullRsp + gridFullRsp )
+  pure function add_gridFullRsp_add_scalar_rsp(left, right) Result(total)
+    !< addition from shr_arrayRsp and shr_arrayRsp
+    class(shr_arrayGridFullRsp), intent(in) :: left
+    real(kind=sp), intent(in) :: right
+    class(shr_arrayGridFullRsp), allocatable :: total !< output
+  end function add_gridFullRsp_add_scalar_rsp 
+
+
+  ! add ( gridFullRsp + gridFullRsp )
+  pure function add_gridFullRsp_add_raw_rsp_1(left, right) Result(total)
+    !< addition from shr_arrayRsp and shr_arrayRsp
+    class(shr_arrayGridFullRsp), intent(in) :: left
+    real(kind=sp), intent(in) :: right(:)
+    class(shr_arrayGridFullRsp), allocatable :: total !< output
+  end function add_gridFullRsp_add_raw_rsp_1 
 
 end module shr_arrayGridFull_mod
