@@ -200,6 +200,33 @@ contains
     !< true if self and other are the same
     class(shr_arrayGridFullRsp), intent(in) :: self
     class(shr_arrayGridFull), intent(in) :: other
+
+    logical :: hasSameName, hasSameDims, hasSameUnits
+    logical :: hasSameDescription, hasSameData
+
+    equal_gridFullRsp_equal_gridFullRsp = .false.
+    ! compare array descriptor
+    hasSameName = self % getName() == other % getName()
+    if (.not. hasSameName) return
+
+    hasSameDims = all(self % getDims() == other % getDims())
+    if (.not. hasSameDims) return
+
+    hasSameUnits = self % getUnits() == other % getUnits()
+    if (.not. hasSameUnits) return
+
+    hasSameDescription = self % getDescription() == other % getDescription()
+    if (.not. hasSameDescription) return
+
+    ! compare data
+    select type(data => self % data)
+    type is (shr_arrayContainerRspAllocatable)
+      hasSameData = (data == other % data)
+    class default
+      !< unexpected class found
+    end select
+
+    equal_gridFullRsp_equal_gridFullRsp = hasSameData
   end function equal_gridFullRsp_equal_gridFullRsp
 
 
@@ -208,6 +235,13 @@ contains
     !< true if self and other are the same
     class(shr_arrayGridFullRsp), intent(in) :: self
     real(kind=sp), intent(in) :: other
+
+    select type(data => self % data)
+    type is (shr_arrayContainerRspAllocatable)
+      equal_gridFullRsp_equal_scalar_rsp = (data == other)
+    class default
+      !< unexpected class found
+    end select
   end function equal_gridFullRsp_equal_scalar_rsp
 
 
@@ -216,6 +250,13 @@ contains
     !< true if self and other are the same
     class(shr_arrayGridFullRsp), intent(in) :: self
     real(kind=sp), intent(in) :: other(:)
+
+    select type(data => self % data)
+    type is (shr_arrayContainerRspAllocatable)
+      equal_gridFullRsp_equal_raw_rsp_1 = all(data == other)
+    class default
+      !< unexpected class found
+    end select
   end function equal_gridFullRsp_equal_raw_rsp_1
 
 
@@ -225,6 +266,13 @@ contains
     class(shr_arrayGridFullRsp), intent(in) :: left
     class(shr_arrayGridFull), intent(in) :: right
     class(shr_arrayGridFullRsp), allocatable :: total !< output
+
+    select type(data => left % data)
+    type is (shr_arrayContainerRspAllocatable)
+      total = data + right % data
+    class default
+      !< unexpected class found
+    end select
   end function add_gridFullRsp_add_gridFullRsp 
 
 
@@ -234,6 +282,13 @@ contains
     class(shr_arrayGridFullRsp), intent(in) :: left
     real(kind=sp), intent(in) :: right
     class(shr_arrayGridFullRsp), allocatable :: total !< output
+
+    select type(data => left % data)
+    type is (shr_arrayContainerRspAllocatable)
+      total % data = data + right
+    class default
+      !< unexpected class found
+    end select
   end function add_gridFullRsp_add_scalar_rsp 
 
 
@@ -243,6 +298,13 @@ contains
     class(shr_arrayGridFullRsp), intent(in) :: left
     real(kind=sp), intent(in) :: right(:)
     class(shr_arrayGridFullRsp), allocatable :: total !< output
+
+    select type(data => left % data)
+    type is (shr_arrayContainerRspAllocatable)
+      total % data = data + right
+    class default
+      !< unexpected class found
+    end select
   end function add_gridFullRsp_add_raw_rsp_1 
 
 end module shr_arrayGridFull_mod
