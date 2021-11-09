@@ -17,13 +17,6 @@
 !> type: real, int
 !> kind: single, double
 !>
-!> int: int + int
-!> rsp: rsp + rsp
-!>      rsp + int
-!> dsp: dsp + dsp
-!>      dsp + rsp
-!>      dsp + int
-!> 
 !------------------------------------------------------------------------------
 
 #:include "../common.fpp"
@@ -73,9 +66,6 @@ module shr_arrayGridFull_mod
     procedure :: copy_gridFullRsp_copy_raw_rsp_1
     procedure, pass(self) :: copy_raw_rsp_1_copy_gridFullRsp
     procedure :: copy_gridFullRsp_copy_gridFullRsp
-!    procedure :: copy_gridFullRsp_copy_raw_rsp_1
-!    procedure, pass(self) :: copy_gridFullRsp_copy_raw_rsp_1
-!    procedure :: copy_gridFullRsp_copy_gridFullRsp
 
     generic, public :: assignment(=) => copy_gridFullRsp_copy_scalar_rsp, &
             copy_gridFullRsp_copy_raw_rsp_1, copy_raw_rsp_1_copy_gridFullRsp, &
