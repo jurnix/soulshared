@@ -69,13 +69,17 @@ module shr_arrayGridFull_mod
     !<
 
     ! copy
-    procedure :: copy_scalar_rsp
-!    procedure :: copy_array_to_raw_rsp_1
-!    procedure, pass(self) :: copy_raw_rsp_1_to_array
-!    procedure :: copy_array
+    procedure :: copy_gridFullRsp_copy_scalar_rsp
+    procedure :: copy_gridFullRsp_copy_raw_rsp_1
+    procedure, pass(self) :: copy_raw_rsp_1_copy_gridFullRsp
+    procedure :: copy_gridFullRsp_copy_gridFullRsp
+!    procedure :: copy_gridFullRsp_copy_raw_rsp_1
+!    procedure, pass(self) :: copy_gridFullRsp_copy_raw_rsp_1
+!    procedure :: copy_gridFullRsp_copy_gridFullRsp
 
-    generic, public :: assignment(=) => copy_scalar_rsp!, copy_array, &
-!            copy_array_to_raw_rsp_1, copy_raw_rsp_1_to_array
+    generic, public :: assignment(=) => copy_gridFullRsp_copy_scalar_rsp, &
+            copy_gridFullRsp_copy_raw_rsp_1, copy_raw_rsp_1_copy_gridFullRsp, &
+            copy_gridFullRsp_copy_gridFullRsp
 
     ! add
 !    procedure :: add_array_scalar_rsp
@@ -137,21 +141,72 @@ contains
     allocate(self % description)
     self % description = string(description)
 
-    ! todo, creational design pattern?
     allocate( shr_arrayContainerRspAllocatable :: self % data )
     call self % data % init(self % dims)
   end subroutine init_fullRsp
 
 
-  ! copy
-  pure subroutine copy_scalar_rsp(self, other)
+  ! copy (arrayGridFull = <type, kind> scalar)
+  pure subroutine copy_gridFullRsp_copy_scalar_rsp(self, other)
       !< Copy to current array container allocatable
       !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
       class(shr_arrayGridFullRsp), intent(inout) :: self
       real(kind=sp), intent(in) :: other
 
-      ! 
-!      self % data = other
-  end subroutine copy_scalar_rsp
+      select type(data => self % data)
+      type is (shr_arrayContainerRspAllocatable)
+        data = other
+      class default
+        !< unexpected class found
+      end select
+  end subroutine copy_gridFullRsp_copy_scalar_rsp
+
+
+  ! copy (arrayGridFullRsp = <type, kind> array) 
+  pure subroutine copy_gridFullRsp_copy_raw_rsp_1(self, other)
+      !< Copy to current array container allocatable
+      class(shr_arrayGridFullRsp), intent(inout) :: self
+      real(kind=sp), intent(in) :: other(:)
+
+      select type(data => self % data)
+      type is (shr_arrayContainerRspAllocatable)
+        data = other
+      class default
+        !< unexpected class found
+      end select
+  end subroutine copy_gridFullRsp_copy_raw_rsp_1
+
+
+  ! copy ( <type, kind> array = gridFullRsp )
+  pure subroutine copy_raw_rsp_1_copy_gridFullRsp(other, self)
+      !< Copy to current array container allocatable
+      real(kind=sp), allocatable, intent(inout) :: other(:)
+      class(shr_arrayGridFullRsp), intent(in) :: self
+
+      select type(data => self % data)
+      type is (shr_arrayContainerRspAllocatable)
+        other = data
+      class default
+        !< unexpected class found
+      end select
+  end subroutine copy_raw_rsp_1_copy_gridFullRsp
+
+
+  ! copy (arrayGridFullRsp = arrayGridFullRsp) 
+  pure subroutine copy_gridFullRsp_copy_gridFullRsp(self, other)
+      !< Copy to current array container allocatable
+      class(shr_arrayGridFullRsp), intent(inout) :: self
+      class(shr_arrayGridFull), intent(in) :: other
+      
+      if (.not. allocated(self % name)) allocate(self % name)
+      self % name = other % getName()
+      allocate(self % dims, source = other % getDims())
+      if (.not. allocated(self % units)) allocate(self % units)
+      self % units = other % getUnits()
+      if (.not. allocated(self % description)) allocate(self % description)
+      self % description = other % getDescription()
+      allocate(self % data, source = other % data)
+  end subroutine copy_gridFullRsp_copy_gridFullRsp
+
 
 end module shr_arrayGridFull_mod
