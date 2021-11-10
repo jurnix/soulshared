@@ -89,9 +89,7 @@ module SHR_array_mod
   type, extends(shr_array) :: shr_array${IHEADER}$ !< apply each type and kind
   contains
 
-!    procedure :: init_array_${IHEADER}$_as_chars
     procedure :: init_array => init_array_${IHEADER}$ !_as_strings
-!    generic :: init => init_array_${IHEADER}$_as_chars, init_array_${IHEADER}$_as_strings
 
     ! copy (shr_array = <type, kind> scalar)
 #:for _, _, IHEADERSRC in ALL_KINDS_TYPES
@@ -215,11 +213,9 @@ contains
   pure function getDims_array(self) result (dims)
     !< returns array dimensions as an allocatable array
     class(shr_array), intent(in) :: self
-!    class(shr_arrayDim), allocatable :: dims(:) !< output
     type(shr_arrayDimContainer), allocatable :: dims(:) !< output
     if (allocated(dims)) deallocate(dims)
     allocate(dims, source = self % dims)
-!    dims = self % dims
   end function getDims_array
 
 
@@ -260,35 +256,6 @@ contains
   !
   ! ${IHEADER}$, ${ITYPE}$, ${IKIND}$
   !
-!  pure subroutine init_array_${IHEADER}$_as_chars(self, name, dimensions, units, description)
-    !< shr_arrayRsp initialization
-!    class(shr_array${IHEADER}$), intent(inout) :: self
-!    character(*), intent(in) :: name
-!    type(shr_arrayDimContainer), intent(in) :: dimensions(:)
-!    character(*), intent(in) :: units
-!    character(*), intent(in) :: description
-
-    !< local vars
-!    type(string) :: sname, sunits, sdescription
-
-!    allocate(self % name)
-!    sname = string(name)
-!    allocate(self % units)
-!    sunits = string(units)
-!    allocate(self % description)
-!    sdescription = string(description)
-
-!!    allocate(self % dims, source = dimensions)
-
-    ! todo, creational design pattern?
-!!    allocate( shr_arrayContainer${IHEADER}$Allocatable :: self % data )
-!!    call self % data % init(dimensions))
-
-!    call self % init_array_${IHEADER}$_as_strings(sname, dimensions, sunits, sdescription)
-
-!  end subroutine init_array_${IHEADER}$_as_chars
-
-
   pure subroutine init_array_${IHEADER}$(self, name, dimensions, units, description)
     !< shr_arrayRsp initialization
     class(shr_array${IHEADER}$), intent(inout) :: self
