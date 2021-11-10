@@ -42,6 +42,15 @@ module shr_arrayGrid_mod
     type(shr_grid), allocatable :: grid
   contains
     procedure(iface_init), deferred :: init !< initialization
+
+    procedure(iface_copy_arrayGrid_copy_arrayGrid), deferred :: copy_arrayGrid_copy_arrayGrid
+    generic, public :: assignment(=) => copy_arrayGrid_copy_arrayGrid
+
+    procedure(iface_equal_arrayGrid_equal_arrayGrid), deferred :: equal_arrayGrid_equal_arrayGrid
+    generic, public :: operator(==) => equal_arrayGrid_equal_arrayGrid
+
+    procedure(iface_op_arrayGrid_op_arrayGrid), deferred :: op_arrayGrid_add_arrayGrid
+    generic, public :: operator(+) => op_arrayGrid_add_arrayGrid
   end type shr_arrayGrid
 
 
@@ -63,6 +72,29 @@ module shr_arrayGrid_mod
       class(shr_arrayGrid), intent(in) :: self
       class(shr_array), allocatable :: newArray !< output
     end function iface_getArray
+
+
+    pure subroutine iface_copy_arrayGrid_copy_arrayGrid(self,other)
+      !< copy shr_array = shr_array
+      import :: shr_arrayGrid
+      class(shr_arrayGrid), intent(inout) :: self
+      class(shr_arrayGrid), intent(in) :: other
+    end subroutine iface_copy_arrayGrid_copy_arrayGrid
+
+    elemental logical function iface_equal_arrayGrid_equal_arrayGrid(self, other)
+      !< true if self and other are the same
+      import :: shr_arrayGrid
+      class(shr_arrayGrid), intent(in) :: self
+      class(shr_arrayGrid), intent(in) :: other
+    end function  iface_equal_arrayGrid_equal_arrayGrid
+
+    pure function iface_op_arrayGrid_op_arrayGrid(left, right) Result(total)
+      !< addition from shr_arrayXXX and shr_array
+      import :: shr_arrayGrid
+      class(shr_arrayGrid), intent(in) :: left
+      class(shr_arrayGrid), intent(in) :: right
+      class(shr_arrayGrid), allocatable :: total !< output
+    end function iface_op_arrayGrid_op_arrayGrid
   end interface
 
 contains
