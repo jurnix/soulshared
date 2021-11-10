@@ -58,7 +58,8 @@ module SHR_tsArray_mod
   integer, parameter :: TSARRAY_OP_LAST = 5 !< last value 
 
   !< timeScaled Array. It only support data pointer
-  type, extends(shr_array) :: tsArray !< temporal array (clock), infered todo- support >1 ts variable for the same
+!  type, extends(shr_array) :: tsArray !< temporal array (clock), infered todo- support >1 ts variable for the same
+  type :: tsArray !< temporal array (clock), infered todo- support >1 ts variable for the same
     type(clock) :: internalTime !< sync from simulations clock
     integer :: operation !< what to do when rescaling to another time sacle
     type(timedelta) :: newTs !< new variable time scale (always bigger the clock timestep)
@@ -185,7 +186,7 @@ contains
     class(sp_rpArray), pointer :: wrapPoint
     real(kind=sp) :: initVal !< default value to initialize tsArray
 
-    allocate(tsArray_constructor_r1 % name, source = string(name))
+!    allocate(tsArray_constructor_r1 % name, source = string(name))
 !    tsArray_constructor_r1 % dimsName = dimsName
     tsArray_constructor_r1 % internalTime = sClock
     tsArray_constructor_r1 % operation = operation

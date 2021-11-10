@@ -223,13 +223,13 @@ contains
     ! compare data
     select type(array => self % array)
     type is (shr_arrayRsp)
-!      hasSameData = (array == other % array)
+      hasSameData = (array == other % array)
     class default
       !< unexpected class found
       hasSameData = .false.
     end select
 
-!    equal_gridFullRsp_equal_gridFullRsp = hasSameData
+    equal_gridFullRsp_equal_gridFullRsp = hasSameData
   end function equal_gridFullRsp_equal_gridFullRsp
 
 
@@ -274,7 +274,7 @@ contains
 
     select type(array => left % array)
     type is (shr_arrayRsp)
-!      total = left % array + right % array ???
+      total % array = array + right % array
     class default
       !< unexpected class found
     end select

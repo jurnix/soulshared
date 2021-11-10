@@ -66,6 +66,18 @@ module SHR_array_mod
     procedure :: getDims => getDims_array
     procedure :: getUnits => getUnits_array
     procedure :: getDescription => getDescription_array
+
+    procedure(iface_copy_array_copy_array), deferred :: copy_array_copy_array 
+    generic, public :: assignment(=) => copy_array_copy_array
+
+    procedure(iface_equal_array_equal_array), deferred :: equal_array_equal_array 
+    generic, public :: operator(==) => equal_array_equal_array
+
+  #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
+
+    procedure(iface_op_array_op_array), deferred :: op_array_${OP_NAME}$_array
+    generic, public :: operator(${OP_SYMB}$) => op_array_${OP_NAME}$_array
+  #:endfor
   end type shr_array
 
 
@@ -79,6 +91,29 @@ module SHR_array_mod
       type(string), intent(in) :: units
       type(string), intent(in) :: description
     end subroutine iface_init_array
+
+
+    pure subroutine iface_copy_array_copy_array(self, another)
+      !< copy shr_array = shr_array
+      import :: shr_array
+      class(shr_array), intent(inout) :: self
+      class(shr_array), intent(in) :: another
+    end subroutine iface_copy_array_copy_array
+
+    elemental logical function iface_equal_array_equal_array(self, other)
+      !< true if self and other are the same
+      import :: shr_array
+      class(shr_array), intent(in) :: self
+      class(shr_array), intent(in) :: other
+    end function  iface_equal_array_equal_array
+
+    pure function iface_op_array_op_array(left, right) Result(total)
+      !< addition from shr_arrayXXX and shr_array
+      import :: shr_array
+      class(shr_array), intent(in) :: left
+      class(shr_array), intent(in) :: right
+      class(shr_array), allocatable :: total !< output
+    end function iface_op_array_op_array
   end interface
 
 
@@ -90,6 +125,8 @@ module SHR_array_mod
   contains
 
     procedure :: init_array => init_array_${IHEADER}$ !_as_strings
+
+    procedure :: copy_array_copy_array => copy_array${IHEADER}$_copy_array
 
     ! copy (shr_array = <type, kind> scalar)
 #:for _, _, IHEADERSRC in ALL_KINDS_TYPES
@@ -110,13 +147,9 @@ module SHR_array_mod
   #:endfor
 #:endfor
 
-    ! copy (shr_array = shr_array)
-    procedure :: copy_array${IHEADER}$_array${IHEADER}$
-
 #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
     generic, public :: assignment(=) => copy_array${IHEADER}$_scalar_${IHEADERSRC}$
 #:endfor
-    generic, public :: assignment(=) => copy_array${IHEADER}$_array${IHEADER}$
 
 #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
   #:for RANK in RANKS
@@ -144,10 +177,9 @@ module SHR_array_mod
       #:endfor
     #:endfor
 
-    ! ${OP_NAME}$ shr_array op shr_array
-    procedure :: ${OP_NAME}$_array${IHEADER}$_array${IHEADER}$
+    ! ${OP_NAME}$ shr_arrayXXX op shr_array
+    procedure :: op_array_${OP_NAME}$_array => ${OP_NAME}$_array${IHEADER}$_${OP_NAME}$_array
 
-    generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_array${IHEADER}$_array${IHEADER}$
     #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
     generic, public :: operator(${OP_SYMB}$) => ${OP_NAME}$_array${IHEADER}$_scalar_${IHEADERSRC}$
     #:endfor
@@ -174,13 +206,13 @@ module SHR_array_mod
     #:endfor
   #:endfor
 
-    ! equal (shr_array = shr_arry)
-    procedure :: equal_array${IHEADER}$_array${IHEADER}$
+    ! equal (shr_arrayXXX = shr_array)
+    procedure :: equal_array_equal_array => equal_array${IHEADER}$_equal_array
 
   #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
     generic, public :: operator(==) => equal_array${IHEADER}$_scalar_${IHEADERSRC}$
   #:endfor
-    generic, public :: operator(==) => equal_array${IHEADER}$_array${IHEADER}$
+
   #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
     #:for RANK in RANKS
     generic, public :: operator(==) => equal_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$
@@ -264,8 +296,11 @@ contains
     type(string), intent(in) :: units
     type(string), intent(in) :: description
 
+    allocate(self % name)
     self % name = name
+    allocate(self % units)
     self % units = units
+    allocate(self % description)
     self % description = description
 
     allocate(self % dims, source = dimensions)
@@ -334,20 +369,21 @@ contains
 #:endfor
 
 
-  pure subroutine copy_array${IHEADER}$_array${IHEADER}$(self, other)
-      !< Copy to current array container allocatable
-      !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
-      class(shr_array${IHEADER}$), intent(inout) :: self
-      class(shr_array${IHEADER}$), intent(in) :: other
-      if (.not. allocated(self % name)) allocate(self % name)
-      self % name = other % getName()
-      allocate(self % dims, source = other % getDims())
-      if (.not. allocated(self % units)) allocate(self % units)
-      self % units = other % getUnits()
-      if (.not. allocated(self % description)) allocate(self % description)
-      self % description = other % getDescription()
-      allocate(self % data, source = other % data)
-  end subroutine copy_array${IHEADER}$_array${IHEADER}$
+  pure subroutine copy_array${IHEADER}$_copy_array(self, another)
+    !< Copy to current array container allocatable
+    !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
+    class(shr_array${IHEADER}$), intent(inout) :: self
+    class(shr_array), intent(in) :: another
+    if (.not. allocated(self % name)) allocate(self % name)
+    self % name = another % getName()
+    allocate(self % dims, source = another % getDims())
+    if (.not. allocated(self % units)) allocate(self % units)
+    self % units = another % getUnits()
+    if (.not. allocated(self % description)) allocate(self % description)
+    self % description = another % getDescription()
+    allocate(self % data, source = another % data)
+  end subroutine copy_array${IHEADER}$_copy_array
+
 
   #:for OP_NAME, OP_SYMB in OPERATOR_TYPES
   !
@@ -392,11 +428,11 @@ contains
   #:endfor
 
 
-  pure function ${OP_NAME}$_array${IHEADER}$_array${IHEADER}$(left, right) Result(total)
+  pure function ${OP_NAME}$_array${IHEADER}$_${OP_NAME}$_array(left, right) Result(total)
     !< addition from shr_arrayRsp and shr_arrayRsp
     class(shr_array${IHEADER}$), intent(in) :: left
-    class(shr_array${IHEADER}$), intent(in) :: right
-    class(shr_array${IHEADER}$), allocatable :: total !< output
+    class(shr_array), intent(in) :: right
+    class(shr_array), allocatable :: total !< output
 
     select type(data => left % data)
     type is (shr_arrayContainer${IHEADER}$Allocatable)
@@ -404,7 +440,7 @@ contains
     class default
       !< unexpected class found
     end select
-  end function ${OP_NAME}$_array${IHEADER}$_array${IHEADER}$
+  end function ${OP_NAME}$_array${IHEADER}$_${OP_NAME}$_array
 
   ! OP_NAME, OP_SYMB in OPERATOR_TYPES  
   #:endfor
@@ -412,15 +448,15 @@ contains
   !
   ! equal
   !
-  elemental logical function equal_array${IHEADER}$_array${IHEADER}$(self, other)
+  elemental logical function equal_array${IHEADER}$_equal_array(self, other)
     !< true if self and other are the same
     class(shr_array${IHEADER}$), intent(in) :: self
-    class(shr_array${IHEADER}$), intent(in) :: other
+    class(shr_array), intent(in) :: other
 
-    logical :: hasSameNAme, hasSameDims, hasSameUnits
+    logical :: hasSameName, hasSameDims, hasSameUnits
     logical :: hasSameDescription, hasSameData
 
-    equal_array${IHEADER}$_array${IHEADER}$ = .false.
+    equal_array${IHEADER}$_equal_array = .false.
     ! compare array descriptor
     hasSameName = self % getName() == other % getName()
     if (.not. hasSameName) return
@@ -440,10 +476,11 @@ contains
       hasSameData = (data == other % data)
     class default
       !< unexpected class found
+      hasSameData = .false.
     end select
 
-    equal_array${IHEADER}$_array${IHEADER}$ = hasSameData
-  end function equal_array${IHEADER}$_array${IHEADER}$
+    equal_array${IHEADER}$_equal_array = hasSameData
+  end function equal_array${IHEADER}$_equal_array
 
 
   #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
