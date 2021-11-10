@@ -55,6 +55,13 @@ module shr_arrayGrid_mod
       type(string), intent(in) :: units 
       type(string), intent(in) :: description
     end subroutine iface_init
+
+    function iface_getArray(self) result (newArray)
+      !< return shr_arrayGrid as shr_array
+      import :: shr_arrayGrid, shr_array
+      class(shr_arrayGrid), intent(in) :: self
+      class(shr_array), allocatable :: newArray !< output
+    end function iface_getArray
   end interface
 
 contains

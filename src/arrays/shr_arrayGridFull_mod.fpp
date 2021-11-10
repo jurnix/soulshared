@@ -26,6 +26,7 @@ module shr_arrayGridFull_mod
 
   use shr_precision_mod, only: sp, dp!, eqReal
   use shr_grid_mod, only: shr_grid
+  use shr_array_mod, only: shr_array, shr_arrayRsp
   use shr_arrayGrid_mod, only: shr_arrayGrid
   use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer, shr_arrayRspDim
   use shr_gridBounds_mod, only: SHR_GRIDBOUNDS_NCOORDS, SHR_GRIDBOUNDS_NORTH, &
@@ -45,7 +46,6 @@ module shr_arrayGridFull_mod
 
   type, extends(shr_arrayGrid), abstract :: shr_arrayGridFull
   contains
-!    procedure :: getArray !< get shr_array
 !    procedure :: toArrayGridSlim !< transform into arrayGridSlim
 !    procedure :: splitToSquaredArrays !< subset of shr_arrayGrid(s) into squared 
   end type shr_arrayGridFull
@@ -55,6 +55,9 @@ module shr_arrayGridFull_mod
   type, extends(shr_arrayGridFull) :: shr_arrayGridFullRsp
   contains
     procedure :: init => init_fullRsp
+
+    ! other
+    procedure :: getArray !< get shr_array
 
     ! copy
     procedure :: copy_gridFullRsp_copy_scalar_rsp
@@ -130,6 +133,33 @@ contains
     allocate( shr_arrayContainerRspAllocatable :: self % data )
     call self % data % init(self % dims)
   end subroutine init_fullRsp
+
+
+  function getArray(self) result (newArray)
+    !< return shr_arrayGrid as shr_array
+    class(shr_arrayGridFullRsp), intent(in) :: self
+    class(shr_array), allocatable :: newArray !< output
+
+    !< local vars
+    type(string) :: vname, units, description
+    type(shr_arrayDimContainer), allocatable :: dims(:)
+
+    if (allocated(newArray)) deallocate(newArray)
+    allocate(shr_arrayRsp :: newArray)
+
+    vname = self % getName()
+    units = self % getUnits()
+    description = self % getDescription()
+    dims = self % getDims()
+
+    select type(array => newArray)
+    type is (shr_arrayRsp)
+      call array % init(vname, dims, units, description)
+    class default
+      !< unexpected type found
+    end select
+    newArray = self % data
+  end function getArray
 
 
   ! copy (arrayGridFull = <type, kind> scalar)
@@ -253,7 +283,7 @@ contains
 
     select type(data => self % data)
     type is (shr_arrayContainerRspAllocatable)
-      equal_gridFullRsp_equal_raw_rsp_2 = all(data == other)
+      equal_gridFullRsp_equal_raw_rsp_2 = (data == other)
     class default
       !< unexpected class found
     end select
