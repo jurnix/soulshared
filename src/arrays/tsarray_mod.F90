@@ -33,6 +33,7 @@ module SHR_tsArray_mod
   use SHR_strings_mod, only: string
   use SHR_datetime_mod, only: clock, timedelta
   use SHR_array_mod, only: shr_array!, pAbsArray, allocAbsArray, sp_rArray, sp_rpArray, min, max
+  use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
 
   implicit none
 
@@ -73,6 +74,7 @@ module SHR_tsArray_mod
     integer :: aveCounter !< accumulate counter to do average
     logical :: hasStarted 
   contains
+    procedure :: init_array => init_array_rsp
 
     procedure :: update !< simulation clock update 
     procedure :: getData_r1_tsArray
@@ -116,6 +118,20 @@ contains
     getInitVal_r1_sp = initVal
 
   end function getInitVal_r1_sp
+
+
+  pure subroutine init_array_rsp(self, name, dimensions, units, description)
+    !< shr_arrayRsp initialization
+    class(tsArray), intent(inout) :: self
+    type(string), intent(in) :: name
+    type(shr_arrayDimContainer), intent(in) :: dimensions(:)
+    type(string), intent(in) :: units
+    type(string), intent(in) :: description
+
+    ! todo, check vs constructor
+    ! decouple from shr_array?
+
+  end subroutine init_array_rsp
 
 
   type (timedelta) function getInitCounterTs(self, ts)

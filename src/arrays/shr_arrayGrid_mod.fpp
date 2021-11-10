@@ -37,7 +37,8 @@ module shr_arrayGrid_mod
   public :: shr_arrayGrid
 
 
-  type, extends(shr_array), abstract :: shr_arrayGrid
+  type, abstract :: shr_arrayGrid
+    class(shr_array), allocatable :: array
     type(shr_grid), allocatable :: grid
   contains
     procedure(iface_init), deferred :: init !< initialization

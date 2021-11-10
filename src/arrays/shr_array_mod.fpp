@@ -57,12 +57,29 @@ module SHR_array_mod
     !< array data
     class(shr_arrayContainer), allocatable :: data 
   contains
+    procedure :: init_array_as_chars
+    procedure(iface_init_array), deferred :: init_array
+    generic :: init => init_array, init_array_as_chars
+
     procedure :: getName => getName_array
     procedure :: getSize => getSize_array
     procedure :: getDims => getDims_array
     procedure :: getUnits => getUnits_array
     procedure :: getDescription => getDescription_array
   end type shr_array
+
+
+  abstract interface
+    pure subroutine iface_init_array(self, name, dimensions, units, description)
+      !< initialize shr_array
+      import :: shr_array, shr_arrayDimContainer, string
+      class(shr_array), intent(inout) :: self
+      type(string), intent(in) :: name
+      type(shr_arrayDimContainer), intent(in) :: dimensions(:)
+      type(string), intent(in) :: units
+      type(string), intent(in) :: description
+    end subroutine iface_init_array
+  end interface
 
 
 #:for IKIND, ITYPE, IHEADER  in ALL_KINDS_TYPES
@@ -72,9 +89,9 @@ module SHR_array_mod
   type, extends(shr_array) :: shr_array${IHEADER}$ !< apply each type and kind
   contains
 
-    procedure :: init_array_${IHEADER}$_as_chars
-    procedure :: init_array_${IHEADER}$_as_strings
-    generic :: init => init_array_${IHEADER}$_as_chars, init_array_${IHEADER}$_as_strings
+!    procedure :: init_array_${IHEADER}$_as_chars
+    procedure :: init_array => init_array_${IHEADER}$ !_as_strings
+!    generic :: init => init_array_${IHEADER}$_as_chars, init_array_${IHEADER}$_as_strings
 
     ! copy (shr_array = <type, kind> scalar)
 #:for _, _, IHEADERSRC in ALL_KINDS_TYPES
@@ -220,13 +237,9 @@ contains
   end function getDescription_array
 
 
-#:for IKIND, ITYPE, IHEADER  in ALL_KINDS_TYPES
-  !
-  ! ${IHEADER}$, ${ITYPE}$, ${IKIND}$
-  !
-  pure subroutine init_array_${IHEADER}$_as_chars(self, name, dimensions, units, description)
+  pure subroutine init_array_as_chars(self, name, dimensions, units, description)
     !< shr_arrayRsp initialization
-    class(shr_array${IHEADER}$), intent(inout) :: self
+    class(shr_array), intent(inout) :: self
     character(*), intent(in) :: name
     type(shr_arrayDimContainer), intent(in) :: dimensions(:)
     character(*), intent(in) :: units
@@ -235,25 +248,48 @@ contains
     !< local vars
     type(string) :: sname, sunits, sdescription
 
-    allocate(self % name)
     sname = string(name)
-    allocate(self % units)
     sunits = string(units)
-    allocate(self % description)
     sdescription = string(description)
 
-!    allocate(self % dims, source = dimensions)
+    call self % init_array(sname, dimensions, sunits, sdescription)
+  end subroutine init_array_as_chars
+
+
+#:for IKIND, ITYPE, IHEADER  in ALL_KINDS_TYPES
+  !
+  ! ${IHEADER}$, ${ITYPE}$, ${IKIND}$
+  !
+!  pure subroutine init_array_${IHEADER}$_as_chars(self, name, dimensions, units, description)
+    !< shr_arrayRsp initialization
+!    class(shr_array${IHEADER}$), intent(inout) :: self
+!    character(*), intent(in) :: name
+!    type(shr_arrayDimContainer), intent(in) :: dimensions(:)
+!    character(*), intent(in) :: units
+!    character(*), intent(in) :: description
+
+    !< local vars
+!    type(string) :: sname, sunits, sdescription
+
+!    allocate(self % name)
+!    sname = string(name)
+!    allocate(self % units)
+!    sunits = string(units)
+!    allocate(self % description)
+!    sdescription = string(description)
+
+!!    allocate(self % dims, source = dimensions)
 
     ! todo, creational design pattern?
-!    allocate( shr_arrayContainer${IHEADER}$Allocatable :: self % data )
-!    call self % data % init(dimensions))
+!!    allocate( shr_arrayContainer${IHEADER}$Allocatable :: self % data )
+!!    call self % data % init(dimensions))
 
-    call self % init_array_${IHEADER}$_as_strings(sname, dimensions, sunits, sdescription)
+!    call self % init_array_${IHEADER}$_as_strings(sname, dimensions, sunits, sdescription)
 
-  end subroutine init_array_${IHEADER}$_as_chars
+!  end subroutine init_array_${IHEADER}$_as_chars
 
 
-  pure subroutine init_array_${IHEADER}$_as_strings(self, name, dimensions, units, description)
+  pure subroutine init_array_${IHEADER}$(self, name, dimensions, units, description)
     !< shr_arrayRsp initialization
     class(shr_array${IHEADER}$), intent(inout) :: self
     type(string), intent(in) :: name
@@ -267,11 +303,10 @@ contains
 
     allocate(self % dims, source = dimensions)
 
-    ! todo, creational design pattern?
     allocate( shr_arrayContainer${IHEADER}$Allocatable :: self % data )
     call self % data % init(dimensions)
 
-  end subroutine init_array_${IHEADER}$_as_strings
+  end subroutine init_array_${IHEADER}$
 
 
 #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES

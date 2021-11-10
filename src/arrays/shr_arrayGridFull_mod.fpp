@@ -102,9 +102,13 @@ contains
     type(shr_arrayRspDim) :: latDim, lonDim
     type(shr_arrayDimContainer), allocatable :: varDims(:)
 
+    type(string) :: sname, sunits, sdescription
+
     real(kind=sp) :: limits(SHR_GRIDBOUNDS_NCOORDS)
     real(kind=sp) :: gridStep, latStart, latEnd
     real(kind=sp) :: lonStart, lonEnd
+
+    self % grid = grid
 
     gridStep = grid % getResolution()
     limits = grid % getLimits() ! n, s, e, w
@@ -120,18 +124,11 @@ contains
     varDims(2) % arrayDim = lonDim
     varDims(3:) = dimensions(:)
 
-    allocate(self % dims, source=varDims)
+    sname = string(name)
+    sunits = string(units)
+    sdescription = string(description)
 
-    ! taken from shr_array % init_arrayXXX(...)
-    allocate(self % name)
-    self % name = string(name)
-    allocate(self % units)
-    self % units = string(units)
-    allocate(self % description)
-    self % description = string(description)
-
-    allocate( shr_arrayContainerRspAllocatable :: self % data )
-    call self % data % init(self % dims)
+    call self % array % init(sname, varDims, sunits, sdescription)
   end subroutine init_fullRsp
 
 
@@ -139,26 +136,8 @@ contains
     !< return shr_arrayGrid as shr_array
     class(shr_arrayGridFullRsp), intent(in) :: self
     class(shr_array), allocatable :: newArray !< output
-
-    !< local vars
-    type(string) :: vname, units, description
-    type(shr_arrayDimContainer), allocatable :: dims(:)
-
     if (allocated(newArray)) deallocate(newArray)
-    allocate(shr_arrayRsp :: newArray)
-
-    vname = self % getName()
-    units = self % getUnits()
-    description = self % getDescription()
-    dims = self % getDims()
-
-    select type(array => newArray)
-    type is (shr_arrayRsp)
-      call array % init(vname, dims, units, description)
-    class default
-      !< unexpected type found
-    end select
-    newArray = self % data
+    allocate(newArray, source = self % array)
   end function getArray
 
 
@@ -169,9 +148,9 @@ contains
       class(shr_arrayGridFullRsp), intent(inout) :: self
       real(kind=sp), intent(in) :: other
 
-      select type(data => self % data)
-      type is (shr_arrayContainerRspAllocatable)
-        data = other
+      select type(array => self % array)
+      type is (shr_arrayRsp)
+        array = other
       class default
         !< unexpected class found
       end select
@@ -184,9 +163,9 @@ contains
       class(shr_arrayGridFullRsp), intent(inout) :: self
       real(kind=sp), intent(in) :: other(:,:)
 
-      select type(data => self % data)
-      type is (shr_arrayContainerRspAllocatable)
-        data = other
+      select type(array => self % array)
+      type is (shr_arrayRsp)
+        array = other
       class default
         !< unexpected class found
       end select
@@ -199,9 +178,9 @@ contains
       real(kind=sp), allocatable, intent(inout) :: other(:,:)
       class(shr_arrayGridFullRsp), intent(in) :: self
 
-      select type(data => self % data)
-      type is (shr_arrayContainerRspAllocatable)
-        other = data
+      select type(array => self % array)
+      type is (shr_arrayRsp)
+        other = array
       class default
         !< unexpected class found
       end select
@@ -213,15 +192,8 @@ contains
       !< Copy to current array container allocatable
       class(shr_arrayGridFullRsp), intent(inout) :: self
       class(shr_arrayGridFull), intent(in) :: other
-      
-      if (.not. allocated(self % name)) allocate(self % name)
-      self % name = other % getName()
-      allocate(self % dims, source = other % getDims())
-      if (.not. allocated(self % units)) allocate(self % units)
-      self % units = other % getUnits()
-      if (.not. allocated(self % description)) allocate(self % description)
-      self % description = other % getDescription()
-      allocate(self % data, source = other % data)
+      allocate(self % array, source = other % array)
+      allocate(self % grid, source = other % grid)
   end subroutine copy_gridFullRsp_copy_gridFullRsp
 
 
@@ -236,27 +208,28 @@ contains
 
     equal_gridFullRsp_equal_gridFullRsp = .false.
     ! compare array descriptor
-    hasSameName = self % getName() == other % getName()
+    hasSameName = self % array % getName() == other % array % getName()
     if (.not. hasSameName) return
 
-    hasSameDims = all(self % getDims() == other % getDims())
+    hasSameDims = all(self % array % getDims() == other % array % getDims())
     if (.not. hasSameDims) return
 
-    hasSameUnits = self % getUnits() == other % getUnits()
+    hasSameUnits = self % array % getUnits() == other % array % getUnits()
     if (.not. hasSameUnits) return
 
-    hasSameDescription = self % getDescription() == other % getDescription()
+    hasSameDescription = self % array % getDescription() == other % array % getDescription()
     if (.not. hasSameDescription) return
 
     ! compare data
-    select type(data => self % data)
-    type is (shr_arrayContainerRspAllocatable)
-      hasSameData = (data == other % data)
+    select type(array => self % array)
+    type is (shr_arrayRsp)
+!      hasSameData = (array == other % array)
     class default
       !< unexpected class found
+      hasSameData = .false.
     end select
 
-    equal_gridFullRsp_equal_gridFullRsp = hasSameData
+!    equal_gridFullRsp_equal_gridFullRsp = hasSameData
   end function equal_gridFullRsp_equal_gridFullRsp
 
 
@@ -266,11 +239,12 @@ contains
     class(shr_arrayGridFullRsp), intent(in) :: self
     real(kind=sp), intent(in) :: other
 
-    select type(data => self % data)
-    type is (shr_arrayContainerRspAllocatable)
-      equal_gridFullRsp_equal_scalar_rsp = (data == other)
+    select type(array => self % array)
+    type is (shr_arrayRsp)
+      equal_gridFullRsp_equal_scalar_rsp = (array == other)
     class default
       !< unexpected class found
+      equal_gridFullRsp_equal_scalar_rsp = .false.
     end select
   end function equal_gridFullRsp_equal_scalar_rsp
 
@@ -281,11 +255,12 @@ contains
     class(shr_arrayGridFullRsp), intent(in) :: self
     real(kind=sp), intent(in) :: other(:,:)
 
-    select type(data => self % data)
-    type is (shr_arrayContainerRspAllocatable)
-      equal_gridFullRsp_equal_raw_rsp_2 = (data == other)
+    select type(array => self % array)
+    type is (shr_arrayRsp)
+     equal_gridFullRsp_equal_raw_rsp_2 = all(array == other)
     class default
       !< unexpected class found
+      equal_gridFullRsp_equal_raw_rsp_2 = .false.
     end select
   end function equal_gridFullRsp_equal_raw_rsp_2
 
@@ -297,9 +272,9 @@ contains
     class(shr_arrayGridFull), intent(in) :: right
     class(shr_arrayGridFullRsp), allocatable :: total !< output
 
-    select type(data => left % data)
-    type is (shr_arrayContainerRspAllocatable)
-      total = data + right % data
+    select type(array => left % array)
+    type is (shr_arrayRsp)
+!      total = left % array + right % array ???
     class default
       !< unexpected class found
     end select
@@ -313,9 +288,9 @@ contains
     real(kind=sp), intent(in) :: right
     class(shr_arrayGridFullRsp), allocatable :: total !< output
 
-    select type(data => left % data)
-    type is (shr_arrayContainerRspAllocatable)
-      total % data = data + right
+    select type(array => left % array)
+    type is (shr_arrayRsp)
+      total % array = array + right
     class default
       !< unexpected class found
     end select
@@ -329,9 +304,9 @@ contains
     real(kind=sp), intent(in) :: right(:,:)
     class(shr_arrayGridFullRsp), allocatable :: total !< output
 
-    select type(data => left % data)
-    type is (shr_arrayContainerRspAllocatable)
-      total % data = data + right
+    select type(array => left % array)
+    type is (shr_arrayRsp)
+      total % array = array + right
     class default
       !< unexpected class found
     end select
