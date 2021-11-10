@@ -54,7 +54,7 @@ module shr_arrayGridFull_mod
   ! type bindings
   type, extends(shr_arrayGridFull) :: shr_arrayGridFullRsp
   contains
-    procedure :: init => init_fullRsp
+    procedure :: init_arrayGrid => init_fullRsp
 
     ! other
     procedure :: getArray !< get shr_array

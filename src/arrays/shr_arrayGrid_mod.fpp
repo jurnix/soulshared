@@ -41,7 +41,9 @@ module shr_arrayGrid_mod
     class(shr_array), allocatable :: array
     type(shr_grid), allocatable :: grid
   contains
-    procedure(iface_init), deferred :: init !< initialization
+    procedure :: init_arrayGrid_as_chars
+    procedure(iface_init), deferred :: init_arrayGrid !< initialization
+    generic :: init => init_arrayGrid_as_chars, init_arrayGrid
 
     procedure(iface_copy_arrayGrid_copy_arrayGrid), deferred :: copy_arrayGrid_copy_arrayGrid
     generic, public :: assignment(=) => copy_arrayGrid_copy_arrayGrid
@@ -98,5 +100,26 @@ module shr_arrayGrid_mod
   end interface
 
 contains
+
+  subroutine init_arrayGrid_as_chars(self, name, grid, dimensions, units, description)
+    !< initialization
+    !< wrapper to transform characters into string to call customized 
+    !< implementation
+    class(shr_arrayGrid), intent(inout) :: self
+    character(*), intent(in) :: name
+    type(shr_grid), intent(in) :: grid
+    type(shr_arrayDimContainer), intent(in) :: dimensions(:)
+    character(*), intent(in) :: units 
+    character(*), intent(in) :: description
+    
+    !< local vars
+    type(string) :: sname, sunits, sdescription
+
+    sunits = string(units)
+    sname = string(name)
+    sdescription = string(sdescription)
+
+    call self % init_arrayGrid(sname, grid, dimensions, sunits, sdescription)
+  end subroutine init_arrayGrid_as_chars
 
 end module shr_arrayGrid_mod
