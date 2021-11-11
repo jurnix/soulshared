@@ -98,16 +98,16 @@ contains
     call self % assert ( temperature == temperature, &
                 "temperature .eq. temperature = T"  )
 
+    tempCopy = temperature
+    tempValues = temperature
     incTempRawData = 1.0
     temperature = temperature + incTempRawData
     call self % assert ( temperature == 274., &
                 "temperature .eq. temperature = T"  )
 
-    tempCopy = temperature
     call self % assert ( tempCopy == 273., &
                 "tempCopy .eq. 273. = T"  )
 
-    tempValues = temperature
     call self % assert ( all(tempValues == 273.), &
                 "tempValues .eq. 273. = T"  )
 
@@ -135,7 +135,7 @@ contains
            "kelvin", "Air temperature at 1-100 meters" )
     temperature2d = 273.0
     temperature2d = temperature2d + rawData
-    call self % assert ( all(tempValues == 274.), &
+    call self % assert ( temperature2d == 274., &
                 "temperature2d .eq. 274. = T"  )
   end subroutine defineTestCases
 
