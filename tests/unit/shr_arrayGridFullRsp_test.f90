@@ -14,8 +14,9 @@ module shr_arrayGridFullRsp_test
   use SHR_precision_mod, only: sp, dp
 
 !  use shr_strings_mod, only: string
-!  use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayRspDim, shr_arrayDimContainer
-!  use SHR_array_mod, only: shr_arrayRsp
+  use shr_arrayDim_mod, only: shr_arrayRspDim, shr_arrayDimContainer
+  use SHR_arrayGridFull_mod, only: shr_arrayGridFullRsp
+  use shr_grid_mod, only: shr_grid
 
   implicit none
 
@@ -35,7 +36,74 @@ contains
     use iso_c_binding
     class(testSuiteArrayGridFullRsp), intent(inout) :: self
 
-    call self % assert(.FALSE., "todo = T")
+    type(shr_grid) :: grid
+    type(shr_arrayGridFullRsp) :: temperature, incTemp
+    class(shr_arrayRspDim), allocatable :: levels
+
+    real(kind=sp), parameter :: limits(4) = [3, -1, 2, -2] !< N, S, E, W
+    real(kind=sp), parameter :: resolution = 2.0
+    integer, parameter :: curPartition = 0
+    integer, parameter :: nPartitions = 1
+    type(shr_arrayDimContainer), allocatable :: tempDims(:)
+
+!    real(kind=sp) :: data(2,2,10)
+!    real(kind=sp), allocatable :: foundData(:,:,:)
+    real(kind=sp) :: data(2,2)
+    real(kind=sp), allocatable :: foundData(:,:)
+
+!    do ilev = 1, 10
+    data(:,:) = 10. !real(ilev,sp)
+!    enddo
+
+    !
+    ! land       coordinates (center)   global indices 
+    !
+    ! x x   ->      (2,-1), (2, 1)   ->   1, 2 
+    ! x x   ->      (0,-1), (0, 1)   ->   3, 4
+    !
+    !
+    grid = shr_grid(limits, resolution, curPartition, nPartitions)
+
+    allocate(levels)
+    call levels % init("levels", 1., 10., 1.)
+
+!    allocate(shr_arrayRspDim :: tempDims(0))! % arrayDim)
+!    tempDims(1) % arrayDim = levels
+
+    call incTemp % init("incTemp", grid, tempDims, &
+            "Kelvin", "Increase in air temperature at L levels")
+    call temperature % init("temperature", grid, tempDims, &
+            "Kelvin", "Air temperature at L levels")
+    call self % assert(.true., "temperature % init() = T")
+
+    incTemp = 3.0
+    temperature = 274.0
+    call self % assert(.true., "temperature copy 274.0 = T")
+
+    call self % assert(temperature == 274.0, "temperature .eq. 274 = T")
+    call self % assert(.not. (temperature == data), "temperature .eq. data = F")
+
+    temperature = data
+    call self % assert(.not. temperature == 274.0, "temperature .eq. 274 = F")
+    call self % assert(temperature == data, "temperature .eq. data = T")
+
+
+    call self % assert(.not. temperature == incTemp, "temperature .eq. incTemp = F")
+    incTemp = temperature
+    call self % assert(temperature == incTemp, "temperature .eq. incTemp = T")
+
+    foundData = temperature
+    call self % assert(all(foundData == data), "foundData .eq. data = T")
+
+    temperature = 300.0
+    temperature = temperature + 1.0
+    data = 2.0
+    call self % assert(temperature == 301.0, "temperature(300) + 1.0 .eq. 301 = T")
+    temperature = temperature + data
+    call self % assert(temperature == 303.0, "temperature(301) + data(2) .eq. 303 = T")
+    temperature = temperature + incTemp
+    call self % assert(temperature == 306.0, "temperature(303) + incTemp(3) .eq. 306 = T")
+
 
   end subroutine defineTestCases
 

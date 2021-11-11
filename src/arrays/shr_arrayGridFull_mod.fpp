@@ -33,8 +33,8 @@ module shr_arrayGridFull_mod
                    SHR_GRIDBOUNDS_SOUTH, SHR_GRIDBOUNDS_WEST, SHR_GRIDBOUNDS_EAST
   use shr_strings_mod, only: string
 
-  use shr_arrayContainer_mod, only: shr_arrayContainerRsp
-  use shr_arrayContainerAllocatable_mod, only: shr_arrayContainerRspAllocatable
+!  use shr_arrayContainer_mod, only: shr_arrayContainerRsp
+!  use shr_arrayContainerAllocatable_mod, only: shr_arrayContainerRspAllocatable
 
 
   implicit none
@@ -93,7 +93,7 @@ contains
     class(shr_arrayGridFullRsp), intent(inout) :: self
     type(string), intent(in) :: name
     type(shr_grid), intent(in) :: grid
-    type(shr_arrayDimContainer), intent(in) :: dimensions(:)
+    type(shr_arrayDimContainer), intent(in), optional :: dimensions(:)
     type(string), intent(in) :: units 
     type(string), intent(in) :: description
 
@@ -107,6 +107,10 @@ contains
     real(kind=sp) :: gridStep, latStart, latEnd
     real(kind=sp) :: lonStart, lonEnd
 
+    integer :: inDimensionsSize
+
+    inDimensionsSize = 0
+    if (present(dimensions)) inDimensionsSize = size(dimensions)
     self % grid = grid
 
     gridStep = grid % getResolution()
@@ -118,15 +122,18 @@ contains
 
     call latDim % init("latitude", latstart, latEnd, gridStep)
     call lonDim % init("longitude", lonstart, lonEnd, gridStep)
-    allocate(varDims(size(dimensions) + 2)) !< dimensions + grid lat + grid lon
-    varDims(1) % arrayDim = latDim
-    varDims(2) % arrayDim = lonDim
-    varDims(3:) = dimensions(:)
+    allocate(varDims(inDimensionsSize + 2)) !< dimensions + grid lat + grid lon
+!    allocate(varDims(1) % arrayDim)
+!    allocate(varDims(2) % arrayDim)
+    allocate(varDims(1) % arrayDim, source = latDim)
+    allocate(varDims(2) % arrayDim, source = lonDim)
+    if (present(dimensions)) varDims(3:) = dimensions(:)
 
     sname = string(name)
     sunits = string(units)
     sdescription = string(description)
 
+    allocate(shr_arrayRsp :: self % array)
     call self % array % init(sname, varDims, sunits, sdescription)
   end subroutine init_fullRsp
 
@@ -191,6 +198,8 @@ contains
       !< Copy to current array container allocatable
       class(shr_arrayGridFullRsp), intent(inout) :: self
       class(shr_arrayGrid), intent(in) :: other
+      if (allocated(self % array)) deallocate(self % array)
+      if (allocated(self % grid)) deallocate(self % grid)
       allocate(self % array, source = other % array)
       allocate(self % grid, source = other % grid)
   end subroutine copy_arrayGridFullRsp_copy_arrayGrid
@@ -227,7 +236,7 @@ contains
 
 
   ! equal ( gridFullRsp == <type, kind> scalar)
-  elemental logical function equal_gridFullRsp_equal_scalar_rsp(self, other)
+  pure logical function equal_gridFullRsp_equal_scalar_rsp(self, other)
     !< true if self and other are the same
     class(shr_arrayGridFullRsp), intent(in) :: self
     real(kind=sp), intent(in) :: other

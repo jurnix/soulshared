@@ -63,7 +63,7 @@ module shr_arrayGrid_mod
       class(shr_arrayGrid), intent(inout) :: self
       type(string), intent(in) :: name
       type(shr_grid), intent(in) :: grid
-      type(shr_arrayDimContainer), intent(in) :: dimensions(:)
+      type(shr_arrayDimContainer), optional, intent(in) :: dimensions(:)
       type(string), intent(in) :: units 
       type(string), intent(in) :: description
     end subroutine iface_init
@@ -108,7 +108,7 @@ contains
     class(shr_arrayGrid), intent(inout) :: self
     character(*), intent(in) :: name
     type(shr_grid), intent(in) :: grid
-    type(shr_arrayDimContainer), intent(in) :: dimensions(:)
+    type(shr_arrayDimContainer), optional, intent(in) :: dimensions(:)
     character(*), intent(in) :: units 
     character(*), intent(in) :: description
     
