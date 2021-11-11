@@ -37,13 +37,17 @@ contains
 
 !    type(shr_arrayDim) :: lat, lon
     class(shr_arrayRspDim), allocatable :: levels
+    class(shr_arrayRspDim), allocatable :: lat, lon 
     type(shr_arrayRsp) :: temperature
+    type(shr_arrayRsp) :: temperature2d
     type(shr_arrayRsp) :: incTemp
     type(shr_arrayDimContainer) :: tempDims(1)
+    type(shr_arrayDimContainer) :: gridDims(2)
     type(shr_arrayDimContainer), allocatable :: foundDims(:)
 
     type(shr_arrayRsp) :: tempCopy
     real(kind=sp), allocatable :: tempValues(:)
+    real(kind=sp) :: rawData(3,3)
 
 !    lat = shr_arrayDim("latitude", 1., 90., 1.)
 !    lon = shr_arrayDim("longitude", 1., 180., 1.)
@@ -109,6 +113,24 @@ contains
     call self % assert ( all(tempValues == 272.), &
                 "tempValues .eq. 272. = T"  )
 
+    ! 2d
+    allocate(lat, lon)
+    call lat % init("latitude", 1., 3., 1.)
+    call lon % init("longitude", 1., 3., 1.)
+
+    allocate(shr_arrayRspDim :: gridDims(1) % arrayDim)
+    allocate(shr_arrayRspDim :: gridDims(2) % arrayDim)
+    gridDims(1) % arrayDim = lat
+    gridDims(2) % arrayDim = lon
+
+    rawData(:,:) = 1.0
+
+    call temperature2d % init("temperature", gridDims, &
+           "kelvin", "Air temperature at 1-100 meters" )
+    temperature2d = 273.0
+    temperature2d = temperature2d + rawData
+    call self % assert ( all(tempValues == 274.), &
+                "temperature2d .eq. 274. = T"  )
   end subroutine defineTestCases
 
 end module arrayRsp_test
