@@ -186,10 +186,11 @@ contains
   #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
     #:for RANK in RANKS          
     pure function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$(left, right) Result(total)
-      !<
+      !< Operate according to 'op'. In case 'total' is not allocated, it is copied from 'left'
       class(shr_arrayContainer${IHEADER}$Allocatable), intent(in) :: left
       ${ITYPESRC}$, intent(in) :: right${ranksuffix(RANK)}$
       class(shr_arrayContainer${IHEADER}$), allocatable :: total
+      if (.not. allocated(total)) allocate(total, source=left)
       total = left % r${RANK}$ ${OP_SYMB}$ right
     end function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$
     #:endfor

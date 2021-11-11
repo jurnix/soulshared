@@ -48,6 +48,7 @@ contains
     type(shr_arrayRsp) :: tempCopy
     real(kind=sp), allocatable :: tempValues(:)
     real(kind=sp) :: rawData(3,3)
+    real(kind=sp) :: incTempRawData(10)
 
 !    lat = shr_arrayDim("latitude", 1., 90., 1.)
 !    lon = shr_arrayDim("longitude", 1., 180., 1.)
@@ -95,6 +96,11 @@ contains
                 "temperature .eq. 273 = T"  )
 
     call self % assert ( temperature == temperature, &
+                "temperature .eq. temperature = T"  )
+
+    incTempRawData = 1.0
+    temperature = temperature + incTempRawData
+    call self % assert ( temperature == 274., &
                 "temperature .eq. temperature = T"  )
 
     tempCopy = temperature

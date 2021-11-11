@@ -374,13 +374,23 @@ contains
     !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
     class(shr_array${IHEADER}$), intent(inout) :: self
     class(shr_array), intent(in) :: another
+
+    type(shr_arrayDimContainer), allocatable :: tmpDims(:)
+
     if (.not. allocated(self % name)) allocate(self % name)
     self % name = another % getName()
-    allocate(self % dims, source = another % getDims())
+
+    if (allocated(self % dims)) deallocate(self % dims)
+    tmpDims = another % getDims()
+    allocate(self % dims, source = tmpDims)
+
     if (.not. allocated(self % units)) allocate(self % units)
     self % units = another % getUnits()
+
     if (.not. allocated(self % description)) allocate(self % description)
     self % description = another % getDescription()
+
+    if (allocated(self % data)) deallocate(self % data)
     allocate(self % data, source = another % data)
   end subroutine copy_array${IHEADER}$_copy_array
 
@@ -415,6 +425,8 @@ contains
     class(shr_array${IHEADER}$), intent(in) :: left
     ${ITYPESRC}$, intent(in) :: right${ranksuffix(RANK)}$
     class(shr_array${IHEADER}$), allocatable :: total !< output
+
+    if (.not. allocated(total)) allocate(total, source = left)
 
     select type(data => left % data)
     type is (shr_arrayContainer${IHEADER}$Allocatable)
