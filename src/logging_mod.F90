@@ -90,7 +90,8 @@ contains
       logging_constructor % mpiComm = mpiComm
       logging_constructor % mpiInfo = mpiInfo
 #else
-      call raiseError(__FILE__, "logging_constructor", "Mpi not included", &
+      call raiseError(__FILE__, "logging_constructor", &
+              "Mpi not included", &
               "Compile with '-DENABLE_MPI=yes' enabled")
 #endif
     endif
