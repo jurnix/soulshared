@@ -433,7 +433,8 @@ contains
 
     node => this % getNode(key)
     if (.not. associated(node)) then
-       call raiseError(__FILE__, "get", "key '"//key//"' not found")
+       call raiseError(__FILE__, "get", &
+               "key '"//key//"' not found")
     endif
 
     val => node % value 

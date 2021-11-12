@@ -599,7 +599,8 @@ contains
       if (present(default)) then ! let's make sure default is elegible in-between choices
         allDefault = this % isValueAllowed([this % defDate])
         if (.not. allDefault) then
-          call raiseError(__FILE__, "initialize_option_datetimes", &
+          call raiseError(__FILE__, &
+                  "initialize_option_datetimes", &
                 "'default' value not found in 'choices'", &
                 "default(s): ", &!//this % defValue, & ! todo
                 "Choices: ")!// this % choices ) 
@@ -738,7 +739,8 @@ contains
       if (present(default)) then ! let's make sure default is elegible in-between choices
         allDefault = this % isValueAllowed(this % defValue)
         if (.not. allDefault) then
-          call raiseError(__FILE__, "initialize_option_reals", &
+          call raiseError(__FILE__, &
+                  "initialize_option_reals", &
                 "'default' value not found in 'choices'", &
                 "default(s): ", &!//this % defValue, & ! todo
                 "Choices: ")!// this % choices ) 
@@ -813,7 +815,8 @@ contains
           allocate(manyStrings, defStrings)
           manyStrings = stringCollection(choices)
           defStrings = stringCollection(default)
-          call raiseError(__FILE__, "initialize_option_bools", &
+          call raiseError(__FILE__, &
+                  "initialize_option_bools", &
                 "'default' value not found in 'choices'", &
                 "default(s): "//defStrings % toString(), &
                 "Choices: "//manyStrings % toString()) 
@@ -868,7 +871,8 @@ contains
           manyStrings = stringCollection(choices)
           defStrings = string(this % defFile % getName())
           defCollection = stringCollection(defStrings)
-          call raiseError(__FILE__, "initialize_option_files", &
+          call raiseError(__FILE__, &
+                  "initialize_option_files", &
                 "'default' value not found in 'choices'", &
                 "default(s): "//defCollection % toString(), &
                 "Choices: "//manyStrings % toString()) 
@@ -2294,7 +2298,8 @@ contains
     !< raise an exception 
     character(len=*), intent(in) :: strType
     
-    call raiseError(__FILE__, "raiseUnexpectedTypeFoundError", &
+    call raiseError(__FILE__, &
+            "raiseUnexpectedTypeFoundError", &
             "Unexpected option_xxx type found", &
             "Expected: "//strType)
   end subroutine raiseUnexpectedTypeFoundError

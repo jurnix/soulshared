@@ -508,7 +508,8 @@ contains
     ! It is calculated by TS-1 vs TS
     class(clock), intent(in) :: self
 
-    if (self % isNull()) call raiseError(__FILE__, "isBeginYear", &
+    if (self % isNull()) call raiseError(__FILE__, &
+                        "isBeginYear", &
                         "The clock is null")
     isBeginYear = self % currentTime % getYear() .ne. self % prevTime % getYear()
   end function isBeginYear
@@ -605,8 +606,9 @@ contains
 
     type(datetime) :: counterTime
 
-    if (self % isNull()) call raiseError(__FILE__, "currentTickIntervals", &
-                              "The clock is null")
+    if (self % isNull()) call raiseError(__FILE__, &
+                            "currentTickIntervals", &
+                            "The clock is null")
     counterTime = self % startTime
 
     tsteps = 1
@@ -624,8 +626,9 @@ contains
 
     type(datetime) :: currentTime
 
-    if (self % isNull()) call raiseError(__FILE__, "totalTickIntervals", &
-                              "The clock is null")
+    if (self % isNull()) call raiseError(__FILE__, &
+                         "totalTickIntervals", &
+                         "The clock is null")
     currentTime = self % startTime
 
     totalTickIntervals = 0
@@ -1350,7 +1353,8 @@ contains
     else if (caltype == CAL_DT_360D) then
       calname = "360days"
     else
-      call raiseError(__FILE__, "toString", "Unexpected calendar type found")
+      call raiseError(__FILE__, "toString", &
+              "Unexpected calendar type found")
     endif
 
     str_dt =trim(adjustl(year_str))//"-"//mon_str//"-"//day_str//" " &

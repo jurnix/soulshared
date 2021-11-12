@@ -142,7 +142,8 @@ contains
     !< it returns an index given a 'value'
     !< dummy version to ensure its declared
     class(shr_arrayDim), intent(in) :: self
-    call raiseError(__FILE__, "getIndex_dummy", "Dummy subroutine")
+    call raiseError(__FILE__, "getIndex_dummy", &
+            "Dummy subroutine")
   end function getIndex_dummy
 
 

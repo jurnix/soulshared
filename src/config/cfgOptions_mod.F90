@@ -144,7 +144,8 @@ contains
       nameType = "Unknown"
     end select
 
-    call raiseError(__FILE__ , "raiseUnexpectedOptionTypeError", &
+    call raiseError(__FILE__ , &
+            "raiseUnexpectedOptionTypeError", &
             "Unexpected type found", &
             "Expected type: "//expectedType, &
             "Buf found: "//nameType)
@@ -228,7 +229,8 @@ contains
 
     optFile = file_t(filename)
     if (.not. optFile % exists()) then
-        call raiseError(__FILE__, "init", "Option file not found", &
+        call raiseError(__FILE__, "init", &
+                "Option file not found", &
               "Filename: "// filename, withTraceback=.false.)
     endif
 
@@ -391,7 +393,8 @@ contains
   subroutine raiseComponentNotFoundError(name)
     !< component not found error
     character(len=*), intent(in) :: name !< expected component name to find
-    call raiseError(__FILE__, "raiseComponentNotFoundError", &
+    call raiseError(__FILE__, &
+            "raiseComponentNotFoundError", &
             "Component not found", &
             "Component: "//Name)
   end subroutine raiseComponentNotFoundError
@@ -402,7 +405,8 @@ contains
     character(len=*), intent(in) :: oName !< option name
     character(len=*), intent(in) :: cName !< component name
 
-    call raiseError(__FILE__ ,"raiseOptionAlreadyDefinedError", &
+    call raiseError(__FILE__ ,&
+            "raiseOptionAlreadyDefinedError", &
             "Option is alread defined in the component", &
             "Component: "//cName, &
             "key: "//oName)
