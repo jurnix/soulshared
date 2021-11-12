@@ -684,7 +684,8 @@ contains
       if (present(default)) then ! let's make sure default is elegible in-between choices
         allDefault = this % isValueAllowed(this % defValue)
         if (.not. allDefault) then
-          call raiseError(__FILE__, "initialize_option_ints", &
+          call raiseError(__FILE__, &
+                  "initialize_option_ints", &
                 "'default' value not found in 'choices'", &
                 "default(s): ", &!//this % defValue, & ! todo
                 "Choices: ")!// this % choices ) 
@@ -1124,7 +1125,8 @@ contains
         allocate(sc, chs)
         sc = stringCollection(manyStrings)
         chs = stringCollection(self % choices)
-        call raiseError(__FILE__, "setVal_str_many_strings", &
+        call raiseError(__FILE__, &
+                "setVal_str_many_strings", &
                 "Given values do not match with the possible choices", &
                 "Value: "//sc % toString(), &
                 "Choices: "//chs % toString())
@@ -2254,7 +2256,8 @@ contains
         allocate(r(nelems))
         r(:) = self % defDate
       else
-        call raiseError(__FILE__, "getVal_option_datetimes", &                
+        call raiseError(__FILE__, &
+                "getVal_option_datetimes", &                
                 "No value defined from key", &
                 self % key)
       endif
@@ -2285,7 +2288,8 @@ contains
         allocate(r(nelems))
         r(:) = self % defValue
       else
-        call raiseError(__FILE__, "getVal_option_timedeltas", &
+        call raiseError(__FILE__, &
+                "getVal_option_timedeltas", &
                 "No value defined from key", &
                 self % key)
       endif

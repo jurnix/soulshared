@@ -220,7 +220,8 @@ module SHR_configFile_mod
     integer :: ios, n 
 
     open(unit=read_unit, file=self % filename, iostat=ios)
-    if ( ios /= 0 ) call raiseError(__FILE__, "readAllLines", &
+    if ( ios /= 0 ) call raiseError(__FILE__, &
+            "readAllLines", &
             "Error opening file "//self % filename)
 
     n = 0
