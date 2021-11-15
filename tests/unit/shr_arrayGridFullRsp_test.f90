@@ -37,7 +37,7 @@ contains
     class(testSuiteArrayGridFullRsp), intent(inout) :: self
 
     type(shr_grid) :: grid
-    type(shr_arrayGridFullRsp) :: temperature, incTemp
+    type(shr_arrayGridFullRsp) :: temperature, incTemp, pressure
     class(shr_arrayRspDim), allocatable :: levels
 
     real(kind=sp), parameter :: limits(4) = [3, -1, 2, -2] !< N, S, E, W
@@ -48,7 +48,7 @@ contains
 
 !    real(kind=sp) :: data(2,2,10)
 !    real(kind=sp), allocatable :: foundData(:,:,:)
-    real(kind=sp) :: data(2,2)
+    real(kind=sp) :: data(3,3)
     real(kind=sp), allocatable :: foundData(:,:)
 
 !    do ilev = 1, 10
@@ -95,14 +95,19 @@ contains
     foundData = temperature
     call self % assert(all(foundData == data), "foundData .eq. data = T")
 
-    temperature = 300.0
-    temperature = temperature + 1.0
+    call pressure % init("pressure", grid, tempDims, &
+            "Q", "Air pressure")
+    pressure = 300.0
+!    pressure = pressure % add_gridFullRsp_add_scalar_rsp(1.0_sp)
+    temperature = temperature + 1.0_sp
+    call self % assert(pressure == 301.0, "temperature(300) + 1.0 .eq. 301 = T")
+
     data = 2.0
-    call self % assert(temperature == 301.0, "temperature(300) + 1.0 .eq. 301 = T")
-    temperature = temperature + data
-    call self % assert(temperature == 303.0, "temperature(301) + data(2) .eq. 303 = T")
-    temperature = temperature + incTemp
-    call self % assert(temperature == 306.0, "temperature(303) + incTemp(3) .eq. 306 = T")
+    pressure = pressure + data
+    call self % assert(pressure == 303.0, "pressure(301) + data(2) .eq. 303 = T")
+
+    pressure = pressure + incTemp
+    call self % assert(pressure == 306.0, "pressure(303) + incTemp(3) .eq. 306 = T")
 
 
   end subroutine defineTestCases
