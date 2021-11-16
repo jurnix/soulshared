@@ -31,6 +31,8 @@ program unittest
   use shr_arrayRealDim_test, only: testSuiteArrayRealDim
   use arrayRsp_test, only: testSuiteArrayRsp
   use shr_arrayGridFullRsp_test, only: testSuiteArrayGridFullRsp
+  use shr_arrayContainerAllocatable_test, only: testSuiteArrayContainerAllocatable
+
 
   use grid_test, only: testSuiteGrid
   use gridPartition_test, only: testSuiteGridPartition
@@ -58,6 +60,7 @@ program unittest
   type(testSuiteArrayRealDim) :: tsArrayRealDim
   type(testSuiteArrayRsp) :: tsArrayRsp
   type(testSuiteArrayGridFullRsp) :: tsArrayGridFullRsp
+  type(testSuiteArrayContainerAllocatable) :: tsArrayContainerAllocatable
   type(testSuiteGrid) :: tsGrid
   type(testSuiteGridPartition) :: tsGridPartition
   type(testSuiteGridCell) :: tsGridcell
@@ -82,6 +85,7 @@ program unittest
   call tsArrayRealDim % init("ArrayRealDim test", 20)
   call tsArrayRsp % init("ArrayRsp test", 20)
   call tsArrayGridFullRsp % init("ArrayGridFullRsp test", 20)
+  call tsArrayContainerAllocatable % init("ArrayContainerAllocatable test", 20)
   call tsGrid % init("Grid test", 40)
   call tsGridPartition % init("Grid partition test", 20)
   call tsGridcell % init("Gridcell test", 20)
@@ -105,6 +109,7 @@ program unittest
   call tsLinkedList % run() 
   call tsSet % run() 
   call tsArrayRealDim % run() 
+  call tsArrayContainerAllocatable % run() 
   call tsArrayRsp % run() 
   call tsArrayGridFullRsp % run() 
   call tsGrid % run() 
@@ -130,6 +135,7 @@ program unittest
   call tsLinkedList % report() 
   call tsSet % report() 
   call tsArrayRealDim % report() 
+  call tsArrayContainerAllocatable % report() 
   call tsArrayRsp % report() 
   call tsArrayGridFullRsp % report() 
   call tsGrid % report() 
@@ -154,6 +160,7 @@ program unittest
       .not. tsLinkedList % isSuccessful() .or. &
       .not. tsSet % isSuccessful() .or. &
       .not. tsArrayRealDim % isSuccessful() .or. &
+      .not. tsArrayContainerAllocatable % isSuccessful() .or. &
       .not. tsArrayRsp % isSuccessful() .or. &
       .not. tsArrayGridFullRsp % isSuccessful() .or. &
       .not. tsGrid % isSuccessful() .or. &
