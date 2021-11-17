@@ -38,6 +38,8 @@ module SHR_arrayDim_mod
   contains
     procedure :: getSize => getSize_arrayDimContainer
     procedure :: eq_object => equal_arrayDimContainer
+    procedure :: copy_arrayDimContainer
+    generic, public :: assignment(=) => copy_arrayDimContainer
   end type shr_arrayDimContainer
 
 
@@ -99,6 +101,16 @@ contains
   !
   ! shr_arrayDimContainer
   !
+  elemental subroutine copy_arrayDimContainer(left, right) 
+    !< true if self and other are the same
+    class(shr_arrayDimContainer), intent(inout) :: left
+    class(shr_arrayDimContainer), intent(in) :: right
+    if (.not. allocated(left % arrayDim)) &
+            allocate(left % arrayDim, mold = right % arrayDim)
+    left % arrayDim = right % arrayDim
+  end subroutine copy_arrayDimContainer
+
+
   elemental logical function equal_arrayDimContainer(self, other)
     !< true if self and other are the same
     class(shr_arrayDimContainer), intent(in) :: self

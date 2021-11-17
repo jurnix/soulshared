@@ -13,10 +13,7 @@ module shr_arrayRealDim_test
   use SHR_testSuite_mod, only: testSuite
   use SHR_precision_mod, only: sp
 
-  use shr_arrayDim_mod, only: shr_arrayRspDim
-!  use SIO_ncDimBounds_mod, only: ncDimBounds, ncDimBoundsHolder
-
-!  use SIO_ncBoundsArgs_mod, only: ncBoundsArgsReal
+  use shr_arrayDim_mod, only: shr_arrayRspDim, shr_arrayDimContainer
 
   implicit none
 
@@ -40,9 +37,10 @@ contains
 
     class(shr_arrayRspDim), allocatable :: logsSame
     class(shr_arrayRspDim), allocatable :: levelsCopied
-!    type(ncDimBoundsHolder), allocatable :: expBounds(:), foundBounds(:)
-!    logical :: haveSameSize, haveSameBounds
-!    class(ncBoundsArgsReal), allocatable :: args
+
+    !< array wrapper
+    type(shr_arrayDimContainer) :: dimensions(2)
+    type(shr_arrayDimContainer) :: newDimensions(2)
 
     allocate(levels, logs)
     allocate(logsSame, levelsCopied)
@@ -68,22 +66,12 @@ contains
     call self % assert(.not. levels == logs, "levels .eq. logs == F")
     call self % assert( logsSame == logs, "logsSame .eq. logs == T")
 
+    ! array dimensions
+    allocate(dimensions(1) % arrayDim, source = levels)
+    allocate(dimensions(2) % arrayDim, source = logs)
 
-!    allocate(args)
-!    allocate(expBounds(1))
-!    allocate(expBounds(1) % hold)
-!    call expBounds(1) % hold % init("temperature", 1, 10)
-!    foundBounds = levels % getBounds(args)
-
-!    if (.not. allocated(foundBounds)) then
-!      call self % assert( .false., &
-!            "levels % getBounds() .eq. bounds(1,10) == T")
-
-!    else
-!      call self % assert( all(foundBounds == expBounds), &
-!            "levels % getBounds() .eq. bounds(1,10) == T")
-!    endif
-
+    newDimensions = dimensions
+    call self % assert(all(newDimensions == dimensions), "newDimensions .eq. dimensions = T")
   end subroutine defineTestCases
 
 end module shr_arrayRealDim_test
