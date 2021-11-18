@@ -97,15 +97,21 @@ contains
 
     call pressure % init("pressure", grid, tempDims, &
             "Q", "Air pressure")
+    pressure = temperature
+    call self % assert(.true., "temperature .copy. pressure = T")
+
+    ! add scalar
     pressure = 300.0
 !    pressure = pressure % add_gridFullRsp_add_scalar_rsp(1.0_sp)
-    temperature = temperature + 1.0_sp
+    pressure = pressure + 1.0_sp
     call self % assert(pressure == 301.0, "temperature(300) + 1.0 .eq. 301 = T")
 
+    ! add raw array
     data = 2.0
     pressure = pressure + data
     call self % assert(pressure == 303.0, "pressure(301) + data(2) .eq. 303 = T")
 
+    ! add arrayGridFull
     pressure = pressure + incTemp
     call self % assert(pressure == 306.0, "pressure(303) + incTemp(3) .eq. 306 = T")
 

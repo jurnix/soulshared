@@ -15,7 +15,7 @@ module arrayRsp_test
 
   use shr_strings_mod, only: string
   use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayRspDim, shr_arrayDimContainer
-  use SHR_array_mod, only: shr_arrayRsp
+  use SHR_array_mod, only: shr_arrayRsp, shr_array
 
   implicit none
 
@@ -39,16 +39,20 @@ contains
     class(shr_arrayRspDim), allocatable :: levels
     class(shr_arrayRspDim), allocatable :: lat, lon 
     type(shr_arrayRsp) :: temperature
-    type(shr_arrayRsp) :: temperature2d
+    type(shr_arrayRsp) :: temperature2d, temperature2dCopy
     type(shr_arrayRsp) :: incTemp
     type(shr_arrayDimContainer) :: tempDims(1)
     type(shr_arrayDimContainer) :: gridDims(2)
     type(shr_arrayDimContainer), allocatable :: foundDims(:)
 
+    class(shr_array), allocatable :: pres, incPres
+
     type(shr_arrayRsp) :: tempCopy
     real(kind=sp), allocatable :: tempValues(:)
     real(kind=sp) :: rawData(3,3)
     real(kind=sp) :: incTempRawData(10)
+
+    class(shr_arrayRsp), allocatable :: pressure, tair
 
 !    lat = shr_arrayDim("latitude", 1., 90., 1.)
 !    lon = shr_arrayDim("longitude", 1., 180., 1.)
@@ -56,15 +60,11 @@ contains
     allocate(levels)
     call levels % init("levels", 1., 10., 1.)
 
-!    temperature = shr_array("temperature", [levels], &
-!           "kelvin", "Air temperature at 1-100 meters" )
     allocate(shr_arrayRspDim :: tempDims(1) % arrayDim)
     tempDims(1) % arrayDim = levels
     call temperature % init("temperature", tempDims, &
            "kelvin", "Air temperature at 1-100 meters" )
 
-!    incTemp = shr_array("incTemp", [levels], &
-!           "kelvin", "Increase of air temperature" )
     call incTemp % init("incTemp", tempDims, &
 
            "kelvin", "Increase of air temperature" )
@@ -137,6 +137,48 @@ contains
     temperature2d = temperature2d + rawData
     call self % assert ( temperature2d == 274., &
                 "temperature2d .eq. 274. = T"  )
+    temperature2dCopy = temperature2d
+
+    call self % assert ( temperature2dCopy == 274., &
+                "temperature2dCopy .eq. 274. = T"  )
+
+    !
+    allocate(tair)
+    call tair % init("tair", tempDims, &
+           "kelvin", "Air temperature at 1-100 meters" )
+    allocate(pressure)
+    call pressure % init("pressure", tempDims, &
+           "Q", "Air pressure at 1-100 meters" )
+    tair = 300.
+    pressure = tair
+    call self % assert ( pressure == 300., &
+                "pressure .eq. 300. = T"  )
+
+    ! generic
+    allocate(pres, source = pressure)
+    allocate(incPres, source = pressure)
+
+    ! set value
+    select type(p => pres)
+    type is (shr_arrayRsp)
+      p = 20.
+    class default
+    end select
+
+    ! set value
+    select type(ip => incPres)
+    type is (shr_arrayRsp)
+      ip = 1.
+    class default
+    end select
+
+    ! equal (to iself)
+    pres = pres
+    call self % assert ( pres == pres, "pres copy(=) pres = T"  )
+
+    ! add (to itself)
+    pres = pres + incPres !< error
+    call self % assert ( pres == pres, "pres (+ incPres) .eq. pres = T"  )
   end subroutine defineTestCases
 
 end module arrayRsp_test

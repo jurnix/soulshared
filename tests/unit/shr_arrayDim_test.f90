@@ -41,6 +41,8 @@ contains
     !< array wrapper
     type(shr_arrayDimContainer) :: dimensions(2)
     type(shr_arrayDimContainer) :: newDimensions(2)
+    type(shr_arrayDimContainer), allocatable :: allocDims(:)
+    type(shr_arrayDimContainer), allocatable :: almostAllocDims(:)
 
     allocate(levels, logs)
     allocate(logsSame, levelsCopied)
@@ -72,6 +74,16 @@ contains
 
     newDimensions = dimensions
     call self % assert(all(newDimensions == dimensions), "newDimensions .eq. dimensions = T")
+
+    ! not allocated
+    allocDims = dimensions
+    call self % assert(all(allocDims == dimensions), "allocDims .eq. dimensions = T")
+
+    ! allocated but not inner type
+    allocate(almostAllocDims(2))
+    almostAllocDims(1) = dimensions(1)
+    almostAllocDims(2) = dimensions(2)
+    call self % assert(all(almostAllocDims == dimensions), "almostAllocDims .eq. dimensions = T")
   end subroutine defineTestCases
 
 end module shr_arrayRealDim_test

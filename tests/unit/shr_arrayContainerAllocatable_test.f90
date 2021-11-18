@@ -14,6 +14,7 @@ module shr_arrayContainerAllocatable_test
   use SHR_precision_mod, only: sp, dp
 
   use shr_arrayDim_mod, only: shr_arrayRspDim, shr_arrayDimContainer
+  use shr_arrayContainer_mod, only: shr_arrayContainer
   use SHR_arrayContainerAllocatable_mod, only: shr_arrayContainerRspAllocatable
 
   implicit none
@@ -37,6 +38,8 @@ contains
     type(shr_arrayDimContainer), allocatable :: dims(:)
     class(shr_arrayRspDim), allocatable :: lat, lon
     class(shr_arrayContainerRspAllocatable), allocatable :: temperature, incTemp
+
+    class(shr_arrayContainer), allocatable  :: genTemp, genIncTemp
     real(kind=sp) :: rawTemp(3,2)
 
     allocate(lat, lon)
@@ -61,7 +64,7 @@ contains
     ! operation (+)
     temperature = temperature + 1.0
     rawTemp = temperature  % r2
-    write(*,*) "shr_arrayContainerAllocatable_test:: rawTemp =", rawTemp
+!    write(*,*) "shr_arrayContainerAllocatable_test:: rawTemp =", rawTemp
     call self % assert(temperature == 301., "temperature(300) + 1 .eq. 301 = T")
 
     rawTemp = 2.0
@@ -69,6 +72,8 @@ contains
     call self % assert(temperature == 303., "temperature(301) + 2 .eq. 303 = T")
 
     temperature = temperature + incTemp
+    rawTemp = temperature % r2
+!    write(*,*) "shr_arrayContainerAllocatable_test:: rawTemp =", rawTemp
     call self % assert(temperature == 305., "temperature(303) + 2 .eq. 305 = T")
 
     ! copy
@@ -99,6 +104,31 @@ contains
     incTemp = 25.
     temperature = incTemp
     call self % assert(temperature == 25., "temperature(25.) .eq. 25. = T")
+
+    ! generic
+    temperature = 24.
+    allocate(genTemp, source = temperature)
+    allocate(genIncTemp, source = temperature)
+
+    genTemp = genTemp
+    select type (gt => genTemp)
+    type is (shr_arrayContainerRspAllocatable)
+      call self % assert(gt == 24., "genTemp(24.) .eq. 24. = T")
+    class default
+      call self % assert(.false., "genTemp(24.) .eq. 24. = T")
+    end select
+
+
+    ! genTemp = genTemp + genIncTemp
+    select type (gt => genTemp)
+    type is (shr_arrayContainerRspAllocatable)
+      gT = gT + genIncTemp
+      write(*,*) "shr_arrayContainerAllocatable_test:: genTemp= ", gT % r2
+      call self % assert(gt == 48., "genTemp(48.) .eq. 48. = T")
+    class default
+      !< unexpected
+      call self % assert(.false., "genTemp(48.) .eq. 48. = T")
+    end select
      
   end subroutine defineTestCases
 
