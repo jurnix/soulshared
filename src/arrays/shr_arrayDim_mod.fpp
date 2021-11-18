@@ -101,12 +101,22 @@ contains
   !
   ! shr_arrayDimContainer
   !
-  elemental subroutine copy_arrayDimContainer(left, right) 
+  subroutine copy_arrayDimContainer(left, right) 
     !< true if self and other are the same
     class(shr_arrayDimContainer), intent(inout) :: left
     class(shr_arrayDimContainer), intent(in) :: right
-    if (.not. allocated(left % arrayDim)) &
-            allocate(left % arrayDim, mold = right % arrayDim)
+
+    if (allocated(left % arrayDim)) then
+      ! different types?
+      if (.not. same_type_as(left % arrayDim, right % arrayDim)) &
+            deallocate(left % arrayDim)
+    endif
+
+    ! is allocated?
+    if (.not. allocated(left % arrayDim)) then
+      ! allocate only with its type
+      allocate(left % arrayDim, mold = right % arrayDim)
+    end if
     left % arrayDim = right % arrayDim
   end subroutine copy_arrayDimContainer
 
