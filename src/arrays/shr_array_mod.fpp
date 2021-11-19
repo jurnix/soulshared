@@ -249,15 +249,7 @@ contains
     !< returns array dimensions as an allocatable array
     class(shr_array), intent(in) :: self
     type(shr_arrayDimContainer), allocatable :: dims(:) !< output
-    integer :: idim
-    !if (allocated(dims)) deallocate(dims)
     allocate(dims, source = self % dims)
-!    allocate(dims(size(self % dims)))
-!      write(*,*) "shr_array_mod:: getDims_array:: dims size =", size(self % dims)
-!    do idim = 1, size(self % dims)
-!      write(*,*) "shr_array_mod:: getDims_array:: idim =", idim
-!      allocate(dims(idim) % arrayDim, source = self % dims(idim) % arrayDim)
-!    enddo
   end function getDims_array
 
 
@@ -306,7 +298,7 @@ contains
     type(string), intent(in) :: units
     type(string), intent(in) :: description
 
-    write(*,*) "shr_array_mod:: init_array_${IHEADER}$:: initializing..."
+!    write(*,*) "shr_array_mod:: init_array_${IHEADER}$:: initializing..."
 
     if (self % isInit) then
       call raiseError(__FILE__, "init_array_${IHEADER}$", &
@@ -323,11 +315,11 @@ contains
 
     allocate(self % dims, source = dimensions)
 
-    write(*,*) "shr_array_mod:: init_array_${IHEADER}$:: initializing data..."
+!    write(*,*) "shr_array_mod:: init_array_${IHEADER}$:: initializing data..."
     allocate( shr_arrayContainer${IHEADER}$Allocatable :: self % data )
     call self % data % init(dimensions)
-    write(*,*) "shr_array_mod:: init_array_${IHEADER}$:: initializing data...DONE"
-    write(*,*) "shr_array_mod:: init_array_${IHEADER}$:: initializing... DONE"
+!    write(*,*) "shr_array_mod:: init_array_${IHEADER}$:: initializing data...DONE"
+!    write(*,*) "shr_array_mod:: init_array_${IHEADER}$:: initializing... DONE"
 
   end subroutine init_array_${IHEADER}$
 
@@ -471,18 +463,21 @@ contains
     ${ITYPESRC}$, intent(in) :: right${ranksuffix(RANK)}$
     class(shr_array${IHEADER}$), allocatable :: total !< output
 
-    write(*,*) "shr_array_mod:: ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$:: starting..."
-    if (.not. allocated(total)) allocate(total, source = left)
+!    write(*,*) "shr_array_mod:: ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$:: starting..."
+    allocate(total, source = left)
 
     select type(data => left % data)
     type is (shr_arrayContainer${IHEADER}$Allocatable)
-      write(*,*) "shr_array_mod:: ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$:: starting ${OP_NAME}$ ..."
+!      write(*,*) "shr_array_mod:: ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$:: starting ${OP_NAME}$ ..."
       total % data = data ${OP_SYMB}$ right
-      write(*,*) "shr_array_mod:: ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$:: starting ${OP_NAME}$ DONE"
+!      write(*,*) "shr_array_mod:: ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$:: starting ${OP_NAME}$ DONE"
     class default
       !< unexpected class found
+      call raiseError(__FILE__, &
+              "${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$", &
+              "Unexpected class found")
     end select
-    write(*,*) "shr_array_mod:: ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$:: starting... DONE"
+!    write(*,*) "shr_array_mod:: ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$:: starting... DONE"
   end function ${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$
 
     #:endfor
@@ -495,13 +490,13 @@ contains
     class(shr_array), intent(in) :: right
     class(shr_array), allocatable :: total !< output
 
-    !if (.not. allocated(total)) allocate(total, source=left)
     allocate(total, source=left)
 
     if (left % getSize() /= right % getSize()) then
-      write(*,*) "${OP_NAME}$_array${IHEADER}$_${OP_NAME}$_array:: left size =", left % getSize()
-      write(*,*) "${OP_NAME}$_array${IHEADER}$_${OP_NAME}$_array:: right size =", right % getSize()
-      call raiseError(__FILE__, "${OP_NAME}$_array${IHEADER}$_${OP_NAME}$_array", &
+!      write(*,*) "${OP_NAME}$_array${IHEADER}$_${OP_NAME}$_array:: left size =", left % getSize()
+!      write(*,*) "${OP_NAME}$_array${IHEADER}$_${OP_NAME}$_array:: right size =", right % getSize()
+      call raiseError(__FILE__, &
+              "${OP_NAME}$_array${IHEADER}$_${OP_NAME}$_array", &
               "Both shr_array must have the same dimensions")
     endif
 
@@ -510,6 +505,9 @@ contains
       total % data = data ${OP_SYMB}$ right % data
     class default
       !< unexpected class found
+      call raiseError(__FILE__, &
+              "${OP_NAME}$_array${IHEADER}$_raw_${IHEADERSRC}$_${RANK}$", &
+              "Unexpected class found")
     end select
   end function ${OP_NAME}$_array${IHEADER}$_${OP_NAME}$_array
 
