@@ -58,6 +58,9 @@ module SHR_arrayDim_mod
 
     procedure :: getIndex_dummy
     generic :: getIndex => getIndex_dummy
+
+    procedure :: getValue_dummy
+    generic :: getValue => getValue_dummy
   end type shr_arrayDim
 
 
@@ -86,6 +89,12 @@ module SHR_arrayDim_mod
 
     procedure :: getIndex_array${IHEADER}$Dim
     generic :: getIndex => getIndex_array${IHEADER}$Dim
+
+    procedure :: getValue_array${IHEADER}$Dim
+    generic :: getValue => getValue_array${IHEADER}$Dim
+
+    procedure :: getAllValues => getAllValues_array${IHEADER}$Dim
+!    generic :: getAllValues => getAllValues_array${IHEADER}$Dim
 
     procedure :: isInBounds_array${IHEADER}$Dim
     generic :: isInBounds => isInBounds_array${IHEADER}$Dim
@@ -167,6 +176,15 @@ contains
     call raiseError(__FILE__, "getIndex_dummy", &
             "Dummy subroutine")
   end function getIndex_dummy
+
+
+  integer function getValue_dummy(self)
+    !< it returns an value given the index from array
+    !< dummy version only to ensure its declared
+    class(shr_arrayDim), intent(in) :: self
+    call raiseError(__FILE__, "getValue_dummy", &
+            "Dummy subroutine")
+  end function getValue_dummy
 
 
   logical function isInBounds_dummy(self)
@@ -277,6 +295,23 @@ contains
   end function getIndex_array${IHEADER}$Dim
 
 
+  elemental function getValue_array${IHEADER}$Dim(self, index) result (value)
+    !< it returns the value of a given index of the array 
+    class(shr_array${IHEADER}$Dim), intent(in) :: self
+    integer, intent(in) :: index
+    ${ITYPE}$ :: value
+    value = self % values(index)
+  end function getValue_array${IHEADER}$Dim
+
+
+  function getAllValues_array${IHEADER}$Dim(self) result (allValues)
+    !< it returns the value of a given index of the array 
+    class(shr_array${IHEADER}$Dim), intent(in) :: self
+    ${ITYPE}$, allocatable :: allValues(:)
+    allValues = self % values
+  end function getAllValues_array${IHEADER}$Dim
+
+
   elemental ${ITYPE}$ function getStart_array${IHEADER}$Dim(self)
     !< it returns its start value
     class(shr_array${IHEADER}$Dim), intent(in) :: self
@@ -312,12 +347,12 @@ contains
     inStep = 1.0
     if (present(step)) inStep = step
 
-    if (inStep < 0.) then
-      write(negVal, '(F5.1)') inStep
-      call raiseError(__FILE__, "init_ncRealDim", &
-              "'step' argument cannot be negative", &
-              "Found= "// negVal)
-    endif
+!    if (inStep < 0.) then
+!      write(negVal, '(F5.1)') inStep
+!      call raiseError(__FILE__, "init_ncRealDim", &
+!              "'step' argument cannot be negative", &
+!              "Found= "// negVal)
+!    endif
 
     self % name = name
     self % values = initArrayRange(start, end, inStep)

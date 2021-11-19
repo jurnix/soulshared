@@ -25,6 +25,7 @@ module shr_grid_mod
 
   use SHR_precision_mod, only: dp, sp 
   use SHR_error_mod, only: raiseError
+  use shr_arrayDim_mod, only: shr_arrayRspDim
   use SHR_arrayUtils_mod, only: unique, closestNumber2Index, PREFER_LAST, &
                         initArrayRange
   use shr_coord_mod, only: shr_coord
@@ -46,8 +47,8 @@ module shr_grid_mod
 
 
   type :: shr_grid !< latitude and longitude have the same resolution
-    real(kind=sp), allocatable :: lats(:) !< list all latitudes
-    real(kind=sp), allocatable :: lons(:) !< list all longitudes
+    class(shr_arrayRspDim), allocatable :: lats
+    class(shr_arrayRspDim), allocatable :: lons !< list all longitudes
     real(kind=sp) :: resolution !< grid resolution
     type(shr_gridBounds) :: limits !< max/min lats/lons of the grid
 
@@ -182,6 +183,7 @@ contains
     integer :: idsouth, idsEast, idsWest
 
     integer, allocatable :: allIndices(:)
+    real(kind=sp) :: latVal, lonVal
 
     ! todo check limits (above 90, n < s, ...)
     halfres = resolution / 2.
@@ -189,19 +191,22 @@ contains
     ! generate lat lon -> coordinate points the center of the gridcell
     start = limits(SHR_GRIDBOUNDS_NORTH) - halfres
     end = limits(SHR_GRIDBOUNDS_SOUTH) + halfres
-    self % lats = initArrayRange(start, end, -resolution)
+    allocate(self % lats)
+    call self % lats % init("latitude", start, end, -resolution)
+
 
     start = limits(SHR_GRIDBOUNDS_EAST) - halfres
     end = limits(SHR_GRIDBOUNDS_WEST) + halfres
-    self % lons = initArrayRange(start, end, -resolution)
+    allocate(self % lons)
+    call self % lons % init("longitude", start, end, -resolution)
 
     call self % limits % init(limits)
 
     self % resolution = resolution
 
     ! initialize gridcells
-    nlats = size(self % lats)
-    nlons = size(self % lons)
+    nlats = self % lats % getSize()
+    nlons = self % lons % getSize()
     ngridcells = nlats * nlons
     nidx = 1
     allocate(self % gridcells(ngridcells))
@@ -209,7 +214,9 @@ contains
     do idxlat = 1, nlats
       do idxlon = nlons, 1, -1
         ! create all gridcells
-        ccentre = shr_coord(self % lats(idxlat), self % lons(idxlon))
+        latVal = self % lats % getValue(idxlat)
+        lonVal = self % lons % getValue(idxlon)
+        ccentre = shr_coord(latVal, lonVal)
         self % gridcells(nidx) = shr_gridcell(nidx, resolution, ccentre)
         nidx = nidx + 1 ! provide an unique number to each gridcell
       enddo
@@ -256,8 +263,8 @@ contains
     integer :: nlons !< total number of discretized lontigues
     integer :: idxs(2)
 
-    nlats = size (self % lats)
-    nlons = size (self % lons)
+    nlats = self % lats % getSize()
+    nlons = self % lons % getSize()
 
     idxs = sourceGridcell % getSpatialIdxs(nlons)
     idxlat = idxs(1)
@@ -326,8 +333,8 @@ contains
 
     logical :: hasNeighb !< true is the requested direction has a neighbouring gridcell
 
-    nlats = size(self % lats)
-    nlons = size(self % lons)
+    nlats = self % lats % getSize()
+    nlons = self % lons % getSize()
 
     idx = sGridcell % idx
     hasNeighb = self % hasNeighbour(sGridcell, direction)
@@ -461,8 +468,7 @@ contains
     !< return the latitude coordinates
     class(shr_grid), intent(inout) :: self
     real(kind=sp), allocatable :: allLats(:) !< output
-
-    allLats = self % lats
+    allLats = self % lats % getAllValues()
   end function getLatCoords
 
 
@@ -470,8 +476,7 @@ contains
     !< return the longitude coordinates
     class(shr_grid), intent(inout) :: self
     real(kind=sp), allocatable :: allLons(:) !< output
-
-    allLons = self % lons
+    allLons = self % lons % getAllValues()
   end function getLonCoords
 
 
@@ -536,8 +541,7 @@ contains
     !< the total number of defined latitudes
     class(shr_grid), intent(in) :: self
     integer :: nlats !< output
-
-    nlats = size (self % lats)
+    nlats = self % lats % getSize()
   end function getLatSize
 
 
@@ -545,8 +549,7 @@ contains
     !< the total number of defined latitudes
     class(shr_grid), intent(in) :: self
     integer :: nlons !< output
-
-    nlons = size (self % lons)
+    nlons = self % lons % getSize()
   end function getLonSize
 
  
@@ -658,7 +661,7 @@ contains
 
     integer :: idx !< calculated gridcell index
 
-    idx = ((idxlat-1) * size(self % lons)) + idxlon
+    idx = ((idxlat-1) * self % lons % getSize()) + idxlon
     self %  gridcells(idx) % enabled = status
 
   end subroutine setGridcellStatusByIdxs    
@@ -781,7 +784,7 @@ contains
     ngcs = size(enabledGcs) 
 
     !< same dimensions for datain vs grid?
-    if (nlats .ne. size(self % lats) .or. nlons .ne. size(self % lons)) then
+    if (nlats .ne. self % lats % getSize() .or. nlons .ne. self % lons % getSize()) then
       write(strSize,*) size(datain) 
       call raiseError(__FILE__, SNAME, &
               "The given array does not have the same size as the grid", &
@@ -905,7 +908,7 @@ contains
 !    gcs = self % getGridcellByCoord(newC)
 
     ! calculate gridcell index from lat and lon array indices
-    idx = ((latx-1) * size(self % lons)) + lonx
+    idx = ((latx-1) * self % lons % getSize()) + lonx
 
     foundGc =  self % gridcells(idx)!gcs(1)
 

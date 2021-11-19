@@ -37,6 +37,7 @@ contains
 
     class(shr_arrayRspDim), allocatable :: logsSame
     class(shr_arrayRspDim), allocatable :: levelsCopied
+    class(shr_arrayRspDim), allocatable :: decreaseLats
 
     !< array wrapper
     type(shr_arrayDimContainer) :: dimensions(2)
@@ -84,6 +85,19 @@ contains
     almostAllocDims(1) = dimensions(1)
     almostAllocDims(2) = dimensions(2)
     call self % assert(all(almostAllocDims == dimensions), "almostAllocDims .eq. dimensions = T")
+
+    allocate(decreaseLats)
+    call decreaseLats % init("decreaseLats", 3., 1., -1.)
+
+    call self % assert(all(decreaseLats % getAllValues() == [3., 2., 1.]), &
+            "decreaseLats(3.,1.,-1) % getAllValues() .eq. (3,2,1) = T")
+
+    call self % assert(decreaseLats % getValue(1) == 3., &
+            "decreaseLats(3.,1.,-1) % getValue(1) .eq. (3) = T")
+
+    call self % assert(decreaseLats % getValue(3) == 1., &
+            "decreaseLats(3.,1.,-1) % getValue(3) .eq. (1) = T")
+
   end subroutine defineTestCases
 
 end module shr_arrayRealDim_test
