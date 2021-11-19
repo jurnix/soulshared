@@ -377,7 +377,7 @@ contains
 
   function getSubGrid(self, newLimits, newResolution, currentPartition, totalPartitions) result (newGrid)
     !< it returns new grid with those given
-    class(shr_grid), intent(inout) :: self
+    class(shr_grid), intent(in) :: self
     real(kind=sp), intent(in) :: newLimits(4) !< n, s, e, w
     real(kind=sp), intent(in), optional :: newResolution
     integer, intent(in), optional :: currentPartition 
