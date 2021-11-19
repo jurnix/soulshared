@@ -19,7 +19,7 @@
 module SHR_arrayContainer_mod
 
   use SHR_precision_mod, only: sp, dp!, eqReal
-!  use SHR_error_mod, only: raiseError 
+  use SHR_error_mod, only: raiseError 
 !  use SHR_strings_mod, only: string
   use shr_arrayDim_mod, only: shr_arrayDim, shr_arrayDimContainer
 
@@ -35,7 +35,7 @@ module SHR_arrayContainer_mod
 
 
   type, abstract :: shr_arrayContainer
-    integer :: ndims !< total number of dimensions
+    integer :: ndims = -1 !< total number of dimensions
     type(shr_arrayDimContainer), allocatable :: dimensions(:)
   contains
     procedure :: getSize
@@ -155,7 +155,7 @@ module SHR_arrayContainer_mod
 #:for IKIND, ITYPE, IHEADER  in ALL_KINDS_TYPES
   #:for IKINDSRC, ITYPESRC, IHEADERSRC  in ALL_KINDS_TYPES
     ! equal
-    elemental logical function iface_equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADERSRC}$(self, other)
+     logical function iface_equal_arrayContainer${IHEADER}$_equal_scalar_${IHEADERSRC}$(self, other)
       import :: shr_arrayContainer${IHEADER}$, ${IKINDSRC}$
       !< true if self and other are the same
       class(shr_arraycontainer${IHEADER}$), intent(in) :: self
@@ -165,7 +165,7 @@ module SHR_arrayContainer_mod
 
 #:for RANK in RANKS
   #:for IKINDSRC, ITYPESRC, IHEADERSRC  in ALL_KINDS_TYPES
-    pure logical function iface_equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADERSRC}$_${RANK}$(self, other)
+     logical function iface_equal_arrayContainer${IHEADER}$_equal_array_raw_${IHEADERSRC}$_${RANK}$(self, other)
       import :: shr_arrayContainer${IHEADER}$, ${IKINDSRC}$
       !< true if self and other are the same
       class(shr_arraycontainer${IHEADER}$), intent(in) :: self
@@ -174,7 +174,7 @@ module SHR_arrayContainer_mod
   #:endfor
 #:endfor
 
-    elemental logical function iface_equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$(self, other)
+     logical function iface_equal_arrayContainer${IHEADER}$_equal_arrayContainer${IHEADER}$(self, other)
       import :: shr_arrayContainer${IHEADER}$, shr_arraycontainer
       !< true if self and other are the same
       class(shr_arraycontainer${IHEADER}$), intent(in) :: self
@@ -185,7 +185,7 @@ module SHR_arrayContainer_mod
 
     ! ${OP_NAME}$ (${OP_SYMB}$)
     ! arrayContainer op arrayContainer
-    pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer(left, right) Result(total)
+     function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_arrayContainer(left, right) Result(total)
       import :: shr_arrayContainer${IHEADER}$, shr_arrayContainer
       class(shr_arrayContainer${IHEADER}$), intent(in) :: left
       class(shr_arrayContainer), intent(in) :: right
@@ -195,7 +195,7 @@ module SHR_arrayContainer_mod
     ! arrayContainer op <type, kind> array
   #:for IKINDSRC, ITYPESRC, IHEADERSRC  in ALL_KINDS_TYPES
     #:for RANK in RANKS
-    pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$(left, right) Result(total)
+     function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$(left, right) Result(total)
       import :: shr_arrayContainer${IHEADER}$, ${IKINDSRC}$
       class(shr_arrayContainer${IHEADER}$), intent(in) :: left
       ${ITYPESRC}$, intent(in) :: right${ranksuffix(RANK)}$
@@ -206,7 +206,7 @@ module SHR_arrayContainer_mod
 
     ! arrayContainer op <type, kind> scalar
   #:for IKINDSRC, ITYPESRC, IHEADERSRC  in ALL_KINDS_TYPES
-    pure function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADERSRC}$(left, right) Result(total)
+     function iface_${OP_NAME}$_arrayContainer${IHEADER}$_${OP_NAME}$_scalar_${IHEADERSRC}$(left, right) Result(total)
       import :: shr_arrayContainer${IHEADER}$, ${IKINDSRC}$
       class(shr_arrayContainer${IHEADER}$), intent(in) :: left
       ${ITYPESRC}$, intent(in) :: right
@@ -218,7 +218,7 @@ module SHR_arrayContainer_mod
 
     ! copy
 #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
-    pure subroutine iface_arrayContainer${IHEADER}$_copy_scalar_${IHEADERSRC}$(self, other)
+     subroutine iface_arrayContainer${IHEADER}$_copy_scalar_${IHEADERSRC}$(self, other)
       import :: shr_arrayContainer${IHEADER}$, ${IKINDSRC}$
       class(shr_arrayContainer${IHEADER}$), intent(inout) :: self
       ${ITYPESRC}$, intent(in) :: other
@@ -227,7 +227,7 @@ module SHR_arrayContainer_mod
 
 #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
   #:for RANK in RANKS
-    pure subroutine iface_arrayContainer${IHEADER}$_copy_array_raw_${IHEADERSRC}$_${RANK}$(self, other)
+     subroutine iface_arrayContainer${IHEADER}$_copy_array_raw_${IHEADERSRC}$_${RANK}$(self, other)
       import :: shr_arrayContainer${IHEADER}$, ${IKINDSRC}$
       class(shr_arrayContainer${IHEADER}$), intent(inout) :: self
       ${ITYPESRC}$, intent(in) :: other${ranksuffix(RANK)}$
@@ -237,7 +237,7 @@ module SHR_arrayContainer_mod
 
 #:for RANK in RANKS
   #:for IKINDTGT, ITYPETGT, IHEADERTGT in ALL_KINDS_TYPES
-    pure subroutine iface_copy_raw_${IHEADERTGT}$_${RANK}$_to_arrayContainer${IHEADER}$(other, self)
+     subroutine iface_copy_raw_${IHEADERTGT}$_${RANK}$_to_arrayContainer${IHEADER}$(other, self)
       import :: shr_arrayContainer${IHEADER}$, ${IKIND}$, ${IKINDTGT}$
       ${ITYPETGT}$, allocatable, intent(inout) :: other${ranksuffix(RANK)}$
       class(shr_arrayContainer${IHEADER}$), intent(in) :: self
@@ -245,7 +245,7 @@ module SHR_arrayContainer_mod
   #:endfor
 #:endfor
 
-    pure subroutine iface_arrayContainer${IHEADER}$_copy_arrayContainer(self, other)
+     subroutine iface_arrayContainer${IHEADER}$_copy_arrayContainer(self, other)
       import :: shr_arrayContainer${IHEADER}$, shr_arrayContainer
       class(shr_arrayContainer${IHEADER}$), intent(inout) :: self
       class(shr_arrayContainer), intent(in) :: other
@@ -256,25 +256,30 @@ module SHR_arrayContainer_mod
 
 contains
 
-  pure integer function getSize(self)
+   integer function getSize(self)
     !< array dimensions
     class(shr_arrayContainer), intent(in) :: self
+    write(*,*) "shr_arrayContainer_mod:: getSize:: ndims =", self % ndims
     getSize = self % ndims
   end function getSize
 
 
-  pure integer function getDims(self)
+   integer function getDims(self)
     !< total number of dimensions
     class(shr_arrayContainer), intent(in) :: self
     getDims = self % ndims
   end function getDims
 
 
-  pure subroutine init(self, dimensions)
+   subroutine init(self, dimensions)
     !< initialize shr_arrayContainer
     class(shr_arrayContainer), intent(inout) :: self
     type(shr_arrayDimContainer), intent(in) :: dimensions(:)
     !self % dimensions = dimensions
+    if (size(dimensions) <= 0) then
+      call raiseError(__FILE__, "init", &
+              "'dimensions' must have at least 1 dimension")
+    endif
     allocate(self % dimensions, source = dimensions)
     self % ndims = size(dimensions)
   end subroutine init
