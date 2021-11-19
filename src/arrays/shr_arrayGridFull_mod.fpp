@@ -7,7 +7,9 @@
 !> Albert Jornet Puig 
 !
 ! DESCRIPTION:
-!> ArrayGrid class
+!> ArrayGridFull class
+!> 
+!> Its interfaces ranged from 2 dimensions (grid) to MAXRANK
 !>
 !> array class (real sp, real dp, int)
 !>
@@ -110,7 +112,7 @@ contains
 
     integer :: inDimensionsSize
 
-    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: initializing (", sname % toString(), " )"
+!    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: initializing (", sname % toString(), " )"
     inDimensionsSize = 0
     if (present(dimensions)) inDimensionsSize = size(dimensions)
     self % grid = grid
@@ -125,8 +127,6 @@ contains
     call latDim % init("latitude", latstart, latEnd, gridStep)
     call lonDim % init("longitude", lonstart, lonEnd, gridStep)
     allocate(varDims(inDimensionsSize + 2)) !< dimensions + grid lat + grid lon
-!    allocate(varDims(1) % arrayDim)
-!    allocate(varDims(2) % arrayDim)
     allocate(varDims(1) % arrayDim, source = latDim)
     allocate(varDims(2) % arrayDim, source = lonDim)
     if (present(dimensions)) varDims(3:) = dimensions(:)
@@ -135,13 +135,13 @@ contains
     sunits = string(units)
     sdescription = string(description)
 
-    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: var name =", sname % toString()
-    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: varDims =", size(varDims)
-    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: initializing array..."
+!    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: var name =", sname % toString()
+!    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: varDims =", size(varDims)
+!    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: initializing array..."
 
     allocate(shr_arrayRsp :: self % array)
     call self % array % init(sname, varDims, sunits, sdescription)
-    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: initializing array... DONE"
+!    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: initializing array... DONE"
   end subroutine init_fullRsp
 
 
@@ -310,33 +310,22 @@ contains
     class(shr_arrayGridFullRsp), allocatable :: total !< output
     real(kind=sp), allocatable :: rawdata(:,:)
 
-    write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: starting..."
-    write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: total allocated? ", allocated(total)
-!    if (.not. allocated(total)) allocate(total, source = left)
-    if (.not. allocated(total)) then
-      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: allocating 'total'..."
-!      allocate(shr_arrayGridFullRsp :: total)
-      allocate(total, source = left)
-      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: allocating 'total'... DONE"
-!      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: copying from 'left'... "
-!      total = left
-!      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: copying from 'left'... DONE"
-    endif
+    allocate(total, source = left)
 
     select type(array => left % array)
     type is (shr_arrayRsp)
-      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: adding (+)... "
+!      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: adding (+)... "
       rawdata = array
-      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: left % array =", rawdata 
+!      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: left % array =", rawdata 
 !      total % array = array + right
       total = rawdata + right
-      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: adding (+)... DONE"
+!      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: adding (+)... DONE"
     class default
+      !< unexpected class found
       call raiseError(__FILE__, "add_gridFullRsp_add_scalar_rsp", &
               "unexpected class found")
-      !< unexpected class found
     end select
-    write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: starting... DONE"
+!    write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: starting... DONE"
   end function add_gridFullRsp_add_scalar_rsp 
 
 
@@ -354,6 +343,8 @@ contains
       total % array = array + right
     class default
       !< unexpected class found
+      call raiseError(__FILE__, "add_gridFullRsp_add_raw_rsp_2", &
+              "unexpected class found")
     end select
   end function add_gridFullRsp_add_raw_rsp_2
 
