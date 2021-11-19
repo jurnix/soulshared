@@ -7,13 +7,12 @@
 !> Albert Jornet Puig
 !
 ! DESCRIPTION:
-!> common array subroutines 
+!> arrayGridFull array subroutines 
 !------------------------------------------------------------------------------
 module shr_arrayGridFullRsp_test
   use SHR_testSuite_mod, only: testSuite
   use SHR_precision_mod, only: sp, dp
 
-!  use shr_strings_mod, only: string
   use shr_arrayDim_mod, only: shr_arrayRspDim, shr_arrayDimContainer
   use SHR_arrayGridFull_mod, only: shr_arrayGridFullRsp
   use shr_grid_mod, only: shr_grid
@@ -46,14 +45,10 @@ contains
     integer, parameter :: nPartitions = 1
     type(shr_arrayDimContainer), allocatable :: tempDims(:)
 
-!    real(kind=sp) :: data(2,2,10)
-!    real(kind=sp), allocatable :: foundData(:,:,:)
     real(kind=sp) :: data(3,3)
     real(kind=sp), allocatable :: foundData(:,:)
 
-!    do ilev = 1, 10
-    data(:,:) = 10. !real(ilev,sp)
-!    enddo
+    data(:,:) = 10.
 
     !
     ! land       coordinates (center)   global indices 
@@ -66,9 +61,6 @@ contains
 
     allocate(levels)
     call levels % init("levels", 1., 10., 1.)
-
-!    allocate(shr_arrayRspDim :: tempDims(0))! % arrayDim)
-!    tempDims(1) % arrayDim = levels
 
     call incTemp % init("incTemp", grid, tempDims, &
             "Kelvin", "Increase in air temperature at L levels")
@@ -102,7 +94,6 @@ contains
 
     ! add scalar
     pressure = 300.0
-!    pressure = pressure % add_gridFullRsp_add_scalar_rsp(1.0_sp)
     pressure = pressure + 1.0_sp
     call self % assert(pressure == 301.0, "temperature(300) + 1.0 .eq. 301 = T")
 
