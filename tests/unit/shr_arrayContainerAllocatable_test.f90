@@ -41,6 +41,7 @@ contains
 
     class(shr_arrayContainer), allocatable  :: genTemp, genIncTemp
     real(kind=sp) :: rawTemp(3,2)
+    real(kind=sp), allocatable :: allocRawTemp(:,:)
 
     allocate(lat, lon)
     call lat % init("latitude", 1., 3., 1.)
@@ -89,9 +90,9 @@ contains
     call self % assert(incTemp == 0.1, "incTemp(0.1) .eq. 0.1 = T")
 
     ! reverse copy
-!    incTemp = 20.2
-!    rawTemp = incTemp
-!    call self % assert(rawTemp == 20.2, "(reverse copy) incTemp(20.2) .eq. 20.2 = T")
+    incTemp = 20.2
+    allocRawTemp = incTemp
+    call self % assert(all(allocRawTemp == 20.2), "(reverse copy) incTemp(20.2) .eq. 20.2 = T")
 
     ! equal
     temperature = 320.
