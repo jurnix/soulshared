@@ -24,7 +24,7 @@ module SHR_arrayContainerAllocatable_mod
 #:for _, _, IHEADER  in ALL_KINDS_TYPES
   use shr_arrayContainer_mod, only: shr_arrayContainer${IHEADER}$
 #:endfor
-!  use SHR_error_mod, only: raiseError 
+  use SHR_error_mod, only: raiseError 
 !  use SHR_strings_mod, only: string
 
   implicit none
@@ -123,13 +123,21 @@ contains
   ! ${IHEADER}$, ${IKIND}$, ${ITYPE}$
   !
   !< allocatable single precision array
-  pure subroutine init_${IHEADER}$(self, dimensions)
+   subroutine init_${IHEADER}$(self, dimensions)
     !< initialize shr_arrayContainer, overload parent subroutine
     !< to customize child initialiation
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(inout) :: self
     type(shr_arrayDimContainer), intent(in) :: dimensions(:)
 
     integer, allocatable :: alldims(:)
+
+!    write(*,*) "shr_arrayContainerAllocatable_mod:: init_${IHEADER}$:: initializing..."
+!    write(*,*) "shr_arrayContainerAllocatable_mod:: init_${IHEADER}$:: dimensions size =", size(dimensions)
+
+    if (size(dimensions) <= 0) then 
+      call raiseError(__FILE__, "init_${IHEADER}$", &
+              "At least 1 dimension must be given but none found")
+    endif
 
     !< common to all arrayContainer
     !self % dimensions = dimensions
@@ -140,12 +148,15 @@ contains
     !< customized init
   #:for RANK in RANKS          
     if (self % ndims == ${RANK}$) then
+!      write(*,*) "shr_arrayContainerAllocatable_mod:: init_${IHEADER}$:: allocating with ${RANK}$ dims... "
       allocate(self % r${RANK}$${rankConstructor(RANK,"alldims")}$)
+!      write(*,*) "shr_arrayContainerAllocatable_mod:: init_${IHEADER}$:: allocating... DONE"
     endif
   #:endfor
 !    else
       !< unexpected
 !    endif
+!write(*,*) "shr_arrayContainerAllocatable_mod:: init_${IHEADER}$:: initializing... DONE"
   end subroutine init_${IHEADER}$
 
 
@@ -153,23 +164,31 @@ contains
   !
   ! ${OP_NAME}$ (${OP_SYMB}$)
   !
-  pure function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_arrayContainer(left, right) Result(total)
+   function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_arrayContainer(left, right) Result(total)
     !< addition of arrayContainerRspAllocatable + arrayContainer
     !< 
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(in) :: left
     class(shr_arrayContainer), intent(in) :: right
     class(shr_arrayContainer${IHEADER}$), allocatable :: total !< output
 
-    if (.not. allocated(total)) deallocate(total)
-    allocate(shr_arrayContainer${IHEADER}$Allocatable :: total)
-
+!    write(*,*) "shr_arrayContainerAllocatable_mod:: "//&
+!            "${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_arrayContainer:: "// &
+!            "starting..."
+    allocate(total, source = left)
     !
     select type(rightArray => right)
 #:for _, _, IHEADERSRC in ALL_KINDS_TYPES
     type is (shr_arrayContainer${IHEADERSRC}$Allocatable)
     #:for RANK in RANKS          
       if (left % getSize() == ${RANK}$ .and. right % getSize() == ${RANK}$) then
+!        write(*,*) "shr_arrayContainerAllocatable_mod:: "//&
+!            "${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_arrayContainer:: "// &
+!            "${OP_SYMB}$ with rank ${RANK}$..."
         total = left % r${RANK}$ ${OP_SYMB}$ rightArray % r${RANK}$
+!        write(*,*) "shr_arrayContainerAllocatable_mod:: "//&
+!            "${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_arrayContainer:: "// &
+!            "${OP_SYMB}$ with rank ${RANK}$... DONE"
+        return
       endif
     #:endfor
 #:endfor
@@ -179,13 +198,16 @@ contains
     class default
       !< unexpected, type not found
     end select
+!    write(*,*) "shr_arrayContainerAllocatable_mod:: "//&
+!            "${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_arrayContainer:: "// &
+!            "starting... DONE"
 
   end function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_arrayContainer
 
 
   #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
     #:for RANK in RANKS          
-    pure function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$(left, right) Result(total)
+     function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_array_raw_${IHEADERSRC}$_${RANK}$(left, right) Result(total)
       !< Operate according to 'op'. In case 'total' is not allocated, it is copied from 'left'
       class(shr_arrayContainer${IHEADER}$Allocatable), intent(in) :: left
       ${ITYPESRC}$, intent(in) :: right${ranksuffix(RANK)}$
@@ -198,18 +220,22 @@ contains
 
 
   #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
-  pure function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_scalar_${IHEADERSRC}$(left, right) Result(total)
+   function ${OP_NAME}$_arrayContainer${IHEADER}$Alloc_${OP_NAME}$_scalar_${IHEADERSRC}$(left, right) Result(total)
     !< add scalar value into array
     !< arrayCA = 24.1
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(in) :: left 
     ${ITYPESRC}$, intent(in) :: right 
     class(shr_arrayContainer${IHEADER}$), allocatable :: total !< output
+
+    if (.not. allocated(total)) then
+      allocate(total, source = left)
+    endif
+
     #:for RANK in RANKS          
     if (left % getSize() == ${RANK}$) then
       total = left % r${RANK}$ ${OP_SYMB}$ right
     endif
     #:endfor
-!    MAXRANK
 !    else
       !< unexpected, inconsistency found
 !    endif
@@ -223,7 +249,7 @@ contains
   ! copy
   !
 #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
-  pure subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_scalar_${IHEADERSRC}$(self, other)
+   subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_scalar_${IHEADERSRC}$(self, other)
     !< Copy to current array container allocatable
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(inout) :: self
     ${ITYPESRC}$, intent(in) :: other
@@ -242,7 +268,7 @@ contains
 
 #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
   #:for RANK in RANKS          
-  pure subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_array_raw_${IHEADERSRC}$_${RANK}$(self, other)
+   subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_array_raw_${IHEADERSRC}$_${RANK}$(self, other)
     !< Copy to current array 'self' into 'other' rsp array
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(inout) :: self
     ${ITYPESRC}$, intent(in) :: other${ranksuffix(RANK)}$
@@ -259,7 +285,7 @@ contains
 
 #:for IKINDTGT, ITYPETGT, IHEADERTGT in ALL_KINDS_TYPES
   #:for RANK in RANKS
-  pure subroutine copy_raw_${IHEADERTGT}$_${RANK}$_to_arrayContainer${IHEADER}$Allocatable(other, self)
+   subroutine copy_raw_${IHEADERTGT}$_${RANK}$_to_arrayContainer${IHEADER}$Allocatable(other, self)
     !< copy self to other
     !< reverse of 'copy_array_raw_rsp_1'
     ${ITYPETGT}$, allocatable, intent(inout) :: other${ranksuffix(RANK)}$
@@ -273,18 +299,36 @@ contains
   #:endfor
 #:endfor
 
-  pure subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer(self, other)
+   subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer(self, other)
     !< Copy to current array container allocatable
     !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(inout) :: self
     class(shr_arrayContainer), intent(in) :: other
+
+    type(shr_arrayDimContainer), allocatable :: tmpDims(:)
+
+!    write(*,*) "shr_arrayContainerAllocatable_mod:: "// &
+!            "copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer:: "// &
+!            "starting..."
+
+    self % ndims = other % ndims
+    ! create temporary array to avoid memory issues when
+    ! arrayContainerA = arrayContainerA (copy to itself)
+    tmpDims = other % dimensions
+    self % dimensions = tmpDims
 
     select type(otherArray => other)
 #:for _, _, IHEADERSRC  in ALL_KINDS_TYPES
     type is (shr_arrayContainer${IHEADERSRC}$Allocatable)
   #:for RANK in RANKS
       if (self % getSize() == ${RANK}$ .and. other % getSize() == ${RANK}$) then
+!        write(*,*) "shr_arrayContainerAllocatable_mod:: "// &
+!            "copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer:: "// &
+!            "copying with rank r${RANK}$..."
         self % r${RANK}$ = otherArray % r${RANK}$
+!        write(*,*) "shr_arrayContainerAllocatable_mod:: "// &
+!            "copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer:: "// &
+!            "copying with rank r${RANK}$... DONE"
       endif
   #:endfor
 #:endfor 
@@ -293,13 +337,20 @@ contains
 !      endif
     class default
       !< unexpected type found
+      call raiseError(__FILE__, &
+              "copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer", &
+              "Unexpected type found")
     end select
+
+!    write(*,*) "shr_arrayContainerAllocatable_mod:: "// &
+!            "copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer:: "// &
+!            "starting... DONE"
   end subroutine copy_arrayContainer${IHEADER}$Allocatable_copy_arrayContainer
 
   !
   ! equal
   !
-  elemental logical function equal_arrayContainer${IHEADER}$Allocatable_equal_arrayContainer${IHEADER}$(self, other)
+   logical function equal_arrayContainer${IHEADER}$Allocatable_equal_arrayContainer${IHEADER}$(self, other)
     !< true if self and other are the same
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(in) :: self
     class(shr_arraycontainer), intent(in) :: other
@@ -327,7 +378,7 @@ contains
 
 
   #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
-  elemental logical function equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADERSRC}$(self, other)
+   logical function equal_arrayContainer${IHEADER}$Allocatable_equal_scalar_${IHEADERSRC}$(self, other)
     !< true if self and other are the same
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(in) :: self
     ${ITYPESRC}$, intent(in) :: other
@@ -347,12 +398,15 @@ contains
 
   #:for IKINDSRC, ITYPESRC, IHEADERSRC in ALL_KINDS_TYPES
     #:for RANK in RANKS
-  pure logical function equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADERSRC}$_${RANK}$(self, other)
+   logical function equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADERSRC}$_${RANK}$(self, other)
     !< true if self and other are the same
     class(shr_arrayContainer${IHEADER}$Allocatable), intent(in) :: self
     ${ITYPESRC}$, intent(in) :: other${ranksuffix(RANK)}$
     equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADERSRC}$_${RANK}$ = .false.
     if (self % getSize() == ${RANK}$) then
+      write(*,*) "shr_arrayGridFull_mod:: "//&
+              "equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADERSRC}$_${RANK}$::", &
+               size(other), size(self % r${RANK}$)
       equal_arrayContainer${IHEADER}$Allocatable_equal_array_raw_${IHEADERSRC}$_${RANK}$ = all(self % r${RANK}$ == other)
     else
       !< unexpected, inconsistency found
