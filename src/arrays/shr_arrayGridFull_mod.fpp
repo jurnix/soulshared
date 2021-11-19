@@ -24,6 +24,7 @@
 
 module shr_arrayGridFull_mod
 
+  use shr_error_mod, only: raiseError
   use shr_precision_mod, only: sp, dp!, eqReal
   use shr_grid_mod, only: shr_grid
   use shr_array_mod, only: shr_array, shr_arrayRsp
@@ -109,6 +110,7 @@ contains
 
     integer :: inDimensionsSize
 
+    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: initializing (", sname % toString(), " )"
     inDimensionsSize = 0
     if (present(dimensions)) inDimensionsSize = size(dimensions)
     self % grid = grid
@@ -133,8 +135,13 @@ contains
     sunits = string(units)
     sdescription = string(description)
 
+    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: var name =", sname % toString()
+    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: varDims =", size(varDims)
+    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: initializing array..."
+
     allocate(shr_arrayRsp :: self % array)
     call self % array % init(sname, varDims, sunits, sdescription)
+    write(*,*) "shr_arrayGridFull_mod:: init_fullRsp:: initializing array... DONE"
   end subroutine init_fullRsp
 
 
@@ -148,7 +155,7 @@ contains
 
 
   ! copy (arrayGridFull = <type, kind> scalar)
-  pure subroutine copy_gridFullRsp_copy_scalar_rsp(self, other)
+  subroutine copy_gridFullRsp_copy_scalar_rsp(self, other)
       !< Copy to current array container allocatable
       !< arrayCA = arrayC (arrayCA % r2 = arrayC % r2...) 
       class(shr_arrayGridFullRsp), intent(inout) :: self
@@ -164,7 +171,7 @@ contains
 
 
   ! copy (arrayGridFullRsp = <type, kind> array) 
-  pure subroutine copy_gridFullRsp_copy_raw_rsp_2(self, other)
+  subroutine copy_gridFullRsp_copy_raw_rsp_2(self, other)
       !< Copy to current array container allocatable
       class(shr_arrayGridFullRsp), intent(inout) :: self
       real(kind=sp), intent(in) :: other(:,:)
@@ -179,7 +186,7 @@ contains
 
 
   ! copy ( <type, kind> array = gridFullRsp )
-  pure subroutine copy_raw_rsp_2_copy_gridFullRsp(other, self)
+  subroutine copy_raw_rsp_2_copy_gridFullRsp(other, self)
       !< Copy to current array container allocatable
       real(kind=sp), allocatable, intent(inout) :: other(:,:)
       class(shr_arrayGridFullRsp), intent(in) :: self
@@ -194,7 +201,7 @@ contains
 
 
   ! copy (arrayGridFullRsp = arrayGrid) 
-  pure subroutine copy_arrayGridFullRsp_copy_arrayGrid(self, other)
+  subroutine copy_arrayGridFullRsp_copy_arrayGrid(self, other)
       !< Copy to current array container allocatable
       class(shr_arrayGridFullRsp), intent(inout) :: self
       class(shr_arrayGrid), intent(in) :: other
@@ -206,7 +213,7 @@ contains
 
 
   ! equal (gridFullRsp == gridFull)
-  elemental logical function equal_arrayGridFullRsp_equal_arrayGrid(self, other)
+   logical function equal_arrayGridFullRsp_equal_arrayGrid(self, other)
     !< true if self and other are the same
     class(shr_arrayGridFullRsp), intent(in) :: self
     class(shr_arrayGrid), intent(in) :: other
@@ -236,7 +243,7 @@ contains
 
 
   ! equal ( gridFullRsp == <type, kind> scalar)
-  pure logical function equal_gridFullRsp_equal_scalar_rsp(self, other)
+  logical function equal_gridFullRsp_equal_scalar_rsp(self, other)
     !< true if self and other are the same
     class(shr_arrayGridFullRsp), intent(in) :: self
     real(kind=sp), intent(in) :: other
@@ -252,14 +259,14 @@ contains
 
 
   ! equal ( gridFullRsp == <type, kind> array)
-  pure logical function equal_gridFullRsp_equal_raw_rsp_2(self, other)
+  logical function equal_gridFullRsp_equal_raw_rsp_2(self, other)
     !< true if self and other are the same
     class(shr_arrayGridFullRsp), intent(in) :: self
     real(kind=sp), intent(in) :: other(:,:)
 
     select type(array => self % array)
     type is (shr_arrayRsp)
-     equal_gridFullRsp_equal_raw_rsp_2 = all(array == other)
+     equal_gridFullRsp_equal_raw_rsp_2 = array == other
     class default
       !< unexpected class found
       equal_gridFullRsp_equal_raw_rsp_2 = .false.
@@ -268,37 +275,79 @@ contains
 
 
   ! add ( arrayGridFullRsp + arrayGrid )
-  pure function op_arrayGridFullRsp_add_arrayGrid(left, right) Result(total)
+  function op_arrayGridFullRsp_add_arrayGrid(left, right) Result(total)
     !< addition from shr_arrayRsp and shr_arrayRsp
     class(shr_arrayGridFullRsp), intent(in) :: left
     class(shr_arrayGrid), intent(in) :: right
     class(shr_arrayGrid), allocatable :: total !< output
-    total % array = left % array + right % array
+    class(shr_arrayRsp), allocatable :: tmpArr
+    allocate(total, source = left)
+    allocate(tmpArr)
+
+    select type (r => right)
+    type is (shr_arrayGridFullRsp)
+      tmpArr = left % array + r % array
+    class default
+      !< unexpected
+    end select
+!    tmpArr = left % array + right % array
+
+    select type (t => total)
+    type is (shr_arrayGridFullRsp)
+      t % array = tmpArr
+    class default
+      !< unexpected
+    end select
   end function op_arrayGridFullRsp_add_arrayGrid
 
 
   ! add ( gridFullRsp + <type, kind> scalar )
-  pure function add_gridFullRsp_add_scalar_rsp(left, right) Result(total)
+  ! 
+  function add_gridFullRsp_add_scalar_rsp(left, right) Result(total)
     !< addition from shr_arrayRsp and shr_arrayRsp
     class(shr_arrayGridFullRsp), intent(in) :: left
     real(kind=sp), intent(in) :: right
     class(shr_arrayGridFullRsp), allocatable :: total !< output
+    real(kind=sp), allocatable :: rawdata(:,:)
+
+    write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: starting..."
+    write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: total allocated? ", allocated(total)
+!    if (.not. allocated(total)) allocate(total, source = left)
+    if (.not. allocated(total)) then
+      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: allocating 'total'..."
+!      allocate(shr_arrayGridFullRsp :: total)
+      allocate(total, source = left)
+      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: allocating 'total'... DONE"
+!      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: copying from 'left'... "
+!      total = left
+!      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: copying from 'left'... DONE"
+    endif
 
     select type(array => left % array)
     type is (shr_arrayRsp)
-      total % array = array + right
+      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: adding (+)... "
+      rawdata = array
+      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: left % array =", rawdata 
+!      total % array = array + right
+      total = rawdata + right
+      write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: adding (+)... DONE"
     class default
+      call raiseError(__FILE__, "add_gridFullRsp_add_scalar_rsp", &
+              "unexpected class found")
       !< unexpected class found
     end select
+    write(*,*) "shr_arrayGridFull_mod:: add_gridFullRsp_add_scalar_rsp:: starting... DONE"
   end function add_gridFullRsp_add_scalar_rsp 
 
 
   ! add ( gridFullRsp + <type, kind> array )
-  pure function add_gridFullRsp_add_raw_rsp_2(left, right) Result(total)
+  function add_gridFullRsp_add_raw_rsp_2(left, right) Result(total)
     !< addition from shr_arrayRsp and shr_arrayRsp
     class(shr_arrayGridFullRsp), intent(in) :: left
     real(kind=sp), intent(in) :: right(:,:)
     class(shr_arrayGridFullRsp), allocatable :: total !< output
+
+    if (.not. allocated(total)) allocate(total, source = left)
 
     select type(array => left % array)
     type is (shr_arrayRsp)
