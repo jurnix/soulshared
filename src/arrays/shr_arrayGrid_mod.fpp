@@ -76,21 +76,21 @@ module shr_arrayGrid_mod
     end function iface_getArray
 
 
-    pure subroutine iface_copy_arrayGrid_copy_arrayGrid(self,other)
+    subroutine iface_copy_arrayGrid_copy_arrayGrid(self,other)
       !< copy shr_array = shr_array
       import :: shr_arrayGrid
       class(shr_arrayGrid), intent(inout) :: self
       class(shr_arrayGrid), intent(in) :: other
     end subroutine iface_copy_arrayGrid_copy_arrayGrid
 
-    elemental logical function iface_equal_arrayGrid_equal_arrayGrid(self, other)
+     logical function iface_equal_arrayGrid_equal_arrayGrid(self, other)
       !< true if self and other are the same
       import :: shr_arrayGrid
       class(shr_arrayGrid), intent(in) :: self
       class(shr_arrayGrid), intent(in) :: other
     end function  iface_equal_arrayGrid_equal_arrayGrid
 
-    pure function iface_op_arrayGrid_op_arrayGrid(left, right) Result(total)
+    function iface_op_arrayGrid_op_arrayGrid(left, right) Result(total)
       !< addition from shr_arrayXXX and shr_array
       import :: shr_arrayGrid
       class(shr_arrayGrid), intent(in) :: left
