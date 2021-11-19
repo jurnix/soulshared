@@ -103,6 +103,7 @@ contains
     call self % assert(pressure == 303.0, "pressure(301) + data(2) .eq. 303 = T")
 
     ! add arrayGridFull
+    incTemp = 3.0
     pressure = pressure + incTemp
     call self % assert(pressure == 306.0, "pressure(303) + incTemp(3) .eq. 306 = T")
 
