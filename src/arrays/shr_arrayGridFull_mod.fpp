@@ -47,10 +47,16 @@ module shr_arrayGridFull_mod
   public :: shr_arrayGridFull, shr_arrayGridFullRsp
 
 
+  ! handle an array of shr_arrayGridFull(s)
+  type :: shr_arrayGridFullContainer
+    class(shr_arrayGridFull), allocatable :: arrayGridFull
+  end type shr_arrayGridFullContainer
+
+
   type, extends(shr_arrayGrid), abstract :: shr_arrayGridFull
   contains
 !    procedure :: toArrayGridSlim !< transform into arrayGridSlim
-!    procedure :: splitToSquaredArrays !< subset of shr_arrayGrid(s) into squared 
+    procedure :: splitToSquaredArrays !< subset of shr_arrayGrid(s) into squared 
   end type shr_arrayGridFull
 
 
@@ -347,5 +353,43 @@ contains
               "unexpected class found")
     end select
   end function add_gridFullRsp_add_raw_rsp_2
+
+
+  function splitToSquaredArrays(self) result (splittedArrays)
+    !< 'self' is descomposed into multiple shr_arrays
+    !< The returned arrays are squared/rectangular subparts of it.
+    !<
+    !< Example:
+    !<
+    !< - - x x 
+    !< x - x -
+    !< x x x -
+    !< x - - -
+    !< x x - x
+    !<
+    !< 1st array:
+    !< - - x x
+    !<
+    !< 2nd array:
+    !< x - x -
+    !< x x x -
+    !< x - - -
+    !<
+    !< 3rd array:
+    !< x x - x
+    !<
+    !< The "algorithm" divides the squared grid into a maximum
+    !< of 3 subparts. The header, the body and the footer.
+    !< - The header is the first line
+    !< - The body are all lines inbetween the header and the footer
+    !< - The footer is the last line
+    !<
+    !< Requirements:
+    !< - They never overlap
+    !< - They can be recomposed forming the original array
+    !<
+    class(shr_arrayGridFull), intent(in) :: self 
+    type(shr_arrayGridFullContainer), allocatable :: splittedArrays(:) !< output
+  end function splitToSquaredArrays
 
 end module shr_arrayGridFull_mod
