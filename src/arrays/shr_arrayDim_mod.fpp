@@ -94,7 +94,6 @@ module SHR_arrayDim_mod
     generic :: getValue => getValue_array${IHEADER}$Dim
 
     procedure :: getAllValues => getAllValues_array${IHEADER}$Dim
-!    generic :: getAllValues => getAllValues_array${IHEADER}$Dim
 
     procedure :: isInBounds_array${IHEADER}$Dim
     generic :: isInBounds => isInBounds_array${IHEADER}$Dim
@@ -265,7 +264,7 @@ contains
   end function equal_array${IHEADER}$Dim
 
 
-  elemental integer function getIndex_array${IHEADER}$Dim(self, value) result (idx)
+  elemental impure integer function getIndex_array${IHEADER}$Dim(self, value) result (idx)
     !< Given value comprised in between start and end
     !< it returns its position in an array (1 to N)
     !< it returns -1 if value is outside bounds
@@ -276,22 +275,42 @@ contains
     !< getIndex(9) -> 4
     class(shr_array${IHEADER}$Dim), intent(in) :: self
     ${ITYPE}$, intent(in) :: value
+    logical :: isPositive
 
     real(kind=sp) :: calc
 
+    write(*,*) "getIndex_ncRealDim: starting (", value, ")..."
+    write(*,*) "getIndex_ncRealDim: is in bounds? ", self % isInBounds(value), self % start, self % end
     if (.not. self % isInBounds(value)) then
       idx = -1
       return
     endif
 
-    calc = self % start
-    idx = 0 !< array 1st position
-    do while (calc <= value)
-!      write(*,*) "getIndex_ncRealDim: calc, value =", calc, value
-      calc = calc + self % step
-      idx = idx + 1
-    end do
-!    write(*,*) "getIndex_ncRealDim: idx =", idx
+    ! decide how to loop due to step sign (increase or decrease)
+    isPositive = (self % step > 0)
+
+    if (isPositive) then
+      write(*,*) "getIndex_ncRealDim: positive steps (", self % step, ")"
+      calc = self % start 
+      idx = 0 !< array 1st position
+      do while (calc <= value)
+        write(*,*) "getIndex_ncRealDim: calc, value =", calc, value
+        calc = calc + self % step
+        idx = idx + 1
+      end do
+    else !< is negative 5 .3. 1
+      write(*,*) "getIndex_ncRealDim: negative steps (", self % step, ")"
+      calc = self % start !5
+      idx = 0 !< array 1st position
+      do while (calc >= value)
+        write(*,*) "getIndex_ncRealDim: calc, value =", calc, value
+        calc = calc + self % step
+        idx = idx + 1
+      end do
+    endif
+
+    write(*,*) "getIndex_ncRealDim: idx =", idx
+    write(*,*) "getIndex_ncRealDim: starting... DONE"
   end function getIndex_array${IHEADER}$Dim
 
 
@@ -365,16 +384,33 @@ contains
 
   elemental logical function isInBounds_array${IHEADER}$Dim(self, value)
     !< true if given 'value' is in between start and end bounds
+    !< 
+    !< is positive
+    !< start(small) <= value <= end(big)
+    !<
+    !< is negative
+    !< start(big) => value => end(small)
     class(shr_array${IHEADER}$Dim), intent(in) :: self
     ${ITYPE}$, intent(in) :: value
+    ${ITYPE}$ :: ismall, ibig
+    logical :: isPositive
 
     isInBounds_array${IHEADER}$Dim = .true.
-    if (self % start > value) then
+    isPositive = (self % step > 0)
+    if (isPositive) then
+      ismall = self % start
+      ibig = self % end
+    else ! is negative
+      ibig = self % start
+      ismall = self % end
+    endif
+
+    if (ismall > value) then
       isInBounds_array${IHEADER}$Dim = .false.
       return
     endif
 
-    if (self % end < value) then
+    if (ibig < value) then
       isInBounds_array${IHEADER}$Dim = .false.
       return
     endif

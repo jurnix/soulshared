@@ -34,6 +34,7 @@ contains
     class(testSuiteArrayRealDim), intent(inout) :: self
     class(shr_arrayRspDim), allocatable :: levels
     class(shr_arrayRspDim), allocatable :: logs
+    class(shr_arrayRspDim), allocatable :: lats !< reversed 10..1
 
     class(shr_arrayRspDim), allocatable :: logsSame
     class(shr_arrayRspDim), allocatable :: levelsCopied
@@ -97,6 +98,19 @@ contains
 
     call self % assert(decreaseLats % getValue(3) == 1., &
             "decreaseLats(3.,1.,-1) % getValue(3) .eq. (1) = T")
+
+    ! reversed arrayDim
+    allocate(lats)
+    call lats % init("latitude", 5., 1., -1.)
+    call self % assert(lats % isInBounds(5.), "lats(5,1) % isInBounds(5) == T")
+    call self % assert(lats % isInBounds(1.), "lats(5,1) % isInBounds(1) == T")
+    call self % assert(.not. lats % isInBounds(-1.), "lats(5,1) % isInBounds(-1) == F")
+    call self % assert(.not. lats % isInBounds(11.), "lats(5,1) % isInBounds(11) == F")
+
+    call self % assert(lats % getIndex(4.5) == 1, "lats(5,1) % getIndex(4.5) .eq. 1 == T")
+    call self % assert(lats % getIndex(5.) == 1, "lats(5,1) % getIndex(5) .eq. 1 == T")
+    call self % assert(lats % getIndex(1.) == 5, "lats(5,1) % getIndex(1) .eq. 5 == T")
+    
 
   end subroutine defineTestCases
 

@@ -82,7 +82,7 @@ program unittest
   call tsCfgOptions % init("(CFG) Cfg options test", 20)
   call tsLinkedList % init("Linked list test", 10)
   call tsSet % init("Set test", 10)
-  call tsArrayRealDim % init("ArrayRealDim test", 20)
+  call tsArrayRealDim % init("ArrayRealDim test", 30)
   call tsArrayRsp % init("ArrayRsp test", 20)
   call tsArrayGridFullRsp % init("ArrayGridFullRsp test", 20)
   call tsArrayContainerAllocatable % init("ArrayContainerAllocatable test", 20)
