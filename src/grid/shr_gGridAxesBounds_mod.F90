@@ -87,7 +87,7 @@ contains
   end function getEnd
 
 
-  logical function equal_gGridAxesBounds(self, other)
+  elemental logical function equal_gGridAxesBounds(self, other)
     !< true if 'self' and 'other' are the same
     class(shr_gGridAxesBounds), intent(in) :: self
     type(shr_gGridAxesBounds), intent(in) :: other
@@ -96,7 +96,7 @@ contains
   end function equal_gGridAxesBounds
 
 
-  logical function equal_byArray2d(self, other)
+  pure logical function equal_byArray2d(self, other)
     !< true if 'self' and 'other' are the same
     !< Other is an array composed of 'start' and 'end'
     !< in that specific order.

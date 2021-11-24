@@ -8,7 +8,7 @@
 !
 ! DESCRIPTION:
 !>
-!> gGridAxes maps which gridcells are enabled or disabled
+!> gGridAxes defines a grid axes.
 !> 
 !------------------------------------------------------------------------------
 module shr_gGridAxes_mod 
@@ -17,8 +17,8 @@ module shr_gGridAxes_mod
 
   use shr_arrayDim_mod, only: shr_arrayRspDim
   use shr_strings_mod, only: string
-!  use shr_gridBounds_mod, only: shr_gridBounds
-!  use shr_gridcell_mod, only: shr_gridcell
+  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
 
   implicit none
 
@@ -28,16 +28,16 @@ module shr_gGridAxes_mod
 
 
   type shr_gGridAxes
+    type(string), allocatable :: name
     real(kind=sp) :: resolution
-    real(kind=sp) :: start, end !< gGridAxesBounds
-
-    class(shr_arrayRspDim), allocatable :: axes 
+    type(shr_gGridAxesBounds), allocatable :: bounds
+    type(shr_gGridAxesCell), allocatable :: cells(:)
   contains
     procedure :: init => gGridAxes_initialize 
 
 !    procedure :: getStart
 !    procedure :: getEnd
-!    procedure :: resolution 
+!    procedure :: getResolution 
 !    procedure :: getSize !< total number of cells
 !    procedure :: getIndices !< Given an axes coordinates it return its index
 !    procedure :: getGridAxesCell !< Given an index it return its AxesCell info 
@@ -45,19 +45,49 @@ module shr_gGridAxes_mod
 
 contains
 
-  subroutine gGridAxes_initialize(self, name, startCoord, endCoord, resolution)
+  subroutine gGridAxes_initialize(self, name, resolution, bounds)
     !< gGridAxes initialization
     class(shr_gGridAxes), intent(inout) :: self
-    type(string), intent(in) :: name
-    real(kind=sp), intent(in) :: resolution !< axes cell width
-    real(kind=sp), intent(in) :: startCoord, endCoord
+    type(string), intent(in) :: name !< grid axes name
+    real(kind=sp), intent(in) :: resolution !< axes cell width ( always +)
+    type(shr_gGridAxesBounds), intent(in) :: bounds !< axes boundaries
 
+    type(shr_arrayRspDim) :: arrayDim !< used to generate axes cells
+    integer :: icell !< iterator
+    type(shr_gGridAxesBounds), allocatable :: cellBounds
+    real(kind=sp) :: center, cellStart, cellEnd
+    integer :: nCells !< total number of axes cells
+
+    if (resolution <= 0) then
+      call raiseError(__FILE__, "gGridAxes_initialize", &
+              "'resolution cannot be 0 or negative'")
+    endif
+
+    allocate(self % name, source = name)
     self % resolution = resolution
-    self % start = startCoord
-    self % end = endCoord
+    allocate(self % bounds, source = bounds)
 
-    allocate(self % axes)
-    call self % axes % init(name % toString(), startCoord, endCoord, resolution)
+    !< create grid axes cells
+    call arrayDim % init(name % toString(), bounds % getStart(), &
+            bounds % getEnd(), -resolution)
+
+    nCells = arraydim % getSize()
+    allocate(self % cells(nCells))
+
+    do icell = 1, nCells - 1
+      ! find axes cell boundary
+      cellStart = arrayDim % getValue(icell)
+      cellEnd = arrayDim % getValue(icell+1)
+
+      allocate(cellBounds)
+      call cellBounds % init(cellStart, cellEnd)
+      ! calculate its axes cell center
+      center = (cellStart + cellEnd) / 2.0
+
+      ! add
+      call self % cells(icell) % init(center, cellBounds)
+      deallocate(cellBounds) !< reuse
+    enddo
   end subroutine gGridAxes_initialize
 
 
