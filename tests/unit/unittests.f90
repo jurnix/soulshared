@@ -38,6 +38,8 @@ program unittest
   use gridPartition_test, only: testSuiteGridPartition
   use gridcell_test, only: testSuiteGridCell
   use coord_test, only: testSuiteCoord
+  use shr_gGridAxes_test, only: testSuitegGridAxes
+  use shr_gGridAxesBounds_test, only: testSuitegGridAxesBounds
 
   implicit none
 
@@ -65,6 +67,8 @@ program unittest
   type(testSuiteGridPartition) :: tsGridPartition
   type(testSuiteGridCell) :: tsGridcell
   type(testSuiteCoord) :: tsCoord
+  type(testSuitegGridAxesBounds) :: tsgGridAxesBounds
+  type(testSuitegGridAxes) :: tsgGridAxes
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -86,10 +90,13 @@ program unittest
   call tsArrayRsp % init("ArrayRsp test", 20)
   call tsArrayGridFullRsp % init("ArrayGridFullRsp test", 20)
   call tsArrayContainerAllocatable % init("ArrayContainerAllocatable test", 20)
+
   call tsGrid % init("Grid test", 40)
   call tsGridPartition % init("Grid partition test", 20)
   call tsGridcell % init("Gridcell test", 20)
   call tsCoord % init("Coordinate test", 10)
+  call tsgGridAxesBounds % init("gGridAxesBounds test", 20)
+  call tsgGridAxes % init("gGridAxes test", 20)
   
 
   ! run all tests 
@@ -116,6 +123,8 @@ program unittest
   call tsGridPartition % run() 
   call tsGridCell % run() 
   call tsCoord % run() 
+  call tsgGridAxesBounds % run() 
+  call tsgGridAxes % run()
 
 
   ! show results
@@ -142,6 +151,8 @@ program unittest
   call tsGridPartition % report() 
   call tsGridcell % report() 
   call tsCoord % report() 
+  call tsgGridAxesBounds % report()
+  call tsgGridAxes % report()
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -166,7 +177,9 @@ program unittest
       .not. tsGrid % isSuccessful() .or. &
       .not. tsGridPartition % isSuccessful() .or. &
       .not. tsGridcell % isSuccessful() .or. &
-      .not. tsCoord % isSuccessful() &
+      .not. tsCoord % isSuccessful() .or. &
+      .not. tsgGridAxesBounds % isSuccessful() .or. &
+      .not. tsgGridAxes % isSuccessful() & 
       ) stop 1
 
 end program unittest
