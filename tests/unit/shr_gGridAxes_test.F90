@@ -29,7 +29,7 @@ contains
   subroutine defineTestCases(self)
     use iso_c_binding
     class(testSuitegGridAxes), intent(inout) :: self
-
+    call self % assert(.false., "todo = T")
 
   end subroutine defineTestCases
 
