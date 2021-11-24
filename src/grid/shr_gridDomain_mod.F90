@@ -23,8 +23,8 @@ module shr_gridDomain_mod
 
 
   type shr_gridDomain
-    class(shr_gridMask), allocatable :: mask(:,:) !< some gridcells are not used in this partition
-    class(shr_grid), allocatable :: grid !< local grid
+!    class(shr_gridMask), allocatable :: mask(:,:) !< some gridcells are not used in this partition
+!    class(shr_grid), allocatable :: grid !< local grid
   contains
     procedure :: init => gridDomain_initialize 
 !    procedure :: isSquared !< yes if the current domain is squared
@@ -47,14 +47,14 @@ module shr_gridDomain_mod
 contains
 
 
-  subroutine gridDomain_initialize(self, grid, mask)
+  subroutine gridDomain_initialize(self)!, grid, mask)
     !< grid domain initialization
     class(shr_gridDomain), intent(inout) :: self
-    class(shr_grid), intent(in) :: grid
-    type(shr_gridMask), intent(in) :: mask
-    allocate(self % grid, source = grid)
-    if (present(mask)) allocate(self % mask, source = mask)
-  end function gridDomain_initialize
+!    class(shr_grid), intent(in) :: grid
+!    type(shr_gridMask), intent(in) :: mask
+!    allocate(self % grid, source = grid)
+!    if (present(mask)) allocate(self % mask, source = mask)
+  end subroutine gridDomain_initialize
 
 
 end module shr_gridDomain_mod 
