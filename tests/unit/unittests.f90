@@ -28,18 +28,20 @@ program unittest
   use linkedList_test, only: testSuiteLinkedList
   use set_test, only: testSuiteSet
 
+  ! array
   use shr_arrayRealDim_test, only: testSuiteArrayRealDim
   use arrayRsp_test, only: testSuiteArrayRsp
   use shr_arrayGridFullRsp_test, only: testSuiteArrayGridFullRsp
   use shr_arrayContainerAllocatable_test, only: testSuiteArrayContainerAllocatable
 
-
+  ! grid related
   use grid_test, only: testSuiteGrid
   use gridPartition_test, only: testSuiteGridPartition
   use gridcell_test, only: testSuiteGridCell
   use coord_test, only: testSuiteCoord
   use shr_gGridAxes_test, only: testSuitegGridAxes
   use shr_gGridAxesBounds_test, only: testSuitegGridAxesBounds
+  use shr_gGridAxesCell_test, only: testSuitegGridAxesCell
 
   implicit none
 
@@ -69,6 +71,7 @@ program unittest
   type(testSuiteCoord) :: tsCoord
   type(testSuitegGridAxesBounds) :: tsgGridAxesBounds
   type(testSuitegGridAxes) :: tsgGridAxes
+  type(testSuitegGridAxesCell) :: tsgGridAxesCell
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -96,6 +99,7 @@ program unittest
   call tsGridcell % init("Gridcell test", 20)
   call tsCoord % init("Coordinate test", 10)
   call tsgGridAxesBounds % init("gGridAxesBounds test", 20)
+  call tsgGridAxesCell % init("gGridAxesCell test", 20)
   call tsgGridAxes % init("gGridAxes test", 20)
   
 
@@ -124,6 +128,7 @@ program unittest
   call tsGridCell % run() 
   call tsCoord % run() 
   call tsgGridAxesBounds % run() 
+  call tsgGridAxesCell % run() 
   call tsgGridAxes % run()
 
 
@@ -152,6 +157,7 @@ program unittest
   call tsGridcell % report() 
   call tsCoord % report() 
   call tsgGridAxesBounds % report()
+  call tsgGridAxesCell % report()
   call tsgGridAxes % report()
 
   ! crash if any of the tests fail
@@ -179,6 +185,7 @@ program unittest
       .not. tsGridcell % isSuccessful() .or. &
       .not. tsCoord % isSuccessful() .or. &
       .not. tsgGridAxesBounds % isSuccessful() .or. &
+      .not. tsgGridAxesCell % isSuccessful() .or. &
       .not. tsgGridAxes % isSuccessful() & 
       ) stop 1
 
