@@ -12,6 +12,7 @@
 module shr_gGridAxesBounds_test
   use SHR_testSuite_mod, only: testSuite
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gridBounds_mod, only: shr_gridBounds
 
   implicit none
 
@@ -31,6 +32,7 @@ contains
     class(testSuitegGridAxesBounds), intent(inout) :: self
 
     type(shr_gGridAxesBounds) :: lats, lons
+    type(shr_gridBounds) :: gridBounds
 
     call lats % init(90., -90.)
     call lons % init(180., -180.)
@@ -59,6 +61,11 @@ contains
     ! == (gGridAxesBounds vs array(start, end))
     call self % assert( lats == [90., -90.], "l(90, -90) .eq. (90, -90) = T")
     call self % assert(.not. (lats == [180., -90.]), "l(90, -90) .eq. (180, -90) = F")
+
+    ! * (combine)
+    gridBounds = lats * lons
+    call self % assert(gridBounds == shr_gridBounds(90., -90., 180., -180.), &
+            "lats(90, -90) * lons(180, -180) .eq. gridBunds(...) = F")
 
   end subroutine defineTestCases
 

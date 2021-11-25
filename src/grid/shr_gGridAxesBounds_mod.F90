@@ -15,6 +15,7 @@ module shr_gGridAxesBounds_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
+  use shr_gridBounds_mod, only: shr_gridBounds
 
   implicit none
 
@@ -34,6 +35,9 @@ module shr_gGridAxesBounds_mod
 
     procedure :: equal_gGridAxesBounds, equal_byArray2d
     generic :: operator(==) => equal_gGridAxesBounds, equal_byArray2d
+
+    procedure :: create_gridBounds
+    generic :: operator(*) => create_gridBounds
   end type shr_gGridAxesBounds
 
 contains
@@ -109,6 +113,15 @@ contains
   end function equal_byArray2d
 
 
+  type(shr_gridBounds) function create_gridBounds(latBounds, lonBounds) result (newGb)
+    !< The combination of latBounds and lonBounds creates a shr_gridBounds
+    class(shr_gGridAxesBounds), intent(in) :: latBounds
+    type(shr_gGridAxesBounds), intent(in) :: lonBounds
+    newGb = shr_gridBounds(latBounds % getStart(), &
+                           latBounds % getEnd(), &
+                           lonBounds % getStart(), &
+                           lonBounds % getEnd())
+  end function create_gridBounds
 
 end module shr_gGridAxesBounds_mod 
 
