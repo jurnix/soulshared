@@ -32,11 +32,35 @@ contains
     class(testSuitegGridAxesCell), intent(inout) :: self
 
     type(shr_gGridAxesBounds) :: boundary
-    type(shr_gGridAxesCell) :: c
+    type(shr_gGridAxesCell) :: c, other
 
     call boundary % init(10., -10.)
     call c % init(0., boundary)
-    call self % assert(.false., "test = T")
+
+    !procedure :: getBounds
+    call self % assert(c % getBounds() == [10., -10.], &
+            "c([10, -10], 0) % getBounds() .eq. (10, -10) = T")
+
+    !procedure :: getCenter
+    call self % assert(c % getCenter() == 0., &
+            "c([10, -10], 0) % getCenter() .eq. 0. = T")
+
+    !procedure :: isIn
+    call self % assert(c % isIn(5.) , &
+            "c([10, -10], 0) % isIn(5) = T")
+    call self % assert(c % isIn(-10.), &
+            "c([10, -10], 0) % isIn(-10) = T")
+    call self % assert(.not. (c % isIn(20.)), &
+            "c([10, -10], 0) % isIn(20) = F")
+
+    !procedure(==) :: equal_gGridAxesCell
+    call boundary % init(100., 0.)
+    call other % init(50., boundary)
+
+    call self % assert(c == c, &
+            "c([10, -10], 0) .eq. c([10, -10], 0) = T")
+    call self % assert(.not. (c == other), &
+            "c([10, -10], 0) .eq. o([100, -100], 50) = F")
 
   end subroutine defineTestCases
 
