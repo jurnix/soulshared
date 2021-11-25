@@ -113,7 +113,7 @@ contains
   end function equal_byArray2d
 
 
-  type(shr_gridBounds) function create_gridBounds(latBounds, lonBounds) result (newGb)
+  elemental type(shr_gridBounds) function create_gridBounds(latBounds, lonBounds) result (newGb)
     !< The combination of latBounds and lonBounds creates a shr_gridBounds
     class(shr_gGridAxesBounds), intent(in) :: latBounds
     type(shr_gGridAxesBounds), intent(in) :: lonBounds

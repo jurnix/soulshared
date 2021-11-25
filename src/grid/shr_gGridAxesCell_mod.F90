@@ -89,7 +89,7 @@ contains
   end function getCenter
 
 
-  type(shr_gridcell) function create_gridcell(lat, lon) result (newGc)
+  elemental impure type(shr_gridcell) function create_gridcell(lat, lon) result (newGc)
     !< create a new shr_gridcell when combining a set of shr_gGridAxesCells
     class(shr_gGridAxesCell), intent(in) :: lat
     type(shr_gGridAxesCell), intent(in) :: lon
