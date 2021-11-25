@@ -34,13 +34,30 @@ contains
     class(testSuitegGridAxes), intent(inout) :: self
     type(shr_gGridAxes) :: lats
     type(shr_gGridAxesBounds) :: bounds
-    type(string) :: latname
+    type(string) :: latname 
+    integer :: sfound !< debug only
 
-    call bounds % init(10., -10.)
+    call bounds % init(3., -3.)
     latname = string("latitude")
 
     call lats % init(latName, 1., bounds)
-    call self % assert(.false., "todo = T")
+    call self % assert(.true., "l % init('latitude', 1, [3,-3]) = T")
+
+    ! getName
+    call self % assert(lats % getName() == "latitude", &
+            "l % getName() .eq. 'latitude' = T")
+
+    ! getResolution
+    call self % assert(lats % getResolution() == 1., &
+            "l % getResolution() .eq. 1 = T")
+
+    ! getBounds
+    call self % assert(lats % getBounds() == [3., -3.], &
+            "l % getBounds() .eq. (3, -3) = T")
+
+    ! getSize
+    call self % assert(lats % getSize() == 6, &
+            "l % getSize() .eq. 6 = T")
 
   end subroutine defineTestCases
 

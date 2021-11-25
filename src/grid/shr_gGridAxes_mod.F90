@@ -35,9 +35,10 @@ module shr_gGridAxes_mod
   contains
     procedure :: init => gGridAxes_initialize 
 
-!    procedure :: getStart
-!    procedure :: getEnd
-!    procedure :: getResolution 
+    procedure :: getName
+    procedure :: getBounds
+    procedure :: getResolution
+    procedure :: getSize
 !    procedure :: getSize !< total number of cells
 !    procedure :: getIndices !< Given an axes coordinates it return its index
 !    procedure :: getGridAxesCell !< Given an index it return its AxesCell info 
@@ -67,14 +68,15 @@ contains
     self % resolution = resolution
     allocate(self % bounds, source = bounds)
 
-    !< create grid axes cells
+    !< generate grid axes boundaries
     call arrayDim % init(name % toString(), bounds % getStart(), &
             bounds % getEnd(), -resolution)
 
-    nCells = arraydim % getSize()
+    nCells = arraydim % getSize() - 1
     allocate(self % cells(nCells))
 
-    do icell = 1, nCells - 1
+    !< create grid axes cells
+    do icell = 1, nCells !- 1
       ! find axes cell boundary
       cellStart = arrayDim % getValue(icell)
       cellEnd = arrayDim % getValue(icell+1)
@@ -90,6 +92,33 @@ contains
     enddo
   end subroutine gGridAxes_initialize
 
+
+  type(string) function getName(self)
+    !< it returns the name attribute
+    class(shr_gGridAxes), intent(in) :: self
+    getName = self %  name
+  end function getName
+
+
+  type(shr_gGridAxesBounds) function getBounds(self)
+    !< it returns the bounds attribute
+    class(shr_gGridAxes), intent(in) :: self
+    getBounds = self % bounds
+  end function getBounds
+
+
+  real(kind=sp) function getResolution(self)
+    !< it returns the resolution attribute
+    class(shr_gGridAxes), intent(in) :: self
+    getResolution = self % resolution
+  end function getResolution
+
+
+  integer function getSize(self)
+    !< it returns how many grid axes cells has
+    class(shr_gGridAxes), intent(in) :: self
+    getSize = size(self % cells)
+  end function getSize
 
 end module shr_gGridAxes_mod 
 
