@@ -39,7 +39,9 @@ module shr_gGridAxes_mod
     procedure :: getBounds
     procedure :: getResolution
     procedure :: getSize
-!    procedure :: getSize !< total number of cells
+
+    procedure :: expand
+
 !    procedure :: getIndices !< Given an axes coordinates it return its index
 !    procedure :: getGridAxesCell !< Given an index it return its AxesCell info 
   end type shr_gGridAxes
@@ -119,6 +121,49 @@ contains
     class(shr_gGridAxes), intent(in) :: self
     getSize = size(self % cells)
   end function getSize
+
+
+  function expand(self, otherAxes) result (gridcells)
+    !< expands 'self' and 'other' to create a 2d array of shr_gridcells
+    !< its expansion provides each possible combination between each
+    !< grid axes.
+    !<
+    !< example: gridcells(:,:) = latsAxes(1d) % expand( lonsAxes(1d) )
+    !<
+    use shr_gridcell_mod, only: shr_gridcell
+    class(shr_gGridAxes), intent(in) :: self
+    type(shr_gGridAxes), intent(in) :: otherAxes
+    type(shr_gridcell), allocatable :: gridcells(:,:) !< output
+
+    integer :: ilat, ilon
+    integer :: nlats, nlons
+
+    nlats = self % getSize()
+    nlons = otherAxes % getSize()
+    allocate(gridcells(nlats, nlons))
+
+    do ilat = 1, nlats
+      do ilon = 1, nlons
+        gridcells(ilat, ilon) = self % cells(ilat) * otherAxes % cells(ilon)
+      enddo
+    enddo 
+
+  end function expand
+
+
+!  type(shr_gridcellsMap) function create_gridcellsMap(self, other) result (newGcMap)
+!    !< TODO - circular dependency found, error on cmake
+!    use shr_gridcellsMap_mod, only: shr_gridcellsMap
+    !< creates a new shr_gridcellsMap 'self' and 'other' to create shr_gridcellsMap
+    !< example: gridcellsMap = latsAxes * lonsAxes
+!    class(shr_gGridAxes), intent(in) :: self
+!    type(shr_gGridAxes), intent(in) :: other
+
+!    real(kind=sp) :: resolution
+
+!    resolution = self % getResolution()
+!    call newGcMap % init(resolution, self, other)
+!  end function create_gridcellsMap
 
 end module shr_gGridAxes_mod 
 

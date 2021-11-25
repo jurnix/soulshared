@@ -16,6 +16,7 @@ module shr_gridcellsMap_mod
   use SHR_precision_mod, only: sp
 
   use shr_gridcell_mod, only: shr_gridcell
+  use shr_gGridAxes_mod, only: shr_gGridAxes
 
 
   implicit none
@@ -32,61 +33,32 @@ module shr_gridcellsMap_mod
 
 
   type shr_gridcellsMap
-    type(shr_gridcell), allocatable :: gridcells(:)
+    type(shr_gridcell), allocatable :: gridcells(:,:)
 
-!    real(kind=sp) :: resolution
-!    class(shr_arrayDim), allocatable :: latitudes
-!    class(shr_arrayDim), allocatable :: longitudes
-!    type(shr_gridMask), allocatable :: mask
+    real(kind=sp) :: resolution
+    type(shr_gGridAxes), allocatable :: latitudes
+    type(shr_gGridAxes), allocatable :: longitudes
   contains
     procedure :: init => gridcellsMap_initialize 
-    ! procedure :: createGridMapIterator() -> shr_gridcellsMapIterator
+    ! procedure :: createGridcellsMapIterator() -> shr_gridcellsMapIterator
   end type shr_gridcellsMap
 
 contains
 
-  subroutine gridcellsMap_initialize(self) !, resolution, latitudes, longitudes, mask)
+  subroutine gridcellsMap_initialize(self, resolution, latAxes, lonAxes)
     !< gridcellsMap initialization
     !<
     class(shr_gridcellsMap), intent(inout) :: self
-!    class(shr_arrayDim), intent(in) :: latitudes
-!    class(shr_arrayDim), intent(in) :: longitudes
-!    type(shr_gridMask), intent(in) :: mask
+    real(kind=sp), intent(in) :: resolution
+    type(shr_gGridAxes), intent(in) :: latAxes
+    type(shr_gGridAxes), intent(in) :: lonAxes
 
-!    integer :: nlats, nlons, ngridcells
-!    integer :: nidx, idxlat, idxlon
-!    real(kind=sp) :: latVal, lonVal
-!    type(shr_coord) :: ccentre
+    self % resolution = resolution
+    allocate(self % latitudes, source = latAxes)
+    allocate(self % longitudes, source = lonAxes)
 
-!    self % resolution = resolution
-!    allocate(self % latitudes, source = latitudes)
-!    allocate(self % longitdues, source = longitudes)
-!    if (present(mask)) then
-!      allocate(self % mask)
-!      self % mask = mask
-!    endif !< present(mask)
-
-    ! initialize gridcells
-!    nlats = latitudes % getSize()
-!    nlons = longitudes % getSize()
-!    ngridcells = nlats * nlons
-!    nidx = 1
-!    allocate(self % gridcells(ngridcells))
-    ! iterate the grid
-!    do idxlat = 1, nlats
-!      do idxlon = nlons, 1, -1
-        ! create all gridcells
-!        latVal = self % lats % getValue(idxlat)
-!        lonVal = self % lons % getValue(idxlon)
-!        ccentre = shr_coord(latVal, lonVal)
-!        self % gridcells(nidx) = shr_gridcell(nidx, resolution, ccentre)
-!        nidx = nidx + 1 ! provide an unique number to each gridcell
-!      enddo !< idxlon = nlons, 1, -1
-!    enddo !< idxlat = 1, nlats
-
-!    if (.not. present(mask)) then
-!      call self % setAllEnabledGridcells(enabledGridcells)
-!    endif !< .not. present(mask)
+    ! populate
+    self % gridcells = self % latitudes % expand(self % longitudes)
   end subroutine gridcellsMap_initialize
 
 
