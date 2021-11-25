@@ -16,6 +16,9 @@ module shr_gGridAxesCell_mod
   use SHR_precision_mod, only: sp
 
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_coord_mod, only: shr_coord
+  use shr_gridBounds_mod, only: shr_gridBounds
+  use shr_gridcell_mod, only: shr_gridcell
 
   implicit none
 
@@ -34,6 +37,9 @@ module shr_gGridAxesCell_mod
     procedure :: isIn
     procedure :: equal_gGridAxesCell
     generic :: operator(==) => equal_gGridAxesCell
+
+    procedure :: create_gridcell
+    generic :: operator(*) => create_gridcell
   end type shr_gGridAxesCell
 
 contains
@@ -81,6 +87,21 @@ contains
     class(shr_gGridAxesCell), intent(in) :: self
     center =  self % center
   end function getCenter
+
+
+  type(shr_gridcell) function create_gridcell(lat, lon) result (newGc)
+    !< create a new shr_gridcell when combining a set of shr_gGridAxesCells
+    class(shr_gGridAxesCell), intent(in) :: lat
+    type(shr_gGridAxesCell), intent(in) :: lon
+    type(shr_coord) :: ccenter
+    real(kind=sp) :: resolution
+    type(shr_gGridAxesBounds) :: latBounds
+
+    ccenter = shr_coord(lat % getCenter(), lon % getCenter())
+    latBounds = lat % getBounds()
+    resolution = latBounds % getStart() - latBounds % getEnd()
+    newGc = shr_gridcell(-1, resolution, ccenter, .true.)
+  end function create_gridcell
 
 end module shr_gGridAxesCell_mod 
 

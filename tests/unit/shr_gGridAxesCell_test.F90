@@ -13,6 +13,8 @@ module shr_gGridAxesCell_test
   use SHR_testSuite_mod, only: testSuite
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gridcell_mod, only: shr_gridcell
+  use shr_coord_mod, only: shr_coord
 
   implicit none
 
@@ -33,6 +35,8 @@ contains
 
     type(shr_gGridAxesBounds) :: boundary
     type(shr_gGridAxesCell) :: c, other
+    type(shr_gridcell) :: newGc
+    type(shr_coord) :: center
 
     call boundary % init(10., -10.)
     call c % init(0., boundary)
@@ -54,13 +58,20 @@ contains
             "c([10, -10], 0) % isIn(20) = F")
 
     !procedure(==) :: equal_gGridAxesCell
-    call boundary % init(100., 0.)
+    call boundary % init(60., 40.)
     call other % init(50., boundary)
 
     call self % assert(c == c, &
             "c([10, -10], 0) .eq. c([10, -10], 0) = T")
     call self % assert(.not. (c == other), &
-            "c([10, -10], 0) .eq. o([100, -100], 50) = F")
+            "c([10, -10], 0) .eq. o([60, 40], 50) = F")
+
+    ! create gridcell
+    newgc = c * other
+    center = shr_coord(0., 50.)
+
+    call self % assert(newGc == shr_gridcell(-1, 20., center, .true.), &
+            "c * other .eq. gc(1., [10,-1,60,40]) = T")
 
   end subroutine defineTestCases
 
