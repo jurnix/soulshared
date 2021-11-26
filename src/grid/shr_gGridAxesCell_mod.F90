@@ -35,8 +35,8 @@ module shr_gGridAxesCell_mod
     procedure :: getBounds
     procedure :: getCenter
     procedure :: isIn
-    procedure :: equal_gGridAxesCell
-    generic :: operator(==) => equal_gGridAxesCell
+    procedure :: equal_gGridAxisCell
+    generic :: operator(==) => equal_gGridAxisCell
 
     procedure :: create_gridcell
     generic :: operator(*) => create_gridcell
@@ -63,7 +63,7 @@ contains
   end function isIn
 
 
-  elemental logical function equal_gGridAxesCell(self, other) result (areEqual)
+  elemental logical function equal_gGridAxisCell(self, other) result (areEqual)
     !< true if 'self' and 'other' have the same attributes
     class(shr_gGridAxesCell), intent(in) :: self
     type(shr_gGridAxesCell), intent(in) :: other
@@ -71,7 +71,7 @@ contains
     hasSameBounds = (self % bounds == other % bounds)
     hasSameCenter = (self % center == other % center)
     areEqual = (hasSameBounds .and. hasSameCenter)
-  end function equal_gGridAxesCell
+  end function equal_gGridAxisCell
 
 
   elemental function getBounds(self) result (bounds)
