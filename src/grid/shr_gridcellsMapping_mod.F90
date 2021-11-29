@@ -1,17 +1,17 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Sophie Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        : shr_gridcellsMap_mod 
+! MODULE        : shr_gridcellsMapping_mod 
 !
 !> @author
 !> Albert Jornet Puig
 !
 ! DESCRIPTION:
 !>
-!> shr_gridcellsMap computes coordinates into array indices
+!> shr_gridcellsMappingping computes coordinates into gridcells 
 !> 
 !------------------------------------------------------------------------------
-module shr_gridcellsMap_mod 
+module shr_gridcellsMapping_mod 
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
@@ -24,50 +24,38 @@ module shr_gridcellsMap_mod
 
   implicit none
 
-  public :: shr_gridcellsMap
+  public :: shr_gridcellsMapping
 
   logical, parameter :: ISDEBUG = .false.
 
-  type shr_gridcellsMapIterator
+  type shr_gridcellsMappingIterator
   contains
 !    procedure :: hasMore -> yes/no
-!    procedure :: getNext -> shr_gridcellsMap
-  end type shr_gridcellsMapIterator
+!    procedure :: getNext -> shr_gridcellsMapping
+  end type shr_gridcellsMappingIterator
 
 
-  type shr_gridcellsMap
+  type shr_gridcellsMapping
     type(shr_gridcell), allocatable :: gridcells(:,:)
 
     type(shr_gAxisMapping), allocatable :: latMapping
     type(shr_gAxisMapping), allocatable :: lonMapping
-
-!    real(kind=sp) :: resolution
-!    type(shr_gGridAxes), allocatable :: latitudes
-!    type(shr_gGridAxes), allocatable :: longitudes
   contains
-    procedure :: init => gridcellsMap_initialize 
-    ! procedure :: createGridcellsMapIterator() -> shr_gridcellsMapIterator
+    procedure :: init => gridcellsMapping_initialize 
 
-    procedure :: getIndexByCoord
-    generic :: getIndex => getIndexByCoord
-
-!    procedure :: getIndexByGridcell
-!    generic :: getIndex => getIndexByGridcell
-  end type shr_gridcellsMap
+    procedure :: getGridcellsByCoord
+    generic :: get => getGridcellsByCoord
+  end type shr_gridcellsMapping
 
 contains
 
-  subroutine gridcellsMap_initialize(self, resolution, latAxis, lonAxis)
-    !< gridcellsMap initialization
+  subroutine gridcellsMapping_initialize(self, resolution, latAxis, lonAxis)
+    !< gridcellsMapping initialization
     !<
-    class(shr_gridcellsMap), intent(inout) :: self
+    class(shr_gridcellsMapping), intent(inout) :: self
     real(kind=sp), intent(in) :: resolution
     type(shr_gGridAxes), intent(in) :: latAxis
     type(shr_gGridAxes), intent(in) :: lonAxis
-
-!    self % resolution = resolution
-!    allocate(self % latitudes, source = latAxes)
-!    allocate(self % longitudes, source = lonAxes)
 
     ! gridcells mapping indices
     allocate(self % latMapping)
@@ -76,18 +64,18 @@ contains
     call self % lonMapping % init(lonAxis)
 
     ! populate gridcells
-!    self % gridcells = self % latitudes % expand(self % longitudes)
-  end subroutine gridcellsMap_initialize
+    self % gridcells = latAxis % expand(lonAxis)
+  end subroutine gridcellsMapping_initialize
 
 
-  function getIndexByCoord(self, coord) result (gIndices)
+  function getGridcellsByCoord(self, coord) result (gcells)
     !< given a coordinate it returns the matching indices 
     !< From 1 to 4 possible  
     !< coord must be inside the grid bounds
     use shr_gAxisMapping_mod, only: shr_gAxisMapping
-    class(shr_gridcellsMap), intent(in) :: self
+    class(shr_gridcellsMapping), intent(in) :: self
     type(shr_coord), intent(in) :: coord
-    type(shr_gridcellIndex), allocatable :: gindices(:)
+    type(shr_gridcell), allocatable :: gcells(:)
 
     integer, allocatable :: idxlats(:), idxlons(:) 
     integer :: ilat, ilon
@@ -96,29 +84,21 @@ contains
 
     !< calculate indices 
     idxlats = self % latMapping % getIndex(coord % lat)
-    idxlons = self % latMapping % getIndex(coord % lon)
+    idxlons = self % lonMapping % getIndex(coord % lon)
     nlats = size(idxlats)
     nlons = size(idxlons)
 
-    allocate(gIndices(nlats * nlons))
+    allocate(gcells(nlats * nlons))
 
     ! populate output
     icell = 1
     do ilat = 1, nlats
       do ilon = 1, nlons
-        call gIndices(icell) % init(idxlats(ilat), idxlons(ilon))
+        gcells(icell) = self % gridcells(idxlats(ilat), idxlons(ilon))
         icell = icell + 1 ! next
       enddo ! nlons
     enddo ! nlats
-  end function getIndexByCoord
+  end function getGridcellsByCoord
 
-
-!  type(shr_gridcellIndex) function getIndexByGridcell(self, gc)
-    !< it returns a gridcell index by providing a 'gridcell'
-!    class(shr_gridcellsMap), intent(in) :: self
-!    type(shr_gridcell), intent(in) :: gc
-!  end function getIndexByGridcell
-
-
-end module shr_gridcellsMap_mod 
+end module shr_gridcellsMapping_mod 
 

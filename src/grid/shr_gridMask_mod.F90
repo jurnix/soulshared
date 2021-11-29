@@ -17,7 +17,7 @@ module shr_gridMask_mod
 
   use shr_coord_mod, only: shr_coord
   use shr_gGridAxes_mod, only: shr_gGridAxes
-  use shr_gridcellsMap_mod, only: shr_gridcellsMap
+  use shr_gridcellsMapping_mod, only: shr_gridcellsMapping
 !  use shr_gAxesMapping_mod, only: shr_gAxesMapping
 
   implicit none
@@ -33,7 +33,7 @@ module shr_gridMask_mod
     type(shr_gGridAxes), allocatable :: latitudes
     type(shr_gGridAxes), allocatable :: longitudes
 
-!    type(shr_gridcellsMap), allocatable :: gridMap
+!    type(shr_gridcellsMapping), allocatable :: gridMap
 !    type(shr_gGridIndices), allocatable :: indices(:) 
     logical, allocatable :: mask(:,:)
   contains
