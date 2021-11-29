@@ -51,7 +51,7 @@ contains
     ! map indices
     allocate(self % indices(ncells))
     do iIdx = 1, ncells
-      call self % indices(iIdx) % init(self % axis % cells(iIdx), iIdx)
+      call self % indices(iIdx) % init(iIdx, self % axis % cells(iIdx))
     enddo
   end subroutine gAxisMapping_initialize
 

@@ -31,11 +31,13 @@ module shr_gAxisCellIndex_mod
   contains
     procedure :: init => gAxisIndex_initialize 
 
+    procedure :: getIndex
+    procedure :: getAxisCell
   end type shr_gAxisCellIndex
 
 contains
 
-  subroutine gAxisIndex_initialize(self, axisCell, index)
+  subroutine gAxisIndex_initialize(self, index, axisCell)
     !< gAxisIndex initialization
     class(shr_gAxisCellIndex), intent(inout) :: self
     type(shr_gGridAxesCell), intent(in) :: axisCell
