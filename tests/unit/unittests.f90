@@ -44,6 +44,8 @@ program unittest
   use shr_gGridAxesCell_test, only: testSuitegGridAxesCell
   use shr_gAxisMapping_test, only: testSuitegAxisMapping
   use shr_gAxisCellIndex_test, only: testSuitegAxisCellIndex
+  use shr_gridcellsMapping_test, only: testSuiteGridcellsMapping
+  use shr_gridIndicesMapping_test, only: testSuiteGridIndicesMapping
 
 
   implicit none
@@ -77,6 +79,8 @@ program unittest
   type(testSuitegGridAxesCell) :: tsgGridAxesCell
   type(testSuitegAxisMapping) :: tsgAxisMapping
   type(testSuitegAxisCellIndex) :: tsgAxisCellIndex
+  type(testSuiteGridcellsMapping) :: tsGridcellsMapping
+  type(testSuiteGridIndicesMapping) :: tsGridIndicesMapping
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -108,6 +112,8 @@ program unittest
   call tsgGridAxes % init("gGridAxes test", 20)
   call tsgAxisMapping % init("gAxisMapping test", 20)
   call tsgAxisCellIndex % init("gAxisCellIndex test", 20)
+  call tsGridcellsMapping % init("gridCellsMapping test", 10)
+  call tsGridindicesMapping % init("gridIndicesMapping test", 10)
   
 
   ! run all tests 
@@ -139,6 +145,8 @@ program unittest
   call tsgGridAxes % run()
   call tsgAxisMapping % run()
   call tsgAxisCellIndex % run()
+  call tsGridcellsMapping % run()
+  call tsGridIndicesMapping % run()
 
 
   ! show results
@@ -170,6 +178,8 @@ program unittest
   call tsgGridAxes % report()
   call tsgAxisMapping % report()
   call tsgAxisCellIndex % report()
+  call tsGridcellsMapping % report() 
+  call tsGridIndicesMapping % report() 
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -199,7 +209,9 @@ program unittest
       .not. tsgGridAxesCell % isSuccessful() .or. &
       .not. tsgGridAxes % isSuccessful() .or. & 
       .not. tsgAxisMapping % isSuccessful() .or. & 
-      .not. tsgAxisCellIndex % isSuccessful() & 
+      .not. tsgAxisCellIndex % isSuccessful() .or. & 
+      .not. tsGridcellsMapping % isSuccessful() .or. & 
+      .not. tsGridIndicesMapping % isSuccessful() & 
       ) stop 1
 
 end program unittest
