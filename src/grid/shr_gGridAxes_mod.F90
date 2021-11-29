@@ -19,7 +19,7 @@ module shr_gGridAxes_mod
   use shr_strings_mod, only: string
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
-
+  
   implicit none
 
   public :: shr_gGridAxes
@@ -40,10 +40,10 @@ module shr_gGridAxes_mod
     procedure :: getResolution
     procedure :: getSize
 
-    procedure :: expand
+    procedure :: expand !< array2d 
 
-!    procedure :: getIndices !< Given an axes coordinates it return its index
-!    procedure :: getGridAxesCell !< Given an index it return its AxesCell info 
+    procedure :: hasGridCoord 
+    procedure :: hasGridAxisCell
   end type shr_gGridAxes
 
 contains
@@ -149,6 +149,29 @@ contains
     enddo 
 
   end function expand
+
+
+  logical function hasGridCoord(self, axisCoord)
+    !< true if gridCoord is found inside gridAxes bounds
+    class(shr_gGridAxes), intent(in) :: self
+    real(kind=sp), intent(in):: axisCoord
+    hasGridCoord = self % bounds % isIn(axisCoord) 
+  end function hasGridCoord
+
+
+  logical function hasGridAxisCell(self, gridAxisCell)
+    !< true if gridAxisCell is found 
+    class(shr_gGridAxes), intent(in) :: self
+    type(shr_gGridAxesCell), intent(in):: gridAxisCell
+    integer :: icell
+    hasGridAxisCell = .false.
+    do icell = 1, self % getSize()
+      if (gridAxisCell == self % cells(icell)) then
+        hasGridAxisCell = .true.
+        exit
+      endif
+    enddo
+  end function hasGridAxisCell
 
 
 !  type(shr_gridcellsMap) function create_gridcellsMap(self, other) result (newGcMap)
