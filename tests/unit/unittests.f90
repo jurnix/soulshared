@@ -42,6 +42,8 @@ program unittest
   use shr_gGridAxes_test, only: testSuitegGridAxes
   use shr_gGridAxesBounds_test, only: testSuitegGridAxesBounds
   use shr_gGridAxesCell_test, only: testSuitegGridAxesCell
+  use shr_gAxisMapping_test, only: testSuitegAxisMapping
+
 
   implicit none
 
@@ -72,6 +74,7 @@ program unittest
   type(testSuitegGridAxesBounds) :: tsgGridAxesBounds
   type(testSuitegGridAxes) :: tsgGridAxes
   type(testSuitegGridAxesCell) :: tsgGridAxesCell
+  type(testSuitegAxisMapping) :: tsgAxisMapping
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -101,6 +104,7 @@ program unittest
   call tsgGridAxesBounds % init("gGridAxesBounds test", 20)
   call tsgGridAxesCell % init("gGridAxesCell test", 20)
   call tsgGridAxes % init("gGridAxes test", 20)
+  call tsgAxisMapping % init("gAxisMapping test", 20)
   
 
   ! run all tests 
@@ -130,6 +134,7 @@ program unittest
   call tsgGridAxesBounds % run() 
   call tsgGridAxesCell % run() 
   call tsgGridAxes % run()
+  call tsgAxisMapping % run()
 
 
   ! show results
@@ -159,6 +164,7 @@ program unittest
   call tsgGridAxesBounds % report()
   call tsgGridAxesCell % report()
   call tsgGridAxes % report()
+  call tsgAxisMapping % report()
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -186,7 +192,8 @@ program unittest
       .not. tsCoord % isSuccessful() .or. &
       .not. tsgGridAxesBounds % isSuccessful() .or. &
       .not. tsgGridAxesCell % isSuccessful() .or. &
-      .not. tsgGridAxes % isSuccessful() & 
+      .not. tsgGridAxes % isSuccessful() .or. & 
+      .not. tsgAxisMapping % isSuccessful() & 
       ) stop 1
 
 end program unittest
