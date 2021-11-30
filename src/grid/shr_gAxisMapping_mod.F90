@@ -15,8 +15,10 @@ module shr_gAxisMapping_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
+  use shr_strings_mod, only: string, real2string
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
+  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gAxisCellIndex_mod, only: shr_gAxisCellIndex
   
   implicit none
@@ -77,10 +79,19 @@ contains
     integer, allocatable :: foundIdxs(:)
     integer :: icell
     logical :: hasAxisCoord
+    type(shr_gGridAxesBounds), allocatable :: axisBounds
+    type(string), allocatable :: axisBoundsStr, givenVal
 
     if (.not. self % axis % hasGridCoord(axisCoord)) then
+      allocate(axisBounds)
+      allocate(axisBoundsStr, givenVal)
+      axisBounds = self % axis % getBounds()
+      axisBoundsStr = axisBounds % toString()
+      givenVal = real2String(axisCoord)
       call raiseError(__FILE__, "getIndexByCoord", &
-           "Given axisCoord is outside gridAxis bounds")
+           "Given axisCoord ("// givenVal % toString() //&
+           ") is outside gridAxis bounds", &
+           "Found: "//axisBoundsStr % toString())
     endif
 
     allocate(foundIdxs(0)) ! init output

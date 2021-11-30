@@ -15,6 +15,7 @@ module shr_gGridAxesBounds_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
+  use shr_strings_mod, only: string, real2string
   use shr_gridBounds_mod, only: shr_gridBounds
 
   implicit none
@@ -38,6 +39,8 @@ module shr_gGridAxesBounds_mod
 
     procedure :: create_gridBounds
     generic :: operator(*) => create_gridBounds
+
+    procedure :: toString
   end type shr_gGridAxesBounds
 
 contains
@@ -122,6 +125,18 @@ contains
                            lonBounds % getStart(), &
                            lonBounds % getEnd())
   end function create_gridBounds
+
+
+  type(string) function toString(self)
+    !< string representation of 'self'
+    !< toString() -> (2.0, -1.0)
+    class(shr_gGridAxesBounds), intent(in) :: self
+    type(string) :: startStr, endStr
+    startStr = real2string(self % start)
+    endStr = real2string(self % end)
+    toString = string("("//startStr % toString() // ", " // &
+                endStr % toString() // ")")
+  end function toString
 
 end module shr_gGridAxesBounds_mod 
 
