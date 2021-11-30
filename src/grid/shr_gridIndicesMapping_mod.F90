@@ -41,11 +41,10 @@ module shr_gridIndicesMapping_mod
 
 contains
 
-  subroutine gridIndicesMapping_initialize(self, resolution, latAxis, lonAxis)
+  subroutine gridIndicesMapping_initialize(self, latAxis, lonAxis)
     !< gridIndicesMapping initialization
     !<
     class(shr_gridIndicesMapping), intent(inout) :: self
-    real(kind=sp), intent(in) :: resolution
     type(shr_gGridAxes), intent(in) :: latAxis
     type(shr_gGridAxes), intent(in) :: lonAxis
 
@@ -72,7 +71,7 @@ contains
 
     !< calculate indices 
     idxlats = self % latMapping % getIndex(coord % lat)
-    idxlons = self % latMapping % getIndex(coord % lon)
+    idxlons = self % lonMapping % getIndex(coord % lon)
     nlats = size(idxlats)
     nlons = size(idxlons)
 
