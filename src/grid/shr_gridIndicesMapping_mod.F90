@@ -9,6 +9,20 @@
 ! DESCRIPTION:
 !>
 !> shr_gridIndicesMapping computes coordinates into array indices
+!>
+!>
+!>
+!>      -180     0     180
+!>        
+!>    90  +------+------+
+!>        |      |      |
+!>        |  1,1 |  1,2 |
+!>     0 -+------+------+
+!>        |      |      |
+!>        |  2,1 |  2,2 |
+!>   -90 -+------+------+
+!>
+!> array(2,2)
 !> 
 !------------------------------------------------------------------------------
 module shr_gridIndicesMapping_mod 
