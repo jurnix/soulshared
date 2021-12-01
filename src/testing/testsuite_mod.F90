@@ -13,10 +13,14 @@ module SHR_testSuite_mod
   use iso_fortran_env, only: real64
   use SHR_error_mod, only: raiseError
 
+  use shr_objects_mod, only: shr_wrapObject
+
   implicit none
 
   private
   public :: testSuite 
+
+  integer, parameter :: MAX_TEST_NAME = 60
 
 
   type, abstract :: testSuite
@@ -33,6 +37,12 @@ module SHR_testSuite_mod
     procedure :: run                          !< run all test cases
     procedure(define_iface), deferred :: define !< define tests cases
     procedure :: isSuccessful                 !< true whether all tests are successful
+
+    !< assertions
+    procedure :: assertTrueAlloc_r1
+    generic :: assertTrueAlloc => assertTrueAlloc_r1
+    procedure :: assertTrue_r1
+    generic :: assertTrue => assertTrue_r1
   end type testSuite
 
   interface 
@@ -49,7 +59,7 @@ contains
     class(testSuite), intent(in out) :: self
     logical, intent(in) :: condition
     character(*), intent(in) :: test_name
-    character(60) :: output_test_name
+    character(MAX_TEST_NAME) :: output_test_name
 
     if (.not. allocated (self % results) ) then
       write(*,*) "=========== Error found =========== "
@@ -160,5 +170,46 @@ contains
 
     print '(71("-"))'
   end subroutine printBreakLine
+
+
+  subroutine assertTrueAlloc_r1(self, expected, found, test_name) 
+    !< assert true if expected and found have the same size,
+    !< same values and are both allocated
+    !< otherwise false
+    class(testSuite), intent(in out) :: self
+    type(shr_wrapObject), allocatable, intent(in) :: expected(:)
+    type(shr_wrapObject), allocatable, intent(in) :: found(:)
+    character(*), intent(in) :: test_name
+
+    if (.not. allocated(expected)) then
+      call self % assert(.false., test_name)
+      return
+    endif
+
+    if (.not. allocated(found)) then
+      call self % assert(.false., test_name)
+      return
+    endif
+
+    call self % assertTrue(expected, found, test_name)
+  end subroutine assertTrueAlloc_r1
+
+
+  subroutine assertTrue_r1(self, expected, found, test_name) 
+    !< assert true if expected and found have the same size,
+    !< and same values. Otherwise false.
+    class(testSuite), intent(in out) :: self
+    type(shr_wrapObject), intent(in) :: expected(:)
+    type(shr_wrapObject), intent(in) :: found(:)
+    character(*), intent(in) :: test_name
+
+    ! same size?
+    if (size(expected) /= size(found)) then ! nope 
+      call self % assert(.false., test_name)
+    else ! yes
+      ! same elements?
+      call self % assert(all(expected == found), test_name)
+    endif 
+  end subroutine assertTrue_r1
 
 end module SHR_testSuite_mod
