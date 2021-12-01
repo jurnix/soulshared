@@ -15,6 +15,7 @@ module shr_gridcellIndex_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
+  use shr_objects_mod, only: shr_eqobject_abs !< soulshared base object
   use shr_strings_mod, only: string, int2string
   use shr_gridcell_mod, only: shr_gridcell
 
@@ -26,15 +27,16 @@ module shr_gridcellIndex_mod
 
 
 
-  type shr_gridcellIndex
+  type, extends(shr_eqObject_abs) :: shr_gridcellIndex
     integer :: idxlat
     integer :: idxlon
   contains
     procedure :: init => gridcellIndex_initialize 
 
     procedure :: getIndices
-    procedure :: eq_gridcellIndex
-    generic :: operator(==) => eq_gridcellIndex
+    !< implemented
+    procedure :: eq_object => eq_gridcellIndex
+!    generic :: operator(==) => eq_object
 
     procedure :: toString
   end type shr_gridcellIndex
@@ -60,12 +62,27 @@ contains
 
 
   elemental logical function eq_gridcellIndex(self, other)
-    !< true if 'self' and 'other' have the same attributes
+    !< true if 'self' and 'other' have the same attributes 
+    !< in case 'other' is not the same it is false
     class(shr_gridcellIndex), intent(in) :: self
-    type(shr_gridcellIndex), intent(in) :: other 
+    class(shr_eqObject_abs), intent(in) :: other
     logical :: hasSameIdxLat, hasSameIdxLon
-    hasSameIdxLat = (self % idxlat == other % idxlat)
-    hasSameIdxLon = (self % idxlon == other % idxlon)
+
+    type(shr_gridcellIndex), pointer :: otherWrap
+
+    !< extract type from 'other'
+    select type (obj => other)
+    type is (shr_gridcellIndex) !< type found
+      otherWrap => obj 
+    class default 
+      !< not found so it fails
+      eq_gridcellIndex = .false.
+      return
+    end select
+
+    !< comparision as usual
+    hasSameIdxLat = (self % idxlat == otherWrap % idxlat)
+    hasSameIdxLon = (self % idxlon == otherWrap % idxlon)
     eq_gridcellIndex = (hasSameIdxLat .and. hasSameIdxLon)
   end function eq_gridcellIndex
 
