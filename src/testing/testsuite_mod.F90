@@ -159,7 +159,7 @@ contains
     ! run defined tests 
     call self % define()
 
-    print '(71("-"))'
+    call self % printBreakLine()
 
   end subroutine run
 
