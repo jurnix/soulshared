@@ -44,9 +44,7 @@ contains
     type(shr_gGridAxesBounds) :: latBounds, lonBounds
     type(string) :: latName, lonName
     type(shr_coord) :: topCenter, center, lastGC
-    type(shr_gridcellIndex), allocatable :: foundIndices(:), expIndices(:)
-
-    type(shr_wrapObject), allocatable :: foundIndWraps(:), expIndWraps(:)
+    class(shr_gridcellIndex), allocatable :: foundIndices(:), expIndices(:)
 
     call latBounds % init(1., -1.)
     latname = string("latitude")
@@ -86,13 +84,10 @@ contains
     call expIndices(2) % init(1,2)
     foundIndices = m % getIndex(topCenter)
 
-    foundIndWraps = foundIndices % toWrapObject()
-    expIndWraps = expIndices % toWrapObject()
-    call self % assertTrueAlloc(foundIndWraps, expIndWraps, &
+    call self % assertTrue(foundIndices, expIndices, &
             "l % getIndex(1, 2) .eq. ([2,1], [2,2]) = T")
 
     deallocate(expIndices)
-    deallocate(foundIndWRaps, expIndWraps)
 
 
     center = shr_coord(0., 1.)
@@ -103,12 +98,9 @@ contains
     call expIndices(4) % init(2,2)
     foundIndices = m % getIndex(center)
 
-    foundIndWraps = foundIndices % toWrapObject()
-    expIndWraps = expIndices % toWrapObject()
-    call self % assertTrueAlloc(foundIndWraps, expIndWraps, &
+    call self % assertTrue_r1(foundIndices, expIndices, &
             "l % getIndex(0, 1) size .eq. ([1,1],[1,2],[2,1],[2,2]) = T")
     deallocate(expIndices)
-    deallocate(foundIndWRaps, expIndWraps)
 
 
     lastGC = shr_coord(-0.5, 0.5) 
@@ -116,13 +108,10 @@ contains
     call expIndices(1) % init(2,2)
     foundIndices = m % getIndex(lastGC)
 
-    foundIndWraps = foundIndices % toWrapObject()
-    expIndWraps = expIndices % toWrapObject()
-    call self % assertTrueAlloc(foundIndWraps, expIndWraps, &
+    call self % assertTrue(foundIndices, expIndices, &
             "l % getIndex(-0.5, 0.5) size .eq. ([2,2]) = T")
 
     deallocate(expIndices)
-    deallocate(foundIndWRaps, expIndWraps)
   end subroutine defineTestCases
 
 
