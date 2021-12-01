@@ -10,7 +10,7 @@
 !
 !> Interface SHR_eqObject_abs enforces classes to implement '=='
 !>
-!> wrapObject is a generic type used by structures. It controls
+!> shr_wrapObject is a generic type used by structures. It controls
 !> which types are allowed.
 !------------------------------------------------------------------------------
 !
@@ -21,10 +21,12 @@ module SHR_objects_mod
 
   implicit none 
 
-  public :: SHR_eqObject_abs, wrapObject
+  public :: SHR_eqObject_abs, shr_wrapObject
+
+  logical, parameter :: IS_DEBUG = .false.
 
 
-  !< current wrapObject type
+  !< current shr_wrapObject type
   integer, parameter :: WRAP_OBJ_TYPE_NONE=-1
   integer, parameter :: WRAP_OBJ_TYPE_INT=0
   integer, parameter :: WRAP_OBJ_TYPE_RSP=1
@@ -39,6 +41,8 @@ module SHR_objects_mod
   contains
     procedure(iface_eq_object), deferred :: eq_object
     generic :: operator(==) => eq_object
+
+    procedure :: toWrapObject
   end type SHR_eqObject_abs
 
 
@@ -52,7 +56,7 @@ module SHR_objects_mod
   end interface 
 
 
-  !< wrapObject is used by data structures to hold
+  !< shr_wrapObject is used by data structures to hold
   !< Either basic types or SHR_eqObject_abs sub types
   !<
   !< supported wrapObject types
@@ -65,7 +69,7 @@ module SHR_objects_mod
 
 
   ! setObject generic container for 'set' data structure
-  type, extends(SHR_eqObject_abs) :: wrapObject
+  type, extends(SHR_eqObject_abs) :: shr_wrapObject
     class(*), pointer :: obj => null()
 
     !< cast value
@@ -79,12 +83,12 @@ module SHR_objects_mod
   contains
     procedure :: init => init_wrapObject !< constructor_wrapObject
     procedure :: eq_object => eq_wrapObject
-  end type wrapObject
+  end type shr_wrapObject
 
 
-  interface wrapObject
+  interface shr_wrapObject
     module procedure constructor_wrapObject
-  end interface wrapObject
+  end interface shr_wrapObject
 
 contains
 
@@ -94,14 +98,14 @@ contains
     !< false if same type and different values
     !< false if different types
     !< error if other is not an otherWrapObj
-    class(wrapObject), intent(in) :: self
+    class(shr_wrapObject), intent(in) :: self
     class(SHR_eqObject_abs), intent(in) :: other
 
-    class(wrapObject), pointer :: otherWrapObj
+    class(shr_wrapObject), pointer :: otherWrapObj
 
     ! cast 'other' to wrapObject
     select type(wrap => other)
-    class is (wrapObject)
+    class is (shr_wrapObject)
       otherWrapObj => wrap
     class default
       !< error
@@ -136,7 +140,7 @@ contains
   end function eq_wrapObject
 
 
-  type(wrapObject) function constructor_wrapObject(obj)
+  type(shr_wrapObject) function constructor_wrapObject(obj)
     !< wrap unlimited polymorhpic type
     class(*), intent(in), pointer :: obj
     call constructor_wrapObject % init(obj)
@@ -146,7 +150,7 @@ contains
   subroutine init_wrapObject(self, obj)
     !< initialize wrapObject
     !< Wrap unlimited polymorhpic type
-    class(wrapObject), intent(inout) :: self
+    class(shr_wrapObject), intent(inout) :: self
     class(*), intent(in), pointer :: obj
 
     self % obj => obj
@@ -155,23 +159,23 @@ contains
     ! discover and cast type
     select type(wrap => obj) 
     type is (integer)
-      write(*,*) "set_mod:: self:: integer type found"
+      if (IS_DEBUG) write(*,*) "set_mod:: self:: integer type found"
       self % type = WRAP_OBJ_TYPE_INT
       self % intObj => wrap
     type is (character(*))
-      write(*,*) "set_mod:: self:: char type found"
+      if (IS_DEBUG) write(*,*) "set_mod:: self:: char type found"
       self % type = WRAP_OBJ_TYPE_CHAR
       self % chrObj => wrap
     type is (real(kind=sp))
-      write(*,*) "set_mod:: self:: real sp type found"
+      if (IS_DEBUG) write(*,*) "set_mod:: self:: real sp type found"
       self % type = WRAP_OBJ_TYPE_RSP
       self % rspObj => wrap
     type is (real(kind=dp))
-      write(*,*) "set_mod:: self:: real dp type found"
+      if (IS_DEBUG) write(*,*) "set_mod:: self:: real dp type found"
       self % type = WRAP_OBJ_TYPE_RDP
       self % rdpObj => wrap
     class is (SHR_eqObject_abs)
-      write(*,*) "set_mod:: self:: SHR_eqObject_abs type found"
+      if (IS_DEBUG) write(*,*) "set_mod:: self:: SHR_eqObject_abs type found"
       self % type = WRAP_OBJ_TYPE_EQO
       self % eqObj => wrap
     class default
@@ -181,5 +185,15 @@ contains
               "Supported types: int, char, rsp, dsp and SHR_eqObject_abs")
     end select
   end subroutine init_wrapObject
+
+
+  elemental impure function toWrapObject(self) result (generic)
+    !< convert a specific class to shr_wrapObject generic 
+    class(shr_eqObject_Abs), target, intent(in) :: self
+    type(shr_wrapObject) :: generic !< output
+    class(*), pointer :: wrap
+    wrap => self
+    call generic % init(wrap)
+  end function toWrapObject
 
 end module SHR_objects_mod
