@@ -8,6 +8,7 @@
 !
 ! DESCRIPTION:
 !> 
+!> grid cell is a smaller part of a grid
 !>
 !------------------------------------------------------------------------------
 
@@ -15,14 +16,9 @@
 module shr_gridcell_mod
 
   use SHR_precision_mod, only: sp 
-!  use SHR_error_mod, only: raiseError
-!  use SHR_arrayUtils_mod, only: unique, closestNumber2Index, PREFER_LAST, &
-!                        initArrayRange
   use shr_coord_mod, only: shr_coord
-!  use shr_gridPartition_mod, only: grid_partition_type
   use shr_gridBounds_mod, only: shr_gridBounds
-!  use shr_gridBounds_mod, only: SHR_GRIDBOUNDS_NCOORDS, SHR_GRIDBOUNDS_NORTH, &
-!             SHR_GRIDBOUNDS_SOUTH, SHR_GRIDBOUNDS_EAST, SHR_GRIDBOUNDS_WEST
+  use shr_objects_mod, only: shr_eqObject_abs
 
   implicit none
 
@@ -47,7 +43,7 @@ module shr_gridcell_mod
 
 
 
-  type shr_gridcell !< gridcell from the map
+  type, extends(shr_eqObject_abs) :: shr_gridcell !< gridcell from the map
     integer :: idx !< gridcell index in repect to the overall grid (starting from top-left with 1 to ...)
     type(shr_coord) :: center !< gridcell center
     real(kind=sp) :: resolution !< gridcell resolution
@@ -60,8 +56,8 @@ module shr_gridcell_mod
     procedure :: getSpatialIdxs 
     procedure :: toString => toString_gridcell
 
-    procedure, private :: gridcell_eq
-    generic :: operator(==) => gridcell_eq
+    !< deferred as (==)
+    procedure :: eq_object => gridcell_eq
   end type shr_gridcell
 
   interface shr_gridcell
@@ -71,18 +67,29 @@ module shr_gridcell_mod
 
 contains
 
-  pure elemental logical function gridcell_eq(gc0,gc1) result(res)
+  pure elemental logical function gridcell_eq(self, other) result(res)
     ! `datetime` comparison operator that returns `.true.` if `d0` is
     ! equal to `d1` and `.false.` otherwise. Overloads the operator `==`.
-    class(shr_gridcell), intent(in) :: gc0, gc1
+    class(shr_gridcell), intent(in) :: self
+    !class(shr_gridcell), intent(in) :: gc1
+    class(SHR_eqObject_abs), intent(in) :: other
+    class(shr_gridcell), pointer :: pGridcell
 
     logical :: sameIdx, sameCenter, sameRes, sameLimits, sameStatus
 
-    sameIdx = (gc0 % idx == gc1 % idx) 
-    sameCenter = ( gc0 % center == gc1 % center )
-    sameRes = (gc0 % resolution == gc1 % resolution)
-    sameLimits = ( gc0 % limits == gc1 % limits )
-    sameStatus = ( gc0 % enabled .eqv. gc1 % enabled )
+    select type(eqgc => other)
+    type is (shr_gridcell)
+      pGridcell => eqgc
+    class default
+      res = .false.
+      return
+    end select
+
+    sameIdx = (self % idx == pGridcell % idx) 
+    sameCenter = ( self % center == pGridcell % center )
+    sameRes = (self % resolution == pGridcell % resolution)
+    sameLimits = ( self % limits == pGridcell % limits )
+    sameStatus = ( self % enabled .eqv. pGridcell % enabled )
 
     res = sameIdx .and. sameCenter .and. sameRes .and. sameLimits .and. sameStatus
   end function gridcell_eq
