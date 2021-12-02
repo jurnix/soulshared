@@ -44,6 +44,9 @@ module shr_gGridAxes_mod
 
     procedure :: hasGridCoord 
     procedure :: hasGridAxisCell
+
+    procedure :: eq_gGridAxes
+    generic :: operator(==) => eq_gGridAxes
   end type shr_gGridAxes
 
 contains
@@ -172,6 +175,22 @@ contains
       endif
     enddo
   end function hasGridAxisCell
+
+
+  logical function eq_gGridAxes(self, other)
+    !< true if 'self' and 'other' have the same attributes
+    class(shr_gGridAxes), intent(in) :: self
+    type(shr_gGridAxes), intent(in) :: other 
+    logical :: hasSameName, hasSameRes, hasSameBounds, hasSameCells
+
+    hasSameName = (self % name == other % getName())
+    hasSameRes = (self % resolution == other % getResolution())
+    hasSameBounds = (self % bounds == other % getBounds())
+    hasSameCells = all(self % cells == other % Cells)
+
+    eq_gGridAxes = (hasSameName .and. hasSameRes .and. &
+                    hasSameBounds .and. hasSameCells)
+  end function eq_gGridAxes
 
 
 !  type(shr_gridcellsMap) function create_gridcellsMap(self, other) result (newGcMap)

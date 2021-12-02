@@ -98,6 +98,10 @@ contains
             "lats % expand(lons)[2,2]  .eq. gridcell(1, [-0.5, 8.5]) = T")
 
 
+    !< equal (==)
+    call self % assert(lats == lats, "lats .eq. lats = T")
+    call self % assert(.not. (lats == lons), "lats .eq. lons = F")
+
   end subroutine defineTestCases
 
 end module shr_gGridAxes_test
