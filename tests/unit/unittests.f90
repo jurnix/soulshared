@@ -47,6 +47,7 @@ program unittest
   use shr_gridcellsMapping_test, only: testSuiteGridcellsMapping
   use shr_gridIndicesMapping_test, only: testSuiteGridIndicesMapping
   use shr_gridMask_test, only: testSuiteGridMask
+  use shr_gGridDescriptor_test, only: testSuitegGridDescriptor
 
 
   implicit none
@@ -83,6 +84,7 @@ program unittest
   type(testSuiteGridcellsMapping) :: tsGridcellsMapping
   type(testSuiteGridIndicesMapping) :: tsGridIndicesMapping
   type(testSuiteGridMask) :: tsGridMask
+  type(testSuitegGridDescriptor) :: tsGridDescriptor
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -117,6 +119,7 @@ program unittest
   call tsGridcellsMapping % init("gridCellsMapping test", 10)
   call tsGridindicesMapping % init("gridIndicesMapping test", 10)
   call tsGridMask % init("gridMask test", 10)
+  call tsGridDescriptor % init("gridDescriptor test", 10)
   
 
   ! run all tests 
@@ -151,6 +154,7 @@ program unittest
   call tsGridcellsMapping % run()
   call tsGridIndicesMapping % run()
   call tsGridMask % run()
+  call tsGridDescriptor % run()
 
 
   ! show results
@@ -185,6 +189,7 @@ program unittest
   call tsGridcellsMapping % report() 
   call tsGridIndicesMapping % report() 
   call tsGridMask % report() 
+  call tsGridDescriptor % report() 
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -217,7 +222,8 @@ program unittest
       .not. tsgAxisCellIndex % isSuccessful() .or. & 
       .not. tsGridcellsMapping % isSuccessful() .or. & 
       .not. tsGridIndicesMapping % isSuccessful() .or. & 
-      .not. tsGridMask % isSuccessful() & 
+      .not. tsGridMask % isSuccessful() .or. & 
+      .not. tsGridDescriptor % isSuccessful() & 
       ) stop 1
 
 end program unittest
