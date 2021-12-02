@@ -15,10 +15,9 @@ module shr_gridMask_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
-  use shr_coord_mod, only: shr_coord
   use shr_gGridAxes_mod, only: shr_gGridAxes
-  use shr_gridcellsMapping_mod, only: shr_gridcellsMapping
-!  use shr_gAxesMapping_mod, only: shr_gAxesMapping
+  use shr_GridBounds_mod, only: shr_gridBounds
+  use shr_gridcellIndex_mod, only: shr_gridcellIndex
 
   implicit none
 
@@ -32,74 +31,70 @@ module shr_gridMask_mod
     real(kind=sp) :: resolution
     type(shr_gGridAxes), allocatable :: latitudes
     type(shr_gGridAxes), allocatable :: longitudes
+    type(shr_gridBounds), allocatable :: bounds
 
-!    type(shr_gridcellsMapping), allocatable :: gridMap
-!    type(shr_gGridIndices), allocatable :: indices(:) 
     logical, allocatable :: mask(:,:)
   contains
     procedure :: init => gridMask_initialize
 
-!    procedure :: setStatusByGridcell
-!    generic :: setStatus => setStatusByGridcell
-!    procedure :: getStatusByGridcell
-!    generic :: getStatus => getStatusByGridcell
+    procedure :: countEnabled
+!    procedure :: setAll(status), assignment(=)
+
+!    procedure :: setStatusByMask
+    procedure :: setStatusByGridcellIndex
+    generic :: setStatus => setStatusByGridcellIndex
+
+!    procedure :: getStatusByMask
+    procedure :: getStatusByGridcellIndex
+    generic :: getStatus => getStatusByGridcellIndex
   end type shr_gridMask
 
 contains
 
-  subroutine gridMask_initialize(self, resolution, latAxis, lonAxis)
+  subroutine gridMask_initialize(self, resolution, bounds, latAxis, lonAxis)
     !< gridMask initialization
     class(shr_gridMask), intent(inout) :: self
     real(kind=sp), intent(in) :: resolution
     type(shr_gGridAxes), intent(in) :: latAxis
     type(shr_gGridAxes), intent(in) :: lonAxis
+    type(shr_gridBounds), intent(in) :: bounds
 
     integer :: nlats, nlons
 
     self % resolution = resolution
     allocate(self % latitudes, source = latAxis)
     allocate(self % longitudes, source = lonAxis)
+    allocate(self % bounds, source = bounds)
 
     nlats = self % latitudes % getSize()
     nlons = self % longitudes % getSize()
     allocate(self% mask(nlats, nlons))
     self % mask = .true.
-
-!    allocate(self % gridMap)
-!    call self % gridMap % init(resolution, latAxis, lonAxis)
   end subroutine gridMask_initialize
 
 
-!  subroutine setStatusByGridcell(self, gridcells, newStatus)
+  subroutine setStatusByGridcellIndex(self, gcIndex, newStatus)
     !< set a new status for given coordinate 'coord'
     !< coord must be found inside the grid
-!    class(shr_gridMask), intent(inout) :: self
-!    type(shr_gridcell), intent(in) :: gridcells
-!    logical, intent(in) :: newStatus
-!    type(shr_gridcell), allocatable :: gridcells(:) 
-!    type(shr_gGridIndices), allocatable :: indices(:) 
-    !< discover gridcells
-!    gridcells = self % gridMap % getGridcells(coord)
-    !< translate from gridcells to indices
-!    indices = self % gridIndices % get(gridcells) 
-    !< apply
-!    call self % setStatusByGridMapIndex(indices) !< elemental
-!  end subroutine setStatusByGridcell
+    class(shr_gridMask), intent(inout) :: self
+    type(shr_gridcellIndex), intent(in) :: gcIndex 
+    logical, intent(in) :: newStatus
+    self % mask(gcIndex % idxlat, gcIndex % idxlon) = newStatus
+  end subroutine setStatusByGridcellIndex
 
 
-!  logical function getStatusByGridcell(self, coord)
+  logical function getStatusByGridcellIndex(self, gcIndex)
     !< returns the gridcell status requested by 'coord'
-!    class(shr_gridMask), intent(in) :: self
-!    type(shr_coord), intent(in) :: coord
-!  end function getStatusByGridcell
+    class(shr_gridMask), intent(in) :: self
+    type(shr_gridcellIndex), intent(in) :: gcIndex
+    getStatusByGridcellIndex = self % mask(gcIndex % idxlat, gcIndex % idxlon)
+  end function getStatusByGridcellIndex
 
 
-!  type(shr_gGridIndices) function discoverIndices(self, gridcell) 
-    !< 
-!    class(shr_gridMask), intent(inout) :: self
-!    type(shr_gridcell), intent(in) :: gridcells
-!  end function discoverIndices
-
-
+  integer function countEnabled(self)
+    !< return the number of enabled grid cells found
+    class(shr_gridMask), intent(in) :: self
+    countEnabled = count(self % mask) 
+  end function countEnabled
 end module shr_gridMask_mod
 
