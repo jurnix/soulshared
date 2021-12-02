@@ -16,7 +16,8 @@ module shr_gridMask_mod
   use SHR_precision_mod, only: sp
 
   use shr_gGridAxes_mod, only: shr_gGridAxes
-  use shr_GridBounds_mod, only: shr_gridBounds
+  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
+!  use shr_GridBounds_mod, only: shr_gridBounds
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
 
   implicit none
@@ -28,10 +29,7 @@ module shr_gridMask_mod
 
   type shr_gridMask
     !< grid descriptor
-    real(kind=sp) :: resolution
-    type(shr_gGridAxes), allocatable :: latitudes
-    type(shr_gGridAxes), allocatable :: longitudes
-    type(shr_gridBounds), allocatable :: bounds
+    type(shr_gGridDescriptor), allocatable :: gridDescriptor
 
     logical, allocatable :: mask(:,:)
   contains
@@ -47,27 +45,27 @@ module shr_gridMask_mod
 !    procedure :: getStatusByMask
     procedure :: getStatusByGridcellIndex
     generic :: getStatus => getStatusByGridcellIndex
+
+    procedure :: getRaw
   end type shr_gridMask
 
 contains
 
-  subroutine gridMask_initialize(self, resolution, bounds, latAxis, lonAxis)
+  subroutine gridMask_initialize(self, gridDescriptor) 
     !< gridMask initialization
     class(shr_gridMask), intent(inout) :: self
-    real(kind=sp), intent(in) :: resolution
-    type(shr_gGridAxes), intent(in) :: latAxis
-    type(shr_gGridAxes), intent(in) :: lonAxis
-    type(shr_gridBounds), intent(in) :: bounds
+    type(shr_gGridDescriptor), intent(in) :: gridDescriptor 
 
+    type(shr_gGridAxes) :: axis
     integer :: nlats, nlons
 
-    self % resolution = resolution
-    allocate(self % latitudes, source = latAxis)
-    allocate(self % longitudes, source = lonAxis)
-    allocate(self % bounds, source = bounds)
+    allocate(self % gridDescriptor, source = gridDescriptor) 
 
-    nlats = self % latitudes % getSize()
-    nlons = self % longitudes % getSize()
+    axis = self % gridDescriptor % getLatAxis() !latitudes % getSize()
+    nlats = axis % getSize()
+    axis = self % gridDescriptor % getLonAxis() !longitudes % getSize()
+    nlons = axis % getSize()
+
     allocate(self% mask(nlats, nlons))
     self % mask = .true.
   end subroutine gridMask_initialize
@@ -96,5 +94,13 @@ contains
     class(shr_gridMask), intent(in) :: self
     countEnabled = count(self % mask) 
   end function countEnabled
+
+
+  function getRaw(self) result (outMask)
+    !< returns current mask
+    class(shr_gridMask), intent(in) :: self
+    logical, allocatable :: outMask(:,:) !< output
+    allocate(outMask, source = self % mask)
+  end function getRaw
 end module shr_gridMask_mod
 

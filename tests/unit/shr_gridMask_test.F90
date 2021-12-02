@@ -19,6 +19,8 @@ module shr_gridMask_test
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gridMask_mod, only: shr_gridMask
   use shr_gridBounds_mod, only: shr_gridBounds
+  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
+  use shr_gridcellIndex_mod, only: shr_gridcellIndex
 
   implicit none
 
@@ -45,6 +47,13 @@ contains
     type(shr_gGridAxesBounds) :: latBounds, lonBounds
     type(string) :: latName, lonName
 
+    type(shr_gGridDescriptor) :: gDescriptor
+    logical :: expMask(2,2)
+    logical, allocatable :: foundMask(:,:)
+
+    type(shr_gridcellIndex) :: gcIndex
+
+
     call latBounds % init(1., -1.)
     latname = string("latitude")
     call latAxis % init(latName, RES, latBounds)
@@ -55,7 +64,9 @@ contains
 
     bounds = latAxis % getBounds() * lonAxis % getBounds()
 
-    call m % init(RES, bounds, latAxis, lonAxis)
+    call gdescriptor % init(RES, bounds, latAxis, lonAxis)
+
+    call m % init(gDescriptor)
     call self % assert(.true., "m % init(1., latAxis(1,-1), lonAxis(2,0), ...) = T")
 
     !
@@ -79,6 +90,32 @@ contains
     ! | 2,1 | 2,2 |
     ! *-----+-----+
     !
+    call self % assert(m % countEnabled() == 4, "m % count() .eq. 4 = T")
+
+    !< setStatus
+    call gcIndex % init(2, 2)
+    call m % setStatus(gcIndex, .false.)
+    call gcIndex % init(1, 2)
+    call m % setStatus(gcIndex, .false.)
+
+    call self % assert(m % countEnabled() == 2, "m % count() .eq. 2 = T")
+
+    !< getRaw
+    expMask = .true.
+    expMask(1,2) = .false.
+    expMask(2,2) = .false.
+    foundMask = m % getRaw()
+    call self % assert(all(foundMask .eqv. expMask), &
+            "m % getRaw() .eq. ((T,F), (T,F)) = T")
+
+    !< get status
+    call gcIndex % init(1, 1)
+    call self % assert(m % getStatus(gcIndex), &
+            "m % getStatus(1,1) = T")
+
+    call gcIndex % init(2, 2)
+    call self % assert(.not. m % getStatus(gcIndex), &
+            "m % getStatus(1,1) = F")
   end subroutine defineTestCases
 
 
