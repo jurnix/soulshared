@@ -64,18 +64,24 @@ module shr_gridMask_mod
     procedure :: reverse => reverse_gridMask
 
     procedure, private :: isValidMask => isValidBy2dArray
+
+    procedure :: any => any_gridMask
   end type shr_gridMask
 
 contains
 
-  subroutine gridMask_initialize(self, gridDescriptor) 
+  subroutine gridMask_initialize(self, gridDescriptor, default)
     !< gridMask initialization
     class(shr_gridMask), intent(inout) :: self
-    type(shr_gGridDescriptor), intent(in) :: gridDescriptor 
+    type(shr_gGridDescriptor), intent(in) :: gridDescriptor
+    logical, intent(in), optional :: default !< define default value (def: true)
 
+    logical :: inDefault
     type(shr_gGridAxes) :: axis
     integer :: nlats, nlons
 
+    inDefault = .true.
+    if (present(default)) inDefault = default
     allocate(self % gridDescriptor, source = gridDescriptor) 
 
     axis = self % gridDescriptor % getLatAxis() !latitudes % getSize()
@@ -84,7 +90,7 @@ contains
     nlons = axis % getSize()
 
     allocate(self% mask(nlats, nlons))
-    self % mask = .true.
+    self % mask = inDefault
   end subroutine gridMask_initialize
 
 
@@ -206,6 +212,7 @@ contains
     !< true if given 2d array mask matches 'self' grid descriptor
     !< It matches when:
     !< - same dimensions for lat and lon
+    !< todo: move to gridDescriptor
     class(shr_gridMask), intent(in) :: self
     logical, intent(in) :: mask(:,:)
 
@@ -229,6 +236,14 @@ contains
     end if
     isValidBy2dArray = .true.
   end function isValidBy2dArray
+
+
+  logical function any_gridMask(self)
+    !< true if any 'a' and 'b' has true value
+    !< wrap to enable 'any' from shr_gridMask
+    class(shr_gridMask), intent(in) :: self
+    any_gridMask = any(self % mask)
+  end function any_gridMask
 
 end module shr_gridMask_mod
 
