@@ -98,21 +98,21 @@ contains
   end subroutine gGridAxes_initialize
 
 
-  type(string) function getName(self)
+  elemental type(string) function getName(self)
     !< it returns the name attribute
     class(shr_gGridAxes), intent(in) :: self
     getName = self %  name
   end function getName
 
 
-  type(shr_gGridAxesBounds) function getBounds(self)
+  elemental type(shr_gGridAxesBounds) function getBounds(self)
     !< it returns the bounds attribute
     class(shr_gGridAxes), intent(in) :: self
     getBounds = self % bounds
   end function getBounds
 
 
-  real(kind=sp) function getResolution(self)
+  elemental real(kind=sp) function getResolution(self)
     !< it returns the resolution attribute
     class(shr_gGridAxes), intent(in) :: self
     getResolution = self % resolution
@@ -177,7 +177,7 @@ contains
   end function hasGridAxisCell
 
 
-  logical function eq_gGridAxes(self, other)
+  elemental logical function eq_gGridAxes(self, other)
     !< true if 'self' and 'other' have the same attributes
     class(shr_gGridAxes), intent(in) :: self
     type(shr_gGridAxes), intent(in) :: other 
