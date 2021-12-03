@@ -118,7 +118,7 @@ program unittest
   call tsgAxisCellIndex % init("gAxisCellIndex test", 20)
   call tsGridcellsMapping % init("gridCellsMapping test", 10)
   call tsGridindicesMapping % init("gridIndicesMapping test", 10)
-  call tsGridMask % init("gridMask test", 10)
+  call tsGridMask % init("gridMask test", 20)
   call tsGridDescriptor % init("gridDescriptor test", 10)
   
 
