@@ -37,6 +37,9 @@ module shr_gGridDescriptor_mod
     procedure :: getBounds
     procedure :: getLatAxis
     procedure :: getLonAxis
+
+    procedure :: eq_gridDescriptor
+    generic :: operator(==) => eq_gridDescriptor
   end type shr_gGridDescriptor
 
 contains
@@ -83,6 +86,19 @@ contains
     getLonAxis = self % lonAxis
   end function getLonAxis
 
+
+  elemental logical function eq_gridDescriptor(self, other)
+    !<
+    class(shr_gGridDescriptor), intent(in) :: self
+    class(shr_gGridDescriptor), intent(in) :: other
+    logical :: hasSameRes, hasSameLat, hasSameLon, hasSameBounds
+    hasSameRes = (self % resolution == other % resolution)
+    hasSameLat = (self % latAxis == other % latAxis)
+    hasSameLon = (self % lonAxis == other % lonAxis)
+    hasSameBounds = (self % bounds == other % bounds)
+    eq_gridDescriptor = (hasSameRes .and. hasSameLat .and. &
+                          hasSameLon .and. hasSameBounds)
+  end function eq_gridDescriptor
 
 end module shr_gGridDescriptor_mod 
 

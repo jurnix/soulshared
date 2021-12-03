@@ -36,7 +36,7 @@ contains
   subroutine defineTestCases(self)
     use iso_c_binding
     class(testSuitegGridDescriptor), intent(inout) :: self
-    type(shr_gGridDescriptor) :: d
+    type(shr_gGridDescriptor) :: d, other
 
     type(shr_gGridAxes) :: latAxis
     type(shr_gGridAxes) :: lonAxis
@@ -74,6 +74,14 @@ contains
     ! getLonAxis
     call self % assert(d % getLonAxis() == lonAxis, &
             "d % getLonAxis() .eq. lonAxis(2,0) = T")
+
+    ! equal (==)
+    call self % assert( d == d, "d .eq. d = T")
+
+    call other % init(1., bounds, latAxis, latAxis)
+    call self % assert( .not. (other == d), &
+            "bounds(..., lat, lat) .eq. d(..., lat, lon) = T")
+
   end subroutine defineTestCases
 
 
