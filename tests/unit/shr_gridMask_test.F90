@@ -39,7 +39,7 @@ contains
     use iso_c_binding
     class(testSuitegridMask), intent(inout) :: self
     real(kind=sp), parameter :: RES = 1.0
-    type(shr_gridMask) :: m
+    type(shr_gridMask) :: m, other
     type(shr_gGridAxes) :: latAxis
     type(shr_gGridAxes) :: lonAxis
     type(shr_gridBounds) :: bounds
@@ -48,7 +48,7 @@ contains
     type(string) :: latName, lonName
 
     type(shr_gGridDescriptor) :: gDescriptor
-    logical :: expMask(2,2)
+    logical :: expMask(2,2), rawMask(2,2)
     logical, allocatable :: foundMask(:,:)
 
     type(shr_gridcellIndex) :: gcIndex
@@ -116,6 +116,37 @@ contains
     call gcIndex % init(2, 2)
     call self % assert(.not. m % getStatus(gcIndex), &
             "m % getStatus(1,1) = F")
+
+    !< == (2d raw array)
+    rawMask(1,:) = [.true., .false.]
+    rawMask(2,:) = [.true., .false.]
+    call self % assert(( m == rawMask ), &
+            "m == rawMask(FT, TF) = T")
+
+    !< == (scalar)
+    call self % assert(.not. ( m == .true. ), &
+            "m == .true. = F")
+
+    !< revert changes
+    call gcIndex % init(2, 2)
+    call m % setStatus(gcIndex, .true.)
+    call gcIndex % init(1, 2)
+    call m % setStatus(gcIndex, .true.)
+    call self % assert( ( m == .true. ), "m(true) == .true. = T")
+
+    !< revert
+    call m % reverse()
+    call self % assert( ( m == .false. ), "m(true) % revert() == .false. = T")
+
+    !< copy (=)
+    call gcIndex % init(2, 2)
+    call m % setStatus(gcIndex, .true.)
+    other = m
+    foundMask = other
+    rawMask(1,:) = [.false., .false.]
+    rawMask(2,:) = [.false., .true.]
+    call self % assert( ( all(foundMask .eqv.  rawMask) ), &
+            "other(copied from m) .eq. m = T")
   end subroutine defineTestCases
 
 

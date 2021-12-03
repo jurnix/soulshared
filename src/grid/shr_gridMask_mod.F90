@@ -56,7 +56,7 @@ module shr_gridMask_mod
     procedure :: eq_rawMask
     procedure :: eq_gridMask
     generic :: operator(==) => eq_scalar_logical, eq_gridMask, &
-                eq_rawMask
+            eq_rawMask
 
     procedure :: and_gridMask
     generic :: operator(.and.) => and_gridMask
@@ -138,7 +138,7 @@ contains
 
     if (.not. self % isValidMask(mask)) then
       call raiseError(__FILE__, SNAME, &
-           "Given 'mask' dimensions do not match the masked grid")
+              "Given 'mask' dimensions do not match the masked grid")
     end if
     hasSameMask = all(self % mask .eqv. mask)
     eq_rawMask = (hasSameMask)
@@ -159,7 +159,7 @@ contains
   type(shr_gridMask) function and_gridMask(self, other) result (newMask)
     !< returns a new gridMask with matching gridcells
     !< both must have the same size
-    !< 
+    !<
     !< gridMask(F T F) = gridMask(T T F) .and. gridMask(F T F)
     class(shr_gridMask), intent(in) :: self
     type(shr_gridMask), intent(in) :: other
@@ -196,7 +196,7 @@ contains
 
     if (.not. self % isValidMask(mask)) then
       call raiseError(__FILE__, SNAME, &
-          "Given 'mask' dimensions do not match the masked grid")
+              "Given 'mask' dimensions do not match the masked grid")
     end if
     mask = self % mask
   end subroutine copy_rev_array
