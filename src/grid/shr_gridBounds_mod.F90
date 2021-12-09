@@ -51,6 +51,10 @@ module shr_gridBounds_mod
     procedure, pass(w0), private :: gridBounds_eq_array
     ! 
     generic :: operator(==)  => gridBounds_eq, gridBounds_eq_array
+
+    ! combine
+    procedure :: gridBounds_combine
+    generic :: operator(+) => gridBounds_combine
   end type shr_gridBounds
 
 contains
@@ -177,7 +181,7 @@ contains
     write(s,'(F10.4)') self % south
     write(e,'(F10.4)') self % east 
     write(w,'(F10.4)') self % west 
-    str = n//", "//s//", "//e//", "//w
+    str = trim(adjustl(n))//", "//trim(adjustl(s))//", "//trim(adjustl(e))//", "//trim(adjustl(w))
   end function toString
 
 
@@ -187,11 +191,27 @@ contains
     class(shr_gridBounds), intent(in) :: self
     real(kind=sp) :: vals(SHR_GRIDBOUNDS_NCOORDS)
 
-    vals(1) = self % north
-    vals(2) = self % south
-    vals(3) = self % east
-    vals(4) = self % west
+    vals(SHR_GRIDBOUNDS_NORTH) = self % north
+    vals(SHR_GRIDBOUNDS_SOUTH) = self % south
+    vals(SHR_GRIDBOUNDS_EAST) = self % east
+    vals(SHR_GRIDBOUNDS_WEST) = self % west
   end function toArray
+
+
+  type(shr_gridBounds) function gridBounds_combine(self, other) result (newBounds)
+    !< combines 'self' and 'other' into 'newBounds'
+    !< The combination merges the biggest and smallest bounds
+    class(shr_gridBounds), intent(in) :: self
+    type(shr_gridBounds), intent(in) :: other
+
+    real(kind=sp) :: newNorth, newSouth, newEast, newWest
+
+    newNorth = max(self % north, other % north)
+    newSouth = min(self % south, other % south)
+    newEast = max(self % east, other % east)
+    newWest = min(self % west, other % west)
+    call newBounds % init(newNorth, newSouth, newEast, newWest)
+  end function gridBounds_combine
 
 end module shr_gridBounds_mod
 
