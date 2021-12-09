@@ -17,6 +17,8 @@ module shr_gGridDescriptor_mod
 
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_strings_mod, only: string
 
   implicit none
 
@@ -31,7 +33,9 @@ module shr_gGridDescriptor_mod
     type(shr_gGridAxes), allocatable :: latAxis
     type(shr_gGridAxes), allocatable :: lonAxis
   contains
-    procedure :: init => gGridDescriptor_initialize 
+    procedure :: gGridDescriptor_initialize
+    procedure :: gGridDescriptor_initialize_simple
+    generic :: init => gGridDescriptor_initialize, gGridDescriptor_initialize_simple
 
     procedure :: getResolution
     procedure :: getBounds
@@ -40,6 +44,9 @@ module shr_gGridDescriptor_mod
 
     procedure :: eq_gridDescriptor
     generic :: operator(==) => eq_gridDescriptor
+
+    procedure :: gridDescriptor_combine
+    generic :: operator(+) => gridDescriptor_combine
   end type shr_gGridDescriptor
 
 contains
@@ -57,6 +64,31 @@ contains
     allocate(self % latAxis, source = latAxis)
     allocate(self % lonAxis, source = lonAxis)
   end subroutine gGridDescriptor_initialize
+
+
+  subroutine gGridDescriptor_initialize_simple(self, resolution, bounds)
+    !< initialize with fundamental arguments
+    class(shr_gGridDescriptor), intent(inout) :: self
+    real(kind=sp), intent(in) :: resolution
+    type(shr_gridBounds), intent(in) :: bounds
+
+    type(shr_gGridAxesBounds)  :: latAxisBounds, lonAxisBounds
+    type(string) :: latName, lonName
+
+    self % resolution = resolution
+    allocate(self % bounds, source = bounds)
+
+    call latAxisBounds % init(bounds % north, bounds % south)
+    call lonAxisBounds % init(bounds % east, bounds % west)
+
+    latName = string("latitude")
+    allocate(self % latAxis)
+    call self % latAxis % init(latName, resolution, latAxisBounds)
+
+    lonName = string("longitude")
+    allocate(self % lonAxis)
+    call self % lonAxis % init(lonName, resolution, lonAxisBounds)
+  end subroutine gGridDescriptor_initialize_simple
 
 
   elemental real(kind=sp) function getResolution(self)
@@ -99,6 +131,24 @@ contains
     eq_gridDescriptor = (hasSameRes .and. hasSameLat .and. &
                           hasSameLon .and. hasSameBounds)
   end function eq_gridDescriptor
+
+
+  type(shr_gGridDescriptor) function gridDescriptor_combine(self, other) result (newGDescriptor)
+    !< combine self and other into a new shr_gGridDescriptor
+    !< - resolution must be the same
+    !< - extends bounds to largest axis
+    class(shr_gGridDescriptor), intent(in) :: self
+    type(shr_gGridDescriptor), intent(in) :: other
+    type(shr_gridBounds) :: combinedBounds
+
+    if (self % getResolution() /= other % getResolution()) then
+      call raiseError(__FILE__, "gridDescriptor_combine", &
+              "Resolution from 'other' does not match 'self'")
+    end if
+
+    combinedBounds = self % getBounds() + other % getBounds()
+    call newGDescriptor % init(self % getResolution(), combinedBounds)
+  end function gridDescriptor_combine
 
 end module shr_gGridDescriptor_mod 
 
