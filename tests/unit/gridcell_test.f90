@@ -64,8 +64,8 @@ contains
 
     call self % assert(gc % toString() == &
             string("(           1) center=    2.0000,   -1.0000, "// &
-                   "res=   2.00000000, limits=    3.0000,     1.0000,"// &
-                   "     0.0000,    -2.0000"), &
+                   "res=   2.00000000, limits=3.0000, 1.0000,"// &
+                   " 0.0000, -2.0000"), &
         "gc % toString() .eq. '' = T")
 
   end subroutine defineTestCases
