@@ -27,6 +27,8 @@ module shr_gridMask_test
   private
   public :: testSuitegridMask
 
+  real(kind=sp), parameter :: RES = 1.0
+
   type, extends(testSuite) :: testSuitegridMask
 
   contains
@@ -35,39 +37,30 @@ module shr_gridMask_test
 
 contains
 
+  type(shr_gridMask) function getNewGridMask(newBounds)
+    !< create a new shr_gridMask
+    real(kind=sp) :: newBounds(4) !< N, S, E, W
+    type(shr_gridBounds) :: bounds
+    type(shr_gGridDescriptor) :: gDescriptor
+
+    call bounds % init(newBounds)
+    call gDescriptor % init(RES, bounds)
+    call getNewGridMask % init(gDescriptor)
+  end function getNewGridMask
+
+
+
   subroutine defineTestCases(self)
     use iso_c_binding
     class(testSuitegridMask), intent(inout) :: self
-    real(kind=sp), parameter :: RES = 1.0
-    type(shr_gridMask) :: m, other
-    type(shr_gGridAxes) :: latAxis
-    type(shr_gGridAxes) :: lonAxis
-    type(shr_gridBounds) :: bounds
 
-    type(shr_gGridAxesBounds) :: latBounds, lonBounds
-    type(string) :: latName, lonName
+    type(shr_gridMask) :: m, other, m1, m2
 
-    type(shr_gGridDescriptor) :: gDescriptor
     logical :: expMask(2,2), rawMask(2,2)
     logical, allocatable :: foundMask(:,:)
 
     type(shr_gridcellIndex) :: gcIndex
-
-
-    call latBounds % init(1., -1.)
-    latname = string("latitude")
-    call latAxis % init(latName, RES, latBounds)
-
-    call lonBounds % init(2., 0.)
-    lonName = string("longitude")
-    call lonAxis % init(lonName, RES, lonBounds)
-
-    bounds = latAxis % getBounds() * lonAxis % getBounds()
-
-    call gdescriptor % init(RES, bounds, latAxis, lonAxis)
-
-    call m % init(gDescriptor)
-    call self % assert(.true., "m % init(1., latAxis(1,-1), lonAxis(2,0), ...) = T")
+    type(string) :: tmpStr, expStr
 
     !
     ! grid
@@ -90,9 +83,11 @@ contains
     ! | 2,1 | 2,2 |
     ! *-----+-----+
     !
+    m = getNewGridMask([1.,-1.,2.,0.])
     call self % assert(m % countEnabled() == 4, "m % count() .eq. 4 = T")
 
     !< setStatus
+    m = getNewGridMask([1.,-1.,2.,0.])
     call gcIndex % init(2, 2)
     call m % setStatus(gcIndex, .false.)
     call gcIndex % init(1, 2)
@@ -101,6 +96,11 @@ contains
     call self % assert(m % countEnabled() == 2, "m % count() .eq. 2 = T")
 
     !< getRaw
+    m = getNewGridMask([1.,-1.,2.,0.])
+    call gcIndex % init(2, 2)
+    call m % setStatus(gcIndex, .false.)
+    call gcIndex % init(1, 2)
+    call m % setStatus(gcIndex, .false.)
     expMask = .true.
     expMask(1,2) = .false.
     expMask(2,2) = .false.
@@ -109,14 +109,22 @@ contains
             "m % getRaw() .eq. ((T,F), (T,F)) = T")
 
     !< get status
+    m = getNewGridMask([1.,-1.,2.,0.])
     call gcIndex % init(1, 1)
     call self % assert(m % getStatus(gcIndex), &
             "m % getStatus(1,1) = T")
 
+    m = getNewGridMask([1.,-1.,2.,0.])
     call gcIndex % init(2, 2)
+    call m % setStatus(gcIndex, .false.)
     call self % assert(.not. m % getStatus(gcIndex), &
-            "m % getStatus(1,1) = F")
+            "m % getStatus(2,2) = F")
 
+    m = getNewGridMask([1.,-1.,2.,0.])
+    call gcIndex % init(2, 2)
+    call m % setStatus(gcIndex, .false.)
+    call gcIndex % init(1, 2)
+    call m % setStatus(gcIndex, .false.)
     !< == (2d raw array)
     rawMask(1,:) = [.true., .false.]
     rawMask(2,:) = [.true., .false.]
@@ -124,10 +132,20 @@ contains
             "m == rawMask(FT, TF) = T")
 
     !< == (scalar)
+    m = getNewGridMask([1.,-1.,2.,0.])
+    call gcIndex % init(1, 1)
+    call m % setStatus(gcIndex, .false.)
+    call gcIndex % init(1, 2)
+    call m % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 2)
+    call m % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 2)
+    call m % setStatus(gcIndex, .false.)
     call self % assert(.not. ( m == .true. ), &
             "m == .true. = F")
 
     !< revert changes
+    m = getNewGridMask([1.,-1.,2.,0.])
     call gcIndex % init(2, 2)
     call m % setStatus(gcIndex, .true.)
     call gcIndex % init(1, 2)
@@ -135,18 +153,59 @@ contains
     call self % assert( ( m == .true. ), "m(true) == .true. = T")
 
     !< revert
+    m = getNewGridMask([1.,-1.,2.,0.])
     call m % reverse()
-    call self % assert( ( m == .false. ), "m(true) % revert() == .false. = T")
+    call self % assert( ( m == .false. ), "m(true) % revert() .eq. .false. = T")
+
+    m = getNewGridMask([1.,-1.,2.,0.])
+    m = .not. m
+    call self % assert( ( m == .false. ), ".not. m(false) .eq. false. = T")
 
     !< copy (=)
+    m = getNewGridMask([1.,-1.,2.,0.])
     call gcIndex % init(2, 2)
     call m % setStatus(gcIndex, .true.)
     other = m
-    foundMask = other
-    rawMask(1,:) = [.false., .false.]
-    rawMask(2,:) = [.false., .true.]
+    !foundMask = other
+    !rawMask(1,:) = [.false., .false.]
+    !rawMask(2,:) = [.false., .true.]
+    call self % assert( other == m , &
+            "other .eq. m = T")
+
+    ! or
+    m1 = getNewGridMask([1.,-1.,2.,0.])
+    ! [.false., .true.]
+    ! [.false., .false.]
+    call gcIndex % init(1, 1)
+    call m1 % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 2)
+    call m1 % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 1)
+    call m1 % setStatus(gcIndex, .false.)
+
+    m2 = getNewGridMask([1.,-1.,2.,0.])
+    ! [.false., .false.]
+    ! [.true.,  .false.]
+    call gcIndex % init(1, 1)
+    call m2 % setStatus(gcIndex, .false.)
+    call gcIndex % init(1, 2)
+    call m2 % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 2)
+    call m2 % setStatus(gcIndex, .false.)
+
+
+    m1 = (m1 .or. m2)
+    foundMask = m1
+    rawMask(1,:) = [.false., .true.]
+    rawMask(2,:) = [.true.,  .false.]
     call self % assert( ( all(foundMask .eqv.  rawMask) ), &
-            "other(copied from m) .eq. m = T")
+        "m1(FTFF) .or. m2(FFTF) .eq. m1(FTTF) = T")
+
+    ! toChars
+    tmpStr = m2 % toString()
+    expStr = string("'F F'"// new_line('A') // "'T F'")
+    call self % assert( tmpStr == expStr, &
+        "m2(F F, T F) % toString() .eq. expStr(F F T F) = T")
   end subroutine defineTestCases
 
 

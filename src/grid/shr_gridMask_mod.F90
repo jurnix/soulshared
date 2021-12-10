@@ -15,6 +15,7 @@ module shr_gridMask_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
+  use shr_strings_mod, only: string
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
 !  use shr_GridBounds_mod, only: shr_gridBounds
@@ -47,6 +48,7 @@ module shr_gridMask_mod
     generic :: getStatus => getStatusByGridcellIndex
 
     procedure :: getRaw
+    procedure :: getGridDescriptor
 
     procedure, pass(self) :: copy_rev_array
     procedure :: copy_gridMask
@@ -58,14 +60,20 @@ module shr_gridMask_mod
     generic :: operator(==) => eq_scalar_logical, eq_gridMask, &
             eq_rawMask
 
+    !< same grid descriptor
+    procedure :: or_bitwise
+    generic :: operator(.or.) => or_bitwise
     procedure :: and_gridMask
     generic :: operator(.and.) => and_gridMask
-
+    procedure :: reverse_gridMask_func
     procedure :: reverse => reverse_gridMask
+    generic :: operator(.not.) => reverse_gridMask_func
 
     procedure, private :: isValidMask => isValidBy2dArray
 
     procedure :: any => any_gridMask
+
+    procedure :: toString
   end type shr_gridMask
 
 contains
@@ -181,6 +189,14 @@ contains
   end subroutine reverse_gridMask
 
 
+  type(shr_gridMask) function reverse_gridMask_func(self) result (newGM)
+    !< bitwise complement (.not.)
+    class(shr_gridMask), intent(in) :: self
+    call newGM % init(self % getGridDescriptor())
+    newGM % mask = .not. (self % mask)
+  end function reverse_gridMask_func
+
+
   subroutine copy_gridMask(self, other)
     !< copy all attributes from 'other' to 'self'
     class(shr_gridMask), intent(inout) :: self
@@ -244,6 +260,54 @@ contains
     class(shr_gridMask), intent(in) :: self
     any_gridMask = any(self % mask)
   end function any_gridMask
+
+
+  type(shr_gGridDescriptor) function getGridDescriptor(self)
+    !< returns self gridDescriptor
+    class(shr_gridMask), intent(in) :: self
+    getGridDescriptor = self % gridDescriptor
+  end function getGridDescriptor
+
+
+  type(shr_gridMask) function or_bitwise(self, other) result (newGMask)
+    !< apply 'mask' into 'self' with the bitwise 'or' operation
+    !< given 'mask' must have the same descriptor as 'self'
+    class(shr_gridMask), intent(in) :: self
+    type(shr_gridMask), intent(in) :: other
+    !< enfore same resolution and grid position
+    if (.not. self % gridDescriptor == other % getGridDescriptor()) then
+      call raiseError(__FILE__, "or_bitwise", &
+          "'mask' must have the same grid descriptor as 'self'")
+    end if
+
+    call newGMask % init(self % getGridDescriptor())
+    newGMask % mask = (self % mask .or. other % mask)
+  end function or_bitwise
+
+
+  type(string) function toString(self)
+    !< mask to string type
+    !<
+    !< 'T T'
+    !< 'T T'
+    !< 'F T'
+    !<
+    class(shr_gridMask), intent(in) :: self
+    integer :: nlats, ilat
+    type(shr_gGridAxes) :: latAxis
+    character(:), allocatable :: tmp
+    character(500) :: t
+    latAxis = self % gridDescriptor % getLatAxis()
+    nlats = latAxis % getSize()
+    tmp = "" ! initialize
+    do ilat = 1, nlats-1
+      write(t, *) self % mask(ilat, :)
+      tmp = tmp // "'" // trim(adjustl(t)) // "'" // NEW_LINE('a')
+    end do
+    write(t, *) self % mask(nlats, :)
+    tmp = tmp // "'" // trim(adjustl(t)) // "'"
+    toString = string(tmp)
+  end function toString
 
 end module shr_gridMask_mod
 
