@@ -47,6 +47,8 @@ module shr_gGridDescriptor_mod
 
     procedure :: gridDescriptor_combine
     generic :: operator(+) => gridDescriptor_combine
+
+    procedure :: fitsIn
   end type shr_gGridDescriptor
 
 contains
@@ -149,6 +151,14 @@ contains
     combinedBounds = self % getBounds() + other % getBounds()
     call newGDescriptor % init(self % getResolution(), combinedBounds)
   end function gridDescriptor_combine
+
+
+  logical function fitsIn(self, other)
+    !< true if 'other' grid bounds fits in 'self'
+    class(shr_gGridDescriptor), intent(in) :: self
+    type(shr_gGridDescriptor), intent(in) :: other
+    fitsIn = self % bounds % fits(other % getBounds())
+  end function fitsIn
 
 end module shr_gGridDescriptor_mod 
 

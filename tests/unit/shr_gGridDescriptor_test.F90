@@ -36,7 +36,7 @@ contains
   subroutine defineTestCases(self)
     use iso_c_binding
     class(testSuitegGridDescriptor), intent(inout) :: self
-    type(shr_gGridDescriptor) :: d, other, dsimple, doverlap
+    type(shr_gGridDescriptor) :: d, other, dsimple, doverlap, dother, dd
     type(shr_gGridDescriptor) :: combined
 
     type(shr_gGridAxes) :: latAxis
@@ -95,6 +95,18 @@ contains
     call self % assert(combined % getBounds() == [1., -1., 20., -10.], &
             "d(1,-1,2,0) + doverlap(0,-1,20,-10) .eq. [1, -1, 20, -10] = T")
 
+    ! fitsIn
+    call bounds % init(10., -10., 20., 0.) !< n, s, e, w
+    call dother % init(1., bounds)
+    call bounds % init(1., -1., 2., 0.) !< n, s, e, w
+    call dd % init(1., bounds)
+
+    call self % assert(dd % fitsIn(dd), &
+        "dd(1,-1,2,0) % fitsIn(dd) = T")
+    call self % assert(dother % fitsIn(dd), &
+        "dother(10,-10,20,0) % fitsIn(dd) = T")
+    call self % assert(.not. dd % fitsIn(dother), &
+        "dd(10,-10,20,0) % fitsIn(dother) = F")
 
   end subroutine defineTestCases
 
