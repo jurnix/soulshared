@@ -15,6 +15,8 @@ module shr_gridBounds_mod
   use SHR_precision_mod, only: sp
   use SHR_error_mod, only: raiseError
   use shr_coord_mod, only: shr_coord
+  ! todo: use shr_gGridAxesBounds
+  !use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
 
   implicit none
 
@@ -36,6 +38,7 @@ module shr_gridBounds_mod
 
   type shr_gridBounds ! coordinates to select a part of the world
     real(kind=sp) :: north, south, east, west
+    !type(shr_gGridAxesBounds), allocatable :: latAxis, lonAxis
   contains
     procedure :: initFromArray
     procedure :: initGridBounds
@@ -45,6 +48,7 @@ module shr_gridBounds_mod
     generic :: fits => fitsGridBounds, fitsCoord !< a given gridBounds fits in the current one
     procedure :: toArray
     procedure :: toString
+    procedure :: isOverlapped
 
     ! operator overloading procedures
     procedure, pass(w0), private :: gridBounds_eq
@@ -212,6 +216,31 @@ contains
     newWest = min(self % west, other % west)
     call newBounds % init(newNorth, newSouth, newEast, newWest)
   end function gridBounds_combine
+
+
+  logical function isOverlapped(self, other)
+    !< true if self and other bounds (at least) partialy overlap
+    !< self (2,-1,3,4)
+    !< other(4,1,8,3)
+    class(shr_gridBounds), intent(in) :: self
+    type(shr_gridBounds), intent(in) :: other
+    logical :: isLatOverlapped, isLonOverlapped
+    isOverlapped = .false.
+    isLatOverlapped = .false.
+    !< lats overlapped?
+    !< todo: move to shr_gGridAxesBounds % isOverlapped
+    if (self % north > other % south .or. &
+        self % south > other % north) then
+      isLatOverlapped = .true.
+    end if
+    !< lons overlapped?
+    if (self % east > other % west .or. &
+        self % west > other % east) then
+      isLonOverlapped = .true.
+    end if
+    isOverlapped = (isLatOverlapped .and. isLonOverlapped)
+
+  end function isOverlapped
 
 end module shr_gridBounds_mod
 

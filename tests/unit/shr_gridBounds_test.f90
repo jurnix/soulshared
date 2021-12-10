@@ -32,7 +32,7 @@ contains
     use iso_c_binding
     class(testSuiteGridBounds), intent(inout) :: self
 
-    type(shr_gridBounds) :: b, big, small
+    type(shr_gridBounds) :: b, big, small, outb, outTouched
     type(shr_gridBounds) :: newBigBounds, newSmallBounds
 
     type(shr_coord) :: cin, cout
@@ -86,6 +86,22 @@ contains
     write(*,*) newSmallBounds % toString()
     call self % assert(newSmallBounds == [3., 0., 1., -1.], &
         "b(3,0,1,-1) + small(1,0,1,0) .eq. (3,0,1,-1) = T")
+
+    ! isOverlapped
+    !call b % init(3., 0., 1., -1.) !< north, south, east, west
+    !call big % init(4., 0., 2., -1.)
+    !call small % init(1., 0., 1., 0.)
+
+    call outb % init(10.,5.,2.,1.)
+    call outTouched % init(4.,3.,1.,-1.)
+    call self % assert(b % isOverlapped(big), &
+            "b(3,0,1,-1) % isOverlapped(4,0,2,-1) = T")
+    call self % assert(b % isOverlapped(small), &
+        "b(3,0,1,-1) % isOverlapped(1,0,1,0) = T")
+    call self % assert(.not. b % isOverlapped(outb), &
+        "b(3,0,1,-1) % isOverlapped(10,5,2,1) = F")
+    call self % assert(.not. b % isOverlapped(outTouched), &
+        "b(3,0,1,-1) % isOverlapped(4,3,1,-1) = F")
 
   end subroutine defineTestCases
 
