@@ -33,6 +33,7 @@ module shr_gGridAxesBounds_mod
     procedure :: getEnd
     procedure :: isInByCoord, isInByGridAxesBounds
     generic :: isIn => isInbyCoord, isInByGridAxesBounds
+    procedure :: isOverlapped
 
     procedure :: equal_gGridAxesBounds, equal_byArray2d
     generic :: operator(==) => equal_gGridAxesBounds, equal_byArray2d
@@ -137,6 +138,20 @@ contains
     toString = string("("//startStr % toString() // ", " // &
                 endStr % toString() // ")")
   end function toString
+
+
+  logical function isOverlapped(self, other)
+    !< true if other overlaps with self axis
+    !< (upper) - self(4,0), other(5,3)
+    !< (lower) - self(4,0), other(1,-5)
+    class(shr_gGridAxesBounds), intent(in) :: self
+    type(shr_gGridAxesBounds), intent(in) :: other
+    logical :: isOtherStartIn, isOtherEndIn
+
+    isOtherStartIn = self % isIn(other % start)
+    isOtherEndIn = self % isIn(other % end)
+    isOverlapped = (isOtherStartIn .or. isOtherEndIn)
+  end function isOverlapped
 
 end module shr_gGridAxesBounds_mod 
 

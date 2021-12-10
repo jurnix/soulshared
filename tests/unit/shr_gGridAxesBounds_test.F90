@@ -34,6 +34,8 @@ contains
     type(shr_gGridAxesBounds) :: lats, lons
     type(shr_gridBounds) :: gridBounds
 
+    type(shr_gGridAxesBounds) :: upperLats, lowLats, outLats
+
     call lats % init(90., -90.)
     call lons % init(180., -180.)
     
@@ -66,6 +68,17 @@ contains
     gridBounds = lats * lons
     call self % assert(gridBounds == shr_gridBounds(90., -90., 180., -180.), &
             "lats(90, -90) * lons(180, -180) .eq. gridBunds(...) = F")
+
+    ! overlap lats(90,-90)
+    call upperLats % init(110.,89.)
+    call lowLats % init(-89.,-100.)
+    call outLats % init(110.,100.)
+    call self % assert(lats % isOverlapped(upperLats), &
+            "lats(90,-90) % isOverlapped(110,89) = T")
+    call self % assert(lats % isOverlapped(lowLats), &
+        "lats(90,-90) % isOverlapped(-89,-100) = T")
+    call self % assert(.not. lats % isOverlapped(outLats), &
+        "lats(90,-90) % isOverlapped(110,100) = F")
 
   end subroutine defineTestCases
 
