@@ -121,7 +121,7 @@ program unittest
   call tsGridcellsMapping % init("gridCellsMapping test", 10)
   call tsGridindicesMapping % init("gridIndicesMapping test", 10)
   call tsGridMask % init("gridMask test", 20)
-  call tsGridDescriptor % init("gridDescriptor test", 10)
+  call tsGridDescriptor % init("gridDescriptor test", 20)
   call tsGridBounds % init("grid bounds test", 20)
   
 
