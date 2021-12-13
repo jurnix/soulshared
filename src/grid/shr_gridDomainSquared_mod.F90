@@ -22,7 +22,8 @@ module shr_gridDomainSquared_mod
 	type, extends(shr_gridDomain) :: shr_gridDomainSquared
 
 	contains
-		procedure :: init2 => gridDomainSquared_initialize
+		procedure :: gridDomainSquared_initialize
+		generic :: init => gridDomainSquared_initialize
 	end type shr_gridDomainSquared
 
 contains
@@ -32,9 +33,10 @@ contains
 		class(shr_gridDomainSquared), intent(inout) :: self
 		type(shr_gGridDescriptor), intent(in) :: gridDescriptor
 		type(shr_gridMask), intent(in) :: enabled
+
 		type(shr_gridMask) :: maskBounds
 		call maskBounds % init(gridDescriptor, default = .false.)
-		!call self % shr_gridDomain % init(gridDescriptor, enabled, maskBounds)
+		call self % shr_gridDomain % init(gridDescriptor, enabled, maskBounds)
 	end subroutine gridDomainSquared_initialize
 
 
