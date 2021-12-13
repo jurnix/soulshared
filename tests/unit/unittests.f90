@@ -49,7 +49,8 @@ program unittest
   use shr_gridMask_test, only: testSuiteGridMask
   use shr_gGridDescriptor_test, only: testSuitegGridDescriptor
   use shr_gridBounds_test, only: testSuiteGridBounds
-
+  use shr_gridDomainSquared_test, only: testSuitegridDomainSquared
+  use shr_gridDomainToSquaredConverter_test, only: testSuitegridDomainToSquaredConverter
 
   implicit none
 
@@ -87,6 +88,8 @@ program unittest
   type(testSuiteGridMask) :: tsGridMask
   type(testSuitegGridDescriptor) :: tsGridDescriptor
   type(testSuiteGridBounds) :: tsGridBounds
+  type(testSuitegridDomainSquared) :: tsGridDomainSquared
+  type(testSuitegridDomainToSquaredConverter) :: tsGridDomainToSquaredConverter
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -123,6 +126,8 @@ program unittest
   call tsGridMask % init("gridMask test", 20)
   call tsGridDescriptor % init("gridDescriptor test", 20)
   call tsGridBounds % init("grid bounds test", 20)
+  call tsGridDomainSquared % init("grid domain squared test", 10)
+  call tsGridDomainToSquaredConverter % init("grid domain to squared converter test", 10)
   
 
   ! run all tests 
@@ -159,6 +164,8 @@ program unittest
   call tsGridMask % run()
   call tsGridDescriptor % run()
   call tsGridBounds % run()
+  call tsGridDomainSquared % run()
+  call tsGridDomainToSquaredConverter % run()
 
 
   ! show results
@@ -195,6 +202,8 @@ program unittest
   call tsGridMask % report() 
   call tsGridDescriptor % report()
   call tsGridBounds % report()
+  call tsGridDomainSquared % report()
+  call tsGridDomainToSquaredConverter % report()
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -229,7 +238,9 @@ program unittest
       .not. tsGridIndicesMapping % isSuccessful() .or. & 
       .not. tsGridMask % isSuccessful() .or. & 
       .not. tsGridDescriptor % isSuccessful() .or. &
-      .not. tsGridBounds % isSuccessful() &
+      .not. tsGridBounds % isSuccessful() .or. &
+      .not. tsGridDomainSquared % isSuccessful() .or. &
+      .not. tsGridDomainToSquaredConverter % isSuccessful() &
       ) stop 1
 
 end program unittest
