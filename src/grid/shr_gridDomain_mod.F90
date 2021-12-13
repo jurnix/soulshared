@@ -8,7 +8,7 @@
 !
 ! DESCRIPTION:
 !>
-!> gridDomain is a part of a grid
+!> gridDomain is a part of a grid. It is only attached to the current processor.
 !> 
 !------------------------------------------------------------------------------
 module shr_gridDomain_mod 
@@ -37,13 +37,16 @@ module shr_gridDomain_mod
   contains
     procedure :: init => gridDomain_initialize 
     procedure :: isSquared !< yes if the current domain is squared
-!    procedure :: toSquaredDomains !< it divides the current domain into smaller with
+    procedure :: toSquaredDomains !< it divides the current domain into smaller griDomains
                                   !< but all squared
-
+    !< getters
+    procedure :: getGridDescriptor
+    procedure :: getMaskGrid
+    procedure :: getMaskBounds
 !    procedure :: toGrid !< transfrom shr_gridDomain into shr_grid 
 
-!    procedure :: gridDomain_combine !< +
-!    generic, operator(+) :: gridDomain_combine
+    procedure :: gridDomain_combine !< +
+    generic :: operator(+) => gridDomain_combine
 !    procedure :: gridDomain_difference !< -
 !    generic, operator(-) :: gridDomain_difference
 !    procedure :: gridDomain_copy !< -
@@ -128,6 +131,71 @@ contains
     isSquared = self % maskBorder % any()
   end function isSquared
 
+
+  function toSquaredDomains(self) result (domains)
+    !< in case it is not squared
+    !< it returns multiple domains with squared propery
+    !< otherwise it returns itself
+    class(shr_gridDomain), intent(in) :: self
+    type(shr_gridDomain), allocatable :: domains(:)
+
+    if (self % isSquared()) then
+      allocate(domains(1))
+      domains(1) = self
+      return
+    end if
+
+    !< how to partition:
+    !< header, body, footer
+    !< todo
+  end function toSquaredDomains
+
+
+  type(shr_gridDomain) function gridDomain_combine(self, other) result (combinedDomain)
+    !< it combines 'self' and 'other' into 'combinedDomain'
+    !< Combination merges both grid bounds when:
+    !< - overlap: both gridcells are enabled
+    !< - no overlap:  if true where enabled
+    class(shr_gridDomain), intent(in) :: self
+    type(shr_gridDomain), intent(in) :: other
+
+    type(shr_gGridDescriptor) :: newDescriptor
+    type(shr_gridMask) :: newMaskGrid, newMaskBounds
+
+    if (.not. self % getGridDescriptor() == other % getGridDescriptor()) then
+      call raiseError(__FILE__, "gridDomain_combine", &
+            "'self' and other 'must' have the same grid descriptor", &
+            "But it is not the case")
+    end if
+
+    !< combine
+    newDescriptor = self % getGridDescriptor()
+    newMaskGrid = self % getMaskGrid() .and. other % getMaskGrid()
+    newMaskBounds = self % getMaskBounds() .and. other % getMaskBounds()
+
+    call combinedDomain % init(newDescriptor, newMaskGrid, newMaskBounds)
+  end function gridDomain_combine
+
+
+  type(shr_gGridDescriptor) function getGridDescriptor(self)
+    !< returns self shr_gridDescriptor
+    class(shr_gridDomain), intent(in) :: self
+    getGridDescriptor = self % descriptor
+  end function getGridDescriptor
+
+
+  type(shr_gridMask) function getMaskGrid(self)
+    !< returns maskEnabled mask
+    class(shr_gridDomain), intent(in) :: self
+    getMaskGrid = self % maskEnabled
+  end function getMaskGrid
+
+
+  type(shr_gridMask) function getMaskBounds(self)
+    !< returns maskEnabled mask
+    class(shr_gridDomain), intent(in) :: self
+    getMaskBounds = self % maskEnabled
+  end function getMaskBounds
 
 end module shr_gridDomain_mod 
 
