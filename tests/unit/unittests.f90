@@ -27,6 +27,7 @@ program unittest
   use oopExtends_test, only: testSuiteOopExtends
   use linkedList_test, only: testSuiteLinkedList
   use set_test, only: testSuiteSet
+  use shr_mask_test, only: testSuiteMask
 
   ! array
   use shr_arrayRealDim_test, only: testSuiteArrayRealDim
@@ -70,6 +71,8 @@ program unittest
   type(testSuiteOopExtends) :: tsOOPExtends
   type(testSuiteLinkedList) :: tsLinkedList
   type(testSuiteSet) :: tsSet
+  type(testSuiteMask) :: tsMask
+
   type(testSuiteArrayRealDim) :: tsArrayRealDim
   type(testSuiteArrayRsp) :: tsArrayRsp
   type(testSuiteArrayGridFullRsp) :: tsArrayGridFullRsp
@@ -107,6 +110,8 @@ program unittest
   call tsCfgOptions % init("(CFG) Cfg options test", 20)
   call tsLinkedList % init("Linked list test", 10)
   call tsSet % init("Set test", 10)
+  call tsMask % init("Mask test", 10)
+
   call tsArrayRealDim % init("ArrayRealDim test", 30)
   call tsArrayRsp % init("ArrayRsp test", 20)
   call tsArrayGridFullRsp % init("ArrayGridFullRsp test", 20)
@@ -145,7 +150,9 @@ program unittest
   call tsCfgOptions % run() 
   call tsOOPExtends % run() 
   call tsLinkedList % run() 
-  call tsSet % run() 
+  call tsSet % run()
+  call tsMask % run()
+
   call tsArrayRealDim % run() 
   call tsArrayContainerAllocatable % run() 
   call tsArrayRsp % run() 
@@ -183,7 +190,9 @@ program unittest
   call tsCfgOptions % report() 
   call tsOOPExtends % report()
   call tsLinkedList % report() 
-  call tsSet % report() 
+  call tsSet % report()
+  call tsMask % report()
+
   call tsArrayRealDim % report() 
   call tsArrayContainerAllocatable % report() 
   call tsArrayRsp % report() 
@@ -221,6 +230,7 @@ program unittest
       .not. tsOOPExtends % isSuccessful() .or. &
       .not. tsLinkedList % isSuccessful() .or. &
       .not. tsSet % isSuccessful() .or. &
+      .not. tsMask % isSuccessful() .or. &
       .not. tsArrayRealDim % isSuccessful() .or. &
       .not. tsArrayContainerAllocatable % isSuccessful() .or. &
       .not. tsArrayRsp % isSuccessful() .or. &
