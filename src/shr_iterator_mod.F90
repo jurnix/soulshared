@@ -23,7 +23,7 @@ module shr_Iterator_mod
   type, abstract :: shr_iterator_abs
   contains
     procedure(iface_hasNext), deferred :: hasNext
-    procedure(iface_get), deferred :: get
+    procedure(iface_getNext), deferred :: getNext
   end type shr_iterator_abs
 
 
@@ -34,12 +34,12 @@ module shr_Iterator_mod
       class(shr_iterator_abs), intent(in) :: self
     end function iface_hasNext
 
-    function iface_get(self) result (obj)
+    function iface_getNext(self) result (obj)
       !< returns current object
       import shr_iterator_abs
       class(shr_iterator_abs), intent(in) :: self
       class(*), allocatable :: obj
-    end function iface_get
+    end function iface_getNext
   end interface
 
 contains
