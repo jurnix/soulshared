@@ -35,14 +35,14 @@ contains
 		ngroups = 0
 		hasNewGroup = mask(1)
 
-		!< starting position
+		!< Has a group at the begining? then count it
 		if (hasNewGroup) ngroups = ngroups + 1
 
 		do ipos = 2, size(mask)
 			currentStatus = mask(ipos)
 			prevStatus = mask(ipos - 1)
 			!< from F to T
-			hasNewGroup = (.not. currentStatus .and. prevStatus)
+			hasNewGroup = (currentStatus .and. .not. prevStatus)
 			if (hasNewGroup) ngroups = ngroups + 1
 		end do
 
