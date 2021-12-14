@@ -37,7 +37,7 @@ module shr_Iterator_mod
     function iface_getNext(self) result (obj)
       !< returns current object
       import shr_iterator_abs
-      class(shr_iterator_abs), intent(in) :: self
+      class(shr_iterator_abs), intent(inout) :: self
       class(*), allocatable :: obj
     end function iface_getNext
   end interface
