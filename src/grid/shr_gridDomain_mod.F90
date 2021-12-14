@@ -37,9 +37,7 @@ module shr_gridDomain_mod
   contains
     procedure :: gridDomain_initialize
     generic :: init => gridDomain_initialize
-    procedure :: isSquared !< yes if the current domain is squared
-    procedure :: toSquaredDomains !< it divides the current domain into smaller griDomains
-                                  !< but all squared
+
     !< getters
     procedure :: getGridDescriptor
     procedure :: getMaskGrid
@@ -112,32 +110,6 @@ contains
     call self % idxMapping % init(self % descriptor % getLatAxis(), &
             self % descriptor % getLonAxis())
   end subroutine gridDomain_initialize
-
-
-  logical function isSquared(self)
-    !< true if all maskBorder gridcells are enabled 
-    class(shr_gridDomain), intent(in) :: self
-    isSquared = self % maskBorder % any()
-  end function isSquared
-
-
-  function toSquaredDomains(self) result (domains)
-    !< in case it is not squared
-    !< it returns multiple domains with squared propery
-    !< otherwise it returns itself
-    class(shr_gridDomain), intent(in) :: self
-    type(shr_gridDomain), allocatable :: domains(:)
-
-    if (self % isSquared()) then
-      allocate(domains(1))
-      domains(1) = self
-      return
-    end if
-
-    !< how to partition:
-    !< header, body, footer
-    !< todo
-  end function toSquaredDomains
 
 
   type(shr_gridDomain) function gridDomain_combine(self, other) result (combinedDomain)
