@@ -3,6 +3,9 @@ module shr_mask_test
 	!use shr_precision_mod, only: sp
   use shr_testSuite_mod, only: testSuite
   use shr_mask_mod, only: shr_mask_calc_SquaredGroups
+  use shr_mask_mod, only: shr_mask_calc_groups_indices
+
+  use shr_maskIndices_mod, only: shr_maskIndices_1d
 
   implicit none
 
@@ -20,6 +23,9 @@ contains
     use iso_c_binding
     class(testSuiteMask), intent(inout) :: self
     logical :: mask2d(4, 6)
+    logical :: mask1d(6)
+    type(shr_maskIndices_1d), allocatable :: mIndices(:)
+    type(shr_maskIndices_1d) :: expIndices(2)
 
     !< 1d mask
     !write(*,*) shr_mask_calc_SquaredGroups([.true., .false.])
@@ -62,6 +68,23 @@ contains
     mask2d(4,:) = [.true., .false., .false., .false., .false., .true.]
     call self % assert(shr_mask_calc_SquaredGroups(mask2d) == 6, &
         "shr_mask_calc_groups_l2(...) .eq. 6 = T")
+
+    !< 1d calc mask indices
+    !< T T F F T T = 2
+    mask1d = [.true., .true., .false., .false., .true. ,.true.]
+    call expIndices(1) % init(1,2)
+    call expIndices(2) % init(5,6)
+    mIndices = shr_mask_calc_groups_indices(mask1d)
+    call self % assert(all(mIndices == expIndices), &
+        "shr_mask_calc_groupd_indices_1d(TTFFTT) .eq. [(1,2),(5,6)] = T")
+
+    !< T T F F F T = 2
+    mask1d = [.true., .true., .false., .false., .false. ,.true.]
+    call expIndices(1) % init(1,2)
+    call expIndices(2) % init(6,6)
+    mIndices = shr_mask_calc_groups_indices(mask1d)
+    call self % assert(all(mIndices == expIndices), &
+        "shr_mask_calc_groupd_indices_1d(TTFFTT) .eq. [(1,2),(6,6)] = T")
   end subroutine defineTestCases
 
 end module shr_mask_test
