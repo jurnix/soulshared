@@ -13,6 +13,9 @@
 !------------------------------------------------------------------------------
 module shr_maskIndices_mod
 
+	use shr_objects_mod, only: shr_eqObject_abs
+	use shr_strings_mod, only: string, int2string
+
 	implicit none
 
 	public :: shr_maskIndices_1d, shr_maskIndices_2d
@@ -25,10 +28,12 @@ module shr_maskIndices_mod
 
 
 	!< 1d mask indices
-	type shr_maskIndices_1d
+	type, extends(shr_eqObject_abs) :: shr_maskIndices_1d
 		integer :: start, end
 	contains
 		procedure :: init => maskIndices_1d_init
+		procedure :: eq_object => eq_maskIndices_1d
+		procedure :: toString_maskIndices_1d
 	end type shr_maskIndices_1d
 
 	!< 2d mask indices
@@ -76,5 +81,40 @@ contains
 		allocate(self % col, source = colIndices)
 		allocate(self % row, source = rowIndices)
 	end subroutine maskIndices_2d_init_by_1d
+
+
+	elemental logical function eq_maskIndices_1d(self, other)
+		!< true if 'self' and 'other' have the same attributes
+		class(shr_maskIndices_1d), intent(in) :: self
+		!type(shr_maskIndices_1d), intent(in) :: other
+		class(shr_eqObject_abs), intent(in) :: other
+		logical :: hasSameStart, hasSameEnd
+		logical :: hasSameType
+
+		select type(o => other)
+		type is(shr_maskIndices_1d)
+			hasSameType = .true.
+			hasSameStart = (self % start == o % start)
+			hasSameEnd = (self % end == o % end)
+		class default
+			hasSameType = .false.
+			hasSameEnd = .false.
+			hasSameStart = .false.
+		end select
+
+		eq_maskIndices_1d = (hasSameType .and. hasSameStart .and. hasSameEnd)
+	end function eq_maskIndices_1d
+
+
+	type(string) function toString_maskIndices_1d(self) result (s)
+		!< string representation of maskIndices_1d
+		clasS(shr_maskIndices_1d), intent(in) :: self
+		character(:), allocatable :: str
+		type(string) :: strStart, strEnd
+
+		strStart = int2string(self % start)
+		strEnd = int2string(self % end)
+		s = string("(") + self % start + ":" + self % end + ")"
+	end function toString_maskIndices_1d
 
 end module shr_maskIndices_mod
