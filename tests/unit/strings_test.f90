@@ -64,6 +64,7 @@ contains
     type(stringCollection) :: scSlim, scUnordered
     type(stringCollection) :: subsSc !< debug 
     integer, allocatable :: ivals(:), stats(:)
+    type(string) :: merged
 
 
     allocate(str1(2))
@@ -221,8 +222,33 @@ contains
 !    write(*,*) "string_test:: wordsSplit =", scSplit % toString()
 !    write(*,*) "string_test:: wordsExpected =", scExpected % toString()
     call self % assert (stringCollection(wordsSplit) == stringCollection(wordsExpected), &
-            "string('a, b, c') %  split .eq. ['a',' b',' c'] == T")
+            "string('a, b, c') % split .eq. ['a',' b',' c'] == T")
 
+    ! string merge (+) vs string
+    t = string("good")
+    t2 = string("morning")
+    merged = t + t2
+    call self % assert(merged == string("goodmorning"), &
+          "string(good) + string(morning) .eq. string(goodmorning) = T")
+
+    ! string merge (+) vs chars
+    t = string("good")
+    merged = t + "morning"
+    call self % assert(merged == string("goodmorning"), &
+        "string(good) + 'morning' .eq. string(goodmorning) = T")
+
+    ! string merge (+) vs int
+    t = string("good")
+    merged = t + 4
+    call self % assert(merged == string("good4"), &
+        "string(good) + 4 .eq. string(good4) = T")
+
+    ! string merge (+) vs real
+    t = string("good")
+    merged = t + 4.2
+    write(*,*) merged % toString()
+    call self % assert(merged == string("good4.2000"), &
+        "string(good) + 4.2 .eq. string(good4.2000) = T")
 
     !str2real
     call str2real("23.2", val)

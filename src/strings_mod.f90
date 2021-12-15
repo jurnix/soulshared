@@ -76,6 +76,13 @@ module SHR_strings_mod
     generic :: operator(.eq.) => eq_string, eq_chars_left, eq_chars_right
     generic :: operator(.ne.) => neq_string
     generic :: assignment(=) => assign_chars, assign_string, assign_toChars
+
+    procedure :: merge_string_string
+    procedure :: merge_string_char
+    procedure :: merge_string_int
+    procedure :: merge_string_real
+    generic :: operator(+) => merge_string_string, merge_string_int, &
+              merge_string_real, merge_string_char
   end type string
 
   interface string
@@ -927,5 +934,43 @@ contains
       endif
     enddo
   end function isInteger
+
+
+  type(string) function merge_string_string(self, other) result (s)
+    !< merge 'self' and 'other' into new string 's'
+    class(string), intent(in) :: self
+    type(string), intent(in) :: other
+    s = string(self % val // other % val)
+  end function merge_string_string
+
+
+  type(string) function merge_string_char(self, other) result (s)
+    !< merge 'self' and 'other' into new string 's'
+    class(string), intent(in) :: self
+    character(*), intent(in) :: other
+    type(string) :: schar
+    schar = string(other)
+    s = self + schar
+  end function merge_string_char
+
+
+  type(string) function merge_string_int(self, other) result (s)
+    !< merge 'self' and 'other' into new string 's'
+    class(string), intent(in) :: self
+    integer, intent(in) :: other
+    type(string) :: sint
+    sint = int2string(other)
+    s = self + sint
+  end function merge_string_int
+
+
+  type(string) function merge_string_real(self, other) result (s)
+    !< merge 'self' and 'other' into new string 's'
+    class(string), intent(in) :: self
+    real, intent(in) :: other
+    type(string) :: sreal
+    sreal = real2string(other)
+    s = self + sreal
+  end function merge_string_real
 
 end module SHR_strings_mod
