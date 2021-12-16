@@ -14,6 +14,7 @@
 module shr_mask_mod
 
 	use shr_error_mod, only: raiseError
+	use shr_strings_mod, only: string
 	use shr_maskIndices_mod, only: shr_maskIndices_1d, shr_maskIndices_2d
 
 	implicit none
@@ -100,6 +101,7 @@ contains
 
 	function shr_mask_calc_groups_indices_l1(lmask) result (indices)
 		!< get indices (start, end) relative to 'lmask' for each group found
+		!< Naive algorithm
 		!< T T F F T T = 1:2, 5:6
 		logical, intent(in) :: lmask(:) !< row, cols
 		type(shr_maskIndices_1d), allocatable :: indices(:)
@@ -134,7 +136,7 @@ contains
 			!< update loop status
 			prevStatus = lmask(ipos-1)
 			currentStatus = lmask(ipos)
-			write(*,*) "shr_mask_calc_groups_indices_l1:: start, status (prec, current)=", prevStatus, currentStatus
+			!write(*,*) "shr_mask_calc_groups_indices_l1:: start, status (prec, current)=", prevStatus, currentStatus
 
 			!> transition from F to T
 			if ((.not. prevStatus) .and. currentStatus) hasNewGroup = .true.
@@ -143,17 +145,17 @@ contains
 
 			!< register index
 			if (hasNewGroup) then
-				write(*,*) "shr_mask_calc_groups_indices_l1:: hasnewGroup, ipos=", ipos
+				!write(*,*) "shr_mask_calc_groups_indices_l1:: hasnewGroup, ipos=", ipos
 				iStart = ipos
 			end if
 			if (hasEndGroup) then
-				write(*,*) "shr_mask_calc_groups_indices_l1:: hasEndGroup, ipos, posEnd=", ipos, ipos-1
+				!write(*,*) "shr_mask_calc_groups_indices_l1:: hasEndGroup, ipos, posEnd=", ipos, ipos-1
 				iEnd = ipos-1
 			end if
 
 			!< save indices
 			if (hasEndGroup) then
-				write(*,*) "pos:", iStart,":" , iEnd
+				!write(*,*) "pos:", iStart,":" , iEnd
 				call indices(igroup) % init(iStart, iEnd)
 				igroup = igroup + 1 !< next position
 				iStart = UNDEF
@@ -183,37 +185,51 @@ contains
 
 	function shr_mask_calc_groups_indices_l2(lmask) result(mIndices)
 		!< discover each group and create and new gridMask from it
+		!< Naive algorithm
 		logical, intent(in) :: lmask(:,:) !< row, cols
 		type(shr_maskIndices_2d), allocatable :: mIndices(:) !< output
 
 		logical, allocatable :: isFullRow(:)
 		integer :: nRows, irow
+		integer :: nCols
 		integer :: ngroups, igroup
-		type(shr_maskIndices_1d), allocatable :: fullColIndex(:)
+		type(shr_maskIndices_1d), allocatable :: fullRowIndex(:)
 		type(shr_maskIndices_1d), allocatable :: colIndxs(:)
-		type(shr_maskIndices_1d) :: fullRowIndex, rowIndex
+		type(shr_maskIndices_1d) :: fullColIndex, rowIndex
 		integer :: idx, icol
+		type(string) :: tmp
 
-		igroup = 0
+		igroup = 1
 		ngroups = shr_mask_calc_SquaredGroups(lmask)
 		allocate(mIndices(ngroups))
-
-		nRows = size(lmask, dim=2)
+		!< cols = 3
+		!< x x x
+		!< x x x rows=2
+		nRows = size(lmask, dim=1) !< 4
+		nCols = size(lmask, dim=2) !< 6
+		allocate(isFullRow(nRows))
 		!< shrink to rows
 		do irow = 1, nRows
-			isFullRow = all(lmask(irow, :))
+			isFullRow(irow) = all(lmask(irow,:))
+			!write(*,*) "shr_mask_calc_groups_indices_l2:: row =", irow, isFullRow(irow), " -> ", lmask(irow,:)
 		end do
 
+		write(*,*) "shr_mask_calc_groups_indices_l2:: full rows =", isFullRow
+
 		!< characterize full rows with indices
-		fullColIndex = shr_mask_calc_groups_indices_l1(isFullRow)
-		call fullRowIndex % init(1, nRows)
+		!< search them
+		fullRowIndex = shr_mask_calc_groups_indices_l1(isFullRow)
+		call fullColIndex % init(1, nCols)
 		!< combine into 2d mask indices type
-		do idx = 1, size(fullColIndex)
-			call mIndices(igroup) % init(fullColIndex(idx), fullRowIndex)
+		do idx = 1, size(fullRowIndex)
+			call mIndices(igroup) % init(fullColIndex, fullRowIndex(idx))
+			!tmp = mIndices(igroup) % toString()
+			!write(*,*) "shr_mask_calc_groups_indices_l2:: found full rows =", tmp % toString()
 			igroup = igroup + 1 !< next position
 		end do
 
-		!< slim rows
+		!< partial rows (no full rows)
+		!< for each non full row, discover each group of T's
 		do irow = 1, nRows
 			if (isFullRow(irow)) cycle !< skip full row
 			colIndxs = shr_mask_calc_groups_indices_l1(lmask(irow, :))
@@ -226,6 +242,14 @@ contains
 				igroup = igroup + 1 !< next position
 			end do !< icol = 1, size(colIndxs)
 		end do !< irow = 1, nRows
+
+		!< consistency check (debug only)
+ 		if (igroup - 1 /= ngroups) then
+			write(*,*) "Expected ",  ngroups, " but found ", (igroup-1)
+			call raiseError(__FILE__, "shr_mask_calc_groups_indices_l2", &
+					"Inconsistency found", &
+					"The number of indices found does not match the expected")
+		end if
 	end function shr_mask_calc_groups_indices_l2
 
 end module shr_mask_mod
