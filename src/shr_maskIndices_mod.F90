@@ -45,6 +45,9 @@ module shr_maskIndices_mod
 		generic :: init => maskIndices_2d_init_by_array, maskIndices_2d_init_by_1d
 		procedure :: eq_object => eq_maskIndices_2d
 		procedure :: toString => toString_maskIndices_2d
+
+		procedure :: getRow
+		procedure :: getCol
 	end type shr_maskIndices_2d
 
 
@@ -149,5 +152,19 @@ contains
 		strRow = self % row % toString()
 		s = string("[") + strCol + ", " + strRow + "]"
 	end function toString_maskIndices_2d
+
+
+	type(shr_maskIndices_1d) function getRow(self)
+		!< returns row index
+		class(shr_maskIndices_2d), intent(in) :: self
+		getRow = self % row
+	end function getRow
+
+
+	type(shr_maskIndices_1d) function getCol(self)
+		!< returns it col index
+		class(shr_maskIndices_2d), intent(in) :: self
+		getCol = self % col
+	end function getCol
 
 end module shr_maskIndices_mod
