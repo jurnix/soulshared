@@ -936,7 +936,7 @@ contains
   end function isInteger
 
 
-  type(string) function merge_string_string(self, other) result (s)
+  elemental type(string) function merge_string_string(self, other) result (s)
     !< merge 'self' and 'other' into new string 's'
     class(string), intent(in) :: self
     type(string), intent(in) :: other
@@ -944,7 +944,7 @@ contains
   end function merge_string_string
 
 
-  type(string) function merge_string_char(self, other) result (s)
+  elemental type(string) function merge_string_char(self, other) result (s)
     !< merge 'self' and 'other' into new string 's'
     class(string), intent(in) :: self
     character(*), intent(in) :: other
@@ -954,7 +954,7 @@ contains
   end function merge_string_char
 
 
-  type(string) function merge_string_int(self, other) result (s)
+  elemental type(string) function merge_string_int(self, other) result (s)
     !< merge 'self' and 'other' into new string 's'
     class(string), intent(in) :: self
     integer, intent(in) :: other
@@ -964,7 +964,7 @@ contains
   end function merge_string_int
 
 
-  type(string) function merge_string_real(self, other) result (s)
+  elemental type(string) function merge_string_real(self, other) result (s)
     !< merge 'self' and 'other' into new string 's'
     class(string), intent(in) :: self
     real, intent(in) :: other
