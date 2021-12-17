@@ -23,7 +23,6 @@ module shr_gridMaskGroups_mod
   use shr_error_mod, only: raiseError
   !use SHR_precision_mod, only: sp
 
-  use shr_mask_mod, only: shr_mask_calc_SquaredGroups
   use shr_gridMask_mod, only: shr_gridMask
 
   implicit none
@@ -53,7 +52,9 @@ contains
     class(shr_gridMaskGroups), intent(inout) :: self
     type(shr_gridMask), intent(in) :: gridMask
     allocate(self % mask, source = gridMask)
+
     !< build here
+
   end subroutine init
 
 
@@ -69,7 +70,7 @@ contains
     class(shr_gridMaskGroups), intent(in) :: self
     logical, allocatable :: lmask(:,:)
     lmask = self % mask % getRaw()
-    calculateTotal = shr_mask_calc_SquaredGroups(lmask)
+    !calculateTotal = shr_mask_calc_SquaredGroups(lmask)
   end function calculateTotal
 
 
