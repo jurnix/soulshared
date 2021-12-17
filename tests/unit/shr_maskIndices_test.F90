@@ -40,7 +40,21 @@ contains
   subroutine testMaskIndices1d(self)
     !<
     class(testSuiteMaskIndices), intent(inout) :: self
-    call self % assert(.false., "todo = T")
+    type(shr_maskIndices_1d) :: mi, mdiff
+
+    !procedure :: eq_object => eq_maskIndices_1d
+    call mi % init(1, 5)
+    call self % assert(mi == mi, "m1(1,5) .eq. mi(1,5) = T")
+
+    call mdiff % init(2, 5)
+    call self % assert(.not. (mi == mdiff), "m1(1,5) .eq. midiff(2,5) = F")
+
+    call mdiff % init(1, 6)
+    call self % assert(.not. (mi == mdiff), "m1(1,5) .eq. midiff(1,6) = F")
+
+    !procedure :: toString => toString_maskIndices_1d
+    call mi % init(1, 5)
+    call self % assert(mi % toString() == "(1:5)", "mi(1,5) % toString() .eq. (1:5) = T")
   end subroutine testMaskIndices1d
 
 
@@ -48,6 +62,14 @@ contains
     !<
     class(testSuiteMaskIndices), intent(inout) :: self
     call self % assert(.false., "todo = T")
+
+    !procedure :: maskIndices_2d_init_by_array
+    !procedure :: maskIndices_2d_init_by_1d
+    !procedure :: eq_object => eq_maskIndices_2d
+    !procedure :: toString => toString_maskIndices_2d
+
+    !procedure :: getRow
+    !procedure :: getCol
   end subroutine testMaskIndices2d
 
 end module shr_maskIndices_test
