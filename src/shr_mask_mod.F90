@@ -30,12 +30,9 @@ module shr_mask_mod
 		generic :: init =>  mask1d_initialize_bySize, mask1d_initialize_byArray
 		procedure :: getSize => mask1d_getSize
 
-		procedure :: get => mask1d_get !< raw mask
+		procedure :: get => mask1d_get !< get mask
+		procedure :: set => mask1d_set !< set mask
 		procedure :: filter => mask1d_filter !< new mask with selected indices
-		!procedure :: getVal(mIndices, values)
-		! procedure :: setVal(mIndices, values)
-
-		! set (=)
 	end type shr_mask1d
 
 
@@ -48,6 +45,7 @@ module shr_mask_mod
 		procedure :: getSize => mask2d_getSize
 
 		procedure :: get => mask2d_get
+		procedure :: set => mask2d_set
 		procedure :: filter => mask2d_filter !< new mask with selected indices
 	end type shr_mask2d
 
@@ -72,6 +70,7 @@ contains
 		!< initialize with new size with logical array
 		class(shr_mask1d), intent(inout) :: self
 		logical, intent(in) :: larray(:)
+		if (allocated(self % lmask)) deallocate(self % lmask)
 		allocate(self % lmask, source =  larray)
 	end subroutine mask1d_initialize_byArray
 
@@ -81,15 +80,21 @@ contains
 		class(shr_mask1d), intent(inout) :: self
 		type(shr_maskIndices_1d), intent(in) :: mIndices
 
-		integer :: start, end, sz
+		integer :: inStart, inEnd
 
-		!< init as empty
+		logical, allocatable :: tmp(:)
+		integer :: sz
+		tmp = self % get(mIndices)
+
+		!< get lmask indices
+		inStart = mIndices % start
+		inEnd = mIndices % end
+
+		!< initialize output with same size as lmask
 		sz = self % getSize()
-		call m % init(sz, .false.)
-		start = mIndices % start !< getStart
-		end = mIndices % end !< getEnd
-		!< copy values (get(mindices, values), set(mindices, values))
-		m % lmask(start:end) = self % lmask(start:end)
+		call m % init(sz, default = .false.)
+		!< copy values
+		m % lmask(inStart:inEnd) = tmp
 	end function mask1d_filter
 
 
@@ -100,20 +105,120 @@ contains
 	end function mask1d_getSize
 
 
-	function mask1d_get(self) result (m)
+	function mask1d_get(self, mIndices) result (m)
 		!< returns internal mask
 		class(shr_mask1d), intent(in) :: self
+		type(shr_maskIndices_1d), intent(in), optional :: mIndices
 		logical, allocatable :: m(:) !< output
-		allocate(m, source = self % lmask)
+		integer :: inStart, inEnd
+
+		inStart = 1
+		inEnd = self % getSize()
+		if (present(mIndices)) then
+			inStart = mIndices % start
+			inEnd = mIndices % end
+		end if
+
+		allocate(m(inEnd))
+		m = self % lmask(inStart:inEnd)
 	end function mask1d_get
 
 
-	function mask2d_get(self) result (m)
+	subroutine mask1d_set(self, rmask, mIndices)
+		!< returns internal mask
+		class(shr_mask1d), intent(inout) :: self
+		logical, intent(in) :: rmask(:)
+		type(shr_maskIndices_1d), intent(in), optional :: mIndices
+		integer :: inStart, inEnd
+
+		inStart = 1
+		inEnd = self % getSize()
+		if (present(mIndices)) then
+			inStart = mIndices % start
+			inEnd = mIndices % end
+		end if
+
+		self % lmask(inStart:inEnd) = rmask
+	end subroutine mask1d_set
+
+
+	function mask2d_get(self, mIndices) result (m)
 		!< returns internal mask
 		class(shr_mask2d), intent(in) :: self
+		type(shr_maskIndices_2d), intent(in), optional :: mIndices
 		logical, allocatable :: m(:,:) !< output
-		allocate(m, source = self % lmask)
+
+		integer :: inColStart, inColEnd
+		integer :: inRowStart, inRowEnd
+		type(shr_maskIndices_1d) :: colIdx, rowIdx
+		integer, allocatable :: sh(:)
+		inColStart = 1
+		inRowStart = 1
+
+		if (present(mIndices)) then
+			colIdx = mIndices % getCol()
+			rowIdx = mIndices % getRow()
+			inRowStart = rowIdx % start
+			inRowEnd = rowIdx % end
+			inColStart = colIdx % start
+			inColEnd = colIdx % end
+		else
+			sh = self % getSize()
+			inColEnd = sh(1)
+			inRowEnd = sh(2)
+		end if
+		allocate(m(inColEnd, inRowEnd))
+		m = self % lmask(inColStart:inColEnd, inRowStart:inRowEnd)
 	end function mask2d_get
+
+
+	subroutine mask2d_set(self, rmask, mIndices)
+		!< sets internal mask
+		!< if mIndices defined then:
+		!< - rmask must have the same shape
+		!<
+		!< It mIndices not defined:
+		!< - rmask must have the same shape as self % lmask
+		class(shr_mask2d), intent(inout) :: self
+		logical, intent(in) :: rmask(:,:) !< raw mask
+		type(shr_maskIndices_2d), intent(in), optional :: mIndices
+
+		integer :: inColStart, inColEnd
+		integer :: inRowStart, inRowEnd
+		type(shr_maskIndices_1d) :: colIdx, rowIdx
+		integer, allocatable :: sh(:)
+		inColStart = 1
+		inRowStart = 1
+
+		!< check rmask is consistent with self
+		if (.not. present(mIndices)) then
+			if (any(shape(rmask) /= shape(self % lmask))) then
+				write(*,*) "shr_mask_mod:: mask2d_set:: lmask shape?", shape(self % lmask)
+				write(*,*) "shr_mask_mod:: mask2d_set:: rmask shape?", shape(rmask)
+				call raiseError(__FILE__, "mask2d_set", &
+							"Given rmask does not have the same dimensions as current mask")
+			end if
+		end if
+
+		if (present(mIndices)) then
+			colIdx = mIndices % getCol()
+			rowIdx = mIndices % getRow()
+			inRowStart = rowIdx % start
+			inRowEnd = rowIdx % end
+			inColStart = colIdx % start
+			inColEnd = colIdx % end
+		else
+			sh = self % getSize()
+			inColEnd = sh(1)
+			inRowEnd = sh(2)
+		end if
+		write(*,*) "mask2d_set:: lmask shape?", shape(self % lmask)
+		write(*,*) "mask2d_set:: rmask shape?", shape(rmask)
+		write(*,*) "mask2d_set:: col indices?", inColStart, ":", inColEnd
+		write(*,*) "mask2d_set:: row indices?", inRowStart, ":", inRowEnd
+		self % lmask(inColStart:inColEnd, inRowStart:inRowEnd) = rmask
+	end subroutine mask2d_set
+
 
 	subroutine mask2d_initialize_bySize(self, dim1, dim2, default)
 		!< initialize with new size
@@ -134,38 +239,45 @@ contains
 		!< initialize with new size with logical array
 		class(shr_mask2d), intent(inout) :: self
 		logical, intent(in) :: larray(:,:)
+		if (allocated(self % lmask)) deallocate(self % lmask)
 		allocate(self % lmask, source =  larray)
 	end subroutine mask2d_initialize_byArray
 
 
 	type(shr_mask2d) function mask2d_filter(self, mIndices) result (m)
-		!< filter those mask values found in mIndices in a new shr_mask
+		!< m has the same shape as self % lmask but with selected values from mIndices
+		!< the remaining values are set to false
 		class(shr_mask2d), intent(inout) :: self
 		type(shr_maskIndices_2d), intent(in) :: mIndices
 
-		integer :: startCol, endCol
-		integer :: startRow, endRow
+		integer :: inRowStart, inRowEnd
+		integer :: inColStart, inColEnd
+		type(shr_maskIndices_1d) :: colIdx, rowIdx
+		logical, allocatable :: tmp(:,:)
 		integer, allocatable :: sz(:)
-		type(shr_maskIndices_1d) :: rowIdx, colIdx
+		tmp = self % get(mIndices)
 
-		!< init as empty
-		sz = shape( self % lmask )
-		call m % init(sz(1), sz(2), .false.)
-		rowIdx = mIndices % getRow()
+		!< get lmask indices
 		colIdx = mIndices % getCol()
-		startCol = colIdx % start !< getStart
-		endCol = colIdx % end !< getEnd
-		startRow = rowIdx % start
-		endRow = rowIdx % end
-		!< copy values (get(mindices, values), set(mindices, values))
-		m % lmask(startRow:endRow, startCol:endCol) = self % lmask(startRow:endRow, startCol:endCol)
+		rowIdx = mIndices % getRow()
+		inRowStart = rowIdx % start
+		inRowEnd = rowIdx % end
+		inColStart = colIdx % start
+		inColEnd = colIdx % end
+
+		!< initialize output with same size as lmask
+		sz = self % getSize()
+		call m % init(sz(1), sz(2), default = .false.)
+		!< copy values
+		m % lmask(inRowStart:inRowEnd, inColStart:inColEnd) = tmp
 	end function mask2d_filter
 
 
-	integer function mask2d_getSize(self)
-		!< get mask size
+	function mask2d_getSize(self) result (s)
+		!< get 'mask' shape
 		class(shr_mask2d), intent(in) :: self
-		mask2d_getSize = size(self % lmask)
+		integer, allocatable :: s(:)
+		s = shape(self % lmask)
 	end function mask2d_getSize
 
 end module shr_mask_mod
