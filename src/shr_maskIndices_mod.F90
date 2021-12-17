@@ -83,6 +83,8 @@ contains
 		class(shr_maskIndices_2d), intent(inout) :: self
 		type(shr_maskIndices_1d), intent(in) :: colIndices
 		type(shr_maskIndices_1d), intent(in) :: rowIndices
+		if (allocated(self % col)) deallocate(self % col)
+		if (allocated(self % row)) deallocate(self % row)
 		allocate(self % col, source = colIndices)
 		allocate(self % row, source = rowIndices)
 	end subroutine maskIndices_2d_init_by_1d
