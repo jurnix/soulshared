@@ -151,6 +151,7 @@ contains
 		integer :: inColStart, inColEnd
 		integer :: inRowStart, inRowEnd
 		type(shr_maskIndices_1d) :: colIdx, rowIdx
+		integer :: colSize, rowSize
 		integer, allocatable :: sh(:)
 		inColStart = 1
 		inRowStart = 1
@@ -167,7 +168,9 @@ contains
 			inColEnd = sh(1)
 			inRowEnd = sh(2)
 		end if
-		allocate(m(inColEnd, inRowEnd))
+		colSize = inColEnd - inColStart + 1
+		rowSize = inRowEnd - inRowStart + 1
+		allocate(m(colSize, rowSize))
 		m = self % lmask(inColStart:inColEnd, inRowStart:inRowEnd)
 	end function mask2d_get
 
@@ -212,10 +215,6 @@ contains
 			inColEnd = sh(1)
 			inRowEnd = sh(2)
 		end if
-		write(*,*) "mask2d_set:: lmask shape?", shape(self % lmask)
-		write(*,*) "mask2d_set:: rmask shape?", shape(rmask)
-		write(*,*) "mask2d_set:: col indices?", inColStart, ":", inColEnd
-		write(*,*) "mask2d_set:: row indices?", inRowStart, ":", inRowEnd
 		self % lmask(inColStart:inColEnd, inRowStart:inRowEnd) = rmask
 	end subroutine mask2d_set
 
@@ -269,7 +268,7 @@ contains
 		sz = self % getSize()
 		call m % init(sz(1), sz(2), default = .false.)
 		!< copy values
-		m % lmask(inRowStart:inRowEnd, inColStart:inColEnd) = tmp
+		m % lmask(inColStart:inColEnd, inRowStart:inRowEnd) = tmp
 	end function mask2d_filter
 
 

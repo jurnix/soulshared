@@ -122,6 +122,7 @@ contains
     expMask(2,:) = [.true., .false.]
     call self % assert(all(tmp .eqv. expMask), &
         "m2(TF,FF,TF) % get() .eq. ((FF),(TF)) = T" )
+    deallocate(expMask)
 
 
     !procedure :: set => mask2d_set
@@ -136,12 +137,28 @@ contains
     call m2 % set(smask, idx)
 
     tmp = m2 % get(idx)
+    allocate(expMask(2,2))
     expMask(1,:) = [.true.,.true.]
     expMask(2,:) = [.true., .false.]
     call self % assert(all(tmp .eqv. expMask), &
           "m2(TF,FF,TF) % set(TT,TF) .eq. ((TT),(TF)) = T" )
+    deallocate(expMask)
 
     !procedure :: filter => mask2d_filter !< new mask with selected indices
+    call idx % init([2,3,1,1])
+    rmask(1,:) = [.true., .false.]
+    rmask(2,:) = [.false., .false.]
+    rmask(3,:) = [.true., .false.]
+    call m2 % init(rmask)
+
+    mfiltered = m2 % filter(idx)
+    allocate(expMask(3,2))
+    expMask(1,:) = [.false., .false.]
+    expMask(2,:) = [.false., .false.]
+    expMask(3,:) = [.true., .false.]
+
+    call self % assert( all(mfiltered % get() .eqv. expMask), &
+        "m1(TF,FF,TF) % filter([2,3,1,2]) .eq. (FF,FF,TF) = T" )
   end subroutine testMask2d
 
 
