@@ -112,7 +112,7 @@ program unittest
   call tsCfgOptions % init("(CFG) Cfg options test", 20)
   call tsLinkedList % init("Linked list test", 10)
   call tsSet % init("Set test", 10)
-  call tsMask % init("Mask test", 10)
+  call tsMask % init("Mask test", 20)
   call tsMaskClusters % init("Mask Clusters test", 10)
 
   call tsArrayRealDim % init("ArrayRealDim test", 30)
