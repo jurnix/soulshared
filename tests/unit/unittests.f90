@@ -28,6 +28,7 @@ program unittest
   use linkedList_test, only: testSuiteLinkedList
   use set_test, only: testSuiteSet
   use shr_mask_test, only: testSuiteMask
+  use shr_maskIndices_test, only: testSuiteMaskIndices
   use shr_maskClusters_test, only: testSuiteMaskClusters
 
   ! array
@@ -73,6 +74,7 @@ program unittest
   type(testSuiteLinkedList) :: tsLinkedList
   type(testSuiteSet) :: tsSet
   type(testSuiteMask) :: tsMask
+  type(testSuiteMaskIndices) :: tsMaskIndices
   type(testSuiteMaskClusters) :: tsMaskClusters
 
   type(testSuiteArrayRealDim) :: tsArrayRealDim
@@ -113,6 +115,7 @@ program unittest
   call tsLinkedList % init("Linked list test", 10)
   call tsSet % init("Set test", 10)
   call tsMask % init("Mask test", 20)
+  call tsMaskIndices % init("MaskIndices test", 20)
   call tsMaskClusters % init("Mask Clusters test", 10)
 
   call tsArrayRealDim % init("ArrayRealDim test", 30)
@@ -155,6 +158,7 @@ program unittest
   call tsLinkedList % run() 
   call tsSet % run()
   call tsMask % run()
+  call tsMaskIndices % run()
   call tsMaskClusters % run()
 
   call tsArrayRealDim % run() 
@@ -196,6 +200,7 @@ program unittest
   call tsLinkedList % report() 
   call tsSet % report()
   call tsMask % report()
+  call tsMaskIndices % report()
   call tsMaskClusters % report()
 
   call tsArrayRealDim % report() 
@@ -236,6 +241,7 @@ program unittest
       .not. tsLinkedList % isSuccessful() .or. &
       .not. tsSet % isSuccessful() .or. &
       .not. tsMask % isSuccessful() .or. &
+      .not. tsMaskIndices % isSuccessful() .or. &
       .not. tsMaskClusters % isSuccessful() .or. &
       .not. tsArrayRealDim % isSuccessful() .or. &
       .not. tsArrayContainerAllocatable % isSuccessful() .or. &
