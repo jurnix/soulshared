@@ -64,7 +64,6 @@ contains
 
 		!< discover all clusters
 		allocate(self % mClusters(nclusters))
-		!shr_mask_calc_groups_indices_l1(self % mask)
 		self % mIndices =  self % calculateIndices(lmask)
 
 		!< each cluster found as new shr_mask
