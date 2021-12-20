@@ -63,16 +63,15 @@ contains
 	end subroutine maskIndices_1d_init
 
 
-	subroutine maskIndices_2d_init_by_array(self, array)
+	subroutine maskIndices_2d_init_by_array(self, startRow, endRow, startCol, endCol)
 		!< maskIndices_2d constructor with array
 		class(shr_maskIndices_2d), intent(inout) :: self
-		integer, intent(in) :: array(4) !< col start, col end, row start, row end,
+		integer, intent(in) :: startRow, endRow
+		integer, intent(in) :: startCol, endCol
 
 		type(shr_maskIndices_1d) :: colIndices, rowIndices
-		call colIndices % init(array(MASK_INDICES_ARRAY_COL_START), &
-				array(MASK_INDICES_ARRAY_COL_END))
-		call rowIndices % init(array(MASK_INDICES_ARRAY_ROW_START), &
-				array(MASK_INDICES_ARRAY_ROW_END))
+		call colIndices % init(startCol, endCol)
+		call rowIndices % init(startRow, endRow)
 
 		call self % maskIndices_2d_init_by_1d(colIndices, rowIndices)
 	end subroutine maskIndices_2d_init_by_array
@@ -137,6 +136,7 @@ contains
 			hasSameCol = (self % col == o % col)
 			hasSameRow = (self % row == o % row)
 		class default
+			!< unexpected type found
 			hasSameType = .false.
 			hasSameCol = .false.
 			hasSameRow = .false.
