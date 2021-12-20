@@ -16,7 +16,9 @@ module shr_maskClusters_test
 
   use shr_maskClusters_mod, only: shr_mask_calc_groups_indices_l1, shr_mask_calc_groups_indices_l2
   use shr_maskClusters_mod, only: shr_mask_count_groups_l1, shr_mask_count_groups_l2
+  use shr_maskClusters_mod, only: shr_maskClusters_1d, shr_maskClusters_2d
   use shr_maskIndices_mod, only: shr_maskIndices_1d, shr_maskIndices_2d
+  use shr_mask_mod, only: shr_mask1d, shr_mask2d
 
 
   implicit none
@@ -30,6 +32,9 @@ module shr_maskClusters_test
     procedure :: define => defineTestCases
     procedure, private :: testMaskClusters1d
     procedure, private :: testMaskClusters2d
+
+    procedure, private :: testMaskClusters1dClasses
+    procedure, private :: testMaskClusters2dClasses
   end type
 contains
 
@@ -37,8 +42,13 @@ contains
     use iso_c_binding
     class(testSuiteMaskClusters), intent(inout) :: self
 
+    !< basic subroutines
     call self % testMaskClusters1d()
     call self % testMaskClusters2d()
+
+    !< classes
+    call self % testMaskClusters1dClasses()
+    call self % testMaskClusters2dClasses()
   end subroutine defineTestCases
 
 
@@ -88,7 +98,7 @@ contains
 
 
   subroutine testMaskClusters2d(self)
-    !<
+    !< test cases for mask clusters 2d related subroutines
     class(testSuiteMaskClusters), intent(inout) :: self
     logical :: mask2d(4, 6)
 
@@ -159,5 +169,55 @@ contains
     call self % assert(all(mMatrixIndices == expMatrixIndices), &
         "shr_mask_calc_groups_indices_l2(TTFFTT,T,T,T,FFFFT) .eq. (...) = T")
   end subroutine testMaskClusters2d
+
+
+  subroutine testMaskClusters1dClasses(self)
+    !< test cases for maskClusters_1d class
+    class(testSuiteMaskClusters), intent(inout) :: self
+    type(shr_maskClusters_1d) :: c
+    type(shr_mask1d) :: mask
+    type(shr_mask1d) :: mfirst, msecond !< results
+    logical :: lmask(6)
+
+    lmask = [.true., .false., .false., .true., .true., .true.]
+    call mask % init(lmask)
+    call c % init(mask)
+
+    !procedure :: init => mask1dClusters_initialize
+    call self % assert(.true., "c % init(TFFTTT) = T")
+
+    !procedure :: getSize => mask1d_getSize
+    call self % assert(c % getSize() == 2, "c(TFFTTT) % getSize() .eq. 2 = T")
+
+    !procedure :: get => mask1dClusters_get
+    ! create c
+    lmask = [.true., .false., .false., .true., .true., .true.]
+    call mask % init(lmask)
+    call c % init(mask)
+
+    ! create mfirst
+    lmask = [.true., .false., .false., .false., .false., .false.]
+    !call mask % init(lmask)
+    call mfirst % init(lmask)
+
+    call self % assert(c % get(1) == mfirst, &
+        "c(TFFTTT) % get(1) .eq. shr_mask(TFFFFF) = T")
+
+    ! create msecond
+    lmask = [.false., .false., .false., .true., .true., .true.]
+    !call mask % init(lmask)
+    call msecond % init(lmask)
+
+    call self % assert(c % get(2)  == msecond, &
+        "c(TFFTTT) % get(2) .eq. shr_mask(FFFTTT) = T")
+  end subroutine testMaskClusters1dClasses
+
+
+  subroutine testMaskClusters2dClasses(self)
+    !< test cases for maskClusters_2d class
+    class(testSuiteMaskClusters), intent(inout) :: self
+    call self % assert(.false., &
+        "TODO = T")
+  end subroutine testMaskClusters2dClasses
 
 end module shr_maskClusters_test

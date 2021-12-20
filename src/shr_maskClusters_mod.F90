@@ -58,6 +58,12 @@ contains
 		type(shr_maskIndices_1d) :: mIdx
 		logical, allocatable :: lmask(:)
 
+		!< allow reuse
+		if (allocated(self % mask)) deallocate(self % mask)
+		if (allocated(self % mIndices)) deallocate(self % mIndices)
+		if (allocated(self % mClusters)) deallocate(self % mClusters)
+
+
 		allocate(self % mask, source = mask)
 		lmask = self % mask % get()
 		nclusters = self % count(lmask) !shr_mask_count_groups_indices_l1(self % mask)

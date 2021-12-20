@@ -33,6 +33,9 @@ module shr_mask_mod
 		procedure :: get => mask1d_get !< get mask
 		procedure :: set => mask1d_set !< set mask
 		procedure :: filter => mask1d_filter !< new mask with selected indices
+
+		procedure :: mask1d_eq
+		generic :: operator(==) => mask1d_eq
 	end type shr_mask1d
 
 
@@ -64,6 +67,15 @@ contains
 		allocate(self % lmask(dim1))
 		self % lmask = inDefault
 	end subroutine mask1d_initialize_bySize
+
+
+	elemental logical function mask1d_eq(self, other)
+		!< true if self and other have the same attributes
+		!< (both must be initialized)
+		class(shr_mask1d), intent(in) :: self
+		type(shr_mask1d), intent(in) :: other
+		mask1d_eq = all(self % lmask .eqv. other % lmask)
+	end function mask1d_eq
 
 
 	subroutine mask1d_initialize_byArray(self, larray)
