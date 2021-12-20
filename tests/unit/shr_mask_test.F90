@@ -87,49 +87,45 @@ contains
 
     type(shr_mask2d) :: m2, mfiltered
     type(shr_maskIndices_2d) :: idx
-    logical :: rmask(3,2), smask(2,2)
+    logical :: rmask(2,3), smask(2,2)
     logical, allocatable :: tmp(:,:), expMask(:,:)
 
     !procedure :: mask2d_initialize_bySize!(4)
-    call m2 % init(3, 2, default = .false.)
-    call self % assert( .true., "m2 % init(3,2,false) = T" )
+    call m2 % init(2, 3, default = .false.)
+    call self % assert( .true., "m2 % init(2,3,false) = T" )
 
     !procedure :: mask2d_initialize_byArray!(4)
-    rmask(1,:) = [.true., .false.]
-    rmask(2,:) = [.true., .false.]
-    rmask(3,:) = [.true., .false.]
+    rmask(1,:) = [.true., .true., .true.]
+    rmask(2,:) = [.false., .false., .false.]
     call m2 % init(rmask)
-    call self % assert( .true., "m2 % init([TF,TF,TF]) = T" )
+    call self % assert( .true., "m2 % init([TTT,FFF]) = T" )
 
     !procedure :: getSize => mask2d_getSize
-    rmask(1,:) = [.true., .false.]
-    rmask(2,:) = [.true., .false.]
-    rmask(3,:) = [.true., .false.]
+    rmask(1,:) = [.true., .true., .true.]
+    rmask(2,:) = [.false., .false., .false.]
     call m2 % init(rmask)
-    call self % assert(all(m2 % getSize() == [3,2]), &
-          "m2 % getSize() .eq. (3,2) = T" )
+    call self % assert(all(m2 % getSize() == [2,3]), &
+          "m2 % getSize() .eq. (2,3) = T" )
 
 
     !procedure :: get => mask2d_get
-    call idx % init([2,3,1,2])
-    rmask(1,:) = [.true., .false.]
-    rmask(2,:) = [.false., .false.]
-    rmask(3,:) = [.true., .false.]
+    call idx % init(1,2,2,3) !<row, col
+    rmask(1,:) = [.true., .false., .true.]
+    rmask(2,:) = [.false., .false., .false.]
     call m2 % init(rmask)
     tmp = m2 % get(idx)
     allocate(expMask(2,2))
-    expMask(1,:) = [.false.,.false.]
-    expMask(2,:) = [.true., .false.]
+    expMask(1,:) = [.false., .true.]
+    expMask(2,:) = [.false., .false.]
     call self % assert(all(tmp .eqv. expMask), &
-        "m2(TF,FF,TF) % get() .eq. ((FF),(TF)) = T" )
+        "m2(TFT, FFF) % get() .eq. ((FF),(TF)) = T" )
     deallocate(expMask)
 
 
     !procedure :: set => mask2d_set
-    call idx % init([2,3,1,2])
-    rmask(1,:) = [.true., .false.]
-    rmask(2,:) = [.false., .false.]
-    rmask(3,:) = [.true., .false.]
+    call idx % init(1,2,2,3)
+    rmask(1,:) = [.true., .false., .true.]
+    rmask(2,:) = [.false., .false., .false.]
     call m2 % init(rmask)
 
     smask(1,:) = [.true., .true.]
@@ -141,24 +137,22 @@ contains
     expMask(1,:) = [.true.,.true.]
     expMask(2,:) = [.true., .false.]
     call self % assert(all(tmp .eqv. expMask), &
-          "m2(TF,FF,TF) % set(TT,TF) .eq. ((TT),(TF)) = T" )
+          "m2(TFT,FFF) % set(TT,TF) .eq. ((TTT),(FTF)) = T" )
     deallocate(expMask)
 
     !procedure :: filter => mask2d_filter !< new mask with selected indices
-    call idx % init([2,3,1,1])
-    rmask(1,:) = [.true., .false.]
-    rmask(2,:) = [.false., .false.]
-    rmask(3,:) = [.true., .false.]
+    call idx % init(1,1,2,3)
+    rmask(1,:) = [.true., .false., .true.]
+    rmask(2,:) = [.false., .false., .false.]
     call m2 % init(rmask)
 
     mfiltered = m2 % filter(idx)
-    allocate(expMask(3,2))
-    expMask(1,:) = [.false., .false.]
-    expMask(2,:) = [.false., .false.]
-    expMask(3,:) = [.true., .false.]
+    allocate(expMask(2,3))
+    expMask(1,:) = [.false., .false., .true.]
+    expMask(2,:) = [.false., .false., .false.]
 
     call self % assert( all(mfiltered % get() .eqv. expMask), &
-        "m1(TF,FF,TF) % filter([2,3,1,2]) .eq. (FF,FF,TF) = T" )
+        "m2(TFT,FFF) % filter([1,1,2,3]) .eq. (FFT,FFF) = T" )
   end subroutine testMask2d
 
 

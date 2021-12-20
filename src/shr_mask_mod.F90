@@ -22,6 +22,10 @@ module shr_mask_mod
 	public :: shr_mask1d, shr_mask2d
 
 
+	integer, parameter :: ROW_SHAPE_INDEX = 1
+	integer, parameter :: COL_SHAPE_INDEX = 2
+
+
 	type :: shr_mask1d
 		logical, allocatable :: lmask(:)
 	contains
@@ -50,6 +54,10 @@ module shr_mask_mod
 		procedure :: get => mask2d_get
 		procedure :: set => mask2d_set
 		procedure :: filter => mask2d_filter !< new mask with selected indices
+		procedure :: toString => mask2d_toString
+
+		procedure :: mask2d_eq
+		generic :: operator(==) => mask2d_eq
 	end type shr_mask2d
 
 contains
@@ -177,13 +185,18 @@ contains
 			inColEnd = colIdx % end
 		else
 			sh = self % getSize()
-			inColEnd = sh(1)
-			inRowEnd = sh(2)
+			inColEnd = sh(COL_SHAPE_INDEX)
+			inRowEnd = sh(ROW_SHAPE_INDEX)
 		end if
 		colSize = inColEnd - inColStart + 1
 		rowSize = inRowEnd - inRowStart + 1
-		allocate(m(colSize, rowSize))
-		m = self % lmask(inColStart:inColEnd, inRowStart:inRowEnd)
+		allocate(m(rowSize, colSize))
+		!write(*,*) "mask2d_get:: rowSize, colSize = ", rowSize, colSize
+		!write(*,*) "mask2d_get:: row = ", inRowStart, inRowEnd
+		!write(*,*) "mask2d_get:: col = ", inColStart, inColEnd
+		!write(*,*) "mask2d_get:: self % lmask shape? ", shape(self % lmask)
+		!write(*,*) "mask2d_get:: m shape? ", shape(m)
+		m = self % lmask(inRowStart:inRowEnd, inColStart:inColEnd)
 	end function mask2d_get
 
 
@@ -224,24 +237,25 @@ contains
 			inColEnd = colIdx % end
 		else
 			sh = self % getSize()
-			inColEnd = sh(1)
-			inRowEnd = sh(2)
+			inColEnd = sh(COL_SHAPE_INDEX)
+			inRowEnd = sh(ROW_SHAPE_INDEX)
 		end if
-		self % lmask(inColStart:inColEnd, inRowStart:inRowEnd) = rmask
+		self % lmask(inRowStart:inRowEnd, inColStart:inColEnd) = rmask
 	end subroutine mask2d_set
 
 
-	subroutine mask2d_initialize_bySize(self, dim1, dim2, default)
+	subroutine mask2d_initialize_bySize(self, nrows, ncols, default)
 		!< initialize with new size
 		!< By default true is assigned,
 		class(shr_mask2d), intent(inout) :: self
-		integer, intent(in) :: dim1, dim2
+		integer, intent(in) :: nrows
+		integer, intent(in) :: ncols
 		logical, intent(in), optional :: default
 		logical :: inDefault
 
 		inDefault = .true.
 		if (present(default)) inDefault = default
-		allocate(self % lmask(dim1, dim2))
+		allocate(self % lmask(nrows, ncols))
 		self % lmask = inDefault
 	end subroutine mask2d_initialize_bySize
 
@@ -266,6 +280,9 @@ contains
 		type(shr_maskIndices_1d) :: colIdx, rowIdx
 		logical, allocatable :: tmp(:,:)
 		integer, allocatable :: sz(:)
+		!type(string) :: tmpStr ! debug
+		!tmpStr = mIndices % toString()
+		!write(*,*) "mask2d_filter:: mIndices =", tmpStr % toString()
 		tmp = self % get(mIndices)
 
 		!< get lmask indices
@@ -278,17 +295,48 @@ contains
 
 		!< initialize output with same size as lmask
 		sz = self % getSize()
-		call m % init(sz(1), sz(2), default = .false.)
+		call m % init(sz(ROW_SHAPE_INDEX), sz(COL_SHAPE_INDEX), default = .false.)
 		!< copy values
-		m % lmask(inColStart:inColEnd, inRowStart:inRowEnd) = tmp
+		m % lmask(inRowStart:inRowEnd, inColStart:inColEnd) = tmp
 	end function mask2d_filter
 
 
 	function mask2d_getSize(self) result (s)
 		!< get 'mask' shape
 		class(shr_mask2d), intent(in) :: self
-		integer, allocatable :: s(:)
+		integer, allocatable :: s(:) !< row=1, col=2
 		s = shape(self % lmask)
 	end function mask2d_getSize
+
+
+	elemental logical function mask2d_eq(self, other)
+		!< true if self and other have the same attributes
+		!< (both must be initialized)
+		class(shr_mask2d), intent(in) :: self
+		type(shr_mask2d), intent(in) :: other
+		if (allocated(self % lmask))  then
+			mask2d_eq = .false.
+			return
+		end if
+		if (allocated(other % lmask))  then
+			mask2d_eq = .false.
+			return
+		end if
+		mask2d_eq = all(self % lmask .eqv. other % lmask)
+	end function mask2d_eq
+
+
+	type(string) function mask2d_toString(self) result (s)
+		!<
+		class(shr_mask2d), intent(in) :: self
+		integer :: irow, nRows
+		character(200) :: tmpStr
+		s = ""
+		nRows = size(self % lmask, dim=1)
+		do irow = 1, nRows
+			write(tmpStr,*) self % lmask(irow,:)
+			s = s + "'" + trim(adjustl(tmpStr)) + "'" + new_line('A')
+		end do
+	end function mask2d_toString
 
 end module shr_mask_mod
