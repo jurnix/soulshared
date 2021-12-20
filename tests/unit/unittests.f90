@@ -116,7 +116,7 @@ program unittest
   call tsSet % init("Set test", 10)
   call tsMask % init("Mask test", 20)
   call tsMaskIndices % init("MaskIndices test", 20)
-  call tsMaskClusters % init("Mask Clusters test", 20)
+  call tsMaskClusters % init("Mask Clusters test", 30)
 
   call tsArrayRealDim % init("ArrayRealDim test", 30)
   call tsArrayRsp % init("ArrayRsp test", 20)
