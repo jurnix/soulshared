@@ -21,6 +21,7 @@ module shr_gridMaskIterator_mod
 
   use shr_Iterator_mod, only: shr_iterator_abs
   use shr_gridMask_mod, only: shr_gridMask
+  use shr_gridMaskClusters_mod, only: shr_gridMaskClusters
 
   implicit none
 
@@ -32,7 +33,7 @@ module shr_gridMaskIterator_mod
   type, extends(shr_iterator_abs) :: shr_gridMaskIterator
     !< mask
     type(shr_gridMask), allocatable :: gMask
-    type(shr_gridMask), allocatable :: maskedGroups
+    type(shr_gridMaskClusters), allocatable :: cluster
     integer :: counter
     integer :: total
   contains
@@ -49,11 +50,14 @@ contains
     type(shr_gridMask), intent(in) :: gridMask
 
     if (allocated(self % gMask)) deallocate(self % gMask) !< enable resuse of the same object
+    if (allocated(self % cluster)) deallocate(self % cluster)
+
     allocate(self % gMask, source = gridMask)
-    !call maskedGrouped % init(self % gMask)
-    !self % total = maskedGrouped % size()
-    !maskedGrouped % get()
-    self % counter = 0
+    allocate(self % cluster)
+
+    call self % cluster % init(self % gMask)
+    self % total = self % cluster % getSize()
+    self % counter = 1
   end subroutine gridMaskIterator_initialize
 
 
@@ -68,10 +72,18 @@ contains
     !< returns current object
     class(shr_gridMaskIterator), intent(inout) :: self
     class(*), allocatable :: obj
-    if (self % hasNext()) then
-      self % counter = self % counter + 1
-      !allocate(obj, source = maskedGrouped % get(self % counter))
+    type(shr_gridMask) :: gmask
+
+    if (.not. self % hasNext()) then
+      call raiseError(__FILE__, "getNext", &
+          "No more elements available")
     end if
+
+    self % counter = self % counter + 1
+    gmask = self % cluster % get(self % counter)
+
+    !< copy
+    allocate(obj, source = gmask)
   end function getNext
 
 
