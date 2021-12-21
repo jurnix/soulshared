@@ -121,6 +121,12 @@ contains
 		integer :: nclusters, icluster
 		type(shr_maskIndices_2d) :: mIdx
 		logical, allocatable :: lmask(:,:)
+		!type(string) :: tmpStr
+
+		! allow reuse
+		if ( allocated(self % mask)) deallocate(self % mask)
+		if ( allocated(self % mIndices)) deallocate(self % mIndices)
+		if ( allocated(self % mClusters)) deallocate(self % mClusters)
 
 		allocate(self % mask, source = mask)
 		lmask = self % mask % get()
@@ -132,8 +138,13 @@ contains
 
 		!< each cluster found as new shr_mask
 		do icluster = 1, nclusters
+			!write(*,* ) "mask2dClusters_initialize:: icluster =", icluster
 			mIdx = self % mIndices(icluster)
-			!self % mClusters(icluster) = self % mask % filter(mIdx)
+			!tmpStr = mIdx % toString()
+			!write(*,* ) "mask2dClusters_initialize:: indices found =", tmpStr % toString()
+			self % mClusters(icluster) = self % mask % filter(mIdx)
+			!tmpStr = self % mClusters(icluster) % toString()
+			!write(*,* ) "mask2dClusters_initialize:: indices found =", tmpStr % toString()
 		end do
 	end subroutine mask2dClusters_initialize
 
@@ -167,6 +178,9 @@ contains
 		!< returns a shr_mask at th 'ipos' th position
 		class(shr_maskClusters_2d), intent(in) :: self
 		integer, intent(in) :: ipos
+		!type(string) :: tmpStr
+		!tmpStr = self % mClusters(ipos) % toString()
+		!write(*,*) "shr_maskClusters_mod:: mClusters =", tmpStr % toString()
 		m = self % mClusters(ipos)
 	end function mask2dClusters_get
 
@@ -382,6 +396,7 @@ contains
 			end do !< icol = 1, size(colIndxs)
 		end do !< irow = 1, nRows
 
+#ifndef NDEBUG
 		!< consistency check (debug only)
  		if (igroup - 1 /= ngroups) then
 			write(*,*) "Expected ",  ngroups, " but found ", (igroup-1)
@@ -389,6 +404,7 @@ contains
 					"Inconsistency found", &
 					"The number of indices found does not match the expected")
 		end if
+#endif
 	end function shr_mask_calc_groups_indices_l2
 
 

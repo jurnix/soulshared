@@ -143,11 +143,11 @@ contains
     mask2d(2,:) = [.true., .true., .true., .true., .true., .true.]
     mask2d(3,:) = [.true., .true., .true., .true., .true., .true.]
     mask2d(4,:) = [.true., .false., .false., .false., .false., .true.]
-    call expMatrixIndices(2) % init([1,2,1,1])
-    call expMatrixIndices(3) % init([5,6,1,1])
-    call expMatrixIndices(1) % init([1,6,2,3])
-    call expMatrixIndices(4) % init([1,1,4,4])
-    call expMatrixIndices(5) % init([6,6,4,4])
+    call expMatrixIndices(2) % init(1,1,1,2)
+    call expMatrixIndices(3) % init(1,1,5,6)
+    call expMatrixIndices(1) % init(2,3,1,6)
+    call expMatrixIndices(4) % init(4,4,1,1)
+    call expMatrixIndices(5) % init(4,4,6,6)
     mMatrixIndices = shr_mask_calc_groups_indices_l2(mask2d)
 
     call self % assert(size(mMatrixIndices) == 5, &
@@ -216,8 +216,76 @@ contains
   subroutine testMaskClusters2dClasses(self)
     !< test cases for maskClusters_2d class
     class(testSuiteMaskClusters), intent(inout) :: self
-    call self % assert(.false., &
-        "TODO = T")
+    type(shr_maskClusters_2d) :: c
+    type(shr_mask2d) :: mask
+    type(shr_mask2d) :: mfirst, msecond, mthrid, mfourth, mfifth, msixth
+    logical :: lmask(4,6) !< row, cols
+    type(shr_mask2d) :: tmpMask
+    type(string) :: tmpStr
+
+    lmask(1,:) = [.true., .true., .false., .false., .true., .true.] ! -> 2
+    lmask(2,:) = [.true., .true., .true., .true., .true., .false.] ! -> 1
+    lmask(3,:) = [.true., .true., .true., .true., .true., .true.] ! -> 1
+    lmask(4,:) = [.true., .false., .false., .false., .false., .true.] ! -> 2
+    call mask % init(lmask)
+
+    !procedure :: init => mask2dClusters_initialize
+    call c % init(mask)
+    call self % assert(.true., "c % init(...) = T")
+
+    !procedure :: getSize => mask2d_getSize
+    call self % assert(c % getSize() == 6, "c % geSize() .eq. 6 = T")
+
+    !procedure :: get => mask2dClusters_get
+    !< 1st
+    lmask(1,:) = [.true., .true., .false., .false., .true., .true.] ! -> 2
+    lmask(2,:) = [.true., .true., .true., .true., .true., .false.] ! -> 1
+    lmask(3,:) = [.true., .true., .true., .true., .true., .true.] ! -> 1
+    lmask(4,:) = [.true., .false., .false., .false., .false., .true.] ! -> 2
+    call mask % init(lmask)
+    call c % init(mask)
+    lmask = .false. !< reuse
+    lmask(1,:) = [.true., .true., .false., .false., .false., .false.] ! -> 2
+    call mfirst % init(lmask)
+    tmpMask = c % get(2)
+    tmpStr = tmpMask % toString()
+    write(*,*) "shr_maskClusters_test:: found = ", tmpStr % toString()
+    write(*,*) "shr_maskClusters_test:: expected(1) = ", lmask(1,:)
+    write(*,*) "shr_maskClusters_test:: expected(2) = ", lmask(2,:)
+    write(*,*) "shr_maskClusters_test:: expected(3) = ", lmask(3,:)
+    write(*,*) "shr_maskClusters_test:: expected(4) = ", lmask(4,:)
+    call self % assert(tmpMask == mfirst, "c % get(2) .eq. mask(TTFFFF,...) = T")
+
+    !< 2nd
+    lmask = .false.
+    lmask(1,:) = [.false., .false., .false., .false., .true., .true.] ! -> 2
+    call msecond % init(lmask)
+    call self % assert(c % get(3) == msecond, "c % get(3) .eq. mask(FFFFTT,...) = T")
+
+    !< 3rd
+    lmask = .false.
+    lmask(2,:) = [.true., .true., .true., .true., .true., .false.] ! -> 1
+    call mthrid % init(lmask)
+    call self % assert(c % get(4) == mthrid, "c % get(4) .eq. mask(...,TTTTTF,...) = T")
+
+    !< 4th
+    lmask = .false.
+    lmask(3,:) = [.true., .true., .true., .true., .true., .true.] ! -> 1
+    call mfourth % init(lmask)
+    call self % assert(c % get(1) == mfourth, "c % get(4) .eq. mask(...,TTTTTT,...) = T")
+
+    !< 5th
+    lmask = .false.
+    lmask(4,:) = [.true., .false., .false., .false., .false., .false.] ! -> 1
+    call mfifth % init(lmask)
+    call self % assert(c % get(5) == mfifth, "c % get(5) .eq. mask(...,TFFFFF,...) = T")
+
+    !< 6th
+    lmask = .false.
+    lmask(4,:) = [.false., .false., .false., .false., .false., .true.] ! -> 1
+    call msixth % init(lmask)
+    call self % assert(c % get(6) == msixth, "c % get(6) .eq. mask(...,FFFFFT,...) = T")
+
   end subroutine testMaskClusters2dClasses
 
 end module shr_maskClusters_test
