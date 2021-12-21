@@ -34,7 +34,9 @@ module shr_gridMask_mod
 
     logical, allocatable :: mask(:,:)
   contains
-    procedure :: init => gridMask_initialize
+    procedure ::  gridMask_initialize
+    procedure :: gridMask_initialize_by_larray
+    generic :: init => gridMask_initialize, gridMask_initialize_by_larray
 
     procedure :: countEnabled
 !    procedure :: setAll(status), assignment(=)
@@ -77,6 +79,18 @@ module shr_gridMask_mod
   end type shr_gridMask
 
 contains
+
+  subroutine gridMask_initialize_by_larray(self, gridDescriptor, lmask)
+    !< gridMask initialization
+    class(shr_gridMask), intent(inout) :: self
+    type(shr_gGridDescriptor), intent(in) :: gridDescriptor
+    logical, intent(in) :: lmask(:,:)
+
+    call self % gridMask_initialize(gridDescriptor)
+    self % mask = lmask
+  end subroutine gridMask_initialize_by_larray
+
+
 
   subroutine gridMask_initialize(self, gridDescriptor, default)
     !< gridMask initialization
