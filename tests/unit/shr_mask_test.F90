@@ -85,7 +85,7 @@ contains
     !< shr_mask2d unit tests
     class(testSuiteMask), intent(inout) :: self
 
-    type(shr_mask2d) :: m2, mfiltered
+    type(shr_mask2d) :: m2, mfiltered, m1
     type(shr_maskIndices_2d) :: idx
     logical :: rmask(2,3), smask(2,2)
     logical, allocatable :: tmp(:,:), expMask(:,:)
@@ -153,6 +153,29 @@ contains
 
     call self % assert( all(mfiltered % get() .eqv. expMask), &
         "m2(TFT,FFF) % filter([1,1,2,3]) .eq. (FFT,FFF) = T" )
+
+    ! procedure :: mask2d_eq
+    !< same object
+    rmask(1,:) = [.true., .false., .true.]
+    rmask(2,:) = [.false., .false., .false.]
+    call m2 % init(rmask)
+    call self % assert( m2 == m2 , "m2 .eq. m2 = T" )
+
+    !< different object (same mask)
+    rmask(1,:) = [.true., .false., .true.]
+    rmask(2,:) = [.false., .false., .false.]
+    call m2 % init(rmask)
+    call m1 % init(rmask)
+    call self % assert( m2 == m1 , "m2 .eq. m1 = T" )
+
+    !< different object (same mask)
+    rmask(1,:) = [.true., .false., .true.]
+    rmask(2,:) = [.false., .false., .false.]
+    call m2 % init(rmask)
+    rmask(1,:) = [.true., .false., .true.]
+    rmask(2,:) = [.false., .true., .false.]
+    call m1 % init(rmask)
+    call self % assert(.not. m2 == m1 , "m2 .eq. m1 = F" )
   end subroutine testMask2d
 
 

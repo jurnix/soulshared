@@ -314,11 +314,11 @@ contains
 		!< (both must be initialized)
 		class(shr_mask2d), intent(in) :: self
 		type(shr_mask2d), intent(in) :: other
-		if (allocated(self % lmask))  then
+		if (.not. allocated(self % lmask))  then
 			mask2d_eq = .false.
 			return
 		end if
-		if (allocated(other % lmask))  then
+		if (.not. allocated(other % lmask))  then
 			mask2d_eq = .false.
 			return
 		end if
