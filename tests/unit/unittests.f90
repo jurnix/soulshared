@@ -51,6 +51,7 @@ program unittest
   use shr_gridIndicesMapping_test, only: testSuiteGridIndicesMapping
   use shr_gridMask_test, only: testSuiteGridMask
   use shr_gridMaskClusters_test, only: testSuitegridMaskClusters
+  use shr_gridMaskIterator_test, only: testSuitegridMaskIterator
   use shr_gGridDescriptor_test, only: testSuitegGridDescriptor
   use shr_gridBounds_test, only: testSuiteGridBounds
   use shr_gridDomainSquared_test, only: testSuitegridDomainSquared
@@ -94,6 +95,7 @@ program unittest
   type(testSuiteGridcellsMapping) :: tsGridcellsMapping
   type(testSuiteGridIndicesMapping) :: tsGridIndicesMapping
   type(testSuiteGridMask) :: tsGridMask
+  type(testSuiteGridMaskIterator) :: tsGridMaskIterator
   type(testSuitegridMaskClusters) :: tsGridMaskClusters
   type(testSuitegGridDescriptor) :: tsGridDescriptor
   type(testSuiteGridBounds) :: tsGridBounds
@@ -138,6 +140,7 @@ program unittest
   call tsGridindicesMapping % init("gridIndicesMapping test", 10)
   call tsGridMask % init("gridMask test", 20)
   call tsGridMaskClusters % init("gridMaskClusters test", 20)
+  call tsGridMaskIterator % init("gridMaskIterator test", 10)
   call tsGridDescriptor % init("gridDescriptor test", 20)
   call tsGridBounds % init("grid bounds test", 20)
   call tsGridDomainSquared % init("grid domain squared test", 10)
@@ -181,6 +184,7 @@ program unittest
   call tsGridIndicesMapping % run()
   call tsGridMask % run()
   call tsGridMaskClusters % run()
+  call tsGridMaskIterator % run()
   call tsGridDescriptor % run()
   call tsGridBounds % run()
   call tsGridDomainSquared % run()
@@ -224,6 +228,7 @@ program unittest
   call tsGridIndicesMapping % report() 
   call tsGridMask % report()
   call tsGridMaskClusters % report()
+  call tsGridMaskIterator % report()
   call tsGridDescriptor % report()
   call tsGridBounds % report()
   call tsGridDomainSquared % report()
@@ -265,6 +270,7 @@ program unittest
       .not. tsGridIndicesMapping % isSuccessful() .or. & 
       .not. tsGridMask % isSuccessful() .or. &
       .not. tsGridMaskClusters % isSuccessful() .or. &
+      .not. tsGridMaskIterator % isSuccessful() .or. &
       .not. tsGridDescriptor % isSuccessful() .or. &
       .not. tsGridBounds % isSuccessful() .or. &
       .not. tsGridDomainSquared % isSuccessful() .or. &
