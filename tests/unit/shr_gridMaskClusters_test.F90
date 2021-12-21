@@ -13,8 +13,8 @@ module shr_gridMaskClusters_test
   use SHR_testSuite_mod, only: testSuite
 
   use shr_gridMaskClusters_mod, only: shr_gridMaskClusters
-  use shr_gridMask_mod, only: shr_IgridMask, shr_gridMask
-  use shr_gridBounds_mod, only: shr_gridBounds
+  use shr_gridMask_stub, only: shr_gridMaskStub
+  use shr_gridMask_mod, only: shr_gridMask
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
 
   implicit none
@@ -22,43 +22,12 @@ module shr_gridMaskClusters_test
   private
   public :: testSuitegridMaskClusters
 
-  !< stub
-  type, extends(shr_IgridMask) :: shr_gridMaskStub
-  contains
-    procedure :: getRaw
-    procedure :: getGridDescriptor
-  end type shr_gridMaskStub
-
-
   type, extends(testSuite) :: testSuitegridMaskClusters
   contains
     procedure :: define => defineTestCases
   end type 
 
 contains
-
-  !<
-  !< shr_gridMaskStub
-  !<
-  function getRaw(self) result (outMask)
-    !< returns current mask
-    class(shr_gridMaskStub), intent(in) :: self
-    logical, allocatable :: outMask(:,:) !< output
-    allocate(outMask(4,3))
-    outMask(1,:) = [.true., .true., .true.]
-    outMask(2,:) = [.true., .true., .true.]
-    outMask(3,:) = [.true., .false., .false.]
-    outMask(4,:) = [.false., .true., .true.]
-  end function getRaw
-
-
-  type(shr_gGridDescriptor) function getGridDescriptor(self)
-    !< returns self gridDescriptor
-    class(shr_gridMaskStub), intent(in) :: self
-    type(shr_gridBounds) :: bounds !< n, s, e, w
-    call bounds % init(4.,0.,3.,0.)
-    call getGridDescriptor % init(1., bounds)
-  end function getGridDescriptor
 
 
   !<
