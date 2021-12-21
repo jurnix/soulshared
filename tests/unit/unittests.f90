@@ -50,6 +50,7 @@ program unittest
   use shr_gridcellsMapping_test, only: testSuiteGridcellsMapping
   use shr_gridIndicesMapping_test, only: testSuiteGridIndicesMapping
   use shr_gridMask_test, only: testSuiteGridMask
+  use shr_gridMaskClusters_test, only: testSuitegridMaskClusters
   use shr_gGridDescriptor_test, only: testSuitegGridDescriptor
   use shr_gridBounds_test, only: testSuiteGridBounds
   use shr_gridDomainSquared_test, only: testSuitegridDomainSquared
@@ -93,6 +94,7 @@ program unittest
   type(testSuiteGridcellsMapping) :: tsGridcellsMapping
   type(testSuiteGridIndicesMapping) :: tsGridIndicesMapping
   type(testSuiteGridMask) :: tsGridMask
+  type(testSuitegridMaskClusters) :: tsGridMaskClusters
   type(testSuitegGridDescriptor) :: tsGridDescriptor
   type(testSuiteGridBounds) :: tsGridBounds
   type(testSuitegridDomainSquared) :: tsGridDomainSquared
@@ -135,6 +137,7 @@ program unittest
   call tsGridcellsMapping % init("gridCellsMapping test", 10)
   call tsGridindicesMapping % init("gridIndicesMapping test", 10)
   call tsGridMask % init("gridMask test", 20)
+  call tsGridMaskClusters % init("gridMaskClusters test", 20)
   call tsGridDescriptor % init("gridDescriptor test", 20)
   call tsGridBounds % init("grid bounds test", 20)
   call tsGridDomainSquared % init("grid domain squared test", 10)
@@ -177,6 +180,7 @@ program unittest
   call tsGridcellsMapping % run()
   call tsGridIndicesMapping % run()
   call tsGridMask % run()
+  call tsGridMaskClusters % run()
   call tsGridDescriptor % run()
   call tsGridBounds % run()
   call tsGridDomainSquared % run()
@@ -218,7 +222,8 @@ program unittest
   call tsgAxisCellIndex % report()
   call tsGridcellsMapping % report() 
   call tsGridIndicesMapping % report() 
-  call tsGridMask % report() 
+  call tsGridMask % report()
+  call tsGridMaskClusters % report()
   call tsGridDescriptor % report()
   call tsGridBounds % report()
   call tsGridDomainSquared % report()
@@ -258,7 +263,8 @@ program unittest
       .not. tsgAxisCellIndex % isSuccessful() .or. & 
       .not. tsGridcellsMapping % isSuccessful() .or. & 
       .not. tsGridIndicesMapping % isSuccessful() .or. & 
-      .not. tsGridMask % isSuccessful() .or. & 
+      .not. tsGridMask % isSuccessful() .or. &
+      .not. tsGridMaskClusters % isSuccessful() .or. &
       .not. tsGridDescriptor % isSuccessful() .or. &
       .not. tsGridBounds % isSuccessful() .or. &
       .not. tsGridDomainSquared % isSuccessful() .or. &
