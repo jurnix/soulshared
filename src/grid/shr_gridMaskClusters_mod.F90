@@ -80,21 +80,6 @@ contains
   end function getSize
 
 
-  integer function calculateTotal(self)
-    !< calculate how many groups
-    class(shr_gridMaskClusters), intent(in) :: self
-    logical, allocatable :: lmask(:,:)
-    lmask = self % mask % getRaw()
-    !calculateTotal = shr_mask_calc_SquaredGroups(lmask)
-  end function calculateTotal
-
-
-  subroutine calculate(self)
-    !< discover each group and create and new gridMask from it
-    class(shr_gridMaskClusters), intent(inout) :: self
-  end subroutine calculate
-
-
   type(shr_gridMask) function get(self, pos)
     !< it returns selected gridMask requested for position 'pos'
     class(shr_gridMaskClusters), intent(in) :: self
