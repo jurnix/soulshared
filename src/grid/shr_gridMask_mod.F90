@@ -23,12 +23,36 @@ module shr_gridMask_mod
 
   implicit none
 
-  public :: shr_gridMask
+  public :: shr_gridMask, shr_IgridMask
 
   logical, parameter :: ISDEBUG = .false.
 
 
-  type shr_gridMask
+  !< interface to shr_gridMask
+  type, abstract :: shr_IgridMask
+  contains
+    procedure(iface_getRaw), deferred :: getRaw
+    procedure(iface_getGridDescriptor), deferred :: getGridDescriptor
+  end type
+
+
+  abstract interface
+    function iface_getRaw(self) result (outMask)
+      import :: shr_IgridMask
+      !< returns current mask
+      class(shr_IgridMask), intent(in) :: self
+      logical, allocatable :: outMask(:,:) !< output
+    end function iface_getRaw
+
+    type(shr_gGridDescriptor) function iface_getGridDescriptor(self)
+      import :: shr_IgridMask, shr_gGridDescriptor
+      !< returns self gridDescriptor
+      class(shr_IgridMask), intent(in) :: self
+    end function iface_getGridDescriptor
+  end interface
+
+
+  type, extends(shr_IgridMask) :: shr_gridMask
     !< grid descriptor
     type(shr_gGridDescriptor), allocatable :: gridDescriptor
 

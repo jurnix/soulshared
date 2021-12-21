@@ -15,7 +15,7 @@ module shr_gridMaskClusters_mod
   use shr_error_mod, only: raiseError
   !use SHR_precision_mod, only: sp
 
-  use shr_gridMask_mod, only: shr_gridMask
+  use shr_gridMask_mod, only: shr_gridMask, shr_IgridMask
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
   use shr_maskClusters_mod, only: shr_maskClusters_2d
   use shr_mask_mod, only: shr_mask2d
@@ -28,7 +28,7 @@ module shr_gridMaskClusters_mod
 
 
   type :: shr_gridMaskClusters
-    type(shr_gridMask), allocatable :: mask
+    class(shr_IgridMask), allocatable :: mask
     type(shr_gridMask), allocatable :: groups(:)
 
     type(shr_maskClusters_2d), allocatable :: clusters
@@ -43,7 +43,7 @@ contains
   subroutine init(self, gridMask)
     !< gridMask initialization
     class(shr_gridMaskClusters), intent(inout) :: self
-    type(shr_gridMask), intent(in) :: gridMask
+    class(shr_IgridMask), intent(in) :: gridMask
     type(shr_mask2d) :: mask
     logical, allocatable :: lmask(:,:)
     integer :: nclusters, icluster
@@ -84,7 +84,7 @@ contains
     !< it returns selected gridMask requested for position 'pos'
     class(shr_gridMaskClusters), intent(in) :: self
     integer, intent(in) :: pos
-    if (self % getSize() > pos) then
+    if (self % getSize() < pos) then
       call raiseError(__FILE__, "get", &
           "Requested element position not found")
     end if

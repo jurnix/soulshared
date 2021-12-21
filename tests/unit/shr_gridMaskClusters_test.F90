@@ -13,29 +13,104 @@ module shr_gridMaskClusters_test
   use SHR_testSuite_mod, only: testSuite
 
   use shr_gridMaskClusters_mod, only: shr_gridMaskClusters
+  use shr_gridMask_mod, only: shr_IgridMask, shr_gridMask
+  use shr_gridBounds_mod, only: shr_gridBounds
+  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
 
   implicit none
 
   private
   public :: testSuitegridMaskClusters
 
-  type, extends(testSuite) :: testSuitegridMaskClusters
+  !< stub
+  type, extends(shr_IgridMask) :: shr_gridMaskStub
+  contains
+    procedure :: getRaw
+    procedure :: getGridDescriptor
+  end type shr_gridMaskStub
 
+
+  type, extends(testSuite) :: testSuitegridMaskClusters
   contains
     procedure :: define => defineTestCases
   end type 
 
 contains
 
+  !<
+  !< shr_gridMaskStub
+  !<
+  function getRaw(self) result (outMask)
+    !< returns current mask
+    class(shr_gridMaskStub), intent(in) :: self
+    logical, allocatable :: outMask(:,:) !< output
+    allocate(outMask(4,3))
+    outMask(1,:) = [.true., .true., .true.]
+    outMask(2,:) = [.true., .true., .true.]
+    outMask(3,:) = [.true., .false., .false.]
+    outMask(4,:) = [.false., .true., .true.]
+  end function getRaw
 
+
+  type(shr_gGridDescriptor) function getGridDescriptor(self)
+    !< returns self gridDescriptor
+    class(shr_gridMaskStub), intent(in) :: self
+    type(shr_gridBounds) :: bounds !< n, s, e, w
+    call bounds % init(4.,0.,3.,0.)
+    call getGridDescriptor % init(1., bounds)
+  end function getGridDescriptor
+
+
+  !<
+  !< unit test
+  !<
   subroutine defineTestCases(self)
     use iso_c_binding
     class(testSuitegridMaskClusters), intent(inout) :: self
+
+    type(shr_gridMaskStub) :: gmStub
     type(shr_gridMaskClusters) :: c
+    type(shr_gridMask) :: expFirst, expSecond, expThird
+    type(shr_gridMask) :: foundFirst, foundSecond, foundThird
+    type(shr_gGridDescriptor) :: gDescriptor
+    logical :: lmask(4,3)
 
-    call self % assert(.false., "TODO = T")
+    !procedure :: init
+    call c % init(gmStub)
+    call self % assert(.true., "c % init(1, [4,0,3,0]) = T")
+
+    !procedure :: getSize
+    call self % assert(c % getSize() == 3, &
+        "c % getSize() .eq. 3 = T")
+
+    !procedure :: get
+    !< first
+    gDescriptor = gmStub % getGridDescriptor()
+    lmask = .false.
+    lmask(1:2,:) = .true.
+    call expFirst % init(gDescriptor, lmask)
+    foundFirst = c % get(1)
+    call self % assert(expFirst == foundFirst, &
+          "c(TTT,TTT,TFF,FTT) % get(1) .eq. shr_gridMask(TTT,TTT,FFF,FFF) = T")
+
+    !< second
+    gDescriptor = gmStub % getGridDescriptor()
+    lmask = .false.
+    lmask(3,1) = .true.
+    call expSecond % init(gDescriptor, lmask)
+    foundSecond = c % get(2)
+    call self % assert(expSecond == foundSecond, &
+        "c(TTT,TTT,TFF,FTT) % get(2) .eq. shr_gridMask(FFF,FFF,TFF,FFF) = T")
+
+    !< 3rd
+    gDescriptor = gmStub % getGridDescriptor()
+    lmask = .false.
+    lmask(4,2:3) = .true.
+    call expThird % init(gDescriptor, lmask)
+    foundThird = c % get(3)
+    call self % assert(expThird == foundThird, &
+        "c(TTT,TTT,TFF,FTT) % get(3) .eq. shr_gridMask(FFF,FFF,FFF,FTT) = T")
   end subroutine defineTestCases
-
 
 end module shr_gridMaskClusters_test
 
