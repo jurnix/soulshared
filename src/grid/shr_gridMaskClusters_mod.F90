@@ -22,6 +22,7 @@ module shr_gridMaskClusters_mod
   implicit none
 
   public :: shr_gridMaskClusters, shr_IGridMaskClusters
+  public :: shr_ObjTogridMaskClusters_cast
 
   logical, parameter :: ISDEBUG = .false.
 
@@ -120,6 +121,23 @@ contains
     end if
     get = self % groups(pos)
   end function get
+
+
+  subroutine shr_ObjTogridMaskClusters_cast(obj, gmClusters)
+    !< cast obj into shr_gridMaskClusters
+    class(*), intent(in) :: obj
+    type(shr_gridMaskClusters), intent(out) :: gmClusters
+
+    select type(o => obj)
+    type is(shr_gridMaskClusters)
+      gmClusters = o
+    class default
+      call raiseError(__FILE__, &
+          "shr_ObjTogridMaskClusters_cast", &
+          "Unexpected type found instead of 'shr_gridMaskClusters'")
+    end select
+
+  end subroutine shr_ObjTogridMaskClusters_cast
 
 end module shr_gridMaskClusters_mod
 
