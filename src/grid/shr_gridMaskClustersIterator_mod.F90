@@ -31,8 +31,6 @@ module shr_gridMaskClustersIterator_mod
 
 
   type, extends(shr_iterator_abs) :: shr_gridMaskClustersIterator
-    !< mask
-    type(shr_gridMask), allocatable :: gMask
     type(shr_gridMaskClusters), allocatable :: cluster
     integer :: counter
     integer :: total
@@ -44,20 +42,17 @@ module shr_gridMaskClustersIterator_mod
 
 contains
 
-  subroutine gridMaskClustersIterator_initialize(self, gridMask)
+  subroutine gridMaskClustersIterator_initialize(self, gridMaskClusters)
     !< gridMask initialization
     class(shr_gridMaskClustersIterator), intent(inout) :: self
-    type(shr_gridMask), intent(in) :: gridMask
+    type(shr_gridMaskClusters), intent(in) :: gridMaskClusters
 
-    if (allocated(self % gMask)) deallocate(self % gMask) !< enable resuse of the same object
     if (allocated(self % cluster)) deallocate(self % cluster)
 
-    allocate(self % gMask, source = gridMask)
-    allocate(self % cluster)
+    allocate(self % cluster, source = gridMaskClusters)
 
-    call self % cluster % init(self % gMask)
     self % total = self % cluster % getSize()
-    self % counter = 1
+    self % counter = 0
   end subroutine gridMaskClustersIterator_initialize
 
 
@@ -65,6 +60,7 @@ contains
     !< true if there is another field to iterate
     class(shr_gridMaskClustersIterator), intent(in) :: self
     hasNext = (self % total > self % counter)
+    ! if(IS_DEBUG) write(*,*) "hasNext :: hasnext (total, counter)? ", hasNext, " (", self % total , self % counter, ")"
   end function hasNext
 
 
