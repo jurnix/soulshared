@@ -21,7 +21,7 @@ module shr_gridMaskClustersIterator_mod
 
   use shr_Iterator_mod, only: shr_iterator_abs
   use shr_gridMask_mod, only: shr_gridMask
-  use shr_gridMaskClusters_mod, only: shr_gridMaskClusters
+  use shr_gridMaskClusters_mod, only: shr_gridMaskClusters, shr_IGridMaskClusters
 
   implicit none
 
@@ -31,7 +31,7 @@ module shr_gridMaskClustersIterator_mod
 
 
   type, extends(shr_iterator_abs) :: shr_gridMaskClustersIterator
-    type(shr_gridMaskClusters), allocatable :: cluster
+    class(shr_IGridMaskClusters), allocatable :: cluster
     integer :: counter
     integer :: total
   contains
@@ -45,10 +45,9 @@ contains
   subroutine gridMaskClustersIterator_initialize(self, gridMaskClusters)
     !< gridMask initialization
     class(shr_gridMaskClustersIterator), intent(inout) :: self
-    type(shr_gridMaskClusters), intent(in) :: gridMaskClusters
+    class(shr_IGridMaskClusters), intent(in) :: gridMaskClusters
 
     if (allocated(self % cluster)) deallocate(self % cluster)
-
     allocate(self % cluster, source = gridMaskClusters)
 
     self % total = self % cluster % getSize()

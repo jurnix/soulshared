@@ -13,7 +13,6 @@
 !------------------------------------------------------------------------------
 module shr_gridMaskClusters_mod
   use shr_error_mod, only: raiseError
-  !use SHR_precision_mod, only: sp
 
   use shr_gridMask_mod, only: shr_gridMask, shr_IgridMask
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
@@ -22,12 +21,43 @@ module shr_gridMaskClusters_mod
 
   implicit none
 
-  public :: shr_gridMaskClusters
+  public :: shr_gridMaskClusters, shr_IGridMaskClusters
 
   logical, parameter :: ISDEBUG = .false.
 
 
-  type :: shr_gridMaskClusters
+  type, abstract :: shr_IGridMaskClusters
+  contains
+    procedure(iface_init), deferred :: init
+    procedure(iface_getSize), deferred :: getSize
+    procedure(iface_get), deferred :: get
+  end type shr_IGridMaskClusters
+
+
+  abstract interface
+    subroutine iface_init(self, gridMask)
+      import :: shr_IGridMaskClusters, shr_IgridMask
+      !< gridMask initialization
+      class(shr_IGridMaskClusters), intent(inout) :: self
+      class(shr_IgridMask), intent(in) :: gridMask
+    end subroutine iface_init
+
+    integer function iface_getSize(self)
+      import :: shr_IGridMaskClusters
+      !< returns how many groups found
+      class(shr_IGridMaskClusters), intent(in) :: self
+    end function iface_getSize
+
+    type(shr_gridMask) function iface_get(self, pos)
+      import :: shr_IGridMaskClusters, shr_gridMask
+      !< it returns selected gridMask requested for position 'pos'
+      class(shr_IGridMaskClusters), intent(in) :: self
+      integer, intent(in) :: pos
+    end function iface_get
+  end interface
+
+
+  type, extends(shr_IGridMaskClusters) :: shr_gridMaskClusters
     class(shr_IgridMask), allocatable :: mask
     type(shr_gridMask), allocatable :: groups(:)
 
