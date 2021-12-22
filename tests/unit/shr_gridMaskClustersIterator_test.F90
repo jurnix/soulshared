@@ -1,27 +1,27 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        : shr_gridMaskIterator_test 
+! MODULE        : shr_gridMaskClustersIterator_test 
 !
 !> @author
 !> Albert Jornet Puig
 !
 ! DESCRIPTION:
-!> gridMaskIterator unit tests
+!> gridMaskClustersIterator unit tests
 !------------------------------------------------------------------------------
-module shr_gridMaskIterator_test
+module shr_gridMaskClustersIterator_test
   use SHR_testSuite_mod, only: testSuite
 
   use shr_gridMask_stub, only: shr_gridMaskStub
-  use shr_gridMaskIterator_mod, only: shr_gridMaskIterator
+  use shr_gridMaskClustersIterator_mod, only: shr_gridMaskClustersIterator
 
   implicit none
 
   private
-  public :: testSuitegridMaskIterator
+  public :: testSuitegridMaskClustersIterator
 
 
-  type, extends(testSuite) :: testSuitegridMaskIterator
+  type, extends(testSuite) :: testSuitegridMaskClustersIterator
   contains
     procedure :: define => defineTestCases
   end type 
@@ -30,10 +30,10 @@ contains
 
   subroutine defineTestCases(self)
     use iso_c_binding
-    class(testSuitegridMaskIterator), intent(inout) :: self
+    class(testSuitegridMaskClustersIterator), intent(inout) :: self
 
     call self % assert(.false., "TODO = T")
   end subroutine defineTestCases
 
-end module shr_gridMaskIterator_test
+end module shr_gridMaskClustersIterator_test
 

@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Sophie Land Surface Model
 !------------------------------------------------------------------------------
-! MODULE        : shr_gridMaskIterator_mod
+! MODULE        : shr_gridMaskClustersIterator_mod
 !
 !> @author
 !> Albert Jornet Puig
@@ -15,7 +15,7 @@
 !> - subset of enabled cells
 !>
 !------------------------------------------------------------------------------
-module shr_gridMaskIterator_mod
+module shr_gridMaskClustersIterator_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
@@ -25,28 +25,28 @@ module shr_gridMaskIterator_mod
 
   implicit none
 
-  public :: shr_gridMaskIterator, shr_gridMaskIterator_cast
+  public :: shr_gridMaskClustersIterator, shr_gridMaskClustersIterator_cast
 
   logical, parameter :: ISDEBUG = .false.
 
 
-  type, extends(shr_iterator_abs) :: shr_gridMaskIterator
+  type, extends(shr_iterator_abs) :: shr_gridMaskClustersIterator
     !< mask
     type(shr_gridMask), allocatable :: gMask
     type(shr_gridMaskClusters), allocatable :: cluster
     integer :: counter
     integer :: total
   contains
-    procedure :: init => gridMaskIterator_initialize
+    procedure :: init => gridMaskClustersIterator_initialize
     procedure :: hasNext
     procedure :: getNext
-  end type shr_gridMaskIterator
+  end type shr_gridMaskClustersIterator
 
 contains
 
-  subroutine gridMaskIterator_initialize(self, gridMask)
+  subroutine gridMaskClustersIterator_initialize(self, gridMask)
     !< gridMask initialization
-    class(shr_gridMaskIterator), intent(inout) :: self
+    class(shr_gridMaskClustersIterator), intent(inout) :: self
     type(shr_gridMask), intent(in) :: gridMask
 
     if (allocated(self % gMask)) deallocate(self % gMask) !< enable resuse of the same object
@@ -58,19 +58,19 @@ contains
     call self % cluster % init(self % gMask)
     self % total = self % cluster % getSize()
     self % counter = 1
-  end subroutine gridMaskIterator_initialize
+  end subroutine gridMaskClustersIterator_initialize
 
 
   logical function hasNext(self)
     !< true if there is another field to iterate
-    class(shr_gridMaskIterator), intent(in) :: self
+    class(shr_gridMaskClustersIterator), intent(in) :: self
     hasNext = (self % total > self % counter)
   end function hasNext
 
 
   function getNext(self) result (obj)
     !< returns current object
-    class(shr_gridMaskIterator), intent(inout) :: self
+    class(shr_gridMaskClustersIterator), intent(inout) :: self
     class(*), allocatable :: obj
     type(shr_gridMask) :: gmask
 
@@ -87,20 +87,21 @@ contains
   end function getNext
 
 
-  subroutine shr_gridMaskIterator_cast(obj, gMIterator)
-    !< Cast from * to shr_gridMaskIterator
+  subroutine shr_gridMaskClustersIterator_cast(obj, gMIterator)
+    !< Cast from * to shr_gridMaskClustersIterator
     class(*), intent(in) :: obj
-    type(shr_gridMaskIterator), intent(out) :: gMIterator
+    type(shr_gridMaskClustersIterator), intent(out) :: gMIterator
 
     select type(o => obj)
-    type is(shr_gridMaskIterator)
+    type is(shr_gridMaskClustersIterator)
       gMIterator = o
     class default
-      call raiseError(__FILE__, "shr_gridMaskIterator_cast", &
-          "Unexpected type found instead of 'shr_gridMaskIterator'")
+      call raiseError(__FILE__, &
+          "shr_gridMaskClustersIterator_cast", &
+          "Unexpected type found instead of 'shr_gridMaskClustersIterator'")
     end select
 
-  end subroutine shr_gridMaskIterator_cast
+  end subroutine shr_gridMaskClustersIterator_cast
 
-end module shr_gridMaskIterator_mod
+end module shr_gridMaskClustersIterator_mod
 
