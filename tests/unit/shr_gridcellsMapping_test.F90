@@ -17,10 +17,8 @@ module shr_gridcellsMapping_test
 
   use shr_gridcell_mod, only: shr_gridcell
   use shr_coord_mod, only: shr_coord
-  use shr_strings_mod, only: string
-  use shr_gGridAxes_mod, only: shr_gGridAxes
-!  use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
+  use shr_gridBounds_mod, only: shr_gridBounds
 
   implicit none
 
@@ -40,11 +38,9 @@ contains
     class(testSuitegridcellsMapping), intent(inout) :: self
 
     type(shr_gridcellsMapping) :: m
-    type(shr_gGridAxes) :: latAxis
-    type(shr_gGridAxes) :: lonAxis
+    type(shr_gridBounds) :: bounds
+    type(shr_gGridDescriptor) :: gDescriptor
 
-    type(shr_gGridAxesBounds) :: latBounds, lonBounds
-    type(string) :: latName, lonName
     type(shr_coord) :: topCenter, center, lastGC
     type(shr_coord) :: gcCenter
 
@@ -53,15 +49,9 @@ contains
     type(shr_gridcell) :: expGcsTopCenter(2), expGcsCenter(4), &
             expGcsLast(1)
 
-    call latBounds % init(1., -1.)
-    latname = string("latitude")
-    call latAxis % init(latName, 1., latBounds)
-
-    call lonBounds % init(2., 0.)
-    lonName = string("longitude")
-    call lonAxis % init(lonName, 1., lonBounds)
-
-    call m % init(1., latAxis, lonAxis)
+    call bounds % init(1.,-1.,2.,0.)
+    call gDescriptor % init(1., bounds)
+    call m % init(gDescriptor)
     call self % assert(.true., "l % init(latAxis(-,-1), lonAxis(2,0)) = T")
 
     !

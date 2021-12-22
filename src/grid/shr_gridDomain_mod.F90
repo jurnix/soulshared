@@ -53,6 +53,7 @@ module shr_gridDomain_mod
 !    generic, assignment(=) :: gridDomain_copy
 !    procedure :: gridDomain_equal !< -
 !    generic, operator(==) :: gridDomain_equal
+    procedure :: setMask
   end type shr_gridDomain
 
 contains
@@ -104,8 +105,7 @@ contains
 
     allocate(self % gcsMapping)
     !< todo: pass grid descriptor
-    call self % gcsMapping % init(self % descriptor % getResolution(), &
-            self % descriptor % getLatAxis(), self % descriptor % getLonAxis())
+    call self % gcsMapping % init(descriptor)
     allocate(self % idxMapping)
     call self % idxMapping % init(self % descriptor % getLatAxis(), &
             self % descriptor % getLonAxis())
@@ -157,6 +157,21 @@ contains
     class(shr_gridDomain), intent(in) :: self
     getMaskBounds = self % maskEnabled
   end function getMaskBounds
+
+
+  type(shr_gridDomain) function setMask(self, newGMask)
+    !< returns the current gridDomain with all values filtered from newGMask
+    class(shr_gridDomain), intent(in) :: self
+    type(shr_gridMask), intent(in) :: newGMask
+    type(shr_gridMask) :: newMaskBorders
+    type(shr_gridMask) :: newMaskEnabled
+    type(shr_gGridDescriptor) :: newGDescriptor
+    newMaskBorders = self % maskBorder .and. newGMask
+    newMaskEnabled = self % maskEnabled .and. newGMask
+    newGDescriptor = self % getGridDescriptor()
+
+    call setMask % init(newGDescriptor, newMaskEnabled, newMaskBorders)
+  end function setMask
 
 end module shr_gridDomain_mod 
 

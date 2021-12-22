@@ -20,6 +20,7 @@ module shr_gridcellsMapping_mod
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
+  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
 
 
   implicit none
@@ -28,20 +29,16 @@ module shr_gridcellsMapping_mod
 
   logical, parameter :: ISDEBUG = .false.
 
-  type shr_gridcellsMappingIterator
-  contains
-!    procedure :: hasMore -> yes/no
-!    procedure :: getNext -> shr_gridcellsMapping
-  end type shr_gridcellsMappingIterator
-
 
   type shr_gridcellsMapping
     type(shr_gridcell), allocatable :: gridcells(:,:)
 
+    type(shr_gGridDescriptor), allocatable :: gDescriptor
     type(shr_gAxisMapping), allocatable :: latMapping
     type(shr_gAxisMapping), allocatable :: lonMapping
   contains
-    procedure :: init => gridcellsMapping_initialize 
+    procedure :: gridcellsMapping_initialize_byDescriptor
+    generic :: init => gridcellsMapping_initialize_byDescriptor
 
     procedure :: getGridcellsByCoord
     generic :: get => getGridcellsByCoord
@@ -49,13 +46,20 @@ module shr_gridcellsMapping_mod
 
 contains
 
-  subroutine gridcellsMapping_initialize(self, resolution, latAxis, lonAxis)
+  subroutine gridcellsMapping_initialize_byDescriptor(self, gDescriptor)
     !< gridcellsMapping initialization
-    !<
     class(shr_gridcellsMapping), intent(inout) :: self
-    real(kind=sp), intent(in) :: resolution
-    type(shr_gGridAxes), intent(in) :: latAxis
-    type(shr_gGridAxes), intent(in) :: lonAxis
+    type(shr_gGridDescriptor), intent(in) :: gDescriptor
+
+    type(shr_gGridAxes) :: latAxis
+    type(shr_gGridAxes) :: lonAxis
+    real(kind=sp) :: res
+
+    allocate(self % gDescriptor, source =  gDescriptor)
+
+    latAxis = gDescriptor % getLatAxis()
+    lonAxis = gDescriptor % getLonAxis()
+    res = gDescriptor % getResolution()
 
     ! gridcells mapping indices
     allocate(self % latMapping)
@@ -65,7 +69,7 @@ contains
 
     ! populate gridcells
     self % gridcells = latAxis % expand(lonAxis)
-  end subroutine gridcellsMapping_initialize
+  end subroutine gridcellsMapping_initialize_byDescriptor
 
 
   function getGridcellsByCoord(self, coord) result (gcells)
