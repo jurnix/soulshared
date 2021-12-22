@@ -33,6 +33,7 @@ module shr_gridIndicesMapping_mod
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
+  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
 
 
   implicit none
@@ -43,11 +44,13 @@ module shr_gridIndicesMapping_mod
 
 
   type shr_gridIndicesMapping
+    type(shr_gGridDescriptor), allocatable :: gDescriptor
     type(shr_gAxisMapping), allocatable :: latMapping
     type(shr_gAxisMapping), allocatable :: lonMapping
   contains
-    procedure :: init => gridIndicesMapping_initialize 
-    ! procedure :: createGridcellsMapIterator() -> shr_gridIndicesMappingIterator
+    !procedure :: gridIndicesMapping_initialize
+    procedure :: gridIndicesMapping_initialize_byGridDescriptor
+    generic :: init => gridIndicesMapping_initialize_byGridDescriptor!, gridIndicesMapping_initialize
 
     procedure :: getIndexByCoord
     generic :: getIndex => getIndexByCoord
@@ -55,19 +58,39 @@ module shr_gridIndicesMapping_mod
 
 contains
 
-  subroutine gridIndicesMapping_initialize(self, latAxis, lonAxis)
+
+  subroutine gridIndicesMapping_initialize_byGridDescriptor(self, gDescriptor)
     !< gridIndicesMapping initialization
     !<
     class(shr_gridIndicesMapping), intent(inout) :: self
-    type(shr_gGridAxes), intent(in) :: latAxis
-    type(shr_gGridAxes), intent(in) :: lonAxis
+    type(shr_gGridDescriptor), intent(in) :: gDescriptor
+    type(shr_gGridAxes) :: latAxis, lonAxis
+
+    allocate(self % gDescriptor, source=gDescriptor)
+    latAxis = gDescriptor % getLatAxis()
+    lonAxis = gDescriptor % getLonAxis()
 
     ! gridcells mapping indices
     allocate(self % latMapping)
     call self % latMapping % init(latAxis)
     allocate(self % lonMapping)
     call self % lonMapping % init(lonAxis)
-  end subroutine gridIndicesMapping_initialize
+  end subroutine gridIndicesMapping_initialize_byGridDescriptor
+
+
+  !subroutine gridIndicesMapping_initialize(self, latAxis, lonAxis)
+    !< gridIndicesMapping initialization
+    !< todo: remove
+!    class(shr_gridIndicesMapping), intent(inout) :: self
+!    type(shr_gGridAxes), intent(in) :: latAxis
+!    type(shr_gGridAxes), intent(in) :: lonAxis
+
+    ! gridcells mapping indices
+!    allocate(self % latMapping)
+!    call self % latMapping % init(latAxis)
+!    allocate(self % lonMapping)
+!    call self % lonMapping % init(lonAxis)
+!  end subroutine gridIndicesMapping_initialize
 
 
   function getIndexByCoord(self, coord) result (gIndices)

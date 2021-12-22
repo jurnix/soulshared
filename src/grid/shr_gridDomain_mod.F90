@@ -104,11 +104,9 @@ contains
     end if
 
     allocate(self % gcsMapping)
-    !< todo: pass grid descriptor
     call self % gcsMapping % init(descriptor)
     allocate(self % idxMapping)
-    call self % idxMapping % init(self % descriptor % getLatAxis(), &
-            self % descriptor % getLonAxis())
+    call self % idxMapping % init(self % descriptor)
   end subroutine gridDomain_initialize
 
 

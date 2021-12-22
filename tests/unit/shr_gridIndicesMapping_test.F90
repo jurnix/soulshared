@@ -14,12 +14,11 @@ module shr_gridIndicesMapping_test
   use SHR_testSuite_mod, only: testSuite
 
   use shr_objects_mod, only: shr_wrapObject
-  use shr_strings_mod, only: string
   use shr_coord_mod, only: shr_coord
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
-  use shr_gGridAxes_mod, only: shr_gGridAxes
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gridIndicesMapping_mod, only: shr_gridIndicesMapping
+  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
+  use shr_gridBounds_mod, only: shr_gridBounds
 
   implicit none
 
@@ -38,24 +37,16 @@ contains
     use iso_c_binding
     class(testSuitegridIndicesMapping), intent(inout) :: self
     type(shr_gridIndicesMapping) :: m
-    type(shr_gGridAxes) :: latAxis
-    type(shr_gGridAxes) :: lonAxis
+    type(shr_gridBounds) :: bounds
 
-    type(shr_gGridAxesBounds) :: latBounds, lonBounds
-    type(string) :: latName, lonName
     type(shr_coord) :: topCenter, center, lastGC
     class(shr_gridcellIndex), allocatable :: foundIndices(:), expIndices(:)
+    type(shr_gGridDescriptor) :: gDescriptor
 
-    call latBounds % init(1., -1.)
-    latname = string("latitude")
-    call latAxis % init(latName, 1., latBounds)
-
-    call lonBounds % init(2., 0.)
-    lonName = string("longitude")
-    call lonAxis % init(lonName, 1., lonBounds)
-
-    call m % init(latAxis, lonAxis)
-    call self % assert(.true., "l % init(latAxis(-,-1), lonAxis(2,0)) = T")
+    call bounds % init(1.,-1.,2.,0.)
+    call gDescriptor % init(1., bounds)
+    call m % init(gDescriptor)
+    call self % assert(.true., "l % init(res=1., bounds(1,-1,2,0)) = T")
 
     !
     ! grid
