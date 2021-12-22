@@ -23,7 +23,7 @@ module shr_gridMask_mod
 
   implicit none
 
-  public :: shr_gridMask, shr_IgridMask
+  public :: shr_gridMask, shr_IgridMask, shr_gridMask_cast
 
   logical, parameter :: ISDEBUG = .false.
 
@@ -346,6 +346,23 @@ contains
     tmp = tmp // "'" // trim(adjustl(t)) // "'"
     toString = string(tmp)
   end function toString
+
+
+  subroutine shr_gridMask_cast(obj, gMask)
+    !< Cast from * to shr_gridMask
+    class(*), intent(in) :: obj
+    type(shr_gridMask), intent(out) :: gMask
+
+    select type(o => obj)
+    type is(shr_gridMask)
+      gMask = o
+    class default
+      call raiseError(__FILE__, &
+          "shr_gridMask_cast", &
+          "Unexpected type found instead of 'shr_gridMask'")
+    end select
+
+  end subroutine shr_gridMask_cast
 
 end module shr_gridMask_mod
 
