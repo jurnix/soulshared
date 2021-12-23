@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !						Pekin University - Sophie Land Surface Model
 !------------------------------------------------------------------------------
-! MODULE        :  shr_mask_mod
+! MODULE        :  shr_maskClusters_mod
 !
 !> @author
 !> jurnix
@@ -10,6 +10,11 @@
 !>
 !> Mask related subroutines
 !>
+!> Find groups of clusters.
+!>
+!> Clusters include the following conditions:
+!> - ontly true gridcells allowed
+!> - can be represented in 2d squared (grid)
 !------------------------------------------------------------------------------
 module shr_maskClusters_mod
 
