@@ -13,8 +13,12 @@
 !> Find groups of clusters.
 !>
 !> Clusters include the following conditions:
-!> - ontly true gridcells allowed
+!> - only true gridcells allowed
 !> - can be represented in 2d squared (grid)
+!>
+!> Clusters:
+!> - Same mask dimensions as the original
+!> - Only enabled found clusters
 !------------------------------------------------------------------------------
 module shr_maskClusters_mod
 
