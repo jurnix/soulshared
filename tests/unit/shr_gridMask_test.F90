@@ -49,6 +49,15 @@ contains
   end function getNewGridMask
 
 
+  type(shr_gGridDescriptor) function getNewGridDesriptor(north, south, east, west)
+    !< creates a new shr_gGridDescriptor
+    real(kind=sp), intent(in) :: north, south
+    real(kind=sp), intent(in) :: east, west
+    type(shr_gridBounds) :: bounds
+    call bounds % init(north, south, east, west)
+    call getNewGridDesriptor % init(RES, bounds)
+  end function getNewGridDesriptor
+
 
   subroutine defineTestCases(self)
     use iso_c_binding
@@ -56,11 +65,14 @@ contains
 
     type(shr_gridMask) :: m, other, m1, m2
 
-    logical :: expMask(2,2), rawMask(2,2)
+    logical :: expMask(2,2), rawMask(2,2), rawSmallMask(1,2)
     logical, allocatable :: foundMask(:,:)
 
     type(shr_gridcellIndex) :: gcIndex
     type(string) :: tmpStr, expStr
+
+    type(shr_gGridDescriptor) :: gmDescSmall
+    type(shr_gridMask) :: smallGMask
 
     !
     ! grid
@@ -206,6 +218,36 @@ contains
     expStr = string("'F F'"// new_line('A') // "'T F'")
     call self % assert( tmpStr == expStr, &
         "m2(F F, T F) % toString() .eq. expStr(F F T F) = T")
+
+    ! select
+    ! (argument)
+    ! (2) (1) (0)
+    !  |   |   |
+    !  +---X---X-  (1.)
+    !  |   |   |
+    !  +---+---+-  (0.)
+    !
+    !  (parend)
+    ! (2) (1) (0)
+    !  |   |   |
+    !  +---X---X-  (1.)
+    !  | X | X |
+    !  +---+---+-  (0.)
+    !  |   |   |
+    !  +---+---+- (-1.)
+    !
+    m = getNewGridMask([1.,-1.,2.,0.])
+    call gcIndex % init(1, 1)
+    call m % setStatus(gcIndex, .false.)
+
+    gmDescSmall = getNewGridDesriptor(1.,0.,2.,0.)
+    smallGMask = m % select(gmDescSmall)
+    rawSmallMask(1,:) = [.false., .true.]
+    foundMask = smallGMask % getRaw()
+    write(*,*)  "foundMask =", foundMask, ", shape=", shape(foundMask)
+    write(*,*)  "rawSmallMask =", rawSmallMask, ", shape=", shape(rawSmallMask)
+    call self % assert( all(foundMask .eqv. rawSmallMask ), &
+        "m1(FTFF) .or. m2(FFTF) .eq. m1(FTTF) = T")
   end subroutine defineTestCases
 
 
