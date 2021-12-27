@@ -56,6 +56,7 @@ program unittest
   use shr_gridBounds_test, only: testSuiteGridBounds
   use shr_gridDomainSquared_test, only: testSuitegridDomainSquared
   use shr_gridDomainToSquaredConverter_test, only: testSuitegridDomainToSquaredConverter
+  use shr_gridDomain_test, only: testSuitegridDomain
 
   implicit none
 
@@ -101,6 +102,7 @@ program unittest
   type(testSuiteGridBounds) :: tsGridBounds
   type(testSuitegridDomainSquared) :: tsGridDomainSquared
   type(testSuitegridDomainToSquaredConverter) :: tsGridDomainToSquaredConverter
+  type(testSuitegridDomain) :: tsGridDomain
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -145,6 +147,7 @@ program unittest
   call tsGridBounds % init("grid bounds test", 20)
   call tsGridDomainSquared % init("grid domain squared test", 10)
   call tsGridDomainToSquaredConverter % init("grid domain to squared converter test", 10)
+  call tsGridDomain % init("grid domain test", 10)
   
 
   ! run all tests 
@@ -189,6 +192,7 @@ program unittest
   call tsGridBounds % run()
   call tsGridDomainSquared % run()
   call tsGridDomainToSquaredConverter % run()
+  call tsGridDomain % run()
 
 
   ! show results
@@ -233,6 +237,7 @@ program unittest
   call tsGridBounds % report()
   call tsGridDomainSquared % report()
   call tsGridDomainToSquaredConverter % report()
+  call tsGridDomain % report()
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -274,7 +279,8 @@ program unittest
       .not. tsGridDescriptor % isSuccessful() .or. &
       .not. tsGridBounds % isSuccessful() .or. &
       .not. tsGridDomainSquared % isSuccessful() .or. &
-      .not. tsGridDomainToSquaredConverter % isSuccessful() &
+      .not. tsGridDomainToSquaredConverter % isSuccessful() .or. &
+      .not. tsGridDomain % isSuccessful() &
       ) stop 1
 
 end program unittest

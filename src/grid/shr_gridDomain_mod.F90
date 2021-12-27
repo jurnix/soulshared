@@ -19,6 +19,8 @@ module shr_gridDomain_mod
   use shr_gridcellsMapping_mod, only: shr_gridcellsMapping
   use shr_gridIndicesMapping_mod, only: shr_gridIndicesMapping
   use shr_gridMask_mod, only: shr_gridMask
+  use shr_gridBounds_mod, only: shr_gridBounds
+  use shr_coord_mod, only: shr_coord
 
   implicit none
 
@@ -53,7 +55,8 @@ module shr_gridDomain_mod
 !    generic, assignment(=) :: gridDomain_copy
 !    procedure :: gridDomain_equal !< -
 !    generic, operator(==) :: gridDomain_equal
-    procedure :: setMask
+    procedure :: filter
+    procedure :: select
   end type shr_gridDomain
 
 contains
@@ -157,19 +160,38 @@ contains
   end function getMaskBounds
 
 
-  type(shr_gridDomain) function setMask(self, newGMask)
-    !< returns the current gridDomain with all values filtered from newGMask
+  type(shr_gridDomain) function filter(self, newGMask)
+    !< returns the current gridDomain with all values filtered
+    !< given the newGMask.
+    !< - newGMask and self must have the ssame gridDescriptor
     class(shr_gridDomain), intent(in) :: self
     type(shr_gridMask), intent(in) :: newGMask
     type(shr_gridMask) :: newMaskBorders
     type(shr_gridMask) :: newMaskEnabled
     type(shr_gGridDescriptor) :: newGDescriptor
+    newGDescriptor = self % getGridDescriptor()
+    if (.not. (newGDescriptor == self % getGridDescriptor())) then
+      call raiseError(__FILE__, "filter", &
+          "'NewGMask' and 'self' must have the same grid descriptor")
+    end if
     newMaskBorders = self % maskBorder .and. newGMask
     newMaskEnabled = self % maskEnabled .and. newGMask
-    newGDescriptor = self % getGridDescriptor()
 
-    call setMask % init(newGDescriptor, newMaskEnabled, newMaskBorders)
-  end function setMask
+    call filter % init(newGDescriptor, newMaskEnabled, newMaskBorders)
+  end function filter
+
+
+  type(shr_gridDomain) function select(self, newGDescriptor)
+    !< Selects from 'self' a new shr_gridDomain 'newGMask'
+    !< 'newGMask' must fit into the 'self'
+    class(shr_gridDomain), intent(in) :: self
+    type(shr_gGridDescriptor), intent(in) :: newGDescriptor
+    type(shr_gridMask) :: selectedBorder, selectedEnabled
+
+    selectedBorder = self % maskBorder % select(newGDescriptor)
+    selectedEnabled = self % maskEnabled % select(newGDescriptor)
+    call select % init(newGDescriptor, selectedEnabled, selectedBorder)
+  end function select
 
 end module shr_gridDomain_mod 
 
