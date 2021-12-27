@@ -50,6 +50,9 @@ module shr_gridBounds_mod
     procedure :: toString
     procedure :: isOverlapped
 
+    procedure :: getNorth, getSouth
+    procedure :: getEast, getWest
+
     ! operator overloading procedures
     procedure, pass(w0), private :: gridBounds_eq
     procedure, pass(w0), private :: gridBounds_eq_array
@@ -241,6 +244,34 @@ contains
     isOverlapped = (isLatOverlapped .and. isLonOverlapped)
 
   end function isOverlapped
+
+
+  elemental real(kind=sp) function getNorth(self)
+    !< returns north
+    class(shr_gridBounds), intent(in) :: self
+    getNorth = self % north
+  end function getNorth
+
+
+  elemental real(kind=sp) function getSouth(self)
+    !< returns south
+    class(shr_gridBounds), intent(in) :: self
+    getSouth = self % south
+  end function getSouth
+
+
+  elemental real(kind=sp) function getEast(self)
+    !< returns east
+    class(shr_gridBounds), intent(in) :: self
+    getEast = self % east
+  end function getEast
+
+
+  elemental real(kind=sp) function getWest(self)
+    !< returns west
+    class(shr_gridBounds), intent(in) :: self
+    getWest = self % west
+  end function getWest
 
 end module shr_gridBounds_mod
 

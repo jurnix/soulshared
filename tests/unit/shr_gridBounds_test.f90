@@ -68,6 +68,10 @@ contains
               "b(3,0,1,-1) % fitsGridBounds() .eq. bounds(4,0,2,-1) = F")
     call self % assert(b % fitsGridBounds(small), &
               "b(3,0,1,-1) % fitsGridBounds() .eq. bounds(1,0,1,0) = T")
+    call big % init(1., -1., 2., 0.)
+    call small % init(1., 0., 2., 0.)
+    call self % assert(big % fitsGridBounds(small), &
+        "b(1,-1,2,0) % fitsGridBounds() .eq. bounds(1,0,2,0) = T")
 
     !procedure, pass(w0), private :: gridBounds_eq_array
     call self % assert(b == [3., 0., 1., -1.], &
@@ -78,6 +82,8 @@ contains
     call self % assert(.not. b == big, "b(3,0,1,-1) .eq. big(4,0,2,-1) = F")
 
     !procedure :: gridBounds_combine
+    call big % init(4., 0., 2., 1.)
+    call small % init(3., 0., 1., -1.)
     newBigBounds = b + big
     newSmallBounds = b + small
     write(*,*) newBigBounds % toString()
