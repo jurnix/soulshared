@@ -153,6 +153,15 @@ contains
   end function gridDescriptor_combine
 
 
+  logical function hasSameGridType(self, other)
+    !< true if other and self have the same grid type:
+    !< - same resolution
+    !< - start and end matches the same grid slots
+    class(shr_gGridDescriptor), intent(in) :: self
+    type(shr_gGridDescriptor), intent(in) :: other
+  end function hasSameGridType
+
+
   logical function fitsIn(self, other)
     !< true if 'other' grid bounds fits in 'self'
     class(shr_gGridDescriptor), intent(in) :: self
