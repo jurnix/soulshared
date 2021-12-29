@@ -24,6 +24,8 @@ module shr_gridMask_mod
   use shr_coord_mod, only: shr_coord
   use shr_gridIndicesMapping_mod, only: shr_gridIndicesMapping
 
+  use shr_arrayIndices_mod, only: shr_arrayIndices
+
   implicit none
 
   public :: shr_gridMask, shr_IgridMask, shr_gridMask_cast
@@ -103,6 +105,7 @@ module shr_gridMask_mod
     procedure :: any => any_gridMask
 
     procedure :: select
+    procedure :: expand
     procedure :: toString
   end type shr_gridMask
 
@@ -371,7 +374,7 @@ contains
 
   type(shr_gridMask) function select(self, gDescriptor) result (newGMask)
     !< select a new shr_gridMask according to gDescriptor
-    !< new gDscriptor must info self grid descriptor
+    !< new gDscriptor must fit self % gridDescriptor
     class(shr_gridMask), intent(in) :: self
     type(shr_gGridDescriptor), intent(in) :: gDescriptor
 
@@ -414,6 +417,7 @@ contains
 
     call idxMapping % init(self % gridDescriptor)
 
+    !< from bounds get top-left and bottom-right coordinates
     !< center of coordinate (it enforeces to select a unique gIndices)
     halfRes = gDescriptor % getResolution() / 2.
     bounds = gDescriptor % getBounds()
@@ -426,11 +430,13 @@ contains
         bounds % getSouth() + halfres, bounds % getWest() + halfres
 
     !< discover array indices
+    !< find array indices from top-left
     gIndicesTL = idxMapping % getIndex(cTopLeft) !< only 1
     tmp = gIndicesTL % toString()
     do itmp = 1, size(tmp)
       write(*,*) "shr_gridMask_mod.F90:: select:: cbottom right =", itmp, tmp(itmp) % toString()
     end do
+    !< find array indices from bottom-right
     gIndicesBR = idxMapping % getIndex(cBottomRight) !< only 1
     tmp = gIndicesBR % toString()
     do itmp = 1, size(tmp)
@@ -467,6 +473,25 @@ contains
 
     call newGMask % init(gDescriptor, newLmask)
   end function select
+
+
+  type(shr_gridMask) function expand(self, newGridDescriptor)
+    !< returns a new shr_gridMask with an expanded grid
+    !< - 'newGridDescriptor' must fit into 'self'
+    !< - mask remains the same
+    class(shr_gridMask), intent(in) :: self
+    type(shr_gGridDescriptor), intent(in) :: newGridDescriptor
+
+    !< new grid descriptor fits?
+    if (.not. self % gridDescriptor % fitsIn(newGridDescriptor)) then
+      call raiseError(__FILE__, "expand", &
+            "newGridDescriptor does not fit in self")
+    end if
+
+    !< find indices from 'new' vs 'self'
+
+    !<
+  end function expand
 
 end module shr_gridMask_mod
 
