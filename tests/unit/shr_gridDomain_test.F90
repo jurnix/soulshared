@@ -30,6 +30,14 @@ contains
     use iso_c_binding
     class(testSuitegridDomain), intent(inout) :: self
 
+    !procedure :: getGridDescriptor
+    !procedure :: getMaskGrid
+    !procedure :: getMaskBounds
+    !procedure :: gridDomain_combine !< +
+    !generic :: operator(+) => gridDomain_combine
+    !procedure :: filter
+    !procedure :: select
+
     call self % assert(.false., "TODO = T")
   end subroutine defineTestCases
 

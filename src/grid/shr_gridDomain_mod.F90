@@ -42,9 +42,8 @@ module shr_gridDomain_mod
 
     !< getters
     procedure :: getGridDescriptor
-    procedure :: getMaskGrid
-    procedure :: getMaskBounds
-!    procedure :: toGrid !< transfrom shr_gridDomain into shr_grid 
+    procedure :: getEnabledGridMask
+    procedure :: getBorderGridMask
 
     procedure :: gridDomain_combine !< +
     generic :: operator(+) => gridDomain_combine
@@ -115,27 +114,41 @@ contains
 
   type(shr_gridDomain) function gridDomain_combine(self, other) result (combinedDomain)
     !< it combines 'self' and 'other' into 'combinedDomain'
-    !< Combination merges both grid bounds when:
-    !< - overlap: both gridcells are enabled
-    !< - no overlap:  if true where enabled
+    !< Combines:
+    !< - grid descriptor must be compatible (same resolution and gridcells bounds from domain)
+    !< - grid borders applies an 'and' operation
+    !< - grid enabled gridcells must be consistent with grid borders
+    !< - grid descriptor to largest bounds
+    !< - overlapping gridcells: 'and' operation for its values
     class(shr_gridDomain), intent(in) :: self
     type(shr_gridDomain), intent(in) :: other
 
-    type(shr_gGridDescriptor) :: newDescriptor
     type(shr_gridMask) :: newMaskGrid, newMaskBounds
+    type(shr_gGridDescriptor) :: cgDescriptor
+    type(shr_gridMask) :: expandedESelfMask, expandedEOtherMask
+    type(shr_gridMask) :: expandedSelfMaskBorders, expandedOtherMaskBorders
+    type(shr_gridMask) ::otherEnabledGridmask, otherBorderGridMask
 
-    if (.not. self % getGridDescriptor() == other % getGridDescriptor()) then
-      call raiseError(__FILE__, "gridDomain_combine", &
-            "'self' and other 'must' have the same grid descriptor", &
-            "But it is not the case")
-    end if
+    !< combine grid descriptors
+    cgDescriptor = (self % getGridDescriptor() + other % getGridDescriptor())
+
+    !< todo: expand
+    !< adapt both masks to new grid descriptor dimensions
+    expandedESelfMask = self % maskEnabled % expand(cgDescriptor)
+    otherEnabledGridMask = other % getEnabledGridMask()
+    expandedEOtherMask = otherEnabledGridmask % expand(cgDescriptor)
 
     !< combine
-    newDescriptor = self % getGridDescriptor()
-    newMaskGrid = self % getMaskGrid() .and. other % getMaskGrid()
-    newMaskBounds = self % getMaskBounds() .and. other % getMaskBounds()
+    newMaskGrid = expandedESelfMask .and. expandedEOtherMask
 
-    call combinedDomain % init(newDescriptor, newMaskGrid, newMaskBounds)
+    !< expand
+    expandedSelfMaskBorders = self % maskBorder % expand(cgDescriptor)
+    otherBorderGridMask = other % getBorderGridMask()
+    expandedOtherMaskBorders = otherBorderGridMask % expand(cgDescriptor)
+    !< combine
+    newMaskGrid = expandedSelfMaskBorders .and. expandedOtherMaskBorders
+
+    call combinedDomain % init(cgDescriptor, newMaskGrid, newMaskBounds)
   end function gridDomain_combine
 
 
@@ -146,18 +159,18 @@ contains
   end function getGridDescriptor
 
 
-  type(shr_gridMask) function getMaskGrid(self)
+  type(shr_gridMask) function getEnabledGridMask(self)
     !< returns maskEnabled mask
     class(shr_gridDomain), intent(in) :: self
-    getMaskGrid = self % maskEnabled
-  end function getMaskGrid
+    getEnabledGridMask = self % maskEnabled
+  end function getEnabledGridMask
 
 
-  type(shr_gridMask) function getMaskBounds(self)
+  type(shr_gridMask) function getBorderGridMask(self)
     !< returns maskEnabled mask
     class(shr_gridDomain), intent(in) :: self
-    getMaskBounds = self % maskEnabled
-  end function getMaskBounds
+    getBorderGridMask = self % maskEnabled
+  end function getBorderGridMask
 
 
   type(shr_gridDomain) function filter(self, newGMask)
