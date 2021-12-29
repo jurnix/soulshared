@@ -19,7 +19,6 @@ module shr_gAxisMapping_mod
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
-  use shr_gAxisCellIndex_mod, only: shr_gAxisCellIndex
   
   implicit none
 
@@ -30,7 +29,6 @@ module shr_gAxisMapping_mod
 
   type shr_gAxisMapping
     type(shr_gGridAxes), allocatable :: axis
-    type(shr_gAxisCellIndex), allocatable :: indices(:)
   contains
     procedure :: init => gAxisMapping_initialize 
 
@@ -45,16 +43,7 @@ contains
     !< gAxisMapping initialization
     class(shr_gAxisMapping), intent(inout) :: self
     type(shr_gGridAxes), intent(in) :: gridAxis
-    integer :: iIdx, ncells
-    
     allocate(self % axis, source = gridAxis)
-    ncells = self % axis % getSize()
-
-    ! map indices
-    allocate(self % indices(ncells))
-    do iIdx = 1, ncells
-      call self % indices(iIdx) % init(iIdx, self % axis % cells(iIdx))
-    enddo
   end subroutine gAxisMapping_initialize
 
 
@@ -89,8 +78,8 @@ contains
       axisBoundsStr = axisBounds % toString()
       givenVal = real2String(axisCoord)
       call raiseError(__FILE__, "getIndexByCoord", &
-           "Given axisCoord ("// givenVal % toString() //&
-           ") is outside gridAxis bounds", &
+           "Given axisCoord ("// givenVal % toString() //")"//&
+           " is outside gridAxis bounds", &
            "Found: "//axisBoundsStr % toString())
     endif
 
