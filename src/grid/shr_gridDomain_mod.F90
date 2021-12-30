@@ -161,11 +161,8 @@ contains
     type(shr_gridMask) :: newMaskBorders
     type(shr_gridMask) :: newMaskEnabled
     type(shr_gGridDescriptor) :: newGDescriptor
+
     newGDescriptor = self % getGridDescriptor()
-    if (.not. (newGDescriptor == self % getGridDescriptor())) then
-      call raiseError(__FILE__, "filter", &
-          "'NewGMask' and 'self' must have the same grid descriptor")
-    end if
     newMaskBorders = self % maskBorder .and. newGMask
     newMaskEnabled = self % maskEnabled .and. newGMask
 
