@@ -68,8 +68,6 @@ contains
     type(shr_gridMask), intent(in) :: enabled !< def: all enabled
     type(shr_gridMask), intent(in) :: border !< def: all enabled
 
-    type(shr_gridMask), allocatable :: disabledMask, disabledBorder
-    !type(shr_gridMask), allocatable :: expectedBorder
     logical :: expectedBorder
 
     allocate(self % descriptor, source = descriptor)
@@ -80,26 +78,8 @@ contains
     !< init maskBorder
     allocate(self % maskBorder, source = border)
 
-
-    !< 'border' matches with 'enabled' gridcells?
-    !< ('border' gridcells are disabled in 'enabled')
-    !< partition border
-    !< T T F F F T -> True where border
-    !<
-    !< land grid cells -> True where land grid cells
-    !< F F T F T F   -> rev (select disabled) -> T T F T F T
-    !<                                              .and.
-    !<                                 (border)  T T - - - T
-    !< all true? -> yes
-    !< todo: create shr_gGridMaskOverlay? higher level ops
-    allocate(disabledMask, disabledBorder)
-    disabledMask = enabled
-    !< select potential border cells
-    call disabledMask % reverse()
-    !< potential border cells match with chosen 'border'?
-    disabledBorder = (Border .and. disabledMask)
-    !< all match?
-    expectedBorder = (disabledBorder == border)
+    !< 'border' mask matches with 'enabled' gridcells?
+    expectedBorder = self % maskBorder % isIncluded(self % maskEnabled)
     if (.not. expectedBorder) then
       call raiseError(__FILE__, "gridDomain_initialize", &
       "'enabled' overlaps with 'border' mask")
@@ -132,7 +112,6 @@ contains
     !< combine grid descriptors
     cgDescriptor = (self % getGridDescriptor() + other % getGridDescriptor())
 
-    !< todo: expand
     !< adapt both masks to new grid descriptor dimensions
     expandedESelfMask = self % maskEnabled % expand(cgDescriptor)
     otherEnabledGridMask = other % getEnabledGridMask()

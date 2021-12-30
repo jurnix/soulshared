@@ -64,7 +64,7 @@ contains
     use iso_c_binding
     class(testSuitegridMask), intent(inout) :: self
 
-    type(shr_gridMask) :: m, other, m1, m2
+    type(shr_gridMask) :: m, other, m1, m2, mOther
 
     logical :: expMask(2,2), rawMask(2,2), rawSmallMask(1,2)
     logical :: expBigMask(4,4)
@@ -303,6 +303,19 @@ contains
 
     call self % assert( all(foundMask .eqv. rawMask ), &
         "m(1,0,2,0, (FT,FF)) % expand(1,-1,2,0) .eq. mask(FT,TT) = T")
+
+
+    !< isIncluded
+    m = getNewGridMask([1., -1., 2., 0.]) !< true default
+    call gcIndex % init(1, 1)
+    call gmSmall % setStatus(gcIndex, .false.)
+
+    mOther = getNewGridMask([1., -1., 2., 0.])
+    call self % assert( all(foundMask .eqv. rawMask ), &
+        "m(FT,TT) % isIncluded(TT,TT) = F")
+    call self % assert( all(foundMask .eqv. rawMask ), &
+        "m((TT,TT)) % isIncluded(FT,TT) = T")
+
 
   end subroutine defineTestCases
 

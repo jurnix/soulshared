@@ -111,6 +111,8 @@ module shr_gridMask_mod
     procedure :: select
     procedure :: expand
     procedure :: toString
+
+    procedure :: isIncluded
   end type shr_gridMask
 
 contains
@@ -517,6 +519,37 @@ contains
     !write(*,*) "set:: given mask shape? ", shape(mask)
     self % mask(startRow:endRow, startCol:endCol) = mask(1:nrows,1:ncols)
   end subroutine set
+
+
+  logical function isIncluded(self, other)
+    !< true if other gridMask true gridcells also match self mask array
+    !<
+    !< self (TT,FF) % isMaskIncluded(TF,FF) -> true
+    !< self (TT,FF) % isMaskIncluded(TF,FT) -> false
+    !<
+    !< 'self' matches with 'other' gridcells?
+    !< ('self' gridcells are disabled in 'other')
+    !< partition self
+    !< T T F F F T -> True where border
+    !<
+    !< land grid cells -> True where land grid cells
+    !< F F T F T F   -> rev (select disabled) -> T T F T F T
+    !<                                              .and.
+    !<                                 (border)  T T - - - T
+    !< all true? -> yes
+    class(shr_gridMask), intent(in) :: self
+    type(shr_gridMask), intent(in) :: other
+
+    type(shr_gridMask) :: reversedMask, disabledMask
+
+    reversedMask = other
+    !< select potential border cells
+    call reversedMask % reverse()
+    !< potential border cells match with chosen 'border'?
+    disabledMask = (self .and. reversedMask)
+    !< all match?
+    isIncluded = (disabledMask == other)
+  end function isIncluded
 
 end module shr_gridMask_mod
 
