@@ -382,63 +382,19 @@ contains
     class(shr_gridMask), intent(in) :: self
     type(shr_gGridDescriptor), intent(in) :: gDescriptor
 
-    type(shr_gridBounds) :: bounds
-    type(shr_coord) :: cTopLeft, cBottomRight
-    type(shr_gridcellIndex), allocatable :: gIndicesTL(:), gIndicesBR(:)
-
     logical, allocatable :: newLmask(:,:)
-    integer :: latNorth, latSouth
-    integer :: lonEast, lonWest
-    integer :: latSize, lonSize
-    !integer :: itmp
     type(shr_gridIndicesMapping) :: idxMapping
-    !type(shr_gridBounds), allocatable :: selfBounds, givenBounds
-    !type(string) :: tmpBounds
-    !type(string), allocatable :: tmp(:)
-    !real(kind=sp) :: halfres
     type(shr_gridBoundIndices) :: gBoundIndices
-
-    !< todo: refactor
-    !selfBounds = self % gridDescriptor % getBounds()
-    !givenBounds = gDescriptor % getBounds()
 
     if (.not. self % gridDescriptor % fitsIn(gDescriptor) ) then
       call raiseError(__FILE__, "select", &
           "gDescriptor argument does not fit in the current shr_gridDomain")
     end if
 
-    !call idxMapping % init(self % gridDescriptor)
-
-    !< from bounds get top-left and bottom-right coordinates
-    !< center of coordinate (it enforeces to select a unique gIndices)
-    !halfRes = gDescriptor % getResolution() / 2.
-    !bounds = gDescriptor % getBounds()
-    ! todo: change east vs west, wrong
-    !cTopLeft = shr_coord( bounds % getNorth() - halfRes, bounds % getEast() - halfres)
-    !cBottomRight = shr_coord( bounds % getSouth() + halfres, bounds % getWest() + halfres)
-
     !< discover array indices
-    !< find array indices from top-left
-    !gIndicesTL = idxMapping % getIndex(cTopLeft) !< only 1
-    !< find array indices from bottom-right
-    !gIndicesBR = idxMapping % getIndex(cBottomRight) !< only 1
     call idxMapping % init(gDescriptor)
     gBoundIndices = self % findIndices(gDescriptor, idxMapping)
 
-    ! todo, change east vs west as it is switched
-    !latNorth = gBoundIndices %  getTop() !gIndicesTL(1) % idxLat
-    !latSouth =  gBoundIndices %  getBottom() !gIndicesBR(1) % idxLat
-    !LonEast = gBoundIndices %  getRight() !gIndicesTL(1) % idxLon
-    !lonWest =  gBoundIndices %  getLeft() !gIndicesBR(1) % idxLon
-
-    !latSize = latNorth - latSouth + 1
-    !lonSize = lonWest - lonEast + 1
-
-    !< todo, east vs west switch, currently wrong
-    !allocate(newLmask(latSize, lonSize))
-    !newLmask(1:latSize, 1:lonSize) = self % mask(latNorth:latSouth, lonEast:lonWest)
-
-    !call newGMask % init(gDescriptor, newLmask)
     call newGMask % init(gDescriptor, default = .false.)!, newLmask)
     call newGMask % set(self % mask, gBoundIndices)
   end function select
@@ -456,8 +412,6 @@ contains
     type(shr_gridcellIndex), allocatable :: gIndicesTL(:), gIndicesBR(:)
     integer :: startlat, endlat
     integer :: startlon, endlon
-
-    !call idxMapping % init(gDescriptor)
 
     !< from bounds get top-left and bottom-right coordinates
     !< center of coordinate (it enforeces to select a unique gIndices)
@@ -488,13 +442,9 @@ contains
     class(shr_gridMask), intent(in) :: self
     !type(shr_gridBounds), intent(in) :: bounds
     type(shr_gGridDescriptor), intent(in) :: gDescriptor
-    type(shr_gridBoundIndices) :: gBoundIndices
-    type(shr_gridMask) :: tmpGMask
-    logical, allocatable :: newLMask(:,:)
 
-    integer :: latNorth, latSouth
-    integer :: lonEast, lonWest
-    integer :: latSize, lonSize
+    type(shr_gridBoundIndices) :: gBoundIndices
+    logical, allocatable :: newLMask(:,:)
     type(shr_gridIndicesMapping) :: idxMapping
 
     !< new bounds fit in current gridMask?
@@ -509,22 +459,7 @@ contains
     call idxMapping % init(self % gridDescriptor)
     gBoundIndices = newGMask % findIndices(self % gridDescriptor, idxMapping)
 
-    !< transfer found indices
-    !latNorth = gBoundIndices %  getTop() !gIndicesTL(1) % idxLat
-    !latSouth =  gBoundIndices %  getBottom() !gIndicesBR(1) % idxLat
-    !LonEast = gBoundIndices %  getRight() !gIndicesTL(1) % idxLon
-    !lonWest =  gBoundIndices %  getLeft() !gIndicesBR(1) % idxLon
-
-    !latSize = latNorth - latSouth + 1
-    !lonSize = lonWest - lonEast + 1
-
-    !< allocate newLMask
-    !newLMask = tmpGMask % getRaw()
-    !< transfer mask
-    !newLMask(latNorth:latSouth, lonEast:lonWest) = self % mask(1:latSize, 1:lonSize)
     call newGMask % set(self % mask, gBoundIndices)
-
-    !call newGMask % init(gDescriptor, newLMask)
   end function expand
 
 
@@ -568,18 +503,18 @@ contains
       ncols = gBindices % countCols()
       nrows = gBindices % countRows()
 
-      write(*,*) "set:: argument found!"
-      write(*,*) "set:: lat (start, end) =", gBindices % getStartRow(), gBindices % getEndRow()
-      write(*,*) "set:: lon (start, end) =", gBindices %  getStartCol(), gBindices %  getEndCol()
+      !write(*,*) "set:: argument found!"
+      !write(*,*) "set:: lat (start, end) =", gBindices % getStartRow(), gBindices % getEndRow()
+      !write(*,*) "set:: lon (start, end) =", gBindices %  getStartCol(), gBindices %  getEndCol()
     end if
 
     !< proper dimensions?
     !< todo: switch east vs west
-    write(*,*) "set:: cols (start, end) =", startCol, endCol
-    write(*,*) "set:: rows (start, end) =", startRow, endRow
-    write(*,*) "set:: self % mask shape? ", shape(self % mask)
-    write(*,*) "set:: ncols, nrows = ", ncols, nrows
-    write(*,*) "set:: given mask shape? ", shape(mask)
+    !write(*,*) "set:: cols (start, end) =", startCol, endCol
+    !write(*,*) "set:: rows (start, end) =", startRow, endRow
+    !write(*,*) "set:: self % mask shape? ", shape(self % mask)
+    !write(*,*) "set:: ncols, nrows = ", ncols, nrows
+    !write(*,*) "set:: given mask shape? ", shape(mask)
     self % mask(startRow:endRow, startCol:endCol) = mask(1:nrows,1:ncols)
   end subroutine set
 
