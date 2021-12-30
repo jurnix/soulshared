@@ -21,6 +21,7 @@ module shr_gridMask_test
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
+  use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
 
   implicit none
 
@@ -66,6 +67,7 @@ contains
     type(shr_gridMask) :: m, other, m1, m2
 
     logical :: expMask(2,2), rawMask(2,2), rawSmallMask(1,2)
+    logical :: expBigMask(4,4)
     logical, allocatable :: foundMask(:,:)
 
     type(shr_gridcellIndex) :: gcIndex
@@ -73,6 +75,10 @@ contains
 
     type(shr_gGridDescriptor) :: gmDescSmall
     type(shr_gridMask) :: smallGMask
+    type(shr_gridBoundIndices) :: gBoundIndices
+
+    type(shr_gridMask) :: gmSmall, gmBig
+    type(shr_gGridDescriptor) :: gmDescBig
 
     !
     ! grid
@@ -227,7 +233,7 @@ contains
     !  |   |   |
     !  +---+---+-  (0.)
     !
-    !  (parend)
+    !  (parent)
     ! (2) (1) (0)
     !  |   |   |
     !  +---X---X-  (1.)
@@ -241,13 +247,63 @@ contains
     call m % setStatus(gcIndex, .false.)
 
     gmDescSmall = getNewGridDesriptor(1.,0.,2.,0.)
+
     smallGMask = m % select(gmDescSmall)
+
     rawSmallMask(1,:) = [.false., .true.]
     foundMask = smallGMask % getRaw()
-    write(*,*)  "foundMask =", foundMask, ", shape=", shape(foundMask)
-    write(*,*)  "rawSmallMask =", rawSmallMask, ", shape=", shape(rawSmallMask)
     call self % assert( all(foundMask .eqv. rawSmallMask ), &
-        "m1(FTFF) .or. m2(FFTF) .eq. m1(FTTF) = T")
+        "m(FT,FF) % select(XX,--) .eq. mask(FT) = T")
+
+
+    ! set
+    m = getNewGridMask([4.,0.,4.,0.]) !< default = true, coordinates
+    call gBoundIndices % init(2, 3, 2, 3) !< indices
+    rawMask = .false.
+
+    call m % set(rawMask, gBoundIndices)
+
+    expBigMask(1,:) = .true.
+    expBigMask(2,:) = [.true., .false., .false., .true.]
+    expBigMask(3,:) = [.true., .false., .false., .true.]
+    expBigMask(4,:) = .true.
+    foundMask = m % getRaw()
+    call self % assert( all(foundMask .eqv. expBigMask ), &
+        "m(T...T) % set(F, 3,2,1,2) .eq. mask() = T")
+
+    ! expand
+
+    ! from
+    ! (2) (1) (0)
+    !  |   |   |
+    !  +---X---X-  (1.)
+    !  | F | T |
+    !  +---+---+-  (0.)
+
+    ! to
+    ! (2) (1) (0)
+    !  |   |   |
+    !  +---X---X-  (1.)
+    !  | F | T |
+    !  +---+---+-  (0.)
+    !  | T | T |
+    !  +---+---+- (-1.)
+    !
+
+    gmSmall = getNewGridMask([1., 0., 2., 0.])
+    call gcIndex % init(1, 1)
+    call gmSmall % setStatus(gcIndex, .false.)
+    gmDescBig = getNewGridDesriptor(1.,-1.,2.,0.)
+
+    gmBig = gmSmall % expand(gmDescBig)
+
+    rawMask(1,:) = [.false., .true.]
+    rawMask(2,:) = [.true., .true.] ! -> extended row
+    foundMask = gmBig % getRaw()
+
+    call self % assert( all(foundMask .eqv. rawMask ), &
+        "m(1,0,2,0, (FT,FF)) % expand(1,-1,2,0) .eq. mask(FT,TT) = T")
+
   end subroutine defineTestCases
 
 
