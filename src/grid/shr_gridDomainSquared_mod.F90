@@ -15,7 +15,7 @@ module shr_gridDomainSquared_mod
 
 	use shr_gridDomain_mod, only: shr_gridDomain
 	use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
-	use shr_gridMask_mod, only: shr_gridMask
+	use shr_gridMask_mod, only: shr_igridMask, shr_gridMask
 
 	implicit none
 
@@ -32,9 +32,10 @@ contains
 		!< initialize gridDomainSquared
 		class(shr_gridDomainSquared), intent(inout) :: self
 		class(shr_iGgridDescriptor), intent(in) :: gridDescriptor
-		type(shr_gridMask), intent(in) :: enabled
+		class(shr_igridMask), intent(in) :: enabled
 
-		type(shr_gridMask) :: maskBounds
+		class(shr_gridMask), allocatable :: maskBounds
+		allocate(shr_gridMask :: maskBounds)
 		call maskBounds % init(gridDescriptor, default = .false.)
 		call self % shr_gridDomain % init(gridDescriptor, enabled, maskBounds)
 	end subroutine gridDomainSquared_initialize

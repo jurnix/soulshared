@@ -18,7 +18,7 @@ module shr_gridDomain_mod
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
   use shr_gridcellsMapping_mod, only: shr_gridcellsMapping
   use shr_gridIndicesMapping_mod, only: shr_gridIndicesMapping
-  use shr_gridMask_mod, only: shr_gridMask
+  use shr_gridMask_mod, only: shr_IgridMask
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_coord_mod, only: shr_coord
 
@@ -34,8 +34,8 @@ module shr_gridDomain_mod
 
     type(shr_gridcellsMapping), allocatable :: gcsMapping !< gridcells
     type(shr_gridIndicesMapping), allocatable :: idxMapping !< array indices
-    type(shr_gridMask), allocatable :: maskEnabled !< allowed to modify, sea vs land (?)
-    type(shr_gridMask), allocatable :: maskBorder !< non available gridcells due to partitioning
+    class(shr_igridMask), allocatable :: maskEnabled !< allowed to modify, sea vs land (?)
+    class(shr_igridMask), allocatable :: maskBorder !< non available gridcells due to partitioning
   contains
     procedure :: gridDomain_initialize
     generic :: init => gridDomain_initialize
@@ -65,8 +65,8 @@ contains
     !< grid domain initialization
     class(shr_gridDomain), intent(inout) :: self
     class(shr_iGGridDescriptor), intent(in) :: descriptor
-    type(shr_gridMask), intent(in) :: enabled !< def: all enabled
-    type(shr_gridMask), intent(in) :: border !< def: all enabled
+    class(shr_igridMask), intent(in) :: enabled !< def: all enabled
+    class(shr_igridMask), intent(in) :: border !< def: all enabled
 
     logical :: expectedBorder
 
@@ -82,7 +82,7 @@ contains
     expectedBorder = self % maskBorder % isIncluded(self % maskEnabled)
     if (.not. expectedBorder) then
       call raiseError(__FILE__, "gridDomain_initialize", &
-      "'enabled' overlaps with 'border' mask")
+      "Found active gridcells(enabled) but not included in 'border' mask")
     end if
 
     allocate(self % gcsMapping)
@@ -103,11 +103,11 @@ contains
     class(shr_gridDomain), intent(in) :: self
     type(shr_gridDomain), intent(in) :: other
 
-    type(shr_gridMask) :: newMaskGrid, newMaskBounds
+    class(shr_igridMask), allocatable :: newMaskGrid, newMaskBounds
     class(shr_iGgridDescriptor), allocatable :: cgDescriptor
-    type(shr_gridMask) :: expandedESelfMask, expandedEOtherMask
-    type(shr_gridMask) :: expandedSelfMaskBorders, expandedOtherMaskBorders
-    type(shr_gridMask) ::otherEnabledGridmask, otherBorderGridMask
+    class(shr_igridMask), allocatable :: expandedESelfMask, expandedEOtherMask
+    class(shr_igridMask), allocatable :: expandedSelfMaskBorders, expandedOtherMaskBorders
+    class(shr_igridMask), allocatable ::otherEnabledGridmask, otherBorderGridMask
 
     !< combine grid descriptors
     cgDescriptor = (self % getGridDescriptor() + other % getGridDescriptor())
@@ -139,17 +139,19 @@ contains
   end function getGridDescriptor
 
 
-  type(shr_gridMask) function getEnabledGridMask(self)
+  function getEnabledGridMask(self) result (emask)
     !< returns maskEnabled mask
     class(shr_gridDomain), intent(in) :: self
-    getEnabledGridMask = self % maskEnabled
+    class(shr_igridMask), allocatable :: emask !< output
+    allocate(emask, source = self % maskEnabled)
   end function getEnabledGridMask
 
 
-  type(shr_gridMask) function getBorderGridMask(self)
+  function getBorderGridMask(self) result (bmask)
     !< returns maskEnabled mask
     class(shr_gridDomain), intent(in) :: self
-    getBorderGridMask = self % maskEnabled
+    class(shr_igridMask), allocatable :: bmask
+    allocate(bmask, source = self % maskEnabled)
   end function getBorderGridMask
 
 
@@ -158,9 +160,9 @@ contains
     !< given the newGMask.
     !< - newGMask and self must have the ssame gridDescriptor
     class(shr_gridDomain), intent(in) :: self
-    type(shr_gridMask), intent(in) :: newGMask
-    type(shr_gridMask) :: newMaskBorders
-    type(shr_gridMask) :: newMaskEnabled
+    class(shr_igridMask), intent(in) :: newGMask
+    class(shr_igridMask), allocatable :: newMaskBorders
+    class(shr_igridMask), allocatable :: newMaskEnabled
     class(shr_iGGridDescriptor), allocatable :: newGDescriptor
 
     newMaskBorders = (self % maskBorder .and. newGMask)
@@ -177,7 +179,7 @@ contains
     class(shr_gridDomain), intent(in) :: self
     class(shr_iGGridDescriptor), intent(in) :: newGDescriptor
     class(shr_gridDomain), allocatable :: newGMask !< output
-    type(shr_gridMask) :: selectedBorder, selectedEnabled
+    class(shr_igridMask), allocatable :: selectedBorder, selectedEnabled
 
     selectedBorder = self % maskBorder % select(newGDescriptor)
     selectedEnabled = self % maskEnabled % select(newGDescriptor)

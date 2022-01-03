@@ -74,10 +74,11 @@ contains
     type(string) :: tmpStr, expStr
 
     type(shr_gGridDescriptor) :: gmDescSmall
-    type(shr_gridMask) :: smallGMask
+    class(shr_gridMask), allocatable :: smallGMask
     type(shr_gridBoundIndices) :: gBoundIndices
 
-    type(shr_gridMask) :: gmSmall, gmBig
+    type(shr_gridMask) :: gmSmall
+    class(shr_gridMask), allocatable :: gmBig
     type(shr_gGridDescriptor) :: gmDescBig
 
     !

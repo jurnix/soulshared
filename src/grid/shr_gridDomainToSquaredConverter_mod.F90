@@ -15,7 +15,7 @@ module shr_gridDomainToSquaredConverter_mod
 	use shr_error_mod, only: raiseError
 	use shr_gridDomain_mod, only: shr_gridDomain
 	use shr_gridDomainSquared_mod, only: shr_gridDomainSquared
-	use shr_gridMask_mod, only: shr_gridMask
+	use shr_gridMask_mod, only: shr_igridMask
 
 	use shr_gridMaskClusters_mod, only: shr_gridMaskClusters
 	use shr_gridMaskClustersIterator_mod, only: shr_gridMaskClustersIterator
@@ -54,7 +54,7 @@ contains
 		!< true if all maskBorder gridcells are enabled
 		class(shr_gridDomainToSquaredConverter), intent(in) :: self
 		type(shr_gridDomain), intent(in) :: domain
-		type(shr_gridMask) :: maskBounds
+		class(shr_igridMask), allocatable :: maskBounds
 		maskBounds = self % domain % getBorderGridMask()
 		isDomainSquared = maskBounds % any()
 	end function isDomainSquared
@@ -67,7 +67,7 @@ contains
 		type(shr_gridDomain), intent(in) :: domain
 
 		class(shr_iGgridDescriptor), allocatable :: gDescriptor
-		type(shr_gridMask) :: gMaskEnabled
+		class(shr_igridMask), allocatable :: gMaskEnabled
 
 		if (.not. self % isDomainSquared(domain)) then
 			call raiseError(__FILE__, "toSquaredDomain", &
@@ -91,11 +91,11 @@ contains
 		type(shr_gridDomain) :: subdomain
 		type(shr_gridMaskClusters) :: clusters
 		type(shr_GridMaskClustersIterator) :: clustersIterator
-		type(shr_gridMask) :: newGMaskClustered
+		class(shr_igridMask), allocatable :: newGMaskClustered
 		class(*) , allocatable :: obj
 
 		integer :: ndomains, idomain
-		type(shr_gridMask) :: maskBounds
+		class(shr_igridMask), allocatable :: maskBounds
 		logical, allocatable :: mask2d(:,:)
 
 		if (self % isDomainSquared(self % domain)) then

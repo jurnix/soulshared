@@ -37,12 +37,49 @@ module shr_gridMask_mod
   !< interface to shr_gridMask
   type, abstract :: shr_IgridMask
   contains
+    procedure(iface_gridMask_initialize_by_larray), deferred :: initialize_by_larray
+    procedure(iface_gridMask_initialize), deferred :: initialize
+    generic :: init => initialize_by_larray, initialize
+
     procedure(iface_getRaw), deferred :: getRaw
     procedure(iface_getGridDescriptor), deferred :: getGridDescriptor
+    procedure(iface_isincluded), deferred :: isIncluded
+
+    procedure(iface_equal_scalar_logical), deferred :: equal_scalar_logical
+    procedure(iface_equal_rawMask), deferred :: equal_rawMask
+    procedure(iface_equal_gridMask), deferred :: equal_gridMask
+    generic :: operator(==) => equal_scalar_logical, equal_gridMask, &
+        equal_rawMask
+
+    procedure(iface_and_gridMask), deferred :: and_gridMask
+    generic :: operator(.and.) => and_gridMask
+    procedure(iface_any), deferred :: any
+
+    procedure(iface_expand), deferred :: expand
+    procedure(iface_select), deferred :: select
+    procedure(iface_set), deferred :: set
+
+    procedure, private :: findIndices
   end type
 
 
   abstract interface
+    subroutine iface_gridMask_initialize_by_larray(self, gridDescriptor, lmask)
+      import :: shr_igridMask, shr_iGGridDescriptor
+      !< gridMask initialization
+      class(shr_igridMask), intent(inout) :: self
+      class(shr_iGGridDescriptor), intent(in) :: gridDescriptor
+      logical, intent(in) :: lmask(:,:)
+    end subroutine iface_gridMask_initialize_by_larray
+
+    subroutine iface_gridMask_initialize(self, gridDescriptor, default)
+      import :: shr_igridMask, shr_iGGridDescriptor
+      !< gridMask initialization
+      class(shr_igridMask), intent(inout) :: self
+      class(shr_iGGridDescriptor), intent(in) :: gridDescriptor
+      logical, intent(in), optional :: default !< define default value (def: true)
+    end subroutine iface_gridMask_initialize
+
     function iface_getRaw(self) result (outMask)
       import :: shr_IgridMask
       !< returns current mask
@@ -56,6 +93,85 @@ module shr_gridMask_mod
       class(shr_IgridMask), intent(in) :: self
       class(shr_iGGridDescriptor), allocatable :: newGDescriptor !< output
     end function iface_getGridDescriptor
+
+    logical function iface_isIncluded(self, other)
+      import :: shr_igridMask
+      !< true if other gridMask true gridcells also match self mask array
+      class(shr_igridMask), intent(in) :: self
+      class(shr_igridMask), intent(in) :: other
+    end function iface_isIncluded
+
+    logical function iface_equal_scalar_logical(self, value)
+      import :: shr_igridMask
+      !< true if all values match 'value'
+      class(shr_igridMask), intent(in) :: self
+      logical, intent(in) :: value
+    end function iface_equal_scalar_logical
+
+    logical function iface_equal_rawMask(self, mask)
+      import :: shr_igridMask
+      !< true if all values match 'value'
+      class(shr_igridMask), intent(in) :: self
+      logical, intent(in) :: mask(:,:)
+    end function iface_equal_rawMask
+
+    logical function iface_equal_gridMask(self, other)
+      import :: shr_igridMask
+      !< true if all values match 'value'
+      class(shr_igridMask), intent(in) :: self
+      class(shr_igridMask), intent(in) :: other
+    end function iface_equal_gridMask
+
+    function iface_expand(self, gDescriptor) result (newGMask)
+      import :: shr_igridMask, shr_iGGridDescriptor
+      !< returns a new shr_gridMask with an expanded grid
+      !< - 'self' must fit into 'gDescriptor'
+      !< - mask remains the same
+      class(shr_igridMask), intent(in) :: self
+      !type(shr_gridBounds), intent(in) :: bounds
+      class(shr_iGGridDescriptor), intent(in) :: gDescriptor
+      class(shr_igridMask), allocatable :: newGMask !< output
+    end function iface_expand
+
+    function iface_select(self, gDescriptor) result (newGMask)
+      import :: shr_igridMask, shr_iGGridDescriptor
+      !< select a new shr_gridMask according to gDescriptor
+      !< new gDscriptor must fit self % gridDescriptor
+      class(shr_igridMask), intent(in) :: self
+      class(shr_iGGridDescriptor), intent(in) :: gDescriptor
+      class(shr_igridMask), allocatable :: newGMask !< output
+    end function iface_select
+
+    function iface_and_gridMask(self, other) result (newMask)
+      import :: shr_igridMask
+      !< returns a new gridMask with matching gridcells
+      !< both must have the same size
+      !<
+      !< gridMask(F T F) = gridMask(T T F) .and. gridMask(F T F)
+      class(shr_igridMask), intent(in) :: self
+      class(shr_igridMask), intent(in) :: other
+      class(shr_igridMask), allocatable :: newMask !< output
+    end function iface_and_gridMask
+
+    subroutine iface_set(self, mask, gBindices)
+      import :: shr_igridMask, shr_gridBoundIndices
+      !< set values of mask into self
+      !< when defined gBindices:
+      !< - place 'mask' into gBIndices indices
+      !<
+      !< 'mask' shape must be consistent with 'self'
+      !< 'gBindices' must be consistent with 'mask' and 'self'
+      class(shr_igridMask), intent(inout) :: self
+      logical, intent(in) :: mask(:,:)
+      type(shr_gridBoundIndices), intent(in), optional :: gBindices
+    end subroutine iface_set
+
+    logical function iface_any(self)
+      import :: shr_igridMask
+      !< true if any 'a' and 'b' has true value
+      !< wrap to enable 'any' from shr_gridMask
+      class(shr_igridMask), intent(in) :: self
+    end function iface_any
   end interface
 
 
@@ -65,9 +181,9 @@ module shr_gridMask_mod
 
     logical, allocatable :: mask(:,:)
   contains
-    procedure ::  gridMask_initialize
-    procedure :: gridMask_initialize_by_larray
-    generic :: init => gridMask_initialize, gridMask_initialize_by_larray
+    procedure :: initialize => gridMask_initialize
+    procedure :: initialize_by_larray => gridMask_initialize_by_larray
+    !generic :: init => gridMask_initialize, gridMask_initialize_by_larray
 
     procedure :: countEnabled
 !    procedure :: setAll(status), assignment(=)
@@ -87,17 +203,17 @@ module shr_gridMask_mod
     procedure :: copy_gridMask
     generic :: assignment(=) => copy_gridMask, copy_rev_array
 
-    procedure :: eq_scalar_logical
-    procedure :: eq_rawMask
-    procedure :: eq_gridMask
-    generic :: operator(==) => eq_scalar_logical, eq_gridMask, &
-            eq_rawMask
+    procedure :: equal_scalar_logical => gridMask_equal_scalar_logical
+    procedure :: equal_rawMask => gridMask_equal_rawMask
+    procedure :: equal_gridMask => gridMask_equal_gridMask
+    !generic :: operator(==) => eq_scalar_logical, eq_gridMask, &
+    !        eq_rawMask
 
     !< same grid descriptor
     procedure :: or_bitwise
     generic :: operator(.or.) => or_bitwise
-    procedure :: and_gridMask
-    generic :: operator(.and.) => and_gridMask
+    procedure :: and_gridMask => gridMask_and_gridMask
+    !generic :: operator(.and.) => and_gridMask
     procedure :: reverse_gridMask_func
     procedure :: reverse => reverse_gridMask
     generic :: operator(.not.) => reverse_gridMask_func
@@ -107,13 +223,13 @@ module shr_gridMask_mod
     procedure :: any => any_gridMask
 
     !procedure :: get
-    procedure :: set
-    procedure, private :: findIndices
-    procedure :: select
-    procedure :: expand
+    procedure :: set => gridMask_set
+    !procedure, private :: findIndices
+    procedure :: select => gridMask_select
+    procedure :: expand => gridMask_expand
     procedure :: toString
 
-    procedure :: isIncluded
+    procedure :: isIncluded => gridMask_isIncluded
   end type shr_gridMask
 
 contains
@@ -124,10 +240,9 @@ contains
     class(shr_iGGridDescriptor), intent(in) :: gridDescriptor
     logical, intent(in) :: lmask(:,:)
 
-    call self % gridMask_initialize(gridDescriptor)
+    call self % initialize(gridDescriptor)
     self % mask = lmask
   end subroutine gridMask_initialize_by_larray
-
 
 
   subroutine gridMask_initialize(self, gridDescriptor, default)
@@ -187,15 +302,15 @@ contains
   end function getRaw
 
 
-  logical function eq_scalar_logical(self, value)
+  logical function gridMask_equal_scalar_logical(self, value)
     !< true if all values match 'value'
     class(shr_gridMask), intent(in) :: self
     logical, intent(in) :: value
-    eq_scalar_logical = all(self % mask .eqv. value)
-  end function eq_scalar_logical
+    gridMask_equal_scalar_logical = all(self % mask .eqv. value)
+  end function gridMask_equal_scalar_logical
 
 
-  logical function eq_rawMask(self, mask)
+  logical function gridMask_equal_rawMask(self, mask)
     !< true if all values match 'value'
     class(shr_gridMask), intent(in) :: self
     logical, intent(in) :: mask(:,:)
@@ -207,31 +322,41 @@ contains
               "Given 'mask' dimensions do not match the masked grid")
     end if
     hasSameMask = all(self % mask .eqv. mask)
-    eq_rawMask = (hasSameMask)
-  end function eq_rawMask
+    gridMask_equal_rawMask = (hasSameMask)
+  end function gridMask_equal_rawMask
 
 
-  logical function eq_gridMask(self, other)
+  logical function gridMask_equal_gridMask(self, other)
     !< true if all values match 'value'
     class(shr_gridMask), intent(in) :: self
-    type(shr_gridMask), intent(in) :: other
+    class(shr_igridMask), intent(in) :: other
     logical :: hasSameDescriptor, hasSameMask
-    hasSameDescriptor = (self % gridDescriptor == other % gridDescriptor)
-    hasSameMask = all(self % mask .eqv. other % mask)
-    eq_gridMask = (hasSameDescriptor .and. hasSameMask)
-  end function eq_gridMask
+    type(shr_gridMask) :: ogMask
+
+    select type (o => other)
+    type is (shr_gridMask)
+      ogMask = o
+    class default
+      gridMask_equal_gridMask = .false.
+    end select
+
+    hasSameDescriptor = (self % gridDescriptor == ogMask % gridDescriptor)
+    hasSameMask = all(self % mask .eqv. ogMask % mask)
+    gridMask_equal_gridMask = (hasSameDescriptor .and. hasSameMask)
+  end function gridMask_equal_gridMask
 
 
-  type(shr_gridMask) function and_gridMask(self, other) result (newMask)
+  function gridMask_and_gridMask(self, other) result (newMask)
     !< returns a new gridMask with matching gridcells
     !< both must have the same size
     !<
     !< gridMask(F T F) = gridMask(T T F) .and. gridMask(F T F)
     class(shr_gridMask), intent(in) :: self
-    type(shr_gridMask), intent(in) :: other
-    call newMask % init(self % gridDescriptor)
-    newMask % mask = (self % mask .and. other % mask)
-  end function and_gridMask
+    class(shr_igridMask), intent(in) :: other
+    class(shr_igridMask), allocatable :: newMask !< output
+    !call newMask % init(self % gridDescriptor)
+    !newMask % mask = (self % mask .and. other % mask)
+  end function gridMask_and_gridMask
 
 
   subroutine reverse_gridMask(self)
@@ -381,11 +506,12 @@ contains
   end subroutine shr_gridMask_cast
 
 
-  type(shr_gridMask) function select(self, gDescriptor) result (newGMask)
+  function gridMask_select(self, gDescriptor) result (newGMask)
     !< select a new shr_gridMask according to gDescriptor
     !< new gDscriptor must fit self % gridDescriptor
     class(shr_gridMask), intent(in) :: self
     class(shr_iGGridDescriptor), intent(in) :: gDescriptor
+    class(shr_igridMask), allocatable :: newGMask !< output
 
     logical, allocatable :: newLmask(:,:)
     type(shr_gridIndicesMapping) :: idxMapping
@@ -400,14 +526,17 @@ contains
     call idxMapping % init(gDescriptor)
     gBoundIndices = self % findIndices(gDescriptor, idxMapping)
 
+    allocate(shr_gridMask :: newGMask)
     call newGMask % init(gDescriptor, default = .false.)!, newLmask)
     call newGMask % set(self % mask, gBoundIndices)
-  end function select
+  end function gridMask_select
 
 
   type(shr_gridBoundIndices) function findIndices(self, gDescriptor, idxMapping) result (gBoundsIndices)
-    !<
-    class(shr_gridMask), intent(in) :: self
+    !< discover array indices given from gDescriptor opposed to self
+    !< gDescriptor: requested indices (must be included in self)
+    !< idxMapping: calculate indices
+    class(shr_igridMask), intent(in) :: self
     class(shr_iGGridDescriptor), intent(in) :: gDescriptor
     type(shr_gridIndicesMapping), intent(in) :: idxMapping
 
@@ -440,13 +569,14 @@ contains
   end function findIndices
 
 
-  type(shr_gridMask) function expand(self, gDescriptor) result (newGMask)
+   function gridMask_expand(self, gDescriptor) result (newGMask)
     !< returns a new shr_gridMask with an expanded grid
     !< - 'self' must fit into 'gDescriptor'
     !< - mask remains the same
     class(shr_gridMask), intent(in) :: self
     !type(shr_gridBounds), intent(in) :: bounds
     class(shr_iGGridDescriptor), intent(in) :: gDescriptor
+    class(shr_igridMask), allocatable :: newGMask
 
     type(shr_gridBoundIndices) :: gBoundIndices
     logical, allocatable :: newLMask(:,:)
@@ -459,16 +589,17 @@ contains
     end if
 
     !< temporary mask to initialze mask with proper dimensions
+    allocate(shr_gridMask :: newGMask)
     call newGMask % init(gDescriptor)
     !< find indices from new big to small
     call idxMapping % init(self % gridDescriptor)
     gBoundIndices = newGMask % findIndices(self % gridDescriptor, idxMapping)
 
     call newGMask % set(self % mask, gBoundIndices)
-  end function expand
+  end function gridMask_expand
 
 
-  subroutine set(self, mask, gBindices)
+  subroutine gridMask_set(self, mask, gBindices)
     !< set values of mask into self
     !< when defined gBindices:
     !< - place 'mask' into gBIndices indices
@@ -520,10 +651,10 @@ contains
     !write(*,*) "set:: ncols, nrows = ", ncols, nrows
     !write(*,*) "set:: given mask shape? ", shape(mask)
     self % mask(startRow:endRow, startCol:endCol) = mask(1:nrows,1:ncols)
-  end subroutine set
+  end subroutine gridMask_set
 
 
-  logical function isIncluded(self, other)
+  logical function gridMask_isIncluded(self, other)
     !< true if other gridMask true gridcells also match self mask array
     !<
     !< self (TT,FF) % isMaskIncluded(TF,FF) -> true
@@ -540,18 +671,26 @@ contains
     !<                                 (border)  T T - - - T
     !< all true? -> yes
     class(shr_gridMask), intent(in) :: self
-    type(shr_gridMask), intent(in) :: other
+    class(shr_igridMask), intent(in) :: other
 
     type(shr_gridMask) :: reversedMask, disabledMask
 
-    reversedMask = other
+    select type (o => other)
+    type is (shr_gridMask)
+      reversedMask = o
+    class default
+      call raiseError(__FILE__, &
+          "gridMask_isIncluded", &
+          "Unexpected type found instead of 'shr_gridMask'")
+    end select
+
     !< select potential border cells
     call reversedMask % reverse()
     !< potential border cells match with chosen 'border'?
     disabledMask = (self .and. reversedMask)
     !< all match?
-    isIncluded = (disabledMask == other)
-  end function isIncluded
+    gridMask_isIncluded = (disabledMask == other)
+  end function gridMask_isIncluded
 
 end module shr_gridMask_mod
 
