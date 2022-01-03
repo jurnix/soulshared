@@ -16,3 +16,4 @@ add_test(NAME ${BINNAME} COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${BINNAME})
 
 add_subdirectory(arrays)
 add_subdirectory(config)
+add_subdirectory(masks)
