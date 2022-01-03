@@ -183,7 +183,6 @@ module shr_gridMask_mod
   contains
     procedure :: initialize => gridMask_initialize
     procedure :: initialize_by_larray => gridMask_initialize_by_larray
-    !generic :: init => gridMask_initialize, gridMask_initialize_by_larray
 
     procedure :: countEnabled
 !    procedure :: setAll(status), assignment(=)
@@ -206,14 +205,12 @@ module shr_gridMask_mod
     procedure :: equal_scalar_logical => gridMask_equal_scalar_logical
     procedure :: equal_rawMask => gridMask_equal_rawMask
     procedure :: equal_gridMask => gridMask_equal_gridMask
-    !generic :: operator(==) => eq_scalar_logical, eq_gridMask, &
-    !        eq_rawMask
 
     !< same grid descriptor
     procedure :: or_bitwise
     generic :: operator(.or.) => or_bitwise
     procedure :: and_gridMask => gridMask_and_gridMask
-    !generic :: operator(.and.) => and_gridMask
+
     procedure :: reverse_gridMask_func
     procedure :: reverse => reverse_gridMask
     generic :: operator(.not.) => reverse_gridMask_func
@@ -224,7 +221,6 @@ module shr_gridMask_mod
 
     !procedure :: get
     procedure :: set => gridMask_set
-    !procedure, private :: findIndices
     procedure :: select => gridMask_select
     procedure :: expand => gridMask_expand
     procedure :: toString
