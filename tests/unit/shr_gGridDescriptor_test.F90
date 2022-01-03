@@ -14,7 +14,7 @@ module shr_gGridDescriptor_test
   use shr_precision_mod, only: sp
   use shr_testSuite_mod, only: testSuite
 
-  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
+  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor, shr_iGGridDescriptor
   use shr_strings_mod, only: string
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGridAxes_mod, only: shr_gGridAxes
@@ -37,6 +37,7 @@ contains
     use iso_c_binding
     class(testSuitegGridDescriptor), intent(inout) :: self
     type(shr_gGridDescriptor) :: d, other, dsimple, doverlap, dother, dd
+    class(shr_iGGridDescriptor), allocatable :: idesc
     type(shr_gGridDescriptor) :: combined
 
     type(shr_gGridAxes) :: latAxis
@@ -91,9 +92,17 @@ contains
     ! combine
     call bounds % init(0., -1., 20., -10.) !< n, s, e, w
     call doverlap % init(1., bounds)
-    combined = d + doverlap
-    call self % assert(combined % getBounds() == [1., -1., 20., -10.], &
-            "d(1,-1,2,0) + doverlap(0,-1,20,-10) .eq. [1, -1, 20, -10] = T")
+    idesc = d + doverlap
+    select type(c => idesc)
+    type is (shr_gGridDescriptor)
+      combined = c
+      call self % assert(combined % getBounds() == [1., -1., 20., -10.], &
+          "d(1,-1,2,0) + doverlap(0,-1,20,-10) .eq. [1, -1, 20, -10] = T")
+    class default
+      call self % assert(.false., &
+          "d(1,-1,2,0) + doverlap(0,-1,20,-10) .eq. [1, -1, 20, -10] = T")
+    end select
+
 
     ! fitsIn
     call bounds % init(10., -10., 20., 0.) !< n, s, e, w
