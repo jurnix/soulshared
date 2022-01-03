@@ -15,3 +15,4 @@ target_link_libraries(${BINNAME} PUBLIC ${CMAKE_PROJECT_NAME}_lib)
 add_test(NAME ${BINNAME} COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${BINNAME})
 
 add_subdirectory(arrays)
+add_subdirectory(config)
