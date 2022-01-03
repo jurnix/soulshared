@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! PROGRAM        : gridPartition_test 
+! PROGRAM        : shr_gridPartition_test
 !
 !> @author
 !> Albert Jornet Puig
@@ -9,7 +9,7 @@
 ! DESCRIPTION:
 !> grid partitoin unit tests
 !------------------------------------------------------------------------------
-module gridPartition_test
+module shr_gridPartition_test
   use shr_gridPartition_mod, only: shr_gridPartition
   use SHR_testSuite_mod, only: testSuite
 
@@ -79,5 +79,5 @@ contains
 
   end subroutine defineTestCases
 
-end module gridPartition_test
+end module shr_gridPartition_test
 

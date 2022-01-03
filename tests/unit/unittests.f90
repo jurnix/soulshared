@@ -38,10 +38,10 @@ program unittest
   use shr_arrayContainerAllocatable_test, only: testSuiteArrayContainerAllocatable
 
   ! grid related
-  use grid_test, only: testSuiteGrid
-  use gridPartition_test, only: testSuiteGridPartition
-  use gridcell_test, only: testSuiteGridCell
-  use coord_test, only: testSuiteCoord
+  use shr_grid_test, only: testSuiteGrid
+  use shr_gridPartition_test, only: testSuiteGridPartition
+  use shr_gridcell_test, only: testSuiteGridCell
+  use shr_coord_test, only: testSuiteCoord
   use shr_gGridAxes_test, only: testSuitegGridAxes
   use shr_gGridAxesBounds_test, only: testSuitegGridAxesBounds
   use shr_gGridAxesCell_test, only: testSuitegGridAxesCell
