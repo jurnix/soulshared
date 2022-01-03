@@ -9,7 +9,7 @@
 ! DESCRIPTION:
 !> grid partitoin unit tests
 !------------------------------------------------------------------------------
-module grid_test
+module shr_grid_test
   use shr_grid_mod, only: shr_grid
   use shr_gridcell_mod, only: GRIDCELL_N_NEAST, GRIDCELL_N_NORTH, GRIDCELL_N_EAST, &
             GRIDCELL_N_SEAST, GRIDCELL_N_SOUTH, GRIDCELL_N_SWEST, GRIDCELL_N_WEST, &
@@ -257,5 +257,5 @@ contains
 
   end subroutine defineTestCases
 
-end module grid_test
+end module shr_grid_test
 

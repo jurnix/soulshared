@@ -9,7 +9,7 @@
 ! DESCRIPTION:
 !> gridcell unit tests
 !------------------------------------------------------------------------------
-module gridcell_test
+module shr_gridcell_test
   use shr_gridcell_mod, only: shr_gridcell
 !  use shr_gridcell_mod, only: GRIDCELL_N_NEAST, GRIDCELL_N_NORTH, GRIDCELL_N_EAST, &
 !            GRIDCELL_N_SEAST, GRIDCELL_N_SOUTH, GRIDCELL_N_SWEST, GRIDCELL_N_WEST, &
@@ -70,5 +70,5 @@ contains
 
   end subroutine defineTestCases
 
-end module gridcell_test
+end module shr_gridcell_test
 

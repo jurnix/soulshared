@@ -9,7 +9,7 @@
 ! DESCRIPTION:
 !>
 !------------------------------------------------------------------------------
-module coord_test
+module shr_coord_test
   use SHR_testSuite_mod, only: testSuite
   use SHR_precision_mod, only: dp, sp
   use shr_coord_mod, only: shr_coord
@@ -55,5 +55,5 @@ contains
   end subroutine defineTestCases
 
 
-end module coord_test
+end module shr_coord_test
 
