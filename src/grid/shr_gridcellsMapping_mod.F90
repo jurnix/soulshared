@@ -20,7 +20,7 @@ module shr_gridcellsMapping_mod
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
-  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
+  use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
 
 
   implicit none
@@ -33,7 +33,7 @@ module shr_gridcellsMapping_mod
   type shr_gridcellsMapping
     type(shr_gridcell), allocatable :: gridcells(:,:)
 
-    type(shr_gGridDescriptor), allocatable :: gDescriptor
+    class(shr_iGGridDescriptor), allocatable :: gDescriptor
     type(shr_gAxisMapping), allocatable :: latMapping
     type(shr_gAxisMapping), allocatable :: lonMapping
   contains
@@ -49,7 +49,7 @@ contains
   subroutine gridcellsMapping_initialize_byDescriptor(self, gDescriptor)
     !< gridcellsMapping initialization
     class(shr_gridcellsMapping), intent(inout) :: self
-    type(shr_gGridDescriptor), intent(in) :: gDescriptor
+    class(shr_iGGridDescriptor), intent(in) :: gDescriptor
 
     type(shr_gGridAxes) :: latAxis
     type(shr_gGridAxes) :: lonAxis

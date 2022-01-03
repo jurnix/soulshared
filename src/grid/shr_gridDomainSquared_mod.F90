@@ -14,7 +14,7 @@
 module shr_gridDomainSquared_mod
 
 	use shr_gridDomain_mod, only: shr_gridDomain
-	use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
+	use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
 	use shr_gridMask_mod, only: shr_gridMask
 
 	implicit none
@@ -31,7 +31,7 @@ contains
 	subroutine gridDomainSquared_initialize(self, gridDescriptor, enabled)
 		!< initialize gridDomainSquared
 		class(shr_gridDomainSquared), intent(inout) :: self
-		type(shr_gGridDescriptor), intent(in) :: gridDescriptor
+		class(shr_iGgridDescriptor), intent(in) :: gridDescriptor
 		type(shr_gridMask), intent(in) :: enabled
 
 		type(shr_gridMask) :: maskBounds

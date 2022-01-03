@@ -14,7 +14,7 @@ module shr_gridMask_stub
   use shr_gridMask_mod, only: shr_IgridMask
   !< dependencies
   use shr_gridBounds_mod, only: shr_gridBounds
-  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
+  use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor, shr_gGridDescriptor
 
   implicit none
 
@@ -47,12 +47,14 @@ contains
   end function getRaw
 
 
-  type(shr_gGridDescriptor) function getGridDescriptor(self)
+  function getGridDescriptor(self) result(newGDescriptor)
     !< returns self gridDescriptor
     class(shr_gridMaskStub), intent(in) :: self
+    class(shr_iGGridDescriptor), allocatable :: newGDescriptor !< output
     type(shr_gridBounds) :: bounds !< n, s, e, w
     call bounds % init(4.,0.,3.,0.)
-    call getGridDescriptor % init(1., bounds)
+    allocate(shr_gGridDescriptor :: newGDescriptor)
+    call newGDescriptor % init(1., bounds)
   end function getGridDescriptor
 
 end module shr_gridMask_stub

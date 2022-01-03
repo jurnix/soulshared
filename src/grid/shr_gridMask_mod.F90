@@ -17,7 +17,7 @@ module shr_gridMask_mod
 
   use shr_strings_mod, only: string
   use shr_gGridAxes_mod, only: shr_gGridAxes
-  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
+  use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
 
   use shr_gridBounds_mod, only: shr_gridBounds
@@ -50,17 +50,18 @@ module shr_gridMask_mod
       logical, allocatable :: outMask(:,:) !< output
     end function iface_getRaw
 
-    type(shr_gGridDescriptor) function iface_getGridDescriptor(self)
-      import :: shr_IgridMask, shr_gGridDescriptor
+    function iface_getGridDescriptor(self) result(newGDescriptor)
+      import :: shr_IgridMask, shr_iGGridDescriptor
       !< returns self gridDescriptor
       class(shr_IgridMask), intent(in) :: self
+      class(shr_iGGridDescriptor), allocatable :: newGDescriptor !< output
     end function iface_getGridDescriptor
   end interface
 
 
   type, extends(shr_IgridMask) :: shr_gridMask
     !< grid descriptor
-    type(shr_gGridDescriptor), allocatable :: gridDescriptor
+    class(shr_iGGridDescriptor), allocatable :: gridDescriptor
 
     logical, allocatable :: mask(:,:)
   contains
@@ -80,7 +81,7 @@ module shr_gridMask_mod
     generic :: getStatus => getStatusByGridcellIndex
 
     procedure :: getRaw
-    procedure :: getGridDescriptor
+    procedure :: getGridDescriptor => gridMask_getGridDescriptor
 
     procedure, pass(self) :: copy_rev_array
     procedure :: copy_gridMask
@@ -120,7 +121,7 @@ contains
   subroutine gridMask_initialize_by_larray(self, gridDescriptor, lmask)
     !< gridMask initialization
     class(shr_gridMask), intent(inout) :: self
-    type(shr_gGridDescriptor), intent(in) :: gridDescriptor
+    class(shr_iGGridDescriptor), intent(in) :: gridDescriptor
     logical, intent(in) :: lmask(:,:)
 
     call self % gridMask_initialize(gridDescriptor)
@@ -132,7 +133,7 @@ contains
   subroutine gridMask_initialize(self, gridDescriptor, default)
     !< gridMask initialization
     class(shr_gridMask), intent(inout) :: self
-    type(shr_gGridDescriptor), intent(in) :: gridDescriptor
+    class(shr_iGGridDescriptor), intent(in) :: gridDescriptor
     logical, intent(in), optional :: default !< define default value (def: true)
 
     logical :: inDefault
@@ -313,11 +314,13 @@ contains
   end function any_gridMask
 
 
-  type(shr_gGridDescriptor) function getGridDescriptor(self)
+  function gridMask_getGridDescriptor(self) result (newGDescriptor)
     !< returns self gridDescriptor
     class(shr_gridMask), intent(in) :: self
-    getGridDescriptor = self % gridDescriptor
-  end function getGridDescriptor
+    class(shr_iGGridDescriptor), allocatable :: newGDescriptor !< output
+    !newGDescriptor = self % gridDescriptor
+    allocate(newGDescriptor, source = self % gridDescriptor)
+  end function gridMask_getGridDescriptor
 
 
   type(shr_gridMask) function or_bitwise(self, other) result (newGMask)
@@ -382,7 +385,7 @@ contains
     !< select a new shr_gridMask according to gDescriptor
     !< new gDscriptor must fit self % gridDescriptor
     class(shr_gridMask), intent(in) :: self
-    type(shr_gGridDescriptor), intent(in) :: gDescriptor
+    class(shr_iGGridDescriptor), intent(in) :: gDescriptor
 
     logical, allocatable :: newLmask(:,:)
     type(shr_gridIndicesMapping) :: idxMapping
@@ -405,7 +408,7 @@ contains
   type(shr_gridBoundIndices) function findIndices(self, gDescriptor, idxMapping) result (gBoundsIndices)
     !<
     class(shr_gridMask), intent(in) :: self
-    type(shr_gGridDescriptor), intent(in) :: gDescriptor
+    class(shr_iGGridDescriptor), intent(in) :: gDescriptor
     type(shr_gridIndicesMapping), intent(in) :: idxMapping
 
     real(kind=sp) :: halfres
@@ -443,7 +446,7 @@ contains
     !< - mask remains the same
     class(shr_gridMask), intent(in) :: self
     !type(shr_gridBounds), intent(in) :: bounds
-    type(shr_gGridDescriptor), intent(in) :: gDescriptor
+    class(shr_iGGridDescriptor), intent(in) :: gDescriptor
 
     type(shr_gridBoundIndices) :: gBoundIndices
     logical, allocatable :: newLMask(:,:)
@@ -475,7 +478,6 @@ contains
     class(shr_gridMask), intent(inout) :: self
     logical, intent(in) :: mask(:,:)
     type(shr_gridBoundIndices), intent(in), optional :: gBindices
-    type(shr_gGridDescriptor) :: newGDescriptor
 
     integer :: startCol, endCol
     integer :: startRow, endRow

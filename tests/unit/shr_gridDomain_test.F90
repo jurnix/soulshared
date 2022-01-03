@@ -33,8 +33,8 @@ contains
     !procedure :: getGridDescriptor
     !procedure :: getMaskGrid
     !procedure :: getMaskBounds
-    !procedure :: gridDomain_combine !< +
-    !generic :: operator(+) => gridDomain_combine
+
+    !procedure :: gridDomain_combine (+)
     !procedure :: filter
     !procedure :: select
 

@@ -20,7 +20,7 @@ module shr_gridDomainToSquaredConverter_mod
 	use shr_gridMaskClusters_mod, only: shr_gridMaskClusters
 	use shr_gridMaskClustersIterator_mod, only: shr_gridMaskClustersIterator
 
-	use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
+	use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
 
   implicit none
 
@@ -66,7 +66,7 @@ contains
 		class(shr_gridDomainToSquaredConverter), intent(in) :: self
 		type(shr_gridDomain), intent(in) :: domain
 
-		type(shr_gGridDescriptor) :: gDescriptor
+		class(shr_iGgridDescriptor), allocatable :: gDescriptor
 		type(shr_gridMask) :: gMaskEnabled
 
 		if (.not. self % isDomainSquared(domain)) then

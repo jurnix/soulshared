@@ -15,7 +15,7 @@ module shr_gridDomain_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
-  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
+  use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
   use shr_gridcellsMapping_mod, only: shr_gridcellsMapping
   use shr_gridIndicesMapping_mod, only: shr_gridIndicesMapping
   use shr_gridMask_mod, only: shr_gridMask
@@ -30,7 +30,7 @@ module shr_gridDomain_mod
 
 
   type shr_gridDomain
-    type(shr_gGridDescriptor), allocatable :: descriptor
+    class(shr_iGGridDescriptor), allocatable :: descriptor
 
     type(shr_gridcellsMapping), allocatable :: gcsMapping !< gridcells
     type(shr_gridIndicesMapping), allocatable :: idxMapping !< array indices
@@ -64,7 +64,7 @@ contains
   subroutine gridDomain_initialize(self, descriptor, enabled, border)
     !< grid domain initialization
     class(shr_gridDomain), intent(inout) :: self
-    type(shr_gGridDescriptor), intent(in) :: descriptor
+    class(shr_iGGridDescriptor), intent(in) :: descriptor
     type(shr_gridMask), intent(in) :: enabled !< def: all enabled
     type(shr_gridMask), intent(in) :: border !< def: all enabled
 
@@ -104,7 +104,7 @@ contains
     type(shr_gridDomain), intent(in) :: other
 
     type(shr_gridMask) :: newMaskGrid, newMaskBounds
-    type(shr_gGridDescriptor) :: cgDescriptor
+    class(shr_iGgridDescriptor), allocatable :: cgDescriptor
     type(shr_gridMask) :: expandedESelfMask, expandedEOtherMask
     type(shr_gridMask) :: expandedSelfMaskBorders, expandedOtherMaskBorders
     type(shr_gridMask) ::otherEnabledGridmask, otherBorderGridMask
@@ -131,10 +131,11 @@ contains
   end function gridDomain_combine
 
 
-  type(shr_gGridDescriptor) function getGridDescriptor(self)
+  function getGridDescriptor(self) result (gDescriptor)
     !< returns self shr_gridDescriptor
     class(shr_gridDomain), intent(in) :: self
-    getGridDescriptor = self % descriptor
+    class(shr_iGgridDescriptor), allocatable :: gDescriptor
+    allocate(gDescriptor, source = self % descriptor)
   end function getGridDescriptor
 
 
@@ -160,26 +161,27 @@ contains
     type(shr_gridMask), intent(in) :: newGMask
     type(shr_gridMask) :: newMaskBorders
     type(shr_gridMask) :: newMaskEnabled
-    type(shr_gGridDescriptor) :: newGDescriptor
+    class(shr_iGGridDescriptor), allocatable :: newGDescriptor
 
-    newGDescriptor = self % getGridDescriptor()
-    newMaskBorders = self % maskBorder .and. newGMask
-    newMaskEnabled = self % maskEnabled .and. newGMask
+    newMaskBorders = (self % maskBorder .and. newGMask)
+    newMaskEnabled = (self % maskEnabled .and. newGMask)
 
+    allocate(newGDescriptor, source = self % getGridDescriptor())
     call filter % init(newGDescriptor, newMaskEnabled, newMaskBorders)
   end function filter
 
 
-  type(shr_gridDomain) function select(self, newGDescriptor)
+   function select(self, newGDescriptor) result (newGMask)
     !< Selects from 'self' a new shr_gridDomain 'newGMask'
     !< 'newGMask' must fit into the 'self'
     class(shr_gridDomain), intent(in) :: self
-    type(shr_gGridDescriptor), intent(in) :: newGDescriptor
+    class(shr_iGGridDescriptor), intent(in) :: newGDescriptor
+    class(shr_gridDomain), allocatable :: newGMask !< output
     type(shr_gridMask) :: selectedBorder, selectedEnabled
 
     selectedBorder = self % maskBorder % select(newGDescriptor)
     selectedEnabled = self % maskEnabled % select(newGDescriptor)
-    call select % init(newGDescriptor, selectedEnabled, selectedBorder)
+    call newGMask % gridDomain_initialize(newGDescriptor, selectedEnabled, selectedBorder)
   end function select
 
 end module shr_gridDomain_mod 

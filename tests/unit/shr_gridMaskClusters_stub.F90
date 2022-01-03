@@ -66,7 +66,6 @@ contains
     class(shr_gridMaskClustersStub), intent(in) :: self
     integer, intent(in) :: pos
     type(shr_gGridDescriptor) :: gDescriptor
-    logical :: lmask(4,3)
 
     gDescriptor = genNewGridDescriptor()
     call get % init(gDescriptor)
