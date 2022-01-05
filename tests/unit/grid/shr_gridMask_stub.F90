@@ -13,6 +13,7 @@ module shr_gridMask_stub
 
   use shr_gridMask_mod, only: shr_IgridMask
   !< dependencies
+  use shr_strings_mod, only: string
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor, shr_gGridDescriptor
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
@@ -43,6 +44,7 @@ module shr_gridMask_stub
     procedure :: expand
     procedure :: select
     procedure :: set
+    procedure :: toString
   end type shr_gridMaskStub
 
 
@@ -165,6 +167,12 @@ contains
     !< wrap to enable 'any' from shr_gridMask
     class(shr_gridMaskStub), intent(in) :: self
   end function any
+
+
+  type(string) function toString(self)
+    !< mask to string type
+    class(shr_gridMaskStub), intent(in) :: self
+  end function toString
 
 end module shr_gridMask_stub
 

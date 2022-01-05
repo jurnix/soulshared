@@ -1,0 +1,203 @@
+!------------------------------------------------------------------------------
+!    Pekin University - Land Surface Model 
+!------------------------------------------------------------------------------
+! MODULE        : shr_gridMask_test 
+!
+!> @author
+!> Albert Jornet Puig
+!
+! DESCRIPTION:
+!> gridMask unit tests
+!------------------------------------------------------------------------------
+module shr_gridMaskBorder_test
+
+  use shr_precision_mod, only: sp
+  use SHR_testSuite_mod, only: testSuite
+
+  use shr_strings_mod, only: string
+  use shr_gridMask_mod, only: shr_gridMask
+  use shr_gridMaskBorder_mod, only: shr_gridMaskBorder
+  use shr_gridMaskEnabled_mod, only: shr_gridMaskEnabled
+  use shr_gridBounds_mod, only: shr_gridBounds
+  use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
+  use shr_gridcellIndex_mod, only: shr_gridcellIndex
+
+  implicit none
+
+  private
+  public :: testSuiteGridMaskBorder
+
+  real(kind=sp), parameter :: RES = 1.0
+
+  type, extends(testSuite) :: testSuitegridMaskBorder
+
+  contains
+    procedure :: define => defineTestCases
+    procedure, private :: testCaseIsValidGridMask
+    procedure, private :: testCaseIsNotValidGridMask
+
+    procedure, private :: testCaseIsValidGridMaskEnabled
+    procedure, private :: testCaseIsNotValidGridMaskEnabled
+  end type 
+
+contains
+
+  type(shr_gridMask) function getNewGridMask(newBounds)
+    !< create a new shr_gridMask
+    real(kind=sp) :: newBounds(4) !< N, S, E, W
+    type(shr_gridBounds) :: bounds
+    type(shr_gGridDescriptor) :: gDescriptor
+
+    call bounds % init(newBounds)
+    call gDescriptor % init(RES, bounds)
+    call getNewGridMask % init(gDescriptor)
+  end function getNewGridMask
+
+
+  type(shr_gridMaskBorder) function getNewGridMaskBorder(newBounds)
+    !< create a new shr_gridMask
+    real(kind=sp) :: newBounds(4) !< N, S, E, W
+    type(shr_gridBounds) :: bounds
+    type(shr_gGridDescriptor) :: gDescriptor
+
+    call bounds % init(newBounds)
+    call gDescriptor % init(RES, bounds)
+    call getNewGridMaskBorder % init(gDescriptor)
+  end function getNewGridMaskBorder
+
+
+  type(shr_gGridDescriptor) function getNewGridDesriptor(north, south, east, west)
+    !< creates a new shr_gGridDescriptor
+    real(kind=sp), intent(in) :: north, south
+    real(kind=sp), intent(in) :: east, west
+    type(shr_gridBounds) :: bounds
+    call bounds % init(north, south, east, west)
+    call getNewGridDesriptor % init(RES, bounds)
+  end function getNewGridDesriptor
+
+
+  subroutine defineTestCases(self)
+    use iso_c_binding
+    class(testSuitegridMaskBorder), intent(inout) :: self
+    call self % testCaseIsValidGridMask()
+    call self % testCaseIsNotValidGridMask()
+
+    call self % testCaseIsValidGridMaskEnabled()
+    call self % testCaseIsNotValidGridMaskEnabled()
+  end subroutine defineTestCases
+
+
+  subroutine testCaseIsNotValidGridMask(self)
+    !<
+    class(testSuitegridMaskBorder), intent(inout) :: self
+
+    type(shr_gridMaskBorder) :: b
+    type(shr_gridMask) :: bOther
+    type(shr_gridcellIndex) :: gcIndex
+
+    !< isIncluded
+    b = getNewGridMaskBorder([1., -1., 2., 0.]) !< true default
+    call gcIndex % init(1, 1)
+    call b % setStatus(gcIndex, .false.)
+
+    bOther = getNewGridMask([1., -1., 2., 0.])
+    call self % assert( .not. b % isValid(bOther), &
+        "b(FT,TT) % isIncluded(TT,TT) = F")
+    !call self % assert( bOther % isValid(b), &
+        !"b((TT,TT)) % isIncluded(FT,TT) = T")
+  end subroutine testCaseIsNotValidGridMask
+
+
+  subroutine testCaseIsValidGridMask(self)
+    !<
+    class(testSuitegridMaskBorder), intent(inout) :: self
+
+    type(shr_gridMaskBorder) :: b
+    type(shr_gridMask) :: bOther
+    type(shr_gridcellIndex) :: gcIndex
+
+    !< isIncluded
+    b = getNewGridMaskBorder([1., -1., 2., 0.]) !< true default
+
+    bOther = getNewGridMask([1., -1., 2., 0.])
+    call gcIndex % init(1, 1)
+    call bOther % setStatus(gcIndex, .false.)
+    !call self % assert( .not. b % isValid(bOther), &
+        !"b(FT,TT) % isIncluded(TT,TT) = F")
+    call self % assert( b % isValid(bOther), &
+        "b((TT,TT)) % isIncluded(FT,TT) = T")
+  end subroutine testCaseIsValidGridMask
+
+
+  subroutine testCaseIsNotValidGridMaskEnabled(self)
+    !<
+    class(testSuitegridMaskBorder), intent(inout) :: self
+
+    class(shr_gridMaskBorder), allocatable :: b
+    class(shr_gridMaskEnabled), allocatable :: bOther
+    type(shr_gridcellIndex) :: gcIndex
+
+    !< isIncluded
+    !< T T F  vs F F T
+    !< F F F     T T T
+    allocate(b, bOther)
+    b = getNewGridMaskBorder([1., -1., 3., 0.]) !< true default
+    call gcIndex % init(1, 3)
+    call b % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 1)
+    call b % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 2)
+    call b % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 3)
+    call b % setStatus(gcIndex, .false.)
+
+    bOther = getNewGridMaskBorder([1., -1., 3., 0.])
+    call gcIndex % init(1, 1)
+    call bOther % setStatus(gcIndex, .false.)
+    call gcIndex % init(1, 2)
+    call bOther % setStatus(gcIndex, .false.)
+
+    call self % assert(.not. b % isValid(bOther), &
+        "b(TTF,FFF) % isIncluded(FFT,TTT) = F")
+    !call self % assert( bOther % isValid(b), &
+    !    "b((FFT,TTT)) % isIncluded(TTF,FFF) = T")
+  end subroutine testCaseIsNotValidGridMaskEnabled
+
+
+  subroutine testCaseIsValidGridMaskEnabled(self)
+    !<
+    class(testSuitegridMaskBorder), intent(inout) :: self
+
+    class(shr_gridMaskBorder), allocatable :: b
+    class(shr_gridMaskEnabled), allocatable :: bOther
+    type(shr_gridcellIndex) :: gcIndex
+
+    !< isIncluded
+    !< T T F  vs F F T
+    !< F F F     T T T
+    allocate(b, bOther)
+    bOther = getNewGridMaskBorder([1., -1., 3., 0.]) !< true default
+    call gcIndex % init(1, 3)
+    call bOther % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 1)
+    call bOther % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 2)
+    call bOther % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 3)
+    call bOther % setStatus(gcIndex, .false.)
+
+    b = getNewGridMaskBorder([1., -1., 3., 0.])
+    call gcIndex % init(1, 1)
+    call b % setStatus(gcIndex, .false.)
+    call gcIndex % init(1, 2)
+    call b % setStatus(gcIndex, .false.)
+
+    !call self % assert( b % isValid(bOther), &
+    !    "b(TTF,FFF) % isIncluded(FFT,TTT) = F")
+    call self % assert( b % isValid(bOther), &
+        "b((FFT,TTT)) % isIncluded(TTF,FFF) = T")
+  end subroutine testCaseIsValidGridMaskEnabled
+
+
+end module shr_gridMaskBorder_test
+

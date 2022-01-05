@@ -307,15 +307,39 @@ contains
 
 
     !< isIncluded
-    m = getNewGridMask([1., -1., 2., 0.]) !< true default
-    call gcIndex % init(1, 1)
-    call gmSmall % setStatus(gcIndex, .false.)
+    !m = getNewGridMask([1., -1., 2., 0.]) !< true default
+    !call gcIndex % init(1, 1)
+    !call m % setStatus(gcIndex, .false.)
 
-    mOther = getNewGridMask([1., -1., 2., 0.])
-    call self % assert( all(foundMask .eqv. rawMask ), &
-        "m(FT,TT) % isIncluded(TT,TT) = F")
-    call self % assert( all(foundMask .eqv. rawMask ), &
-        "m((TT,TT)) % isIncluded(FT,TT) = T")
+    !mOther = getNewGridMask([1., -1., 2., 0.])
+    !call self % assert( .not. m % isIncluded(mOther), &
+    !    "m(FT,TT) % isIncluded(TT,TT) = F")
+    !call self % assert( mOther % isIncluded(m), &
+    !    "m((TT,TT)) % isIncluded(FT,TT) = T")
+
+    !< isIncluded
+    !< T T F  vs F F T
+    !< F F F     T T T
+    !m = getNewGridMask([1., -1., 3., 0.]) !< true default
+    !call gcIndex % init(1, 3)
+    !call m % setStatus(gcIndex, .false.)
+    !call gcIndex % init(2, 1)
+    !call m % setStatus(gcIndex, .false.)
+    !call gcIndex % init(2, 2)
+    !call m % setStatus(gcIndex, .false.)
+    !call gcIndex % init(2, 3)
+    !call m % setStatus(gcIndex, .false.)
+
+    !mOther = getNewGridMask([1., -1., 3., 0.])
+    !call gcIndex % init(1, 1)
+    !call mOther % setStatus(gcIndex, .false.)
+    !call gcIndex % init(1, 2)
+    !call mOther % setStatus(gcIndex, .false.)
+
+    !call self % assert( m % isIncluded(mOther), &
+    !    "m(TTF,FFF) % isIncluded(FFT,TTT) = F")
+    !call self % assert( mOther % isIncluded(m), &
+    !    "m((FFT,TTT)) % isIncluded(TTF,FFF) = T")
 
 
   end subroutine defineTestCases

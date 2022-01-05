@@ -43,7 +43,7 @@ module shr_gridMask_mod
 
     procedure(iface_getRaw), deferred :: getRaw
     procedure(iface_getGridDescriptor), deferred :: getGridDescriptor
-    procedure(iface_isincluded), deferred :: isIncluded
+    !procedure(iface_isincluded), deferred :: isIncluded
 
     procedure(iface_equal_scalar_logical), deferred :: equal_scalar_logical
     procedure(iface_equal_rawMask), deferred :: equal_rawMask
@@ -59,6 +59,7 @@ module shr_gridMask_mod
     procedure(iface_select), deferred :: select
     procedure(iface_set), deferred :: set
 
+    procedure(iface_toString), deferred :: toString
     procedure, private :: findIndices
   end type
 
@@ -94,12 +95,12 @@ module shr_gridMask_mod
       class(shr_iGGridDescriptor), allocatable :: newGDescriptor !< output
     end function iface_getGridDescriptor
 
-    logical function iface_isIncluded(self, other)
-      import :: shr_igridMask
+    !logical function iface_isIncluded(self, other)
+    !  import :: shr_igridMask
       !< true if other gridMask true gridcells also match self mask array
-      class(shr_igridMask), intent(in) :: self
-      class(shr_igridMask), intent(in) :: other
-    end function iface_isIncluded
+    !  class(shr_igridMask), intent(in) :: self
+    !  class(shr_igridMask), intent(in) :: other
+    !end function iface_isIncluded
 
     logical function iface_equal_scalar_logical(self, value)
       import :: shr_igridMask
@@ -172,6 +173,12 @@ module shr_gridMask_mod
       !< wrap to enable 'any' from shr_gridMask
       class(shr_igridMask), intent(in) :: self
     end function iface_any
+
+    type(string) function iface_toString(self)
+      import :: shr_igridMask, string
+      !< mask to string type
+      class(shr_igridMask), intent(in) :: self
+    end function iface_toString
   end interface
 
 
@@ -223,9 +230,9 @@ module shr_gridMask_mod
     procedure :: set => gridMask_set
     procedure :: select => gridMask_select
     procedure :: expand => gridMask_expand
-    procedure :: toString
+    procedure :: toString => gridMask_toString
 
-    procedure :: isIncluded => gridMask_isIncluded
+    !procedure :: isIncluded => gridMask_isIncluded
   end type shr_gridMask
 
 contains
@@ -350,8 +357,13 @@ contains
     class(shr_gridMask), intent(in) :: self
     class(shr_igridMask), intent(in) :: other
     class(shr_igridMask), allocatable :: newMask !< output
-    !call newMask % init(self % gridDescriptor)
-    !newMask % mask = (self % mask .and. other % mask)
+    logical, allocatable :: lmask(:,:)
+    !< copy shape
+    allocate(lmask, mold = self % mask)
+    lmask = (self % mask .and. other % getRaw() )
+
+    allocate(shr_gridMask :: newMask)
+    call newMask % init(self % gridDescriptor, lmask)
   end function gridMask_and_gridMask
 
 
@@ -460,7 +472,7 @@ contains
   end function or_bitwise
 
 
-  type(string) function toString(self)
+  type(string) function gridMask_toString(self)
     !< mask to string type
     !<
     !< 'T T'
@@ -481,8 +493,8 @@ contains
     end do
     write(t, *) self % mask(nlats, :)
     tmp = tmp // "'" // trim(adjustl(t)) // "'"
-    toString = string(tmp)
-  end function toString
+    gridMask_toString = string(tmp)
+  end function gridMask_toString
 
 
   subroutine shr_gridMask_cast(obj, gMask)
@@ -650,7 +662,7 @@ contains
   end subroutine gridMask_set
 
 
-  logical function gridMask_isIncluded(self, other)
+  !logical function gridMask_isIncluded(self, other)
     !< true if other gridMask true gridcells also match self mask array
     !<
     !< self (TT,FF) % isMaskIncluded(TF,FF) -> true
@@ -666,27 +678,38 @@ contains
     !<                                              .and.
     !<                                 (border)  T T - - - T
     !< all true? -> yes
-    class(shr_gridMask), intent(in) :: self
-    class(shr_igridMask), intent(in) :: other
+  !  class(shr_gridMask), intent(in) :: self
+  !  class(shr_igridMask), intent(in) :: other
 
-    type(shr_gridMask) :: reversedMask, disabledMask
+  !  type(shr_gridMask) :: reversedMask, disabledMask
+  !  type(string) :: tmp
 
-    select type (o => other)
-    type is (shr_gridMask)
-      reversedMask = o
-    class default
-      call raiseError(__FILE__, &
-          "gridMask_isIncluded", &
-          "Unexpected type found instead of 'shr_gridMask'")
-    end select
+  !  select type (o => other)
+  !  type is (shr_gridMask)
+  !    reversedMask = o
+  !  class default
+  !    call raiseError(__FILE__, &
+  !        "gridMask_isIncluded", &
+  !        "Unexpected type found instead of 'shr_gridMask'")
+  !  end select
+  !  tmp = self % toString()
+  !  write(*,*) "gridMask_mod:: gridMask_isIncluded:: self =", tmp % toString()
+  !  tmp = reversedMask % toString()
+  !  write(*,*) "gridMask_mod:: gridMask_isIncluded:: other =", tmp % toString()
 
     !< select potential border cells
-    call reversedMask % reverse()
+  !  call reversedMask % reverse()
+  !  tmp = reversedMask % toString()
+  !  write(*,*) "gridMask_mod:: gridMask_isIncluded:: other % reversedMask =", tmp % toString()
     !< potential border cells match with chosen 'border'?
-    disabledMask = (self .and. reversedMask)
+  !  disabledMask = (self .and. reversedMask)
+  !  tmp = disabledMask % toString()
+  !  write(*,*) "gridMask_mod:: gridMask_isIncluded:: (self and reversed) disabledMask =", tmp % toString()
     !< all match?
-    gridMask_isIncluded = (disabledMask == other)
-  end function gridMask_isIncluded
+  !  tmp = other % toString()
+  !  write(*,*) "gridMask_mod:: gridMask_isIncluded:: other =", tmp % toString()
+  !  gridMask_isIncluded = (disabledMask == other)
+  !end function gridMask_isIncluded
 
 end module shr_gridMask_mod
 
