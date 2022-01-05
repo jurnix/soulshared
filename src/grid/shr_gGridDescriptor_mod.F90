@@ -102,7 +102,7 @@ module shr_gGridDescriptor_mod
       class(shr_iGGridDescriptor), intent(in) :: self
     end function iface_getResolution
 
-    elemental type(shr_gridBounds) function iface_getBounds(self)
+    elemental impure type(shr_gridBounds) function iface_getBounds(self)
       import :: shr_iGGridDescriptor, shr_gridBounds
       !< return class bounds
       class(shr_iGGridDescriptor), intent(in) :: self
