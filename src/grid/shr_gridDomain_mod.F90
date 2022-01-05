@@ -19,8 +19,11 @@ module shr_gridDomain_mod
   use shr_gridcellsMapping_mod, only: shr_gridcellsMapping
   use shr_gridIndicesMapping_mod, only: shr_gridIndicesMapping
   use shr_gridMask_mod, only: shr_IgridMask
+  use shr_gridMaskEnabled_mod, only: shr_gridMaskEnabled
+  use shr_gridMaskBorder_mod, only: shr_gridMaskBorder
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_coord_mod, only: shr_coord
+  use shr_strings_mod, only: string
 
   implicit none
 
@@ -32,8 +35,10 @@ module shr_gridDomain_mod
   type shr_gridDomain
     class(shr_iGGridDescriptor), allocatable :: descriptor
 
-    type(shr_gridcellsMapping), allocatable :: gcsMapping !< gridcells
+    !< todo: refactor XXXmapping into GridMapping(unique interface) :: mapping
+    type(shr_gridcellsMapping), allocatable :: gcsMapping !< gridcells indices
     type(shr_gridIndicesMapping), allocatable :: idxMapping !< array indices
+    !< todo: refactor maskXXX into GridMaskAvailable :: available
     class(shr_igridMask), allocatable :: maskEnabled !< allowed to modify, sea vs land (?)
     class(shr_igridMask), allocatable :: maskBorder !< non available gridcells due to partitioning
   contains
@@ -52,8 +57,9 @@ module shr_gridDomain_mod
 !    procedure :: gridDomain_copy !< -
 
 !    generic, assignment(=) :: gridDomain_copy
-!    procedure :: gridDomain_equal !< -
-!    generic, operator(==) :: gridDomain_equal
+    procedure :: gridDomain_equal
+    generic :: operator(==) => gridDomain_equal
+
     procedure :: filter
     procedure :: select
   end type shr_gridDomain
@@ -68,7 +74,11 @@ contains
     class(shr_igridMask), intent(in) :: enabled !< def: all enabled
     class(shr_igridMask), intent(in) :: border !< def: all enabled
 
+    type(shr_gridMaskEnabled) :: gmEnabled
+    type(shr_gridMaskBorder) :: gmBorder
+    type(string), allocatable :: tmpBorder, tmpEnabled
     logical :: expectedBorder
+    logical, allocatable :: lmask(:,:)
 
     allocate(self % descriptor, source = descriptor)
 
@@ -78,9 +88,21 @@ contains
     !< init maskBorder
     allocate(self % maskBorder, source = border)
 
+    !< from gridMAsk to gridMaskEnabled
+    call gmEnabled % init(self % maskEnabled)
+    !< from gridMask to gridMaskBorder
+    lmask = border % getRaw()
+    call gmBorder % init(descriptor, lmask)
     !< 'border' mask matches with 'enabled' gridcells?
-    expectedBorder = self % maskBorder % isIncluded(self % maskEnabled)
+    !expectedBorder = self % maskBorder % isIncluded(self % maskEnabled)
+    !expectedBorder = gmBorder % isValid(self % maskEnabled)
+    expectedBorder = gmBorder % isValid(gmEnabled)
     if (.not. expectedBorder) then
+      allocate(tmpBorder, tmpEnabled)
+      tmpBorder = self % maskBorder % toString()
+      tmpEnabled = self % maskEnabled % toString()
+      write(*,*) "maskBorder = ", tmpBorder % toString()
+      write(*,*) "maskEnabled= ", tmpEnabled % toString()
       call raiseError(__FILE__, "gridDomain_initialize", &
       "Found active gridcells(enabled) but not included in 'border' mask")
     end if
@@ -173,18 +195,36 @@ contains
   end function filter
 
 
-   function select(self, newGDescriptor) result (newGMask)
+   function select(self, newGDescriptor) result (newGDomain)
     !< Selects from 'self' a new shr_gridDomain 'newGMask'
     !< 'newGMask' must fit into the 'self'
     class(shr_gridDomain), intent(in) :: self
     class(shr_iGGridDescriptor), intent(in) :: newGDescriptor
-    class(shr_gridDomain), allocatable :: newGMask !< output
+    class(shr_gridDomain), allocatable :: newGDomain !< output
     class(shr_igridMask), allocatable :: selectedBorder, selectedEnabled
 
     selectedBorder = self % maskBorder % select(newGDescriptor)
     selectedEnabled = self % maskEnabled % select(newGDescriptor)
-    call newGMask % gridDomain_initialize(newGDescriptor, selectedEnabled, selectedBorder)
+    allocate(shr_gridDomain :: newGDomain)
+    call newGDomain % gridDomain_initialize(newGDescriptor, selectedEnabled, selectedBorder)
   end function select
+
+
+  logical function gridDomain_equal(self, other)
+    !< true if self and other have the same attributes
+    class(shr_gridDomain), intent(in) :: self
+    class(shr_gridDomain), intent(in) :: other
+
+    logical :: hasSameGDescriptor
+    logical :: hasSameEnabledMask, hasSameBorderMask
+
+    hasSameGDescriptor = (self % descriptor == other % getGridDescriptor())
+    hasSameEnabledMask = (self % maskEnabled == other % getEnabledGridMask())
+    hasSameBorderMask = (self % maskBorder == other % getBorderGridMask())
+
+    gridDomain_equal = (hasSameGDescriptor .and. hasSameEnabledMask .and. &
+                        hasSameBorderMask)
+  end function gridDomain_equal
 
 end module shr_gridDomain_mod 
 

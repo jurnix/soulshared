@@ -11,34 +11,209 @@
 !------------------------------------------------------------------------------
 module shr_gridDomain_test
 
-	!use shr_precision_mod, only: sp
+  use shr_precision_mod, only: sp
   use shr_testSuite_mod, only: testSuite
+
+  use shr_gridDomain_mod, only: shr_gridDomain
+  use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor, shr_gGridDescriptor
+  use shr_gGridDescriptor_stub, only: shr_gGridDescriptorEmptyStub
+  use shr_gridMask_stub, only: shr_gridMaskStub
+  use shr_gridMask_mod, only: shr_IgridMask, shr_gridMask
+  use shr_gridBounds_mod, only: shr_gridBounds
 
   implicit none
 
   private
   public :: testSuitegridDomain
 
+!  type, extends(shr_gridMaskStub) :: shr_gridMaskEnabledStub
+!  contains
+    !< overload here
+!  end type shr_gridMaskEnabledStub
+
+  type, extends(shr_gridMaskStub) :: shr_gridMaskSelectStub
+  contains
+    !< overload  here
+    procedure :: select => gridMaskSelectStub_select
+    procedure :: isIncluded => gridMaskSelectStub_isIncluded
+  end type shr_gridMaskSelectStub
+
+  type, extends(shr_gGridDescriptorEmptyStub) :: shr_gGridDescriptorSelectStub
+  contains
+    procedure :: getResolution => gdSelectStub_getResolution
+    procedure :: getBounds => gdSelectStub_getBounds
+  end type shr_gGridDescriptorSelectStub
+
+
+  type, extends(shr_gGridDescriptorEmptyStub) :: shr_gGridDescriptorArgSelectStub
+  contains
+    procedure :: getResolution => gdSelectArgStub_getResolution
+    procedure :: getBounds => gdSelectArgStub_getBounds
+  end type shr_gGridDescriptorArgSelectStub
+
   type, extends(testSuite) :: testSuitegridDomain
 
   contains
     procedure :: define => defineTestCases
+    procedure, private :: testCaseCombine
+    procedure, private :: testCaseFilter
+    procedure, private :: testCaseSelect
   end type
 contains
+
+  type(shr_gridDomain) function createNewGridDomain(resolution, bounds, emask, bmask)
+    !< create a new shr_gridDomain instance
+    real(kind=sp), intent(in) :: resolution
+    real(kind=sp), intent(in) :: bounds(4) !< n, s, e, w
+    logical, intent(in) :: emask(:,:) !< raw mask
+    logical, intent(in) :: bmask(:,:) !< raw mask
+
+    class(shr_gGridDescriptor), allocatable :: gDesc
+    type(shr_gridBounds) :: sbounds
+    class(shr_gridMask), allocatable :: gmEnabled, gmBorder
+
+    call sbounds % init(bounds)
+
+    allocate(gDesc)
+    call gDesc % init(resolution, sbounds)
+
+    allocate(gmEnabled, gmBorder)
+    call gmEnabled % init(gDesc, emask)
+    call gmBorder % init(gDesc, bmask)
+
+    call createNewGridDomain % init(gDesc, gmEnabled, gmBorder)
+  end function createNewGridDomain
+
+
+  function gridMaskSelectStub_select(self, gDescriptor) result (newGMask)
+    !< select a new shr_gridMask according to gDescriptor
+    !< new gDscriptor must fit self % gridDescriptor
+    class(shr_gridMaskSelectStub), intent(in) :: self
+    class(shr_iGGridDescriptor), intent(in) :: gDescriptor
+    class(shr_igridMask), allocatable :: newGMask !< output
+    ! (3.)  (-1.)
+    !   x x -  (2.0)
+    !   - - -  (0. )
+    allocate(shr_gridMaskSelectStub :: newGMask)
+    !allocate(newGMask % gridDescriptor, source = gDescriptor)
+    !allocate(newGMask % mask(2,3))
+    !newGMask % mask(2,:) = [.true., .true., .false.]
+    !newGMask % mask(2,:) = [.false., .false., .false.]
+  end function gridMaskSelectStub_select
+
+
+  logical function gridMaskSelectStub_isIncluded(self, other)
+    !< true if other gridMask true gridcells also match self mask array
+    class(shr_gridMaskSelectStub), intent(in) :: self
+    class(shr_igridMask), intent(in) :: other
+    gridMaskSelectStub_isIncluded = .true.
+  end function gridMaskSelectStub_isIncluded
+
+
+  elemental real(kind=sp) function gdSelectStub_getResolution(self)
+    !< resolution
+    class(shr_gGridDescriptorSelectStub), intent(in) :: self
+    gdSelectStub_getResolution = 1.0_sp
+  end function gdSelectStub_getResolution
+
+
+  elemental impure type(shr_gridBounds) function gdSelectStub_getBounds(self)
+    !< bounds
+    class(shr_gGridDescriptorSelectStub), intent(in) :: self
+    call gdSelectStub_getBounds % init(north=3., south=-1., east=0., west=3.)
+  end function gdSelectStub_getBounds
+
+
+  elemental real(kind=sp) function gdSelectArgStub_getResolution(self)
+    !< resolution
+    class(shr_gGridDescriptorArgSelectStub), intent(in) :: self
+    gdSelectArgStub_getResolution = 1.0_sp
+  end function gdSelectArgStub_getResolution
+
+
+  elemental impure type(shr_gridBounds) function gdSelectArgStub_getBounds(self)
+    !< bounds
+    class(shr_gGridDescriptorArgSelectStub), intent(in) :: self
+    call gdSelectArgStub_getBounds % init(north=2., south=-1., east=0., west=2.)
+  end function gdSelectArgStub_getBounds
+
 
   subroutine defineTestCases(self)
     use iso_c_binding
     class(testSuitegridDomain), intent(inout) :: self
-
-    !procedure :: getGridDescriptor
-    !procedure :: getMaskGrid
-    !procedure :: getMaskBounds
-
-    !procedure :: gridDomain_combine (+)
-    !procedure :: filter
-    !procedure :: select
-
-    call self % assert(.false., "TODO = T")
+    call self % testCaseCombine()
+    call self % testCaseFilter()
+    call self % testCaseSelect()
   end subroutine defineTestCases
+
+
+  subroutine testCaseCombine(self)
+    !< combine unit test
+    class(testSuitegridDomain), intent(inout) :: self
+    !procedure :: gridDomain_combine (+)
+    ! total           domain 1  +  domain 2
+    !             (border all T) (border all T)
+    ! (3) (-1)       (2) (-1)      (3)(1)
+    !   x x - (3)     x x - (3)
+    ! x x x -     <=  x x - (1) +   x x (2)
+    ! x -     (0)                   x - (0)
+    !
+    ! Final:          (border)
+    !(3)   (-1)
+    ! - x x - (3)   - x x x
+    ! x x x -       x x x x
+    ! x - - - (0)   x x - -
+    !combinedGM = d % combine(o)
+    !call self % assert(combinedBM == expectedCombined, &
+    !    "d % combine(o) .eq. expectedCombined = T")
+    call self % assert(.false., "combine TODO = T")
+  end subroutine testCaseCombine
+
+
+  subroutine testCaseFilter(self)
+    !< combine unit test
+    class(testSuitegridDomain), intent(inout) :: self
+    !procedure :: filter
+    ! domain        mask        final
+    ! - x x -     - - - -       - - - -
+    ! x x x -  +  - x x -   =>  - x x -
+    ! x - - -     - x x -       - - - -
+    !filteredGM = d % filter(gm)
+    !call self % assert(combinedBM == expectedFiltered, &
+    !    "d % combine(o) .eq. expectedFiltered = T")
+    call self % assert(.false., "filter TODO = T")
+  end subroutine testCaseFilter
+
+
+  subroutine testCaseSelect(self)
+    !< 'select' unit test
+    !< same enabled and border masks
+    class(testSuitegridDomain), intent(inout) :: self
+    class(shr_gridDomain), allocatable :: d, selectedGM
+    !< expected output
+    class(shr_gridDomain), allocatable :: expected
+    !< to selectg argument
+    class(shr_gGridDescriptorArgSelectStub), allocatable :: gNewDesc
+
+    !< to init gridDomain
+    class(shr_gridMaskSelectStub), allocatable :: enabledMask
+    class(shr_gGridDescriptorSelectStub), allocatable :: gdescriptor
+
+    logical :: emask(2,3), bmask(2,3)
+
+    emask(1,:) = [.true., .true., .false.]
+    emask(2,:) = [.false., .false., .false.]
+    bmask = (.not. emask) !< complementary
+    expected = createNewGridDomain(1.0, [2., 0., 2., -1.], emask, bmask)
+    call d % init(gdescriptor, enabledMask, enabledMask)
+    !procedure :: select
+    !(3.)  (-1.)    (2.) (-1.)
+    ! - x x - (3.)
+    ! x x x -      -> x x - (2.0)
+    ! x - - - (0.)    - - - (0.)
+    selectedGM = d % select(gNewDesc)
+    call self % assert(selectedGM == expected, &
+        "selectedGM % filter(gm) .eq. expected  = T")
+  end subroutine testCaseSelect
 
 end module shr_gridDomain_test
