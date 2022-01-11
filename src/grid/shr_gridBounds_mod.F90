@@ -180,7 +180,7 @@ contains
 
   function toString(self) result (str)
     !< string representation of grid bounds
-    class(shr_gridBounds), intent(inout) :: self
+    class(shr_gridBounds), intent(in) :: self
     character(len=:), allocatable :: str
 
     character(len=10) :: n, s, e, w
