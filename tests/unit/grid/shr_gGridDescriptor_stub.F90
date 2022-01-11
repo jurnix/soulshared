@@ -16,6 +16,7 @@ module shr_gGridDescriptor_stub
   use shr_precision_mod, only: sp
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gridBounds_mod, only: shr_gridBounds
+  use shr_strings_mod, only: string
 
   implicit none
 
@@ -32,6 +33,7 @@ module shr_gGridDescriptor_stub
     procedure :: getBounds
     procedure :: getLatAxis
     procedure :: getLonAxis
+    procedure :: toString
 
     procedure :: equal
     !generic :: operator(==) => eq_gridDescriptor
@@ -108,6 +110,12 @@ contains
     class(shr_gGridDescriptorEmptyStub), intent(in) :: self
     class(shr_iGGridDescriptor), intent(in) :: other
   end function fitsIn
+
+
+  type(string) function toString(self)
+    !<
+    class(shr_gGridDescriptorEmptyStub), intent(in) :: self
+  end function toString
 
 end module shr_gGridDescriptor_stub
 

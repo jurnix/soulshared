@@ -18,7 +18,7 @@ module shr_gGridDescriptor_mod
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
-  use shr_strings_mod, only: string
+  use shr_strings_mod, only: string, real2string
 
   implicit none
 
@@ -45,6 +45,8 @@ module shr_gGridDescriptor_mod
 
     procedure(iface_equal), deferred :: equal
     generic :: operator(==) => equal
+
+    procedure(iface_toString), deferred :: toString
   end type shr_iGGridDescriptor
 
 
@@ -114,6 +116,12 @@ module shr_gGridDescriptor_mod
       class(shr_iGGridDescriptor), intent(in) :: self
       class(shr_iGGridDescriptor), intent(in) :: other
     end function iface_equal
+
+    type(string) function iface_toString(self)
+      import :: shr_igGridDescriptor, string
+      !<
+      class(shr_iGGridDescriptor), intent(in) :: self
+    end function iface_toString
   end interface
 
 
@@ -139,6 +147,7 @@ module shr_gGridDescriptor_mod
     !generic :: operator(+) => gridDescriptor_combine
 
     procedure :: fitsIn => gGridDescriptor_fitsIn
+    procedure :: toString
   end type shr_gGridDescriptor
 
 contains
@@ -170,16 +179,21 @@ contains
     self % resolution = resolution
     allocate(self % bounds, source = bounds)
 
+    !write(*,*) "gGridDescriptor_mod:: gGridDescriptor_initialize_simple :: n, s =", bounds % north, bounds % south
+    !write(*,*) "gGridDescriptor_mod:: gGridDescriptor_initialize_simple :: e, w =", bounds % east, bounds % west
+
     call latAxisBounds % init(bounds % north, bounds % south)
     call lonAxisBounds % init(bounds % east, bounds % west)
 
     latName = string("latitude")
     allocate(self % latAxis)
     call self % latAxis % init(latName, resolution, latAxisBounds)
+    !write(*,*) "gGridDescriptor_mod:: gGridDescriptor_initialize_simple :: lats size =", self % latAxis % getSize()
 
     lonName = string("longitude")
     allocate(self % lonAxis)
     call self % lonAxis % init(lonName, resolution, lonAxisBounds)
+    !write(*,*) "gGridDescriptor_mod:: gGridDescriptor_initialize_simple :: lons size =", self % lonAxis % getSize()
   end subroutine gGridDescriptor_initialize_simple
 
 
@@ -259,18 +273,19 @@ contains
     !< true if 'other' grid bounds fits in 'self'
     class(shr_gGridDescriptor), intent(in) :: self
     class(shr_iGGridDescriptor), intent(in) :: other
-    type(shr_gGridDescriptor) :: gDesc
-
-    select type(o => other)
-    type is (shr_gGridDescriptor)
-      gDesc = o
-    class default !< expected type not found
-      call raiseError(__FILE__, "gGridDescriptor_fitsIn", &
-            "Unexpected type found")
-    end select
-
-    gGridDescriptor_fitsIn = self % bounds % fits(gDesc % getBounds())
+    gGridDescriptor_fitsIn = self % bounds % fits(other % getBounds())
   end function gGridDescriptor_fitsIn
+
+
+  type(string) function toString(self)
+    !< string representation of gGridDescriptor
+    class(shr_gGridDescriptor), intent(in) :: self
+    type(string) :: resStr, boundsStr
+    resStr = real2string(self % getResolution())
+    boundsStr = self % bounds % toString()
+    toString = string("resolution= ")
+    toString = toString + resStr + ", bounds=(" + boundsStr + ")"
+  end function toString
 
 end module shr_gGridDescriptor_mod 
 
