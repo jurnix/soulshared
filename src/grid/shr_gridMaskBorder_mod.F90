@@ -9,7 +9,7 @@
 ! DESCRIPTION:
 !>
 !> gridMaskBorder defines which gridcells are border
-!> A border gridcell won't be used as it is outside of bounds
+!> A border gridcell won't be used as it is considered outside of bounds
 !>
 !------------------------------------------------------------------------------
 module shr_gridMaskBorder_mod
@@ -28,77 +28,29 @@ module shr_gridMaskBorder_mod
 
   type, extends(shr_gridMask) :: shr_gridMaskBorder
   contains
-    procedure :: isValid_gridMask !< gridMaskEnabled
-    procedure :: isValid_gridMaskEnabled
-    generic :: isValid => isValid_gridMask, isValid_gridMaskEnabled
+    procedure :: isValid => isValid_gridMask
   end type shr_gridMaskBorder
 
 contains
 
-  logical function isValid_gridMaskEnabled(self, other)
-    !< true if valid gridMaskEnabled properly match non border
+
+  logical function isValid_gridMask(self, enabledMask)
+    !< true if 'enabledMask' enabled gridcell fit into self valud gridcells
+    !< true if 'enabledMask' gridMask true gridcells also match self mask array
     !<
-    !< gridMaskBorder(TTFFTT) % isValid(FFTFFF) = T
-    !< gridMaskBorder(TTFFTT) % isValid(FFTFFT) = F
-    class(shr_gridMaskBorder), intent(in) :: self
-    type(shr_gridMaskEnabled), intent(in) :: other
-    type(shr_gridMaskBorder) :: reversed
-
-    !reversed = other % reverse()
-    !call self % isValid_GridMask(reversed)
-  end function isValid_gridMaskEnabled
-
-
-  logical function isValid_gridMask(self, other)
-    !< true if 'other' enabled gridcell fit into self valud gridcells
-    !< true if 'other' gridMask true gridcells also match self mask array
-    !<
-    !< self (TT,FF) % isMaskIncluded(TF,FF) -> true
+    !< self (TT,FF) % isMaskIncluded(FF,TF) -> true
     !< self (TT,FF) % isMaskIncluded(TF,FT) -> false
     !<
-    !< 'self' matches with 'other' gridcells?
-    !< ('self' gridcells are disabled in 'other')
-    !< partition self
-    !< T T F F F T -> True where border
+    !< 'self' matches with 'enabledMask' gridcells?
     !<
-    !< land grid cells -> True where land grid cells
-    !< F F T F T F   -> rev (select disabled) -> T T F T F T
-    !<                                              .and.
-    !<                                 (border)  T T - - - T
-    !< all true? -> yes
     class(shr_gridMaskBorder), intent(in) :: self
-    type(shr_gridMask), intent(in) :: other
+    class(shr_gridMask), intent(in) :: enabledMask !< other
+    type(shr_gridMask) :: disabledBorderMask, overlappingMask
 
-    type(shr_gridMask) :: reversedMask, disabledMask
-    type(string) :: tmp
-
-    !select type (o => other)
-    !type is (shr_gridMask)
-    !  reversedMask = o
-    !class default
-    !  call raiseError(__FILE__, &
-    !      "gridMask_isIncluded", &
-    !      "Unexpected type found instead of 'shr_gridMask'")
-    !end select
-    tmp = self % toString()
-    write(*,*) "gridMask_mod:: gridMask_isIncluded:: self =", tmp % toString()
-    !tmp = reversedMask % toString()
-    tmp = other % toString()
-    write(*,*) "gridMask_mod:: gridMask_isIncluded:: other =", tmp % toString()
-
-    !< select potential border cells
-    reversedMask = other
-    call reversedMask % reverse()
-    tmp = reversedMask % toString()
-    write(*,*) "gridMask_mod:: gridMask_isIncluded:: other % reversedMask =", tmp % toString()
-    !< potential border cells match with chosen 'border'?
-    disabledMask = (self .and. reversedMask)
-    tmp = disabledMask % toString()
-    write(*,*) "gridMask_mod:: gridMask_isIncluded:: (self and reversed) disabledMask =", tmp % toString()
-    !< all match?
-    tmp = other % toString()
-    write(*,*) "gridMask_mod:: gridMask_isIncluded:: other =", tmp % toString()
-    isValid_gridMask = (disabledMask == other)
+    disabledBorderMask = self
+    overlappingMask = (disabledBorderMask .and. enabledMask)
+    !< no true value?
+    isValid_gridMask = .not. (overlappingMask % any())
   end function isValid_gridMask
 
 end module shr_gridMaskBorder_mod

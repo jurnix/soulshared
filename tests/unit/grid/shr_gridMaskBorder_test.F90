@@ -97,14 +97,16 @@ contains
 
     !< isIncluded
     b = getNewGridMaskBorder([1., -1., 2., 0.]) !< true default
-    call gcIndex % init(1, 1)
+    call gcIndex % init(1, 2)
+    call b % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 1)
+    call b % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 2)
     call b % setStatus(gcIndex, .false.)
 
     bOther = getNewGridMask([1., -1., 2., 0.])
     call self % assert( .not. b % isValid(bOther), &
-        "b(FT,TT) % isIncluded(TT,TT) = F")
-    !call self % assert( bOther % isValid(b), &
-        !"b((TT,TT)) % isIncluded(FT,TT) = T")
+        "testCaseIsNotValidGridMask(TF,FF) % isIncluded(TT,TT) = F")
   end subroutine testCaseIsNotValidGridMask
 
 
@@ -118,14 +120,21 @@ contains
 
     !< isIncluded
     b = getNewGridMaskBorder([1., -1., 2., 0.]) !< true default
+    call gcIndex % init(1, 1)
+    call b % setStatus(gcIndex, .false.)
+    call gcIndex % init(1, 2)
+    call b % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 1)
+    call b % setStatus(gcIndex, .false.)
+    call gcIndex % init(2, 2)
+    call b % setStatus(gcIndex, .false.)
 
     bOther = getNewGridMask([1., -1., 2., 0.])
     call gcIndex % init(1, 1)
     call bOther % setStatus(gcIndex, .false.)
-    !call self % assert( .not. b % isValid(bOther), &
-        !"b(FT,TT) % isIncluded(TT,TT) = F")
+
     call self % assert( b % isValid(bOther), &
-        "b((TT,TT)) % isIncluded(FT,TT) = T")
+        "testCaseIsValidGridMask((FF,FF)) % isValid(FT,TT) = T")
   end subroutine testCaseIsValidGridMask
 
 
@@ -134,21 +143,18 @@ contains
     class(testSuitegridMaskBorder), intent(inout) :: self
 
     class(shr_gridMaskBorder), allocatable :: b
-    class(shr_gridMaskEnabled), allocatable :: bOther
+    class(shr_gridMask), allocatable :: bOther
     type(shr_gridcellIndex) :: gcIndex
 
     !< isIncluded
-    !< T T F  vs F F T
-    !< F F F     T T T
+    !< border vs active -> false
+    !< F F T  vs F F T
+    !< T T T     T T T
     allocate(b, bOther)
     b = getNewGridMaskBorder([1., -1., 3., 0.]) !< true default
-    call gcIndex % init(1, 3)
+    call gcIndex % init(1, 1)
     call b % setStatus(gcIndex, .false.)
-    call gcIndex % init(2, 1)
-    call b % setStatus(gcIndex, .false.)
-    call gcIndex % init(2, 2)
-    call b % setStatus(gcIndex, .false.)
-    call gcIndex % init(2, 3)
+    call gcIndex % init(1, 2)
     call b % setStatus(gcIndex, .false.)
 
     bOther = getNewGridMaskBorder([1., -1., 3., 0.])
@@ -158,9 +164,7 @@ contains
     call bOther % setStatus(gcIndex, .false.)
 
     call self % assert(.not. b % isValid(bOther), &
-        "b(TTF,FFF) % isIncluded(FFT,TTT) = F")
-    !call self % assert( bOther % isValid(b), &
-    !    "b((FFT,TTT)) % isIncluded(TTF,FFF) = T")
+        "testCaseIsNotValidGridMaskEnabled, b(FFT,TTT) % isIncluded(FFT,TTT) = F")
   end subroutine testCaseIsNotValidGridMaskEnabled
 
 
@@ -169,7 +173,7 @@ contains
     class(testSuitegridMaskBorder), intent(inout) :: self
 
     class(shr_gridMaskBorder), allocatable :: b
-    class(shr_gridMaskEnabled), allocatable :: bOther
+    class(shr_gridMask), allocatable :: bOther
     type(shr_gridcellIndex) :: gcIndex
 
     !< isIncluded
@@ -192,10 +196,8 @@ contains
     call gcIndex % init(1, 2)
     call b % setStatus(gcIndex, .false.)
 
-    !call self % assert( b % isValid(bOther), &
-    !    "b(TTF,FFF) % isIncluded(FFT,TTT) = F")
     call self % assert( b % isValid(bOther), &
-        "b((FFT,TTT)) % isIncluded(TTF,FFF) = T")
+        "testCaseIsValidGridMaskEnabled((FFT,TTT)) % isIncluded(TTF,FFF) = T")
   end subroutine testCaseIsValidGridMaskEnabled
 
 
