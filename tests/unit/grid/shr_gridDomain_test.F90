@@ -69,13 +69,15 @@ contains
     logical, intent(in) :: bmask(:,:) !< raw mask
 
     class(shr_gGridDescriptor), allocatable :: gDesc
-    type(shr_gridBounds) :: sbounds
+    !type(shr_gridBounds) :: sbounds
     class(shr_gridMask), allocatable :: gmEnabled, gmBorder
 
-    call sbounds % init(bounds)
+    !call sbounds % init(bounds)
 
+    !allocate(gDesc)
+    !call gDesc % init(resolution, sbounds)
     allocate(gDesc)
-    call gDesc % init(resolution, sbounds)
+    gDesc = createNewGridDescriptor(resolution, bounds)
 
     allocate(gmEnabled, gmBorder)
     call gmEnabled % init(gDesc, emask)
@@ -83,6 +85,17 @@ contains
 
     call createNewGridDomain % init(gDesc, gmEnabled, gmBorder)
   end function createNewGridDomain
+
+
+  type(shr_gGridDescriptor) function createNewGridDescriptor(resolution, bounds)
+    !<
+    !< create a new shr_gGridDescriptor instance
+    real(kind=sp), intent(in) :: resolution
+    real(kind=sp), intent(in) :: bounds(4) !< n, s, e, w
+    type(shr_gridBounds) :: sbounds
+    call sbounds % init(bounds)
+    call createNewGridDescriptor % init(resolution, sbounds)
+  end function createNewGridDescriptor
 
 
   function gridMaskSelectStub_select(self, gDescriptor) result (newGMask)
@@ -134,7 +147,7 @@ contains
   elemental impure type(shr_gridBounds) function gdSelectArgStub_getBounds(self)
     !< bounds
     class(shr_gGridDescriptorArgSelectStub), intent(in) :: self
-    call gdSelectArgStub_getBounds % init(north=2., south=-1., east=0., west=2.)
+    call gdSelectArgStub_getBounds % init(north=2., south=-1., east=2., west=0.)
   end function gdSelectArgStub_getBounds
 
 
@@ -198,20 +211,41 @@ contains
     !< to init gridDomain
     class(shr_gridMaskSelectStub), allocatable :: enabledMask
     class(shr_gGridDescriptorSelectStub), allocatable :: gdescriptor
+    type(shr_gGridDescriptor) :: gDescrip
 
     logical :: emask(2,3), bmask(2,3)
+    logical :: lemask(3,4), lbmask(3,4)
 
+    !< setup
+    !< enabled
     emask(1,:) = [.true., .true., .false.]
     emask(2,:) = [.false., .false., .false.]
-    bmask = (.not. emask) !< complementary
+    !< border
+    bmask(1,:) = [.false., .false., .false.]
+    bmask(2,:) = [.true., .true., .true.]
     expected = createNewGridDomain(1.0, [2., 0., 2., -1.], emask, bmask)
-    call d % init(gdescriptor, enabledMask, enabledMask)
+    !allocate(shr_gridMaskSelectStub :: enabledMask)
+    !call d % init(gdescriptor, enabledMask, enabledMask)
+    lemask(1,:) = [.false., .true., .true., .false.]
+    lemask(2,:) = [.true., .true., .true., .false.]
+    lemask(3,:) = [.true., .false., .false., .false.]
+    !< border
+    lbmask(1,:) = [.false., .false., .false., .false.]
+    lbmask(2,:) = [.false., .false., .false., .false.]
+    lbmask(3,:) = [.false., .true., .true., .true.]
+    d = createNewGridDomain(1.0, [3.,0.,3.,-1.], lemask, lbmask)
     !procedure :: select
-    !(3.)  (-1.)    (2.) (-1.)
-    ! - x x - (3.)
-    ! x x x -      -> x x - (2.0)
-    ! x - - - (0.)    - - - (0.)
-    selectedGM = d % select(gNewDesc)
+    ! (3.)  (-1.)    (2.) (-1.)
+    !< - x x - (3.)
+    !< x x x -      -> x x - (2.0)
+    !< x b b b (0.)    b b b (0.)
+    !
+    !< b -> border (true)
+    !< x -> enabled (b=false)
+    !< - -> disabled (b=false)
+    !allocate(gNewDesc)
+    gDescrip = createNewGridDescriptor(1., [2.,0.,2.,-1.])
+    selectedGM = d % select(gDescrip)
     call self % assert(selectedGM == expected, &
         "selectedGM % filter(gm) .eq. expected  = T")
   end subroutine testCaseSelect

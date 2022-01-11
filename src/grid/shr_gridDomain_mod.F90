@@ -69,6 +69,9 @@ contains
 
   subroutine gridDomain_initialize(self, descriptor, enabled, border)
     !< grid domain initialization
+    !< enabled and border must have the same shape as descriptor
+    !< enabled mask must be included in border mask
+    !< todo: upgrade enabled and border into class to combine them 'gridDomainEnabledCells'
     class(shr_gridDomain), intent(inout) :: self
     class(shr_iGGridDescriptor), intent(in) :: descriptor
     class(shr_igridMask), intent(in) :: enabled !< def: all enabled
@@ -173,7 +176,7 @@ contains
     !< returns maskEnabled mask
     class(shr_gridDomain), intent(in) :: self
     class(shr_igridMask), allocatable :: bmask
-    allocate(bmask, source = self % maskEnabled)
+    allocate(bmask, source = self % maskBorder)
   end function getBorderGridMask
 
 
@@ -202,9 +205,20 @@ contains
     class(shr_iGGridDescriptor), intent(in) :: newGDescriptor
     class(shr_gridDomain), allocatable :: newGDomain !< output
     class(shr_igridMask), allocatable :: selectedBorder, selectedEnabled
+    type(string) :: tmp
+
+    tmp = self % maskBorder % toString()
+    write(*,*) "gridDomain_mod:: select:: current border mask =", tmp % toString()
+    tmp = self % maskEnabled % toString()
+    write(*,*) "gridDomain_mod:: select:: current enabled mask =", tmp % toString()
 
     selectedBorder = self % maskBorder % select(newGDescriptor)
     selectedEnabled = self % maskEnabled % select(newGDescriptor)
+
+    tmp = selectedBorder % toString()
+    write(*,*) "gridDomain_mod:: select:: selected border mask =", tmp % toString()
+    tmp = selectedEnabled % toString()
+    write(*,*) "gridDomain_mod:: select:: selected enabled mask =", tmp % toString()
     allocate(shr_gridDomain :: newGDomain)
     call newGDomain % gridDomain_initialize(newGDescriptor, selectedEnabled, selectedBorder)
   end function select
@@ -217,10 +231,29 @@ contains
 
     logical :: hasSameGDescriptor
     logical :: hasSameEnabledMask, hasSameBorderMask
+    class(shr_IgridMask), allocatable :: tmpGMask
+    type(string) :: tmp1, tmp
 
     hasSameGDescriptor = (self % descriptor == other % getGridDescriptor())
+    write(*,*) "gridDomain_equal:: same descriptor? ", hasSameGDescriptor
+
+    !< enabled
     hasSameEnabledMask = (self % maskEnabled == other % getEnabledGridMask())
+    tmp = self % maskEnabled % toString()
+    tmpGMask = other % getEnabledGridMask()
+    tmp1 = tmpGMask % toString()
+    write(*,*) "gridDomain_equal:: same enabled? ", hasSameEnabledMask
+    write(*,*) "gridDomain_equal:: self enabled mask =", tmp % toString()
+    write(*,*) "gridDomain_equal:: other enabled mask =", tmp1 % toString()
+
+    !< border
     hasSameBorderMask = (self % maskBorder == other % getBorderGridMask())
+    write(*,*) "gridDomain_equal:: same border? ", hasSameBorderMask
+    tmp = self % maskBorder % toString()
+    tmpGMask = other % getBorderGridMask()
+    tmp1 = tmpGMask % toString()
+    write(*,*) "gridDomain_equal:: self border mask =", tmp % toString()
+    write(*,*) "gridDomain_equal:: other border mask =", tmp1 % toString()
 
     gridDomain_equal = (hasSameGDescriptor .and. hasSameEnabledMask .and. &
                         hasSameBorderMask)
