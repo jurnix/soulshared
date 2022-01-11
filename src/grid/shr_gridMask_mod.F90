@@ -15,7 +15,7 @@ module shr_gridMask_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
-  use shr_strings_mod, only: string
+  use shr_strings_mod, only: string, int2string, stringCollection
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
@@ -60,6 +60,7 @@ module shr_gridMask_mod
     procedure(iface_set), deferred :: set
 
     procedure(iface_toString), deferred :: toString
+    procedure(iface_getShape), deferred :: getShape
     procedure, private :: findIndices
   end type
 
@@ -81,11 +82,14 @@ module shr_gridMask_mod
       logical, intent(in), optional :: default !< define default value (def: true)
     end subroutine iface_gridMask_initialize
 
-    function iface_getRaw(self) result (outMask)
-      import :: shr_IgridMask
+    function iface_getRaw(self, gBoundIndices) result (newMask)
+      import :: shr_IgridMask, shr_gridBoundIndices
       !< returns current mask
+      !< in case gBoundIndices are defined it returns the selected indices
+      !< those indices must be valid
       class(shr_IgridMask), intent(in) :: self
-      logical, allocatable :: outMask(:,:) !< output
+      type(shr_gridBoundIndices), intent(in), optional :: gBoundIndices
+      logical, allocatable :: newMask(:,:) !< output
     end function iface_getRaw
 
     function iface_getGridDescriptor(self) result(newGDescriptor)
@@ -179,6 +183,13 @@ module shr_gridMask_mod
       !< mask to string type
       class(shr_igridMask), intent(in) :: self
     end function iface_toString
+
+   function iface_getShape(self) result (shape)
+      import :: shr_igridMask
+      !< grid shape
+      class(shr_igridMask), intent(in) :: self
+      integer :: shape(2)
+    end function iface_getShape
   end interface
 
 
@@ -231,6 +242,7 @@ module shr_gridMask_mod
     procedure :: select => gridMask_select
     procedure :: expand => gridMask_expand
     procedure :: toString => gridMask_toString
+    procedure :: getShape => gridMask_getShape
 
     !procedure :: isIncluded => gridMask_isIncluded
   end type shr_gridMask
@@ -239,11 +251,30 @@ contains
 
   subroutine gridMask_initialize_by_larray(self, gridDescriptor, lmask)
     !< gridMask initialization
+    !< lmask shape must be consistent with gridDescriptor
     class(shr_gridMask), intent(inout) :: self
     class(shr_iGGridDescriptor), intent(in) :: gridDescriptor
     logical, intent(in) :: lmask(:,:)
 
+    integer :: lshape(2), inMaskShape(2)
+    type(stringCollection) :: tmpCollection, tmpCollection1
+    type(string), allocatable :: tmp(:), tmp1(:)
+
     call self % initialize(gridDescriptor)
+
+    !< lmask shape matches gridDescriptor shape?
+    lshape = self % getShape()
+    inMaskShape(1) = size(lmask,dim=1)
+    inMaskShape(2) = size(lmask,dim=2)
+    if (any(lshape /= inMaskShape)) then
+      tmp = int2string(lshape)
+      tmpCollection = stringCollection(tmp)
+      tmp1 = int2string(inMaskShape)
+      tmpCollection1 = stringCollection(tmp1)
+      call raiseError(__FILE__, "gridMask_initialize_by_larray", &
+          "Expected mask shape: "//tmpCollection % toString(), &
+          "But found: "//tmpCollection1 % toString())
+    end if
     self % mask = lmask
   end subroutine gridMask_initialize_by_larray
 
@@ -266,7 +297,8 @@ contains
     nlats = axis % getSize()
     axis = self % gridDescriptor % getLonAxis() !longitudes % getSize()
     nlons = axis % getSize()
-
+    write(*,*) "gridMask_mod:: gridMask_initialize:: nlats (dim=1) = ", nlats
+    write(*,*) "gridMask_mod:: gridMask_initialize:: nlons (dim=2) = ", nlons
     allocate(self% mask(nlats, nlons))
     self % mask = inDefault
   end subroutine gridMask_initialize
@@ -297,12 +329,37 @@ contains
   end function countEnabled
 
 
-  function getRaw(self) result (outMask)
+  function getRaw(self, gBoundIndices) result (newMask)
     !< returns current mask
+    !< todo: change to get(...)
     class(shr_gridMask), intent(in) :: self
-    logical, allocatable :: outMask(:,:) !< output
-    allocate(outMask, source = self % mask)
+    type(shr_gridBoundIndices), intent(in), optional :: gBoundIndices
+    logical, allocatable :: newMask(:,:) !< output
+    integer :: ncols, nrows
+    integer :: startRow, endRow
+    integer :: startCol, endCol
+    if (present(gBoundIndices)) then
+      ncols = gBoundIndices % countCols()
+      nrows = gBoundIndices % countRows()
+
+      startCol = gBoundIndices % getStartCol()
+      endCol = gBoundIndices % getEndCol()
+      startRow = gBoundIndices % getStartRow()
+      endRow = gBoundIndices % getEndRow()
+    else
+      nrows = size(self % mask, dim=1)
+      ncols = size(self % mask, dim=2)
+
+      startCol = 1
+      endCol = ncols
+      startRow = 1
+      endRow = nrows
+    end if
+
+    allocate(newMask(nrows, ncols))
+    newMask(1:nrows, 1:ncols) = self % mask(startRow:endRow, startCol:endCol )
   end function getRaw
+
 
 
   logical function gridMask_equal_scalar_logical(self, value)
@@ -516,7 +573,9 @@ contains
 
   function gridMask_select(self, gDescriptor) result (newGMask)
     !< select a new shr_gridMask according to gDescriptor
-    !< new gDscriptor must fit self % gridDescriptor
+    !< new 'gDescriptor' must fit self % gridDescriptor
+    !< the output gridMask will have 'gDescriptor' as grid descriptor
+    !< and the mask values matching 'self'
     class(shr_gridMask), intent(in) :: self
     class(shr_iGGridDescriptor), intent(in) :: gDescriptor
     class(shr_igridMask), allocatable :: newGMask !< output
@@ -524,6 +583,8 @@ contains
     logical, allocatable :: newLmask(:,:)
     type(shr_gridIndicesMapping) :: idxMapping
     type(shr_gridBoundIndices) :: gBoundIndices
+    type(string) :: tmp
+    logical, allocatable :: tmpMask(:,:)
 
     if (.not. self % gridDescriptor % fitsIn(gDescriptor) ) then
       call raiseError(__FILE__, "select", &
@@ -531,11 +592,18 @@ contains
     end if
 
     !< discover array indices
-    call idxMapping % init(gDescriptor)
+    call idxMapping % init(self % getGridDescriptor())
     gBoundIndices = self % findIndices(gDescriptor, idxMapping)
+    write(*,*) "gridMAsk_mod:: gridMask_select:: gBoundIndices (n, s, e, w)=", &
+        gBoundIndices % startRow, gBoundIndices % endRow, &
+        gBoundIndices % startCol, gBoundIndices % endCol
 
     allocate(shr_gridMask :: newGMask)
     call newGMask % init(gDescriptor, default = .false.)!, newLmask)
+    tmp = gDescriptor % toString()
+    write(*,*) "gridMAsk_mod:: gridMask_select:: newGMask gDescriptor =", tmp % toString()
+    !tmpMask = self % getRaw(gBoundIndices)
+    !call newGMask % set(tmpMask)
     call newGMask % set(self % mask, gBoundIndices)
   end function gridMask_select
 
@@ -554,6 +622,14 @@ contains
     type(shr_gridcellIndex), allocatable :: gIndicesTL(:), gIndicesBR(:)
     integer :: startlat, endlat
     integer :: startlon, endlon
+    class(shr_iGGridDescriptor), allocatable :: currentSelfGDescriptor
+
+    type(string) :: tmp
+    currentSelfGDescriptor = self % getGridDescriptor()
+    tmp = currentSelfGDescriptor % toString()
+    write(*,*) "gridMask_mod:: findIndices:: current descriptor =", tmp % toString()
+    tmp = gDescriptor % toString()
+    write(*,*) "gridMask_mod:: findIndices:: (argument) gDescriptor =", tmp % toString()
 
     !< from bounds get top-left and bottom-right coordinates
     !< center of coordinate (it enforeces to select a unique gIndices)
@@ -562,12 +638,20 @@ contains
     ! todo: change east vs west, wrong
     cTopLeft = shr_coord( bounds % getNorth() - halfRes, bounds % getEast() - halfres)
     cBottomRight = shr_coord( bounds % getSouth() + halfres, bounds % getWest() + halfres)
+    write(*,*) "gridMask_mod:: findIndices:: topLeft = ", &
+        bounds % getNorth() - halfRes, &
+        bounds % getEast() - halfres
+    write(*,*) "gridMask_mod:: findIndices:: bottomright= ", &
+        bounds % getSouth() + halfres, &
+        bounds % getWest() + halfres
 
     !< discover array indices
     !< find array indices from top-left
     gIndicesTL = idxMapping % getIndex(cTopLeft) !< only 1
+    write(*,*) "gridMask_mod:: findIndices:: top left indices found = ", size(gIndicesTL)
     !< find array indices from bottom-right
     gIndicesBR = idxMapping % getIndex(cBottomRight) !< only 1
+    write(*,*) "gridMask_mod:: findIndices:: bottom right indices found = ", size(gIndicesBR)
 
     startlat = gIndicesTL(1) % idxLat
     endlat = gIndicesBR(1) % idxLat
@@ -609,11 +693,14 @@ contains
 
   subroutine gridMask_set(self, mask, gBindices)
     !< set values of mask into self
+    !< 'gBindices' indices refer to self % mask
     !< when defined gBindices:
-    !< - place 'mask' into gBIndices indices
+    !< - place 'mask' into self using gBindices
     !<
     !< 'mask' shape must be consistent with 'self'
-    !< 'gBindices' must be consistent with 'mask' and 'self'
+    !< - 'mask' shape must be the same as self%mask if gBindices not defined
+    !< - 'mask' shape must be the same as gBindices if defined
+    !<
     class(shr_gridMask), intent(inout) :: self
     logical, intent(in) :: mask(:,:)
     type(shr_gridBoundIndices), intent(in), optional :: gBindices
@@ -621,12 +708,28 @@ contains
     integer :: startCol, endCol
     integer :: startRow, endRow
     integer :: nrows, ncols
+    integer :: gbIndicesNRows, gbIndicesNCols
 
     !< same shapes?
     if (.not. present(gBIndices)) then
       if (any(shape(mask) /= shape(self % mask))) then
+        write(*,*) "gridMask_mod:: set:: 'self % mask' shape (rows, cols)? ", shape(self % mask)
+        write(*,*) "gridMask_mod:: set:: 'mask' shape (rows, cols)? ", shape(mask)
         call raiseError(__FILE__, "set", &
             "mask and self % mask shape do not conform")
+      end if
+    end if
+
+    if (present(gBindices)) then
+      !< gBindices shape must be the same as 'mask' argument
+      gbIndicesNCols = gBindices % countCols()
+      gbIndicesNRows = gBindices % countRows()
+      !< same shape?
+      if (any([gbIndicesNRows, gbIndicesNCols] /= shape(mask))) then
+        write(*,*) "gridMask_mod:: set:: gbIndices (rows, cols)? ", gbIndicesNRows, gbIndicesNCols
+        write(*,*) "gridMask_mod:: set:: 'mask' shape (rows, cols)? ", shape(mask)
+        call raiseError(__FILE__, "set", &
+            "gbIndices and mask argument shapes do not conform")
       end if
     end if
 
@@ -636,7 +739,7 @@ contains
     startCol = 1
     endCol = size(self % mask, dim=2)
     nrows = endRow - startRow + 1
-    ncols = endRow - startCol + 1
+    ncols = endCol - startCol + 1
     if (present(gBindices)) then
 
       startRow = gBindices % getStartRow()
@@ -646,18 +749,23 @@ contains
       ncols = gBindices % countCols()
       nrows = gBindices % countRows()
 
-      !write(*,*) "set:: argument found!"
+      write(*,*) "set:: argument found!"
       !write(*,*) "set:: lat (start, end) =", gBindices % getStartRow(), gBindices % getEndRow()
       !write(*,*) "set:: lon (start, end) =", gBindices %  getStartCol(), gBindices %  getEndCol()
     end if
 
     !< proper dimensions?
     !< todo: switch east vs west
-    !write(*,*) "set:: cols (start, end) =", startCol, endCol
-    !write(*,*) "set:: rows (start, end) =", startRow, endRow
-    !write(*,*) "set:: self % mask shape? ", shape(self % mask)
-    !write(*,*) "set:: ncols, nrows = ", ncols, nrows
-    !write(*,*) "set:: given mask shape? ", shape(mask)
+
+    write(*,*) "gridMask_mod:: set:: self % mask shape (rows, cols)? ", shape(self % mask)
+    write(*,*) "gridMask_mod:: set:: self % mask args, rows (start, end) =", startRow, endRow
+    write(*,*) "gridMask_mod:: set:: self % mask args, cols (start, end) =", startCol, endCol
+    write(*,*) "gridMask_mod:: set:: given mask shape? ", shape(mask)
+    write(*,*) "gridMask_mod:: set:: given mask args, nrows, ncols = 1:", nrows, ", 1:", ncols
+
+    write(*,*) "gridMask_mod:: set:: self % mask(",startRow,":",endRow,&
+                ",",startCol,":",endCol,&
+                ") = mask(1:",nrows,",1:",ncols,")"
     self % mask(startRow:endRow, startCol:endCol) = mask(1:nrows,1:ncols)
   end subroutine gridMask_set
 
@@ -710,6 +818,15 @@ contains
   !  write(*,*) "gridMask_mod:: gridMask_isIncluded:: other =", tmp % toString()
   !  gridMask_isIncluded = (disabledMask == other)
   !end function gridMask_isIncluded
+
+
+  function gridMask_getShape(self) result (shape)
+    !< grid shape
+    class(shr_gridMask), intent(in) :: self
+    integer :: shape(2)
+    shape(1) = size(self % mask, dim=1)
+    shape(2) = size(self % mask, dim=2)
+  end function gridMask_getShape
 
 end module shr_gridMask_mod
 
