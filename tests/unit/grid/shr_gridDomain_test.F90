@@ -92,6 +92,19 @@ contains
   end function createNewGridDescriptor
 
 
+  type(shr_gridMask) function createNewGridMask(resolution, bounds, mask)
+    !< create a new shr_gridMask instance
+    real(kind=sp), intent(in) :: resolution
+    real(kind=sp), intent(in) :: bounds(4) !< n, s, e, w
+    logical, intent(in) :: mask(:,:) !< raw mask
+    class(shr_gGridDescriptor), allocatable :: gDesc
+
+    allocate(gDesc)
+    gDesc = createNewGridDescriptor(resolution, bounds)
+    call createNewGridMask % init(gDesc, mask)
+  end function createNewGridMask
+
+
   function gridMaskSelectStub_select(self, gDescriptor) result (newGMask)
     !< select a new shr_gridMask according to gDescriptor
     !< new gDscriptor must fit self % gridDescriptor
@@ -143,38 +156,113 @@ contains
   subroutine testCaseCombine(self)
     !< combine unit test
     class(testSuitegridDomain), intent(inout) :: self
+    type(shr_gridDomain) :: d, dother, combined, expected
+
+    logical :: emask(2,3), bmask(2,3)
+    logical :: doEmask(2,2), doBmask(2,2)
+    logical :: expEmask(3,4), expBmask(3,4)
     !procedure :: gridDomain_combine (+)
-    ! total           domain 1  +  domain 2
+    ! total           d         +  dother
     !             (border all T) (border all T)
     ! (3) (-1)       (2) (-1)      (3)(1)
-    !   x x - (3)     x x - (3)
-    ! x x x -     <=  x x - (1) +   x x (2)
-    ! x -     (0)                   x - (0)
+    ! b x x b (3)     x x b (3)
+    ! x x x -     <=  x x - (1) +   x b (2)
+    ! x - b b  (0)                  x - (0)
     !
     ! Final:          (border)
     !(3)   (-1)
-    ! - x x - (3)   - x x x
-    ! x x x -       x x x x
-    ! x - - - (0)   x x - -
-    !combinedGM = d % combine(o)
-    !call self % assert(combinedBM == expectedCombined, &
-    !    "d % combine(o) .eq. expectedCombined = T")
-    call self % assert(.false., "combine TODO = T")
+    ! - x x - (3)   x - - x
+    ! x x x -       - - - -
+    ! x - - - (0)   - - x x
+    !
+    !< setup (d)
+    !< enabled (d)
+    emask(1,:) = [.false., .true., .false.]
+    emask(2,:) = [.true.,  .true., .false.]
+    !< border (d)
+    bmask(1,:) = [.false., .false., .true.]
+    bmask(2,:) = [.false., .false., .false.]
+    d = createNewGridDomain(1.0, [3.,1.,2.,-1.], emask, bmask)
+
+    !< setup (dother)
+    !< enabled (dother)
+    doEmask(1,:) = [.true., .false.]
+    doEmask(2,:) = [.true.,  .false.]
+    !< border (dother)
+    doBmask(1,:) = [.false., .true.]
+    doBmask(2,:) = [.false., .false.]
+    dother = createNewGridDomain(1.0, [2.,0.,3.,1.], doEmask, doBmask)
+
+    !< setup (expected)
+    !< enabled (expected)
+    expEmask(1,:) = [.false., .true., .true., .false.]
+    expEmask(2,:) = [.true., .true., .true., .false.]
+    expEmask(3,:) = [.true., .false., .false., .false.]
+
+    !< border (expected)
+    expBmask(1,:) = [.true., .false., .false., .true.]
+    expBmask(2,:) = [.false., .false., .false., .false.]
+    expBmask(3,:) = [.false., .false., .true., .true.]
+
+    expected = createNewGridDomain(1.0, [3.,0.,3.,-1.], expEmask, expBmask)
+
+    combined = d + dother !< gridDomaine_combine
+    call self % assert(combined == expected, &
+        "d % combine(dother) .eq. expected = T")
   end subroutine testCaseCombine
 
 
   subroutine testCaseFilter(self)
     !< combine unit test
     class(testSuitegridDomain), intent(inout) :: self
+    class(shr_gridDomain), allocatable :: d, filteredGM
+    !< expected output
+    class(shr_gridDomain), allocatable :: expected
+    type(shr_gridMask) :: gmask
+
+    logical :: emask(3,4), bmask(3,4)
+    logical :: lemask(3,4), lbmask(3,4)
+    logical :: lmask(3,4)
+    real(kind=sp), parameter :: BOUNDS(4) = [3., 0., 4., 0.]
+    real(kind=sp), parameter :: RES = 1.0
+
     !procedure :: filter
+    !
     ! domain        mask        final
-    ! - x x -     - - - -       - - - -
-    ! x x x -  +  - x x -   =>  - x x -
-    ! x - - -     - x x -       - - - -
-    !filteredGM = d % filter(gm)
-    !call self % assert(combinedBM == expectedFiltered, &
-    !    "d % combine(o) .eq. expectedFiltered = T")
-    call self % assert(.false., "filter TODO = T")
+    !
+    !(4.)  (0.)
+    ! - x x -  (3.)    - - - -       b b b b
+    ! x x x -       +  - x x -   =>  b x x b
+    ! x - b b  (0.)    - x x -       b - b b
+
+    !< setup
+    !< enabled
+    emask(1,:) = [.false., .true., .true., .false.]
+    emask(2,:) = [.true.,  .true., .true., .false.]
+    emask(3,:) = [.true., .false., .false., .false.]
+    !< border
+    bmask(1,:) = [.false., .false., .false., .false.]
+    bmask(2,:) = [.false., .false., .false., .false.]
+    bmask(3,:) = [.false., .false., .true., .true.]
+    expected = createNewGridDomain(RES, BOUNDS, emask, bmask)
+
+    lemask(1,:) = [.false., .false., .false., .false.]
+    lemask(2,:) = [.false., .true., .true., .false.]
+    lemask(3,:) = [.false., .false., .false., .false.]
+    !< border
+    lbmask(1,:) = [.true., .true., .true., .true.]
+    lbmask(2,:) = [.true., .false., .false., .true.]
+    lbmask(3,:) = [.true., .false., .true., .true.]
+    d = createNewGridDomain(RES, BOUNDS, lemask, lbmask)
+
+    !< request
+    lmask(1,:) = [.false., .false., .false., .false.]
+    lmask(2,:) = [.false., .true., .true., .false.]
+    lmask(3,:) = [.false., .true., .true., .false.]
+    gmask = createNewGridMask(RES, BOUNDS, lmask)
+    filteredGM = d % filter(gmask)
+    call self % assert(filteredGM == expected, &
+        "d % filter(mask) .eq. expected = T")
   end subroutine testCaseFilter
 
 
@@ -188,7 +276,6 @@ contains
 
     !< to init gridDomain
     class(shr_gridMaskSelectStub), allocatable :: enabledMask
-    class(shr_gGridDescriptorSelectStub), allocatable :: gdescriptor
     type(shr_gGridDescriptor) :: gDescrip
 
     logical :: emask(2,3), bmask(2,3)
