@@ -45,12 +45,6 @@ module shr_gridDomain_test
   end type shr_gGridDescriptorSelectStub
 
 
-  type, extends(shr_gGridDescriptorEmptyStub) :: shr_gGridDescriptorArgSelectStub
-  contains
-    procedure :: getResolution => gdSelectArgStub_getResolution
-    procedure :: getBounds => gdSelectArgStub_getBounds
-  end type shr_gGridDescriptorArgSelectStub
-
   type, extends(testSuite) :: testSuitegridDomain
 
   contains
@@ -137,20 +131,6 @@ contains
   end function gdSelectStub_getBounds
 
 
-  elemental real(kind=sp) function gdSelectArgStub_getResolution(self)
-    !< resolution
-    class(shr_gGridDescriptorArgSelectStub), intent(in) :: self
-    gdSelectArgStub_getResolution = 1.0_sp
-  end function gdSelectArgStub_getResolution
-
-
-  elemental impure type(shr_gridBounds) function gdSelectArgStub_getBounds(self)
-    !< bounds
-    class(shr_gGridDescriptorArgSelectStub), intent(in) :: self
-    call gdSelectArgStub_getBounds % init(north=2., south=-1., east=2., west=0.)
-  end function gdSelectArgStub_getBounds
-
-
   subroutine defineTestCases(self)
     use iso_c_binding
     class(testSuitegridDomain), intent(inout) :: self
@@ -205,8 +185,6 @@ contains
     class(shr_gridDomain), allocatable :: d, selectedGM
     !< expected output
     class(shr_gridDomain), allocatable :: expected
-    !< to selectg argument
-    class(shr_gGridDescriptorArgSelectStub), allocatable :: gNewDesc
 
     !< to init gridDomain
     class(shr_gridMaskSelectStub), allocatable :: enabledMask
@@ -224,8 +202,7 @@ contains
     bmask(1,:) = [.false., .false., .false.]
     bmask(2,:) = [.true., .true., .true.]
     expected = createNewGridDomain(1.0, [2., 0., 2., -1.], emask, bmask)
-    !allocate(shr_gridMaskSelectStub :: enabledMask)
-    !call d % init(gdescriptor, enabledMask, enabledMask)
+
     lemask(1,:) = [.false., .true., .true., .false.]
     lemask(2,:) = [.true., .true., .true., .false.]
     lemask(3,:) = [.true., .false., .false., .false.]
@@ -243,11 +220,10 @@ contains
     !< b -> border (true)
     !< x -> enabled (b=false)
     !< - -> disabled (b=false)
-    !allocate(gNewDesc)
     gDescrip = createNewGridDescriptor(1., [2.,0.,2.,-1.])
     selectedGM = d % select(gDescrip)
     call self % assert(selectedGM == expected, &
-        "selectedGM % filter(gm) .eq. expected  = T")
+        "selectedGM % select(gm) .eq. expected  = T")
   end subroutine testCaseSelect
 
 end module shr_gridDomain_test
