@@ -45,6 +45,7 @@ module shr_gridMask_stub
     procedure :: select
     procedure :: set
     procedure :: toString
+    procedure :: getShape
   end type shr_gridMaskStub
 
 
@@ -67,15 +68,24 @@ contains
   !<
   !< shr_gridMaskStub
   !<
-  function getRaw(self) result (outMask)
+  !function getRaw(self) result (outMask)
     !< returns current mask
+  !  class(shr_gridMaskStub), intent(in) :: self
+  !  logical, allocatable :: outMask(:,:) !< output
+
+  !end function getRaw
+  function getRaw(self, gBoundIndices) result (newMask)
+    !< returns current mask
+    !< in case gBoundIndices are defined it returns the selected indices
+    !< those indices must be valid
     class(shr_gridMaskStub), intent(in) :: self
-    logical, allocatable :: outMask(:,:) !< output
-    allocate(outMask(4,3))
-    outMask(1,:) = [.true., .true., .true.]
-    outMask(2,:) = [.true., .true., .true.]
-    outMask(3,:) = [.true., .false., .false.]
-    outMask(4,:) = [.false., .true., .true.]
+    type(shr_gridBoundIndices), intent(in), optional :: gBoundIndices
+    logical, allocatable :: newMask(:,:) !< output
+    allocate(newMask(4,3))
+    newMask(1,:) = [.true., .true., .true.]
+    newMask(2,:) = [.true., .true., .true.]
+    newMask(3,:) = [.true., .false., .false.]
+    newMask(4,:) = [.false., .true., .true.]
   end function getRaw
 
 
@@ -173,6 +183,13 @@ contains
     !< mask to string type
     class(shr_gridMaskStub), intent(in) :: self
   end function toString
+
+
+  function getShape(self) result (shape)
+    !<
+    class(shr_gridMaskStub), intent(in) :: self
+    integer :: shape(2)
+  end function getShape
 
 end module shr_gridMask_stub
 
