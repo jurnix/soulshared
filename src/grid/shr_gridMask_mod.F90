@@ -602,9 +602,8 @@ contains
     call newGMask % init(gDescriptor, default = .false.)!, newLmask)
     tmp = gDescriptor % toString()
     write(*,*) "gridMAsk_mod:: gridMask_select:: newGMask gDescriptor =", tmp % toString()
-    !tmpMask = self % getRaw(gBoundIndices)
-    !call newGMask % set(tmpMask)
-    call newGMask % set(self % mask, gBoundIndices)
+    tmpMask = self % getRaw(gBoundIndices)
+    call newGMask % set(tmpMask)
   end function gridMask_select
 
 
