@@ -164,10 +164,17 @@ contains
     !procedure :: gridDomain_combine (+)
     ! total           d         +  dother
     !             (border all T) (border all T)
-    ! (3) (-1)       (2) (-1)      (3)(1)
-    ! b x x b (3)     x x b (3)
+    !(3)  (-1)       (2) (-1)      (3)(1)
+    !   x x b (3)     x x b (3)
     ! x x x -     <=  x x - (1) +   x b (2)
-    ! x - b b  (0)                  x - (0)
+    ! x -      (0)                  x - (0)
+    !
+    ! to (border undefined mask cells)
+    !
+    !(3) (-1)
+    ! b x x b (3)
+    ! x x x -
+    ! x - b b (0)
     !
     ! Final:          (border)
     !(3)   (-1)
@@ -177,7 +184,7 @@ contains
     !
     !< setup (d)
     !< enabled (d)
-    emask(1,:) = [.false., .true., .false.]
+    emask(1,:) = [.true., .true., .false.]
     emask(2,:) = [.true.,  .true., .false.]
     !< border (d)
     bmask(1,:) = [.false., .false., .true.]
