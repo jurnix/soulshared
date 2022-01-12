@@ -41,7 +41,7 @@ module shr_gridMask_mod
     procedure(iface_gridMask_initialize), deferred :: initialize
     generic :: init => initialize_by_larray, initialize
 
-    procedure(iface_getRaw), deferred :: getRaw
+    procedure(iface_get), deferred :: get
     procedure(iface_getGridDescriptor), deferred :: getGridDescriptor
 
     procedure(iface_equal_scalar_logical), deferred :: equal_scalar_logical
@@ -83,7 +83,7 @@ module shr_gridMask_mod
       logical, intent(in), optional :: default !< define default value (def: true)
     end subroutine iface_gridMask_initialize
 
-    function iface_getRaw(self, gBoundIndices) result (newMask)
+    function iface_get(self, gBoundIndices) result (newMask)
       import :: shr_IgridMask, shr_gridBoundIndices
       !< returns current mask
       !< in case gBoundIndices are defined it returns the selected indices
@@ -91,7 +91,7 @@ module shr_gridMask_mod
       class(shr_IgridMask), intent(in) :: self
       type(shr_gridBoundIndices), intent(in), optional :: gBoundIndices
       logical, allocatable :: newMask(:,:) !< output
-    end function iface_getRaw
+    end function iface_get
 
     function iface_getGridDescriptor(self) result(newGDescriptor)
       import :: shr_IgridMask, shr_iGGridDescriptor
@@ -206,7 +206,7 @@ module shr_gridMask_mod
     procedure :: getStatusByGridcellIndex
     generic :: getStatus => getStatusByGridcellIndex
 
-    procedure :: getRaw
+    procedure :: get
     procedure :: getGridDescriptor => gridMask_getGridDescriptor
 
     procedure, pass(self) :: copy_rev_array
@@ -229,14 +229,11 @@ module shr_gridMask_mod
 
     procedure :: any => any_gridMask
 
-    !procedure :: get
     procedure :: set => gridMask_set
     procedure :: select => gridMask_select
     procedure :: expand => gridMask_expand
     procedure :: toString => gridMask_toString
     procedure :: getShape => gridMask_getShape
-
-    !procedure :: isIncluded => gridMask_isIncluded
   end type shr_gridMask
 
 contains
@@ -321,7 +318,7 @@ contains
   end function countEnabled
 
 
-  function getRaw(self, gBoundIndices) result (newMask)
+  function get(self, gBoundIndices) result (newMask)
     !< returns current mask
     !< todo: change to get(...)
     class(shr_gridMask), intent(in) :: self
@@ -350,7 +347,7 @@ contains
 
     allocate(newMask(nrows, ncols))
     newMask(1:nrows, 1:ncols) = self % mask(startRow:endRow, startCol:endCol )
-  end function getRaw
+  end function get
 
 
 
@@ -409,7 +406,7 @@ contains
     logical, allocatable :: lmask(:,:)
     !< copy shape
     allocate(lmask, mold = self % mask)
-    lmask = (self % mask .and. other % getRaw() )
+    lmask = (self % mask .and. other % get() )
 
     allocate(shr_gridMask :: newMask)
     call newMask % init(self % gridDescriptor, lmask)
@@ -427,7 +424,7 @@ contains
     logical, allocatable :: lmask(:,:)
     !< copy shape
     allocate(lmask, mold = self % mask)
-    lmask = (self % mask .or. other % getRaw() )
+    lmask = (self % mask .or. other % get() )
 
     allocate(shr_gridMask :: newMask)
     call newMask % init(self % gridDescriptor, lmask)
@@ -599,7 +596,7 @@ contains
     call newGMask % init(gDescriptor, default = .false.)!, newLmask)
     tmp = gDescriptor % toString()
     write(*,*) "gridMAsk_mod:: gridMask_select:: newGMask gDescriptor =", tmp % toString()
-    tmpMask = self % getRaw(gBoundIndices)
+    tmpMask = self % get(gBoundIndices)
     call newGMask % set(tmpMask)
   end function gridMask_select
 

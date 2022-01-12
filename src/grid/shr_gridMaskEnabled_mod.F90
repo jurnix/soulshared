@@ -36,7 +36,7 @@ contains
     class(shr_gridMaskEnabled), intent(inout) :: self
     class(shr_igridMask), intent(in) :: gmask
     self % gridDescriptor = gmask % getGridDescriptor()
-    self % mask = gmask % getRaw()
+    self % mask = gmask % get()
   end subroutine initialize_from_GridMask
 
 end module shr_gridMaskEnabled_mod

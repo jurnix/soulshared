@@ -122,7 +122,7 @@ contains
 
     call self % assert(m % countEnabled() == 2, "m % count() .eq. 2 = T")
 
-    !< getRaw
+    !< get
     m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call gcIndex % init(2, 2)
     call m % setStatus(gcIndex, .false.)
@@ -131,9 +131,9 @@ contains
     expMask = .true.
     expMask(1,2) = .false.
     expMask(2,2) = .false.
-    foundMask = m % getRaw()
+    foundMask = m % get()
     call self % assert(all(foundMask .eqv. expMask), &
-            "m % getRaw() .eq. ((T,F), (T,F)) = T")
+            "m % get() .eq. ((T,F), (T,F)) = T")
 
     !< get status
     m = getNewGridMask(RES, [1.,-1.,2.,0.])
@@ -261,7 +261,7 @@ contains
     smallGMask = m % select(gmDescSmall)
 
     rawSmallMask(1,:) = [.false., .true.]
-    foundMask = smallGMask % getRaw()
+    foundMask = smallGMask % get()
     call self % assert( all(foundMask .eqv. rawSmallMask ), &
         "m(FT,FF) % select(XX,--) .eq. mask(FT) = T")
 
@@ -277,7 +277,7 @@ contains
     expBigMask(2,:) = [.true., .false., .false., .true.]
     expBigMask(3,:) = [.true., .false., .false., .true.]
     expBigMask(4,:) = .true.
-    foundMask = m % getRaw()
+    foundMask = m % get()
     call self % assert( all(foundMask .eqv. expBigMask ), &
         "m(T...T) % set(F, 3,2,1,2) .eq. mask() = T")
 
@@ -309,7 +309,7 @@ contains
 
     rawMask(1,:) = [.false., .true.]
     rawMask(2,:) = [.true., .true.] ! -> extended row
-    foundMask = gmBig % getRaw()
+    foundMask = gmBig % get()
 
     call self % assert( all(foundMask .eqv. rawMask ), &
         "m(1,0,2,0, (FT,FF)) % expand(1,-1,2,0) .eq. mask(FT,TT) = T")

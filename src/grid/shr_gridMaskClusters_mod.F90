@@ -86,7 +86,7 @@ contains
 
     !< initialize each cluster to shr_gridMask
     !< from shr_gridMask to shr_maskClusters
-    lmask = self % mask % getRaw()
+    lmask = self % mask % get()
     call mask % init(lmask)
     call self % clusters % init(mask)
 

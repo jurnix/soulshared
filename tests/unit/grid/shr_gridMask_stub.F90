@@ -29,7 +29,7 @@ module shr_gridMask_stub
   contains
     procedure :: initialize, initialize_by_larray
 
-    procedure :: getRaw
+    procedure :: get
     procedure :: getGridDescriptor
 
     procedure :: isIncluded
@@ -69,13 +69,7 @@ contains
   !<
   !< shr_gridMaskStub
   !<
-  !function getRaw(self) result (outMask)
-    !< returns current mask
-  !  class(shr_gridMaskStub), intent(in) :: self
-  !  logical, allocatable :: outMask(:,:) !< output
-
-  !end function getRaw
-  function getRaw(self, gBoundIndices) result (newMask)
+  function get(self, gBoundIndices) result (newMask)
     !< returns current mask
     !< in case gBoundIndices are defined it returns the selected indices
     !< those indices must be valid
@@ -87,7 +81,7 @@ contains
     newMask(2,:) = [.true., .true., .true.]
     newMask(3,:) = [.true., .false., .false.]
     newMask(4,:) = [.false., .true., .true.]
-  end function getRaw
+  end function get
 
 
   function getGridDescriptor(self) result(newGDescriptor)

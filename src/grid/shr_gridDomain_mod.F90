@@ -94,7 +94,7 @@ contains
     !< from gridMAsk to gridMaskEnabled
     call gmEnabled % init(self % maskEnabled)
     !< from gridMask to gridMaskBorder
-    lmask = border % getRaw()
+    lmask = border % get()
     call gmBorder % init(descriptor, lmask)
     !< 'border' mask matches with 'enabled' gridcells?
     !expectedBorder = self % maskBorder % isIncluded(self % maskEnabled)
