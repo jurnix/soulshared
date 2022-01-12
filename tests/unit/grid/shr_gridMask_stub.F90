@@ -38,6 +38,7 @@ module shr_gridMask_stub
     procedure :: equal_rawMask
     procedure :: equal_gridMask
 
+    procedure :: or_gridMask
     procedure :: and_gridMask
     procedure :: any
 
@@ -128,13 +129,13 @@ contains
   end function equal_gridMask
 
 
-  function expand(self, gDescriptor) result (newGMask)
+  function expand(self, gDescriptor, default) result (newGMask)
     !< returns a new shr_gridMask with an expanded grid
     !< - 'self' must fit into 'gDescriptor'
     !< - mask remains the same
     class(shr_gridMaskStub), intent(in) :: self
-    !type(shr_gridBounds), intent(in) :: bounds
     class(shr_iGGridDescriptor), intent(in) :: gDescriptor
+    logical, intent(in), optional :: default
     class(shr_igridMask), allocatable :: newGMask !< output
   end function expand
 
@@ -146,6 +147,17 @@ contains
     class(shr_iGGridDescriptor), intent(in) :: gDescriptor
     class(shr_igridMask), allocatable :: newGMask !< output
   end function select
+
+
+  function or_gridMask(self, other) result (newMask)
+    !< returns a new gridMask with matching gridcells
+    !< both must have the same size
+    !<
+    !< gridMask(T T F) = gridMask(T T F) .and. gridMask(F T F)
+    class(shr_gridMaskStub), intent(in) :: self
+    class(shr_igridMask), intent(in) :: other
+    class(shr_igridMask), allocatable :: newMask !< output
+  end function or_gridMask
 
 
   function and_gridMask(self, other) result (newMask)
