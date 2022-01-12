@@ -131,77 +131,19 @@ contains
     !< - overlapping gridcells: 'and' operation for its values
     !< in case of conflict:
     !< enabled > disabled > border
-    !< todo: include gridDomain_expand
     class(shr_gridDomain), intent(in) :: self
     type(shr_gridDomain), intent(in) :: other
 
-    class(shr_igridMask), allocatable :: newEnabledMaskGrid, newBorderMaskGrid
     class(shr_iGgridDescriptor), allocatable :: cgDescriptor
-    class(shr_igridMask), allocatable :: expandedESelfMask, expandedEOtherMask
-    class(shr_igridMask), allocatable :: expandedSelfMaskBorders, expandedOtherMaskBorders
-    class(shr_igridMask), allocatable ::otherEnabledGridmask, otherBorderGridMask
-
     class(shr_gridDomain), allocatable :: expandedSelf, expandedOther
-    !type(string) :: tmp
 
-    !< combine grid descriptors !< same grid descriptors
+    !< combine grid descriptors
     cgDescriptor = (self % getGridDescriptor() + other % getGridDescriptor())
 
     expandedSelf = self % expand(cgDescriptor) !< default enabled = false, defalt border = true
     expandedOther = other % expand(cgDescriptor) !< default enabled = false, defalt border = true
+    !< same grid descriptors
     combinedDomain = expandedSelf .and. expandedOther
-
-      !tmp = cgDescriptor % toString()
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: combined descriptor=", tmp % toString()
-
-    !< adapt both masks to new grid descriptor dimensions
-    !< self enabled
-      !tmp = self % maskEnabled % toString()
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: original self enabled mask=", tmp % toString()
-    !expandedESelfMask = self % maskEnabled % expand(cgDescriptor, default = .false.)
-      !tmp = expandedESelfMask % toString()
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: expanded self enabled mask=", tmp % toString()
-
-    !< other enabled mask
-    !otherEnabledGridMask = other % getEnabledGridMask()
-      !tmp = otherEnabledGridMask % toString()
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: original other enabled mask=", tmp % toString()
-    !expandedEOtherMask = otherEnabledGridmask % expand(cgDescriptor, default = .false.)
-      !tmp = expandedEOtherMask % toString()
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: expanded other enabled mask=", tmp % toString()
-
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: -----------------------------------------------------"
-      !write(*,*) "gridDomain_mod:: gridDomain_combine::                   ...combining..."
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: -----------------------------------------------------"
-    !< combine enabled
-    !newEnabledMaskGrid = expandedESelfMask .or. expandedEOtherMask
-      !tmp = newEnabledMaskGrid % toString()
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: combined enabled mask=", tmp % toString()
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: ...done"
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: "
-
-    !< expand border
-    !< expand 'self'
-      !tmp = self % maskBorder % toString()
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: original self border mask=", tmp % toString()
-    !expandedSelfMaskBorders = self % maskBorder % expand(cgDescriptor)
-      !tmp = expandedSelfMaskBorders % toString()
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: expanded self border mask=", tmp % toString()
-
-    !< expand 'other'
-    !otherBorderGridMask = other % getBorderGridMask()
-      !tmp = otherBorderGridMask % toString()
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: original other border mask=", tmp % toString()
-    !expandedOtherMaskBorders = otherBorderGridMask % expand(cgDescriptor)
-      !tmp = expandedOtherMaskBorders % toString()
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: expanded other border mask=", tmp % toString()
-
-    !< combine border
-    !newBorderMaskGrid = expandedSelfMaskBorders .and. expandedOtherMaskBorders
-      !tmp = newBorderMaskGrid % toString()
-      !write(*,*) "gridDomain_mod:: gridDomain_combine:: combined border mask=", tmp % toString()
-
-    !call combinedDomain % init(cgDescriptor, newEnabledMaskGrid, newBorderMaskGrid)
   end function gridDomain_combine
 
 
