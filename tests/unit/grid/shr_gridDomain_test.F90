@@ -238,28 +238,29 @@ contains
     ! domain        mask        final
     !
     !(4.)  (0.)
-    ! - x x -  (3.)    - - - -       b b b b
-    ! x x x -       +  - x x -   =>  b x x b
-    ! x - b b  (0.)    - x x -       b - b b
+    ! - x x -  (3.)    - - - -       - - - -
+    ! x x x -       +  - x x -   =>  - x x -
+    ! x - b b  (0.)    - x x -       - - b -
 
     !< setup
-    !< enabled
-    emask(1,:) = [.false., .true., .true., .false.]
-    emask(2,:) = [.true.,  .true., .true., .false.]
-    emask(3,:) = [.true., .false., .false., .false.]
-    !< border
+    !< expected enabled
+    emask(1,:) = [.false., .false., .false., .false.]
+    emask(2,:) = [.false.,  .true., .true., .false.]
+    emask(3,:) = [.false., .false., .false., .false.]
+    !< expected border
     bmask(1,:) = [.false., .false., .false., .false.]
     bmask(2,:) = [.false., .false., .false., .false.]
-    bmask(3,:) = [.false., .false., .true., .true.]
+    bmask(3,:) = [.false., .false., .true., .false.]
     expected = createNewGridDomain(RES, BOUNDS, emask, bmask)
 
-    lemask(1,:) = [.false., .false., .false., .false.]
-    lemask(2,:) = [.false., .true., .true., .false.]
-    lemask(3,:) = [.false., .false., .false., .false.]
-    !< border
-    lbmask(1,:) = [.true., .true., .true., .true.]
-    lbmask(2,:) = [.true., .false., .false., .true.]
-    lbmask(3,:) = [.true., .false., .true., .true.]
+    !< original enabled
+    lemask(1,:) = [.false., .true., .true., .false.]
+    lemask(2,:) = [.true., .true., .true., .false.]
+    lemask(3,:) = [.true., .false., .false., .false.]
+    !< original border
+    lbmask(1,:) = [.false., .false., .false., .false.]
+    lbmask(2,:) = [.false., .false., .false., .false.]
+    lbmask(3,:) = [.false., .false., .true., .true.]
     d = createNewGridDomain(RES, BOUNDS, lemask, lbmask)
 
     !< request
