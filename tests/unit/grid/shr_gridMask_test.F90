@@ -34,29 +34,37 @@ module shr_gridMask_test
 
   contains
     procedure :: define => defineTestCases
+    procedure, private :: testCaseExpandWithDefault
   end type 
 
 contains
 
-  type(shr_gridMask) function getNewGridMask(newBounds)
+  type(shr_gridMask) function getNewGridMask(resolution, newBounds, mask)
     !< create a new shr_gridMask
-    real(kind=sp) :: newBounds(4) !< N, S, E, W
+    real(kind=sp), intent(in) :: resolution
+    real(kind=sp), intent(in) :: newBounds(4) !< N, S, E, W
+    logical, intent(in), optional :: mask(:,:)
     type(shr_gridBounds) :: bounds
     type(shr_gGridDescriptor) :: gDescriptor
 
     call bounds % init(newBounds)
-    call gDescriptor % init(RES, bounds)
-    call getNewGridMask % init(gDescriptor)
+    call gDescriptor % init(resolution, bounds)
+    if (present(mask)) then
+      call getNewGridMask % init(gDescriptor, mask)
+    else
+      call getNewGridMask % init(gDescriptor)
+    end if
   end function getNewGridMask
 
 
-  type(shr_gGridDescriptor) function getNewGridDesriptor(north, south, east, west)
+  type(shr_gGridDescriptor) function getNewGridDesriptor(resolution, north, south, east, west)
     !< creates a new shr_gGridDescriptor
+    real(kind=sp), intent(in) :: resolution
     real(kind=sp), intent(in) :: north, south
     real(kind=sp), intent(in) :: east, west
     type(shr_gridBounds) :: bounds
     call bounds % init(north, south, east, west)
-    call getNewGridDesriptor % init(RES, bounds)
+    call getNewGridDesriptor % init(resolution, bounds)
   end function getNewGridDesriptor
 
 
@@ -64,7 +72,7 @@ contains
     use iso_c_binding
     class(testSuitegridMask), intent(inout) :: self
 
-    type(shr_gridMask) :: m, other, m1, m2, mOther
+    type(shr_gridMask) :: m, other, m1, m2
 
     logical :: expMask(2,2), rawMask(2,2), rawSmallMask(1,2)
     logical :: expBigMask(4,4)
@@ -102,11 +110,11 @@ contains
     ! | 2,1 | 2,2 |
     ! *-----+-----+
     !
-    m = getNewGridMask([1.,-1.,2.,0.])
+    m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call self % assert(m % countEnabled() == 4, "m % count() .eq. 4 = T")
 
     !< setStatus
-    m = getNewGridMask([1.,-1.,2.,0.])
+    m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call gcIndex % init(2, 2)
     call m % setStatus(gcIndex, .false.)
     call gcIndex % init(1, 2)
@@ -115,7 +123,7 @@ contains
     call self % assert(m % countEnabled() == 2, "m % count() .eq. 2 = T")
 
     !< getRaw
-    m = getNewGridMask([1.,-1.,2.,0.])
+    m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call gcIndex % init(2, 2)
     call m % setStatus(gcIndex, .false.)
     call gcIndex % init(1, 2)
@@ -128,18 +136,18 @@ contains
             "m % getRaw() .eq. ((T,F), (T,F)) = T")
 
     !< get status
-    m = getNewGridMask([1.,-1.,2.,0.])
+    m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call gcIndex % init(1, 1)
     call self % assert(m % getStatus(gcIndex), &
             "m % getStatus(1,1) = T")
 
-    m = getNewGridMask([1.,-1.,2.,0.])
+    m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call gcIndex % init(2, 2)
     call m % setStatus(gcIndex, .false.)
     call self % assert(.not. m % getStatus(gcIndex), &
             "m % getStatus(2,2) = F")
 
-    m = getNewGridMask([1.,-1.,2.,0.])
+    m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call gcIndex % init(2, 2)
     call m % setStatus(gcIndex, .false.)
     call gcIndex % init(1, 2)
@@ -151,7 +159,7 @@ contains
             "m == rawMask(FT, TF) = T")
 
     !< == (scalar)
-    m = getNewGridMask([1.,-1.,2.,0.])
+    m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call gcIndex % init(1, 1)
     call m % setStatus(gcIndex, .false.)
     call gcIndex % init(1, 2)
@@ -164,7 +172,7 @@ contains
             "m == .true. = F")
 
     !< revert changes
-    m = getNewGridMask([1.,-1.,2.,0.])
+    m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call gcIndex % init(2, 2)
     call m % setStatus(gcIndex, .true.)
     call gcIndex % init(1, 2)
@@ -172,16 +180,16 @@ contains
     call self % assert( ( m == .true. ), "m(true) == .true. = T")
 
     !< revert
-    m = getNewGridMask([1.,-1.,2.,0.])
+    m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call m % reverse()
     call self % assert( ( m == .false. ), "m(true) % revert() .eq. .false. = T")
 
-    m = getNewGridMask([1.,-1.,2.,0.])
+    m = getNewGridMask(RES, [1.,-1.,2.,0.])
     m = .not. m
     call self % assert( ( m == .false. ), ".not. m(false) .eq. false. = T")
 
     !< copy (=)
-    m = getNewGridMask([1.,-1.,2.,0.])
+    m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call gcIndex % init(2, 2)
     call m % setStatus(gcIndex, .true.)
     other = m
@@ -192,7 +200,7 @@ contains
             "other .eq. m = T")
 
     ! or
-    m1 = getNewGridMask([1.,-1.,2.,0.])
+    m1 = getNewGridMask(RES, [1.,-1.,2.,0.])
     ! [.false., .true.]
     ! [.false., .false.]
     call gcIndex % init(1, 1)
@@ -202,7 +210,7 @@ contains
     call gcIndex % init(2, 1)
     call m1 % setStatus(gcIndex, .false.)
 
-    m2 = getNewGridMask([1.,-1.,2.,0.])
+    m2 = getNewGridMask(RES, [1.,-1.,2.,0.])
     ! [.false., .false.]
     ! [.true.,  .false.]
     call gcIndex % init(1, 1)
@@ -222,7 +230,8 @@ contains
 
     ! toChars
     tmpStr = m2 % toString()
-    expStr = string("'F F'"// new_line('A') // "'T F'")
+    expStr = string("resolution= 1.0000, bounds=(1.0000, -1.0000, 2.0000, 0.0000)" &
+          // new_line('A') // "'F F'"// new_line('A') // "'T F'")
     call self % assert( tmpStr == expStr, &
         "m2(F F, T F) % toString() .eq. expStr(F F T F) = T")
 
@@ -243,11 +252,11 @@ contains
     !  |   |   |
     !  +---+---+- (-1.)
     !
-    m = getNewGridMask([1.,-1.,2.,0.])
+    m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call gcIndex % init(1, 1)
     call m % setStatus(gcIndex, .false.)
 
-    gmDescSmall = getNewGridDesriptor(1.,0.,2.,0.)
+    gmDescSmall = getNewGridDesriptor(RES, 1.,0.,2.,0.)
 
     smallGMask = m % select(gmDescSmall)
 
@@ -258,7 +267,7 @@ contains
 
 
     ! set
-    m = getNewGridMask([4.,0.,4.,0.]) !< default = true, coordinates
+    m = getNewGridMask(RES, [4.,0.,4.,0.]) !< default = true, coordinates
     call gBoundIndices % init(2, 3, 2, 3) !< indices
     rawMask = .false.
 
@@ -291,10 +300,10 @@ contains
     !  +---+---+- (-1.)
     !
 
-    gmSmall = getNewGridMask([1., 0., 2., 0.])
+    gmSmall = getNewGridMask(RES, [1., 0., 2., 0.])
     call gcIndex % init(1, 1)
     call gmSmall % setStatus(gcIndex, .false.)
-    gmDescBig = getNewGridDesriptor(1.,-1.,2.,0.)
+    gmDescBig = getNewGridDesriptor(RES, 1.,-1.,2.,0.)
 
     gmBig = gmSmall % expand(gmDescBig)
 
@@ -304,7 +313,69 @@ contains
 
     call self % assert( all(foundMask .eqv. rawMask ), &
         "m(1,0,2,0, (FT,FF)) % expand(1,-1,2,0) .eq. mask(FT,TT) = T")
+
+    call self % testCaseExpandWithDefault()
+
   end subroutine defineTestCases
+
+
+  subroutine testCaseExpandWithDefault(self)
+    !< test case for expand method with default argument enabled
+    class(testSuitegridMask), intent(inout) :: self
+    logical :: lmask(2,3), expectedlMask(3,4)
+    type(shr_gGridDescriptor) :: gmDescBig
+    type(shr_gridMask) :: gmSmall, expectedGMask
+    class(shr_gridMask), allocatable :: gmBig
+    type(string) :: tmp
+    ! expand with default
+
+    ! from [2,-1,0,-1]
+    !
+    ! (2) (1) (0) (-1)
+    !  |   |   |   |
+    !  +---+---+---+  (3.)
+    !  | F | T | F |
+    !  +---+---+---+  (2.)
+    !  | T | T | F |
+    !  +---+---+---+  (1.)
+    !
+    ! to [3,0,3,-1]
+    !
+    ! (3) (2) (1) (0) (-1)
+    !  |   |   |   |   |
+    !  +---+---+---+---+  (3.)
+    !  | F | F | T | F |
+    !  +---+---+---+---+  (2.)
+    !  | F | T | T | F |
+    !  +---+---+---+---+  (1.)
+    !  | F | F | F | F |
+    !  +---+---+---+---+  (0.)
+    !
+
+    !< setup
+    lmask(1,:) = [.false., .true., .false.]
+    lmask(2,:) = [.true., .true., .false.]
+    gmSmall = getNewGridMask(1.0, [3., 1., 2., -1.], lmask)
+    tmp = gmSmall % toString()
+    write(*,*) "gridMask_test:: testCaseExpandWithDefault:: original =", tmp % toString()
+    gmDescBig = getNewGridDesriptor(RES, 3.,0.,3.,-1.)
+
+    gmBig = gmSmall % expand(gmDescBig, default = .false.)
+
+    tmp = gmBig % toString()
+    write(*,*) "gridMask_test:: testCaseExpandWithDefault:: expanded =", tmp % toString()
+
+    expectedlMask(1,:) = [.false., .false., .true., .false.]
+    expectedlMask(2,:) = [.false., .true., .true., .false.]
+    expectedlMask(3,:) = [.false., .false., .false., .false.]
+    expectedGMask = getNewGridMask(1., [3.,0.,3.,-1.], expectedlMask)
+
+    tmp = expectedGMask % toString()
+    write(*,*) "gridMask_test:: testCaseExpandWithDefault:: expected =", tmp % toString()
+
+    call self % assert( gmBig == expectedGMask, &
+        "gm(3,1,2,-1, (FTF,TTF)) % expand(3,0,3,-1) .eq. mask(FTFF,TTFF,FFFF) = T")
+  end subroutine testCaseExpandWithDefault
 
 
 end module shr_gridMask_test
