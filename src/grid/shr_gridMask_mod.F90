@@ -43,7 +43,6 @@ module shr_gridMask_mod
 
     procedure(iface_getRaw), deferred :: getRaw
     procedure(iface_getGridDescriptor), deferred :: getGridDescriptor
-    !procedure(iface_isincluded), deferred :: isIncluded
 
     procedure(iface_equal_scalar_logical), deferred :: equal_scalar_logical
     procedure(iface_equal_rawMask), deferred :: equal_rawMask
@@ -100,13 +99,6 @@ module shr_gridMask_mod
       class(shr_IgridMask), intent(in) :: self
       class(shr_iGGridDescriptor), allocatable :: newGDescriptor !< output
     end function iface_getGridDescriptor
-
-    !logical function iface_isIncluded(self, other)
-    !  import :: shr_igridMask
-      !< true if other gridMask true gridcells also match self mask array
-    !  class(shr_igridMask), intent(in) :: self
-    !  class(shr_igridMask), intent(in) :: other
-    !end function iface_isIncluded
 
     logical function iface_equal_scalar_logical(self, value)
       import :: shr_igridMask
