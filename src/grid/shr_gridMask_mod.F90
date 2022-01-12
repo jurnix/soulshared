@@ -534,6 +534,7 @@ contains
   type(string) function gridMask_toString(self)
     !< mask to string type
     !<
+    !< bounds % toString()
     !< 'T T'
     !< 'T T'
     !< 'F T'
@@ -778,56 +779,6 @@ contains
                 !") = mask(1:",nrows,",1:",ncols,")"
     self % mask(startRow:endRow, startCol:endCol) = mask(1:nrows,1:ncols)
   end subroutine gridMask_set
-
-
-  !logical function gridMask_isIncluded(self, other)
-    !< true if other gridMask true gridcells also match self mask array
-    !<
-    !< self (TT,FF) % isMaskIncluded(TF,FF) -> true
-    !< self (TT,FF) % isMaskIncluded(TF,FT) -> false
-    !<
-    !< 'self' matches with 'other' gridcells?
-    !< ('self' gridcells are disabled in 'other')
-    !< partition self
-    !< T T F F F T -> True where border
-    !<
-    !< land grid cells -> True where land grid cells
-    !< F F T F T F   -> rev (select disabled) -> T T F T F T
-    !<                                              .and.
-    !<                                 (border)  T T - - - T
-    !< all true? -> yes
-  !  class(shr_gridMask), intent(in) :: self
-  !  class(shr_igridMask), intent(in) :: other
-
-  !  type(shr_gridMask) :: reversedMask, disabledMask
-  !  type(string) :: tmp
-
-  !  select type (o => other)
-  !  type is (shr_gridMask)
-  !    reversedMask = o
-  !  class default
-  !    call raiseError(__FILE__, &
-  !        "gridMask_isIncluded", &
-  !        "Unexpected type found instead of 'shr_gridMask'")
-  !  end select
-  !  tmp = self % toString()
-  !  write(*,*) "gridMask_mod:: gridMask_isIncluded:: self =", tmp % toString()
-  !  tmp = reversedMask % toString()
-  !  write(*,*) "gridMask_mod:: gridMask_isIncluded:: other =", tmp % toString()
-
-    !< select potential border cells
-  !  call reversedMask % reverse()
-  !  tmp = reversedMask % toString()
-  !  write(*,*) "gridMask_mod:: gridMask_isIncluded:: other % reversedMask =", tmp % toString()
-    !< potential border cells match with chosen 'border'?
-  !  disabledMask = (self .and. reversedMask)
-  !  tmp = disabledMask % toString()
-  !  write(*,*) "gridMask_mod:: gridMask_isIncluded:: (self and reversed) disabledMask =", tmp % toString()
-    !< all match?
-  !  tmp = other % toString()
-  !  write(*,*) "gridMask_mod:: gridMask_isIncluded:: other =", tmp % toString()
-  !  gridMask_isIncluded = (disabledMask == other)
-  !end function gridMask_isIncluded
 
 
   function gridMask_getShape(self) result (shape)
