@@ -273,9 +273,9 @@ contains
   type(shr_gridDomain) function expand(self, gDescriptor) result (newGDomain)
     !< resize to bigger domain defined by gDescriptor
     !< 'gDescripter' must be the same or bigger than 'self'
-    !< be default:
-    !< enabled mask: new mask cells set to false
-    !< border mask: new mask cells set to false
+    !< by default:
+    !< - enabled mask: new mask cells set to false
+    !< - border mask: new mask cells set to true
     class(shr_gridDomain), intent(in) :: self
     class(shr_iGGridDescriptor), intent(in) :: gDescriptor
 
@@ -284,7 +284,6 @@ contains
     expandedBorder = self % maskBorder % expand(gDescriptor, default = .true.)
     expandedEnabled = self % maskEnabled % expand(gDescriptor, default = .false.)
 
-    !allocate(shr_gridDomain :: newGDomain)
     call newGDomain % gridDomain_initialize(gDescriptor, expandedEnabled, expandedBorder)
   end function expand
 

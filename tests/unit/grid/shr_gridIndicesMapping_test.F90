@@ -13,7 +13,6 @@ module shr_gridIndicesMapping_test
 
   use SHR_testSuite_mod, only: testSuite
 
-  use shr_objects_mod, only: shr_wrapObject
   use shr_coord_mod, only: shr_coord
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_gridIndicesMapping_mod, only: shr_gridIndicesMapping

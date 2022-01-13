@@ -29,7 +29,7 @@ module SHR_set_mod
 
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp, dp
-  use SHR_objects_mod, only: SHR_eqObject_abs, shr_wrapObject
+  use SHR_objects_mod, only: shr_genericObject
   use SHR_linkedlist_mod, only: linkedlist, linkedListNode
 
   implicit none 
@@ -63,7 +63,7 @@ contains
     class(set), intent(inout) :: this
     class(*), intent(in), pointer :: value
 
-    class(shr_wrapObject), allocatable :: wrapObj
+    class(shr_genericObject), allocatable :: wrapObj
     write(*,*) "set_mod:: append:: starting..."
 
     allocate(wrapObj)
@@ -149,7 +149,7 @@ contains
 
     integer :: nelems, ielem
     logical, allocatable :: hasSameValues(:)
-    class(shr_wrapObject), allocatable :: valueWrapObj
+    class(shr_genericObject), allocatable :: valueWrapObj
 
 !    write (*,*) "set_mod:: exists:: starting..."
     ielem = 0 
@@ -159,7 +159,7 @@ contains
     hasSameValues = .false.
 
     allocate(valueWrapObj)
-!    valueWrapObj => wrapObject(value)
+!    valueWrapObj => genericObject(value)
     call valueWrapObj % init(value)
 
     call this % traverse_safe(existsObject)
@@ -173,7 +173,7 @@ contains
        !> discover type for 'node % value' and 'values'
        !> if same type then it compares their values
        type(LinkedListNode), pointer, intent(in)  :: node
-       class(shr_wrapObject), allocatable :: nodeObj
+       class(shr_genericObject), allocatable :: nodeObj
 
        allocate(nodeObj)
        call nodeObj % init(node % value)

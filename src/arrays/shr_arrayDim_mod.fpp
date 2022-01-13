@@ -16,7 +16,7 @@
 module SHR_arrayDim_mod
 
   use SHR_precision_mod, only: sp, dp !, eqReal
-  use SHR_objects_mod, only: shr_eqObject_abs
+  use SHR_objects_mod, only: shr_equal_iface
   use SHR_strings_mod, only: string
   use SHR_error_mod, only: raiseError 
   use SHR_arrayUtils_mod, only: initArrayRange
@@ -33,17 +33,17 @@ module SHR_arrayDim_mod
   private
 
 
-  type, extends(shr_eqObject_abs) :: shr_arrayDimContainer
+  type, extends(shr_equal_iface) :: shr_arrayDimContainer
     class(shr_arrayDim), allocatable :: arraydim
   contains
     procedure :: getSize => getSize_arrayDimContainer
-    procedure :: eq_object => equal_arrayDimContainer
+    procedure :: equal => equal_arrayDimContainer
     procedure :: copy_arrayDimContainer
     generic, public :: assignment(=) => copy_arrayDimContainer
   end type shr_arrayDimContainer
 
 
-  type, extends(shr_eqObject_abs), abstract :: shr_arrayDim
+  type, extends(shr_equal_iface), abstract :: shr_arrayDim
     type(string) :: name
     integer :: size
   contains
@@ -85,7 +85,7 @@ module SHR_arrayDim_mod
     procedure :: init => init_array${IHEADER}$Dim
 
     procedure :: copy => copy_array${IHEADER}$Dim
-    procedure :: eq_object => equal_array${IHEADER}$Dim
+    procedure :: equal => equal_array${IHEADER}$Dim
 
     procedure :: getIndex_array${IHEADER}$Dim
     generic :: getIndex => getIndex_array${IHEADER}$Dim
@@ -132,7 +132,7 @@ contains
   elemental logical function equal_arrayDimContainer(self, other)
     !< true if self and other are the same
     class(shr_arrayDimContainer), intent(in) :: self
-    class(SHR_eqObject_abs), intent(in) :: other
+    class(SHR_equal_iface), intent(in) :: other
 
     select type(other)
       type is (shr_arrayDimContainer)
@@ -224,7 +224,7 @@ contains
   elemental logical function equal_array${IHEADER}$Dim(self, other)
     !< true if self and other are not the same
     class(shr_array${IHEADER}$Dim), intent(in) :: self
-    class(SHR_eqObject_abs), intent(in) :: other
+    class(shr_equal_iface), intent(in) :: other
 
     logical :: hasSameAttrs, hasSameValues
     logical :: areBothValuesAllocated, areBothValuesDeallocated

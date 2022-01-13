@@ -13,7 +13,7 @@ module SHR_testSuite_mod
   use iso_fortran_env, only: real64
   use SHR_error_mod, only: raiseError
 
-  use shr_objects_mod, only: shr_eqObject_abs !shr_wrapObject
+  use shr_objects_mod, only: shr_equal_iface
 
   implicit none
 
@@ -177,8 +177,8 @@ contains
     !< same values and are both allocated
     !< otherwise false
     class(testSuite), intent(in out) :: self
-    class(shr_eqObject_abs), allocatable, intent(in) :: expected(:)
-    class(shr_eqObject_abs), allocatable, intent(in) :: found(:)
+    class(shr_equal_iface), allocatable, intent(in) :: expected(:)
+    class(shr_equal_iface), allocatable, intent(in) :: found(:)
     character(*), intent(in) :: test_name
 
     if (.not. allocated(expected)) then
@@ -199,8 +199,8 @@ contains
     !< assert true if expected and found have the same size,
     !< and same values. Otherwise false.
     class(testSuite), intent(in out) :: self
-    class(shr_eqObject_abs), intent(in) :: expected(:)
-    class(shr_eqObject_abs), intent(in) :: found(:)
+    class(shr_equal_iface), intent(in) :: expected(:)
+    class(shr_equal_iface), intent(in) :: found(:)
     character(*), intent(in) :: test_name
 
     if (.not. same_type_as(expected, found)) then

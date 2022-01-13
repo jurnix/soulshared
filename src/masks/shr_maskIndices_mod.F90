@@ -13,7 +13,7 @@
 !------------------------------------------------------------------------------
 module shr_maskIndices_mod
 
-	use shr_objects_mod, only: shr_eqObject_abs
+	use shr_objects_mod, only: shr_equal_iface
 	use shr_strings_mod, only: string, int2string
 
 	implicit none
@@ -28,22 +28,22 @@ module shr_maskIndices_mod
 
 
 	!< 1d mask indices
-	type, extends(shr_eqObject_abs) :: shr_maskIndices_1d
+	type, extends(shr_equal_iface) :: shr_maskIndices_1d
 		integer :: start, end
 	contains
 		procedure :: init => maskIndices_1d_init
-		procedure :: eq_object => eq_maskIndices_1d
+		procedure :: equal => eq_maskIndices_1d
 		procedure :: toString => toString_maskIndices_1d
 	end type shr_maskIndices_1d
 
 	!< 2d mask indices
-	type, extends(shr_eqObject_abs) :: shr_maskIndices_2d
+	type, extends(shr_equal_iface) :: shr_maskIndices_2d
 		type(shr_maskIndices_1d), allocatable :: row, col
 	contains
 		procedure :: maskIndices_2d_init_by_array
 		procedure :: maskIndices_2d_init_by_1d
 		generic :: init => maskIndices_2d_init_by_array, maskIndices_2d_init_by_1d
-		procedure :: eq_object => eq_maskIndices_2d
+		procedure :: equal => eq_maskIndices_2d
 		procedure :: toString => toString_maskIndices_2d
 
 		procedure :: getRow
@@ -92,8 +92,7 @@ contains
 	elemental logical function eq_maskIndices_1d(self, other)
 		!< true if 'self' and 'other' have the same attributes
 		class(shr_maskIndices_1d), intent(in) :: self
-		!type(shr_maskIndices_1d), intent(in) :: other
-		class(shr_eqObject_abs), intent(in) :: other
+		class(shr_equal_iface), intent(in) :: other
 		logical :: hasSameStart, hasSameEnd
 		logical :: hasSameType
 
@@ -126,7 +125,7 @@ contains
 	elemental logical function eq_maskIndices_2d(self, other)
 		!< true if 'self' and 'other' have the same attributes
 		class(shr_maskIndices_2d), intent(in) :: self
-		class(shr_eqObject_abs), intent(in) :: other
+		class(shr_equal_iface), intent(in) :: other
 		logical :: hasSameCol, hasSameRow
 		logical :: hasSameType
 

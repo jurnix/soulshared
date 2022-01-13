@@ -18,7 +18,7 @@ module shr_gridcell_mod
   use SHR_precision_mod, only: sp 
   use shr_coord_mod, only: shr_coord
   use shr_gridBounds_mod, only: shr_gridBounds
-  use shr_objects_mod, only: shr_eqObject_abs
+  use shr_objects_mod, only: shr_equal_iface
 
   implicit none
 
@@ -43,7 +43,7 @@ module shr_gridcell_mod
 
 
 
-  type, extends(shr_eqObject_abs) :: shr_gridcell !< gridcell from the map
+  type, extends(shr_equal_iface) :: shr_gridcell !< gridcell from the map
     integer :: idx !< gridcell index in repect to the overall grid (starting from top-left with 1 to ...)
     type(shr_coord) :: center !< gridcell center
     real(kind=sp) :: resolution !< gridcell resolution
@@ -57,7 +57,7 @@ module shr_gridcell_mod
     procedure :: toString => toString_gridcell
 
     !< deferred as (==)
-    procedure :: eq_object => gridcell_eq
+    procedure :: equal => gridcell_eq
   end type shr_gridcell
 
   interface shr_gridcell
@@ -72,7 +72,7 @@ contains
     ! equal to `d1` and `.false.` otherwise. Overloads the operator `==`.
     class(shr_gridcell), intent(in) :: self
     !class(shr_gridcell), intent(in) :: gc1
-    class(SHR_eqObject_abs), intent(in) :: other
+    class(shr_equal_iface), intent(in) :: other
     class(shr_gridcell), pointer :: pGridcell
 
     logical :: sameIdx, sameCenter, sameRes, sameLimits, sameStatus

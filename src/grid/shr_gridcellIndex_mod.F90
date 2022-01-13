@@ -15,7 +15,7 @@ module shr_gridcellIndex_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
-  use shr_objects_mod, only: shr_eqobject_abs !< soulshared base object
+  use shr_objects_mod, only: shr_equal_iface !< soulshared base object
   use shr_strings_mod, only: string, int2string
   use shr_gridcell_mod, only: shr_gridcell
 
@@ -27,7 +27,7 @@ module shr_gridcellIndex_mod
 
 
 
-  type, extends(shr_eqObject_abs) :: shr_gridcellIndex
+  type, extends(shr_equal_iface) :: shr_gridcellIndex
     integer :: idxlat
     integer :: idxlon
   contains
@@ -35,7 +35,7 @@ module shr_gridcellIndex_mod
 
     procedure :: getIndices
     !< implemented
-    procedure :: eq_object => eq_gridcellIndex
+    procedure :: equal => eq_gridcellIndex
 !    generic :: operator(==) => eq_object
 
     procedure :: toString
@@ -65,7 +65,7 @@ contains
     !< true if 'self' and 'other' have the same attributes 
     !< in case 'other' is not the same it is false
     class(shr_gridcellIndex), intent(in) :: self
-    class(shr_eqObject_abs), intent(in) :: other
+    class(shr_equal_iface), intent(in) :: other
     logical :: hasSameIdxLat, hasSameIdxLon
 
     type(shr_gridcellIndex), pointer :: otherWrap
