@@ -9,6 +9,24 @@
 ! DESCRIPTION:
 !>
 !> Converts shr_gridDomain into (multiple) shr_gridDomainSquared(s)
+!>
+!> Example:
+!>
+!> (gridDomain) 			found								gridDomainSquared
+!>
+!> - x x -					-> 1st - x x -  ->  x x
+!> x x - -					-> 2d  x x - -  ->  x x
+!> - - - -     ->
+!> x x x x					-> 3rd x x x x  ->  x x x x
+!> x x x x 								 x x x x 			x x x x
+!>
+!> gridDomainSquare include the correct gridDescriptor.
+!> They can be put into place in case those are combined.
+!>
+!> Such feature is useful when writing/reading netcdf data.
+!> Due to parallelism the grid is divided for each proc.
+!> This causes non regular grids. Consequently IO data must be written
+!> into chunks.
 !------------------------------------------------------------------------------
 module shr_gridDomainToSquaredConverter_mod
 
