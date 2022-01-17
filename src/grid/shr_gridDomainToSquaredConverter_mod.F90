@@ -49,8 +49,8 @@ module shr_gridDomainToSquaredConverter_mod
 		procedure :: init => gridDomainToSquaredConverter_initialize
 		procedure, private :: isDomainSquared
 
-		procedure :: toSquaredDomain !< single
-		procedure :: toSquaredDomains !< many
+		procedure, private :: toSquaredDomain !< single
+		procedure, private :: toSquaredDomains !< many
 		generic :: convert => toSquaredDomain, toSquaredDomains
 
 		procedure :: get => getSquaredDomains
@@ -58,13 +58,22 @@ module shr_gridDomainToSquaredConverter_mod
 
 contains
 
-  subroutine gridDomainToSquaredConverter_initialize(self, domain)
+  subroutine gridDomainToSquaredConverter_initialize(self, domain, clustersMethod)
 	  !< initialize self
 	  !< domain is divided into multiple squared domains
 	  class(shr_gridDomainToSquaredConverter), intent(inout) :: self
 	  type(shr_gridDomain), intent(in) :: domain
+		type(shr_gridMaskClusters), intent(inout) :: clustersMethod
+
+		class(shr_igridMask), allocatable :: maskBounds
+
 	  allocate(self % domain, source = domain)
-	  self % squares = self % toSquaredDomains()
+
+		!< partition grid mask into multiple squared grid domains
+		maskBounds = self % domain % getBorderGridMask()
+		call clustersMethod % init(maskBounds)
+
+	  self % squares = self % toSquaredDomains(clustersMethod)
 	end subroutine gridDomainToSquaredConverter_initialize
 
 
@@ -98,16 +107,17 @@ contains
 	end function toSquaredDomain
 
 
-	function toSquaredDomains(self) result (sqDomains)
+	function toSquaredDomains(self, clustersMethod) result (sqDomains)
 		!< in case it is not squared:
 		!< -it returns multiple domains with squared property
 		!<  (the domain is partitioned into multiple squared grid domains)
 		!< otherwise it returns the new gridDomainSquared
 
 		class(shr_gridDomainToSquaredConverter), intent(in) :: self
-		type(shr_gridDomainSquared), allocatable :: sqDomains(:)
+		type(shr_gridMaskClusters), intent(in) :: clustersMethod
+		type(shr_gridDomainSquared), allocatable :: sqDomains(:) !< output
+
 		type(shr_gridDomain) :: subdomain
-		type(shr_gridMaskClusters) :: clusters
 		type(shr_GridMaskClustersIterator) :: clustersIterator
 		class(shr_igridMask), allocatable :: newGMaskClustered
 		class(*) , allocatable :: obj
@@ -122,14 +132,10 @@ contains
 			return
 		end if
 
-		!< partition grid mask into multiple squared grid domains
-		maskBounds = self % domain % getBorderGridMask()
-		call clusters % init(maskBounds)
-
-		ndomains = clusters % getSize()
+		ndomains = clustersMethod % getSize()
 		allocate(sqDomains(ndomains))
 
-		call clustersIterator % init(clusters)
+		call clustersIterator % init(clustersMethod)
 		idomain = 1
 		do while (clustersIterator % hasNext())
 		  obj = clustersIterator % getNext()
