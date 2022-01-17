@@ -35,8 +35,8 @@ module shr_gridDomainToSquaredConverter_mod
 	use shr_gridDomainSquared_mod, only: shr_gridDomainSquared
 	use shr_gridMask_mod, only: shr_igridMask
 
-	use shr_gridMaskClusters_mod, only: shr_gridMaskClusters
-	use shr_gridMaskClustersIterator_mod, only: shr_gridMaskClustersIterator
+	use shr_gridMaskClusters_mod, only: shr_IGridMaskFindClustersMethod
+	use shr_gridMaskClustersIterator_mod, only: shr_GridMaskClustersIterator
 
 	use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
 
@@ -63,7 +63,7 @@ contains
 	  !< domain is divided into multiple squared domains
 	  class(shr_gridDomainToSquaredConverter), intent(inout) :: self
 	  type(shr_gridDomain), intent(in) :: domain
-		type(shr_gridMaskClusters), intent(inout) :: clustersMethod
+		class(shr_IGridMaskFindClustersMethod), intent(inout) :: clustersMethod
 
 		class(shr_igridMask), allocatable :: maskBounds
 
@@ -114,7 +114,7 @@ contains
 		!< otherwise it returns the new gridDomainSquared
 
 		class(shr_gridDomainToSquaredConverter), intent(in) :: self
-		type(shr_gridMaskClusters), intent(in) :: clustersMethod
+		class(shr_IGridMaskFindClustersMethod), intent(in) :: clustersMethod
 		type(shr_gridDomainSquared), allocatable :: sqDomains(:) !< output
 
 		type(shr_gridDomain) :: subdomain

@@ -21,44 +21,44 @@ module shr_gridMaskClusters_mod
 
   implicit none
 
-  public :: shr_gridMaskClusters, shr_IGridMaskClusters
+  public :: shr_gridMaskClusters, shr_IGridMaskFindClustersMethod
   public :: shr_ObjTogridMaskClusters_cast
 
   logical, parameter :: ISDEBUG = .false.
 
 
-  type, abstract :: shr_IGridMaskClusters
+  type, abstract :: shr_IGridMaskFindClustersMethod
   contains
     procedure(iface_init), deferred :: init
     procedure(iface_getSize), deferred :: getSize
     procedure(iface_get), deferred :: get
-  end type shr_IGridMaskClusters
+  end type shr_IGridMaskFindClustersMethod
 
 
   abstract interface
     subroutine iface_init(self, gridMask)
-      import :: shr_IGridMaskClusters, shr_IgridMask
+      import :: shr_IGridMaskFindClustersMethod, shr_IgridMask
       !< gridMask initialization
-      class(shr_IGridMaskClusters), intent(inout) :: self
+      class(shr_IGridMaskFindClustersMethod), intent(inout) :: self
       class(shr_IgridMask), intent(in) :: gridMask
     end subroutine iface_init
 
     integer function iface_getSize(self)
-      import :: shr_IGridMaskClusters
+      import :: shr_IGridMaskFindClustersMethod
       !< returns how many groups found
-      class(shr_IGridMaskClusters), intent(in) :: self
+      class(shr_IGridMaskFindClustersMethod), intent(in) :: self
     end function iface_getSize
 
     type(shr_gridMask) function iface_get(self, pos)
-      import :: shr_IGridMaskClusters, shr_gridMask
+      import :: shr_IGridMaskFindClustersMethod, shr_gridMask
       !< it returns selected gridMask requested for position 'pos'
-      class(shr_IGridMaskClusters), intent(in) :: self
+      class(shr_IGridMaskFindClustersMethod), intent(in) :: self
       integer, intent(in) :: pos
     end function iface_get
   end interface
 
 
-  type, extends(shr_IGridMaskClusters) :: shr_gridMaskClusters
+  type, extends(shr_IGridMaskFindClustersMethod) :: shr_gridMaskClusters
     class(shr_IgridMask), allocatable :: mask
     type(shr_gridMask), allocatable :: groups(:)
 

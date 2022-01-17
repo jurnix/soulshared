@@ -12,7 +12,7 @@
 module shr_gridMaskClusters_stub
   use shr_error_mod, only: raiseError
 
-  use shr_gridMaskClusters_mod, only: shr_IGridMaskClusters
+  use shr_gridMaskClusters_mod, only: shr_IGridMaskFindClustersMethod
   use shr_gridMask_mod, only: shr_IgridMask, shr_gridMask
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
@@ -23,7 +23,7 @@ module shr_gridMaskClusters_stub
   public :: shr_gridMaskClustersStub
 
 
-  type, extends(shr_IGridMaskClusters) :: shr_gridMaskClustersStub
+  type, extends(shr_IGridMaskFindClustersMethod) :: shr_gridMaskClustersStub
   contains
     !< overload
     procedure :: init
