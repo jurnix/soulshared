@@ -21,7 +21,7 @@ module shr_gridMaskClustersIterator_mod
 
   use shr_Iterator_mod, only: shr_iterator_abs
   use shr_gridMask_mod, only: shr_gridMask
-  use shr_gridMaskClusters_mod, only: shr_gridMaskClusters, shr_IGridMaskFindClustersMethod
+  use shr_gridMaskFindClustersMethod_mod, only: shr_IGridMaskFindClustersMethod
 
   implicit none
 

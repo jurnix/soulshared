@@ -1,7 +1,7 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Sophie Land Surface Model
 !------------------------------------------------------------------------------
-! MODULE        : shr_gridMaskClusters_mod
+! MODULE        : shr_gridMaskSimpleSquaresFindClustersMethod_mod
 !
 !> @author
 !> Albert Jornet Puig
@@ -11,7 +11,7 @@
 !> shr_gridMask wrapper to shr_maskClusters_2d
 !>
 !------------------------------------------------------------------------------
-module shr_gridMaskClusters_mod
+module shr_gridMaskFindClustersMethod_mod
   use shr_error_mod, only: raiseError
 
   use shr_gridMask_mod, only: shr_gridMask, shr_IgridMask
@@ -21,7 +21,7 @@ module shr_gridMaskClusters_mod
 
   implicit none
 
-  public :: shr_gridMaskClusters, shr_IGridMaskFindClustersMethod
+  public :: shr_gridMaskSimpleSquaresFindClustersMethod, shr_IGridMaskFindClustersMethod
   public :: shr_ObjTogridMaskClusters_cast
 
   logical, parameter :: ISDEBUG = .false.
@@ -58,7 +58,7 @@ module shr_gridMaskClusters_mod
   end interface
 
 
-  type, extends(shr_IGridMaskFindClustersMethod) :: shr_gridMaskClusters
+  type, extends(shr_IGridMaskFindClustersMethod) :: shr_gridMaskSimpleSquaresFindClustersMethod
     class(shr_IgridMask), allocatable :: mask
     type(shr_gridMask), allocatable :: groups(:)
 
@@ -67,13 +67,13 @@ module shr_gridMaskClusters_mod
     procedure :: init
     procedure :: getSize
     procedure :: get
-  end type shr_gridMaskClusters
+  end type shr_gridMaskSimpleSquaresFindClustersMethod
 
 contains
 
   subroutine init(self, gridMask)
     !< gridMask initialization
-    class(shr_gridMaskClusters), intent(inout) :: self
+    class(shr_gridMaskSimpleSquaresFindClustersMethod), intent(inout) :: self
     class(shr_IgridMask), intent(in) :: gridMask
     type(shr_mask2d) :: mask
     logical, allocatable :: lmask(:,:)
@@ -106,14 +106,14 @@ contains
 
   integer function getSize(self)
     !< returns how many groups found
-    class(shr_gridMaskClusters), intent(in) :: self
+    class(shr_gridMaskSimpleSquaresFindClustersMethod), intent(in) :: self
     getSize = size(self % groups)
   end function getSize
 
 
   type(shr_gridMask) function get(self, pos)
     !< it returns selected gridMask requested for position 'pos'
-    class(shr_gridMaskClusters), intent(in) :: self
+    class(shr_gridMaskSimpleSquaresFindClustersMethod), intent(in) :: self
     integer, intent(in) :: pos
     if (self % getSize() < pos) then
       call raiseError(__FILE__, "get", &
@@ -124,20 +124,20 @@ contains
 
 
   subroutine shr_ObjTogridMaskClusters_cast(obj, gmClusters)
-    !< cast obj into shr_gridMaskClusters
+    !< cast obj into shr_gridMaskSimpleSquaresFindClustersMethod
     class(*), intent(in) :: obj
-    type(shr_gridMaskClusters), intent(out) :: gmClusters
+    type(shr_gridMaskSimpleSquaresFindClustersMethod), intent(out) :: gmClusters
 
     select type(o => obj)
-    type is(shr_gridMaskClusters)
+    type is(shr_gridMaskSimpleSquaresFindClustersMethod)
       gmClusters = o
     class default
       call raiseError(__FILE__, &
           "shr_ObjTogridMaskClusters_cast", &
-          "Unexpected type found instead of 'shr_gridMaskClusters'")
+          "Unexpected type found instead of 'shr_gridMaskSimpleSquaresFindClustersMethod'")
     end select
 
   end subroutine shr_ObjTogridMaskClusters_cast
 
-end module shr_gridMaskClusters_mod
+end module shr_gridMaskFindClustersMethod_mod
 

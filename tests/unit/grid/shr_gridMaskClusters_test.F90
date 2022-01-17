@@ -12,7 +12,7 @@
 module shr_gridMaskClusters_test
   use SHR_testSuite_mod, only: testSuite
 
-  use shr_gridMaskClusters_mod, only: shr_gridMaskClusters
+  use shr_gridMaskFindClustersMethod_mod, only: shr_gridMaskSimpleSquaresFindClustersMethod
   use shr_gridMask_stub, only: shr_gridMaskStub
   use shr_gridMask_mod, only: shr_gridMask
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
@@ -38,7 +38,7 @@ contains
     class(testSuitegridMaskClusters), intent(inout) :: self
 
     class(shr_gridMaskStub), allocatable :: gmStub
-    type(shr_gridMaskClusters) :: c
+    type(shr_gridMaskSimpleSquaresFindClustersMethod) :: c
     type(shr_gridMask) :: expFirst, expSecond, expThird
     type(shr_gridMask) :: foundFirst, foundSecond, foundThird
     class(shr_iGgridDescriptor), allocatable :: gDescriptor

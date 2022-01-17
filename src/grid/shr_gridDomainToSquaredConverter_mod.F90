@@ -35,7 +35,7 @@ module shr_gridDomainToSquaredConverter_mod
 	use shr_gridDomainSquared_mod, only: shr_gridDomainSquared
 	use shr_gridMask_mod, only: shr_igridMask
 
-	use shr_gridMaskClusters_mod, only: shr_IGridMaskFindClustersMethod
+	use shr_gridMaskFindClustersMethod_mod, only: shr_IGridMaskFindClustersMethod
 	use shr_gridMaskClustersIterator_mod, only: shr_GridMaskClustersIterator
 
 	use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
