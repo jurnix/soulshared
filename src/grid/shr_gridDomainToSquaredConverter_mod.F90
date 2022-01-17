@@ -36,7 +36,7 @@ module shr_gridDomainToSquaredConverter_mod
 	use shr_gridMask_mod, only: shr_igridMask
 
 	use shr_gridMaskFindClustersMethod_mod, only: shr_IGridMaskFindClustersMethod
-	use shr_gridMaskClustersIterator_mod, only: shr_GridMaskClustersIterator
+	use shr_gridMaskFindClustersIterator_mod, only: shr_gridMaskFindClustersIterator
 
 	use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
 
@@ -118,7 +118,7 @@ contains
 		type(shr_gridDomainSquared), allocatable :: sqDomains(:) !< output
 
 		type(shr_gridDomain) :: subdomain
-		type(shr_GridMaskClustersIterator) :: clustersIterator
+		type(shr_gridMaskFindClustersIterator) :: clustersIterator
 		class(shr_igridMask), allocatable :: newGMaskClustered
 		class(*) , allocatable :: obj
 

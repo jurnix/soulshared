@@ -15,7 +15,7 @@ module shr_gridMaskClustersIterator_test
   use shr_gridMask_stub, only: shr_gridMaskStub
   use shr_gridMask_mod, only: shr_gridMask, shr_gridMask_cast
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
-  use shr_gridMaskClustersIterator_mod, only: shr_gridMaskClustersIterator
+  use shr_gridMaskFindClustersIterator_mod, only: shr_gridMaskFindClustersIterator
 
   use shr_gridMaskClusters_stub, only: shr_gridMaskClustersStub
 
@@ -38,7 +38,7 @@ contains
     type(shr_gridMaskStub) :: gmStub
 
     type(shr_gridMaskClustersStub) :: clustersStub
-    type(shr_gridMaskClustersIterator) :: i
+    type(shr_gridMaskFindClustersIterator) :: i
     type(shr_gridMask) :: expFirst, expSecond, expThird
     type(shr_gridMask) :: foundFirst, foundSecond, foundThird
     class(*), allocatable :: pObject
