@@ -9,7 +9,8 @@
 ! DESCRIPTION:
 !> shr_gridDomainSquared
 !>
-!> A grid domain squared has the property all border gridcells are enabled
+!> A grid domain squared has the property of having no borders
+!> In consequence, all mask cells are available.
 !------------------------------------------------------------------------------
 module shr_gridDomainSquared_mod
 
@@ -24,6 +25,8 @@ module shr_gridDomainSquared_mod
 	contains
 		procedure :: gridDomainSquared_initialize
 		generic :: init => gridDomainSquared_initialize
+
+		procedure :: toGridDomain
 	end type shr_gridDomainSquared
 
 contains
@@ -34,11 +37,24 @@ contains
 		class(shr_iGgridDescriptor), intent(in) :: gridDescriptor
 		class(shr_igridMask), intent(in) :: enabled
 
-		class(shr_gridMask), allocatable :: maskBounds
+		class(shr_igridMask), allocatable :: maskBounds
 		allocate(shr_gridMask :: maskBounds)
 		call maskBounds % init(gridDescriptor, default = .false.)
 		call self % shr_gridDomain % init(gridDescriptor, enabled, maskBounds)
 	end subroutine gridDomainSquared_initialize
 
 
+	type(shr_gridDomain) function toGridDomain(self) result (newGDomain)
+		!< converts from squared into grid domain
+		class(shr_gridDomainSquared), intent(in) :: self
+		class(shr_iGGridDescriptor), allocatable :: gDescriptor
+		class(shr_igridMask), allocatable :: gEnabledMask
+		class(shr_igridMask), allocatable :: gBorderMask
+
+		gDescriptor = self % getGridDescriptor()
+		gEnabledMask = self % getEnabledGridMask()
+		gBorderMask = self % getBorderGridMask()
+
+		call newGDomain % init(gdescriptor, gEnabledMask, gBorderMask)
+	end function toGridDomain
 end module shr_gridDomainSquared_mod
