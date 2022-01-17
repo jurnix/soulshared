@@ -25,14 +25,23 @@ module shr_gridDomainToSquaredConverter_test
 
   contains
     procedure :: define => defineTestCases
+
+    procedure, private :: testCaseSimpleConversion
+    procedure, private :: testCaseComplex
   end type
 contains
 
   subroutine defineTestCases(self)
+    !< test
     use iso_c_binding
     class(testSuitegridDomainToSquaredConverter), intent(inout) :: self
+    call self % testCaseSimpleConversion()
+    call self % testCaseComplex()
+  end subroutine defineTestCases
 
-    type(shr_gridDomainToSquaredConverter) :: toSquareConvert
+
+  subroutine testCaseSimpleConversion(self)
+    class(testSuitegridDomainToSquaredConverter), intent(inout) :: self
 
     !< how to partition(algorithm):
     !<
@@ -54,7 +63,38 @@ contains
     !< xxxx-- -> 10th
     !<
 
-    call self % assert(.false., "TODO = T")
-  end subroutine defineTestCases
+    type(shr_gridDomainToSquaredConverter) :: converter
+    !class(shr_gridDomain) :: domain
+
+    !domain = createNewGridDomain()
+    !call converter % init()
+
+    call self % assert(.false., "testCaseSimpleConversion (TODO) = T")
+  end subroutine testCaseSimpleConversion
+
+
+  subroutine testCaseComplex(self)
+    class(testSuitegridDomainToSquaredConverter), intent(inout) :: self
+    !> (4)   (0)
+    !>  - x x -	 (4)				-> 1st - x x -  ->    x x
+    !>  x x - -					    -> 2d  x x - -  ->  x x
+    !>  - - - -     ->
+    !>  x x x x					    -> 3rd x x x x  ->  x x x x
+    !>  x x x x  (-1)							 x x x x 			x x x x
+    !>
+    !> 1st
+    !> (3)(1)
+    !>  x  x (4)
+    !>
+    !> 2nd
+    !> (4)(3)
+    !>  x  x (3)
+    !>
+    !>   3rd
+    !> (4)   (0)
+    !>  x x x x  (1)
+    !>  x x x x (-1)
+    call self % assert(.false., "testCaseComplex (TODO) = T")
+  end subroutine testCaseComplex
 
 end module shr_gridDomainToSquaredConverter_test
