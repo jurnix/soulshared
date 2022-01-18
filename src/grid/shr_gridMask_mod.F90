@@ -551,10 +551,10 @@ contains
   subroutine shr_gridMask_cast(obj, gMask)
     !< Cast from * to shr_gridMask
     class(*), intent(in) :: obj
-    type(shr_gridMask), intent(out) :: gMask
+    class(shr_igridMask), allocatable, intent(out) :: gMask
 
     select type(o => obj)
-    type is(shr_gridMask)
+    class is(shr_igridMask)
       gMask = o
     class default
       call raiseError(__FILE__, &

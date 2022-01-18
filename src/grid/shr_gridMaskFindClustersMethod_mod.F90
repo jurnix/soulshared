@@ -126,15 +126,15 @@ contains
   subroutine shr_ObjTogridMaskClusters_cast(obj, gmClusters)
     !< cast obj into shr_gridMaskSimpleSquaresFindClustersMethod
     class(*), intent(in) :: obj
-    type(shr_gridMaskSimpleSquaresFindClustersMethod), intent(out) :: gmClusters
+    class(shr_IGridMaskFindClustersMethod), allocatable, intent(out) :: gmClusters
 
     select type(o => obj)
-    type is(shr_gridMaskSimpleSquaresFindClustersMethod)
+    class is(shr_IGridMaskFindClustersMethod)
       gmClusters = o
     class default
       call raiseError(__FILE__, &
           "shr_ObjTogridMaskClusters_cast", &
-          "Unexpected type found instead of 'shr_gridMaskSimpleSquaresFindClustersMethod'")
+          "Unexpected type found instead of 'shr_IGridMaskFindClustersMethod'")
     end select
 
   end subroutine shr_ObjTogridMaskClusters_cast

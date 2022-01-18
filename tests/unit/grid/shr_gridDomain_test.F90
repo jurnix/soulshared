@@ -251,6 +251,7 @@ contains
     bmask(1,:) = [.false., .false., .false., .false.]
     bmask(2,:) = [.false., .false., .false., .false.]
     bmask(3,:) = [.false., .false., .true., .false.]
+    allocate(expected)
     expected = createNewGridDomain(RES, BOUNDS, emask, bmask)
 
     !< original enabled
@@ -261,6 +262,7 @@ contains
     lbmask(1,:) = [.false., .false., .false., .false.]
     lbmask(2,:) = [.false., .false., .false., .false.]
     lbmask(3,:) = [.false., .false., .true., .true.]
+    allocate(d)
     d = createNewGridDomain(RES, BOUNDS, lemask, lbmask)
 
     !< request
@@ -268,6 +270,7 @@ contains
     lmask(2,:) = [.false., .true., .true., .false.]
     lmask(3,:) = [.false., .true., .true., .false.]
     gmask = createNewGridMask(RES, BOUNDS, lmask)
+    allocate(filteredGM)
     filteredGM = d % filter(gmask)
     call self % assert(filteredGM == expected, &
         "d % filter(mask) .eq. expected = T")
@@ -296,6 +299,7 @@ contains
     !< border
     bmask(1,:) = [.false., .false., .false.]
     bmask(2,:) = [.true., .true., .true.]
+    allocate(expected)
     expected = createNewGridDomain(1.0, [2., 0., 2., -1.], emask, bmask)
 
     lemask(1,:) = [.false., .true., .true., .false.]
@@ -305,6 +309,7 @@ contains
     lbmask(1,:) = [.false., .false., .false., .false.]
     lbmask(2,:) = [.false., .false., .false., .false.]
     lbmask(3,:) = [.false., .true., .true., .true.]
+    allocate(d)
     d = createNewGridDomain(1.0, [3.,0.,3.,-1.], lemask, lbmask)
     !procedure :: select
     ! (3.)  (-1.)    (2.) (-1.)
@@ -316,6 +321,7 @@ contains
     !< x -> enabled (b=false)
     !< - -> disabled (b=false)
     gDescrip = createNewGridDescriptor(1., [2.,0.,2.,-1.])
+    allocate(selectedGM)
     selectedGM = d % select(gDescrip)
     call self % assert(selectedGM == expected, &
         "selectedGM % select(gm) .eq. expected  = T")

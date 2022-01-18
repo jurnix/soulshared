@@ -31,11 +31,11 @@
 module shr_gridDomainToSquaredConverter_mod
 
 	use shr_error_mod, only: raiseError
-	use shr_gridDomain_mod, only: shr_gridDomain
+	use shr_gridDomain_mod, only: shr_gridDomain, shr_igridDomain
 	use shr_gridDomainSquared_mod, only: shr_gridDomainSquared
-	use shr_gridMask_mod, only: shr_igridMask
+	use shr_gridMask_mod, only: shr_igridMask, shr_gridMask_cast
 
-	use shr_gridMaskFindClustersMethod_mod, only: shr_IGridMaskFindClustersMethod
+	use shr_gridMaskFindClustersMethod_mod, only: shr_IGridMaskFindClustersMethod, shr_ObjTogridMaskClusters_cast
 	use shr_gridMaskFindClustersIterator_mod, only: shr_gridMaskFindClustersIterator
 
 	use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
@@ -80,18 +80,19 @@ contains
 	logical function isDomainSquared(self, domain)
 		!< true if all maskBorder gridcells are enabled
 		class(shr_gridDomainToSquaredConverter), intent(in) :: self
-		type(shr_gridDomain), intent(in) :: domain
+		class(shr_igridDomain), intent(in) :: domain
 		class(shr_igridMask), allocatable :: maskBounds
 		maskBounds = self % domain % getBorderGridMask()
 		isDomainSquared = maskBounds % any()
 	end function isDomainSquared
 
 
-	type(shr_gridDomainSquared) function toSquaredDomain(self, domain) result (newDMSquared)
+	function toSquaredDomain(self, domain) result (newDMSquared)
 	  !< 'domain' is transformed into shr_gridDomainSquared
 		!< 'domain' must be squared'
 		class(shr_gridDomainToSquaredConverter), intent(in) :: self
-		type(shr_gridDomain), intent(in) :: domain
+		class(shr_igridDomain), intent(in) :: domain
+		type(shr_gridDomainSquared) :: newDMSquared !< output
 
 		class(shr_iGgridDescriptor), allocatable :: gDescriptor
 		class(shr_igridMask), allocatable :: gMaskEnabled
@@ -117,7 +118,7 @@ contains
 		class(shr_IGridMaskFindClustersMethod), intent(in) :: clustersMethod
 		type(shr_gridDomainSquared), allocatable :: sqDomains(:) !< output
 
-		type(shr_gridDomain) :: subdomain
+		class(shr_igridDomain), allocatable :: subDomain
 		type(shr_gridMaskFindClustersIterator) :: clustersIterator
 		class(shr_igridMask), allocatable :: newGMaskClustered
 		class(*) , allocatable :: obj
@@ -140,7 +141,7 @@ contains
 		do while (clustersIterator % hasNext())
 		  obj = clustersIterator % getNext()
 			!< change type
-			call shr_gridMaskClusters_cast(obj, newGMaskClustered)
+			call shr_gridMask_cast(obj, newGMaskClustered)
 			subDomain = self % domain % filter(newGMaskClustered)
 			sqDomains(idomain) = self % toSquaredDomain(subdomain)
 
