@@ -11,12 +11,18 @@
 !------------------------------------------------------------------------------
 module shr_gridMask_stub
 
+  use shr_precision_mod, only: sp
   use shr_gridMask_mod, only: shr_IgridMask
   !< dependencies
   use shr_strings_mod, only: string
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor, shr_gGridDescriptor
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
+  use shr_gGrid_mod, only: shr_gGrid
+  use shr_gGridMap_mod, only: shr_gGridMap
+  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisMapping_mod, only: shr_gAxisMapping
 
   implicit none
 
@@ -30,7 +36,7 @@ module shr_gridMask_stub
     procedure :: initialize, initialize_by_larray
 
     procedure :: get
-    procedure :: getGridDescriptor
+    procedure :: getGrid
 
     procedure :: isIncluded
 
@@ -44,7 +50,8 @@ module shr_gridMask_stub
 
     procedure :: expand
     procedure :: select
-    procedure :: set
+    procedure :: set_by_gridmask
+    procedure :: set_by_lmask
     procedure :: toString
     procedure :: getShape
   end type shr_gridMaskStub
@@ -52,17 +59,17 @@ module shr_gridMask_stub
 
 contains
 
-  subroutine initialize_by_larray(self, gridDescriptor, lmask)
+  subroutine initialize_by_larray(self, grid, lmask)
     !< gridMask initialization
     class(shr_gridMaskStub), intent(inout) :: self
-    class(shr_iGGridDescriptor), intent(in) :: gridDescriptor
+    class(shr_gGrid), intent(in) :: grid
     logical, intent(in) :: lmask(:,:)
   end subroutine initialize_by_larray
 
-  subroutine initialize(self, gridDescriptor, default)
+  subroutine initialize(self, grid, default)
     !< gridMask initialization
     class(shr_gridMaskStub), intent(inout) :: self
-    class(shr_iGGridDescriptor), intent(in) :: gridDescriptor
+    class(shr_gGrid), intent(in) :: grid
     logical, intent(in), optional :: default !< define default value (def: true)
   end subroutine initialize
 
@@ -84,15 +91,41 @@ contains
   end function get
 
 
-  function getGridDescriptor(self) result(newGDescriptor)
+  type(shr_gGridAxesBounds) function getNewAxisBounds(start, end)
+    !< creates a new gridaxisbounds
+    real(kind=sp), intent(in) :: start, end
+    call getNewAxisBounds % init(start, end)
+  end function getNewAxisBounds
+
+
+  function getGrid(self) result(newGrid)
     !< returns self gridDescriptor
     class(shr_gridMaskStub), intent(in) :: self
+    class(shr_gGrid), allocatable :: newGrid !< output
     class(shr_iGGridDescriptor), allocatable :: newGDescriptor !< output
+    type(shr_gGridMap) :: newGMap
     type(shr_gridBounds) :: bounds !< n, s, e, w
+    type(shr_gGridAxes) :: laxis, lonxis
+    type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
+    type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
     call bounds % init(4.,0.,3.,0.)
     allocate(shr_gGridDescriptor :: newGDescriptor)
     call newGDescriptor % init(1., bounds)
-  end function getGridDescriptor
+
+    laxisBounds = getNewAxisBounds(4., 0.)
+    lonxisBounds = getNewAxisBounds(3., 0.)
+
+    call laxis % init(string("lats"), 1., laxisBounds)
+    call lonxis % init(string("lons"), 1., lonxisBounds)
+
+    call laxisMapping % init(laxis)
+    call lonxisMapping % init(lonxis)
+
+    call newGMap % init(newGDescriptor, laxisMapping, lonxisMapping)
+
+    allocate(newGrid)
+    call newGrid % init(newGDescriptor, newGMap)
+  end function getGrid
 
   
   logical function isIncluded(self, other)
@@ -123,22 +156,22 @@ contains
   end function equal_gridMask
 
 
-  function expand(self, gDescriptor, default) result (newGMask)
+  function expand(self, grid, default) result (newGMask)
     !< returns a new shr_gridMask with an expanded grid
     !< - 'self' must fit into 'gDescriptor'
     !< - mask remains the same
     class(shr_gridMaskStub), intent(in) :: self
-    class(shr_iGGridDescriptor), intent(in) :: gDescriptor
+    class(shr_gGrid), intent(in) :: grid
     logical, intent(in), optional :: default
     class(shr_igridMask), allocatable :: newGMask !< output
   end function expand
 
 
-  function select(self, gDescriptor) result (newGMask)
+  function select(self, grid) result (newGMask)
     !< select a new shr_gridMask according to gDescriptor
     !< new gDscriptor must fit self % gridDescriptor
     class(shr_gridMaskStub), intent(in) :: self
-    class(shr_iGGridDescriptor), intent(in) :: gDescriptor
+    class(shr_gGrid), intent(in) :: grid
     class(shr_igridMask), allocatable :: newGMask !< output
   end function select
 
@@ -165,7 +198,16 @@ contains
   end function and_gridMask
 
 
-  subroutine set(self, mask, gBindices)
+  subroutine set_by_gridmask(self, gridMask)
+    !< set values of 'gridMask' into 'self'
+    !< 'gridMask' shape must be consistent with 'self'
+    !< - gridMask must fit in 'self'
+    class(shr_gridMaskStub), intent(inout) :: self
+    class(shr_igridMask), intent(in) :: gridMask
+  end subroutine set_by_gridmask
+
+
+  subroutine set_by_lmask(self, mask, gBindices)
     !< set values of mask into self
     !< when defined gBindices:
     !< - place 'mask' into gBIndices indices
@@ -175,7 +217,7 @@ contains
     class(shr_gridMaskStub), intent(inout) :: self
     logical, intent(in) :: mask(:,:)
     type(shr_gridBoundIndices), intent(in), optional :: gBindices
-  end subroutine set
+  end subroutine set_by_lmask
 
 
   logical function any(self)

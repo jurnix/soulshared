@@ -17,11 +17,15 @@ module shr_gridMask_test
   use shr_strings_mod, only: string
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisMapping_mod, only: shr_gAxisMapping
   use shr_gridMask_mod, only: shr_gridMask
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
+  use shr_gGridMap_mod, only: shr_gGridMap
+  use shr_gGrid_mod, only: shr_gGrid
+
 
   implicit none
 
@@ -39,6 +43,40 @@ module shr_gridMask_test
 
 contains
 
+  type(shr_gGrid) function getNewGrid(gDescriptor)
+    !< creates a new grid
+    type(shr_gGridDescriptor), intent(in) :: gDescriptor
+    type(shr_gGridMap) :: gridmap
+    gridmap = getNewGridMap(gDescriptor)
+    call getNewGrid % init(gDescriptor, gridmap)
+  end function getNewGrid
+
+
+  type(shr_gGridMap) function getNewGridMap(gDescriptor)
+    !< creates a new gridmap
+    type(shr_gGridDescriptor), intent(in) :: gDescriptor
+
+    type(shr_gGridAxes) :: laxis, lonxis
+    real(kind=sp) :: res
+    type(shr_gridBounds) :: bounds
+    type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
+    type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
+    res = gDescriptor % getResolution()
+    bounds = gDescriptor % getBounds()
+
+    call laxisBounds % init(bounds % getNorth(), bounds % getSouth())
+    call lonxisBounds % init(bounds % getEast(), bounds % getWest())
+
+    call laxis % init(string("lats"), res, laxisBounds)
+    call lonxis % init(string("lons"), res, lonxisBounds)
+
+    call laxisMapping % init(laxis)
+    call lonxisMapping % init(lonxis)
+
+    call getNewGridMap % init(gDescriptor, laxisMapping, lonxisMapping)
+  end function getNewGridMap
+
+
   type(shr_gridMask) function getNewGridMask(resolution, newBounds, mask)
     !< create a new shr_gridMask
     real(kind=sp), intent(in) :: resolution
@@ -46,13 +84,18 @@ contains
     logical, intent(in), optional :: mask(:,:)
     type(shr_gridBounds) :: bounds
     type(shr_gGridDescriptor) :: gDescriptor
+    type(shr_gGrid) :: grid
+    type(shr_gGridMap) :: gridmap
 
-    call bounds % init(newBounds)
-    call gDescriptor % init(resolution, bounds)
+    !call bounds % init(newBounds)
+    !call gDescriptor % initialize(resolution, bounds)
+    !gridmap = getNewGridMap(gDescriptor)
+
+    call grid % init(gDescriptor, gridmap)
     if (present(mask)) then
-      call getNewGridMask % init(gDescriptor, mask)
+      call getNewGridMask % init(grid, mask)
     else
-      call getNewGridMask % init(gDescriptor)
+      call getNewGridMask % init(grid)
     end if
   end function getNewGridMask
 
@@ -88,6 +131,7 @@ contains
     type(shr_gridMask) :: gmSmall
     class(shr_gridMask), allocatable :: gmBig
     type(shr_gGridDescriptor) :: gmDescBig
+    type(shr_gGrid) :: gridSmall, gridBig
 
     !
     ! grid
@@ -257,8 +301,9 @@ contains
     call m % setStatus(gcIndex, .false.)
 
     gmDescSmall = getNewGridDesriptor(RES, 1.,0.,2.,0.)
+    gridSmall = getNewGrid(gmDescSmall)
 
-    smallGMask = m % select(gmDescSmall)
+    smallGMask = m % select(gridSmall)
 
     rawSmallMask(1,:) = [.false., .true.]
     foundMask = smallGMask % get()
@@ -304,8 +349,9 @@ contains
     call gcIndex % init(1, 1)
     call gmSmall % setStatus(gcIndex, .false.)
     gmDescBig = getNewGridDesriptor(RES, 1.,-1.,2.,0.)
+    gridBig = getNewGrid(gmDescBig)
 
-    gmBig = gmSmall % expand(gmDescBig)
+    gmBig = gmSmall % expand(gridBig)
 
     rawMask(1,:) = [.false., .true.]
     rawMask(2,:) = [.true., .true.] ! -> extended row
@@ -327,6 +373,7 @@ contains
     type(shr_gridMask) :: gmSmall, expectedGMask
     class(shr_gridMask), allocatable :: gmBig
     type(string) :: tmp
+    type(shr_gGrid) :: gridBigDesc
     ! expand with default
 
     ! from [2,-1,0,-1]
@@ -359,8 +406,9 @@ contains
     tmp = gmSmall % toString()
     write(*,*) "gridMask_test:: testCaseExpandWithDefault:: original =", tmp % toString()
     gmDescBig = getNewGridDesriptor(RES, 3.,0.,3.,-1.)
+    gridBigDesc = getNewGrid(gmDescBig)
 
-    gmBig = gmSmall % expand(gmDescBig, default = .false.)
+    gmBig = gmSmall % expand(gridBigDesc, default = .false.)
 
     tmp = gmBig % toString()
     write(*,*) "gridMask_test:: testCaseExpandWithDefault:: expanded =", tmp % toString()
