@@ -17,6 +17,9 @@
 !> computation.
 !> A grid can have enable/disabled gridcells. When disabled those
 !> are completly ignored (e.g: sea).
+!>
+!> todo: obsolete, replaced by shr_gGrid and shr_soulsharedGrid
+!>
 !------------------------------------------------------------------------------
 
 #:include "../common.fpp"
