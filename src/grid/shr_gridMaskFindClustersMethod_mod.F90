@@ -18,6 +18,7 @@ module shr_gridMaskFindClustersMethod_mod
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
   use shr_maskClusters_mod, only: shr_maskClusters_2d
   use shr_mask_mod, only: shr_mask2d
+  use shr_gGrid_mod, only: shr_gGrid
 
   implicit none
 
@@ -79,7 +80,7 @@ contains
     logical, allocatable :: lmask(:,:)
     integer :: nclusters, icluster
     type(shr_mask2d) :: tmpMaskCluster
-    class(shr_iGGridDescriptor), allocatable :: gDescriptor
+    class(shr_gGrid), allocatable :: grid
 
     allocate(self % mask, source = gridMask)
     allocate(self % clusters)
@@ -94,12 +95,12 @@ contains
     nclusters = self % clusters % getSize()
     allocate(self % groups(nclusters))
 
-    allocate(gDescriptor, source = self % mask % getGridDescriptor())
+    allocate(grid, source = self % mask % getGrid())
     !< for each cluster
     do icluster = 1, nclusters !< cluster found
       tmpMaskCluster = self % clusters % get(icluster)
       lmask = tmpMaskCluster % get()
-      call self % groups(icluster) % init(gDescriptor, lmask)
+      call self % groups(icluster) % init(grid, lmask)
     end do
   end subroutine init
 
