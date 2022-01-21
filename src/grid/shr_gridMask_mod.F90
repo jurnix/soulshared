@@ -298,6 +298,7 @@ contains
 
     inDefault = .true.
     if (present(default)) inDefault = default
+    allocate(self % grid, source = grid)
     !allocate(self % grid, source = gridDescriptor)
 
     !axis = self % gridDescriptor % getLatAxis() !latitudes % getSize()
