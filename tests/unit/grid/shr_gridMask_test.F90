@@ -85,13 +85,11 @@ contains
     type(shr_gridBounds) :: bounds
     type(shr_gGridDescriptor) :: gDescriptor
     type(shr_gGrid) :: grid
-    type(shr_gGridMap) :: gridmap
 
-    !call bounds % init(newBounds)
-    !call gDescriptor % initialize(resolution, bounds)
-    !gridmap = getNewGridMap(gDescriptor)
+    call bounds % init(newBounds)
+    call gDescriptor % init(resolution, bounds)
+    grid = getNewGrid(gDescriptor)
 
-    call grid % init(gDescriptor, gridmap)
     if (present(mask)) then
       call getNewGridMask % init(grid, mask)
     else
