@@ -16,6 +16,7 @@ module shr_gridMaskClusters_test
   use shr_gridMask_stub, only: shr_gridMaskStub
   use shr_gridMask_mod, only: shr_gridMask
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
+  use shr_gGrid_mod, only: shr_gGrid
 
   implicit none
 
@@ -43,6 +44,7 @@ contains
     type(shr_gridMask) :: foundFirst, foundSecond, foundThird
     class(shr_iGgridDescriptor), allocatable :: gDescriptor
     logical :: lmask(4,3)
+    class(shr_gGrid), allocatable :: grid
 
     !procedure :: init
     allocate(gmStub)
@@ -58,12 +60,13 @@ contains
     !< first
     allocate(gmStub)
     write(*,*) "running 1 ..."
-    gDescriptor = gmStub % getGridDescriptor()
+    allocate(grid)
+    grid = gmStub % getGrid()
     write(*,*) "running 2 ..."
     lmask = .false.
     lmask(1:2,:) = .true.
     write(*,*) "running 3 ..."
-    call expFirst % init(gDescriptor, lmask)
+    call expFirst % init(grid, lmask)
     write(*,*) "running 4 ..."
     foundFirst = c % get(1)
     write(*,*) "running 5 ..."
@@ -74,10 +77,10 @@ contains
 
     !< second
     allocate(gmStub)
-    gDescriptor = gmStub % getGridDescriptor()
+    grid = gmStub % getGrid()
     lmask = .false.
     lmask(3,1) = .true.
-    call expSecond % init(gDescriptor, lmask)
+    call expSecond % init(grid, lmask)
     foundSecond = c % get(2)
     call self % assert(expSecond == foundSecond, &
         "c(TTT,TTT,TFF,FTT) % get(2) .eq. shr_gridMask(FFF,FFF,TFF,FFF) = T")
@@ -85,10 +88,10 @@ contains
 
     !< 3rd
     allocate(gmStub)
-    gDescriptor = gmStub % getGridDescriptor()
+    grid = gmStub % getGrid()
     lmask = .false.
     lmask(4,2:3) = .true.
-    call expThird % init(gDescriptor, lmask)
+    call expThird % init(grid, lmask)
     foundThird = c % get(3)
     call self % assert(expThird == foundThird, &
         "c(TTT,TTT,TFF,FTT) % get(3) .eq. shr_gridMask(FFF,FFF,FFF,FTT) = T")
