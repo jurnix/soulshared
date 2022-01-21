@@ -17,6 +17,7 @@ module shr_gridDomainSquared_mod
 	use shr_gridDomain_mod, only: shr_gridDomain
 	use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
 	use shr_gridMask_mod, only: shr_igridMask, shr_gridMask
+	use shr_gGrid_mod, only: shr_gGrid
 
 	implicit none
 
@@ -31,30 +32,30 @@ module shr_gridDomainSquared_mod
 
 contains
 
-	subroutine gridDomainSquared_initialize(self, gridDescriptor, enabled)
+	subroutine gridDomainSquared_initialize(self, grid, enabled)
 		!< initialize gridDomainSquared
 		class(shr_gridDomainSquared), intent(inout) :: self
-		class(shr_iGgridDescriptor), intent(in) :: gridDescriptor
+		class(shr_gGrid), intent(in) :: grid
 		class(shr_igridMask), intent(in) :: enabled
 
 		class(shr_igridMask), allocatable :: maskBounds
 		allocate(shr_gridMask :: maskBounds)
-		call maskBounds % init(gridDescriptor, default = .false.)
-		call self % shr_gridDomain % init(gridDescriptor, enabled, maskBounds)
+		call maskBounds % init(grid, default = .false.)
+		call self % shr_gridDomain % init(grid, enabled, maskBounds)
 	end subroutine gridDomainSquared_initialize
 
 
 	type(shr_gridDomain) function toGridDomain(self) result (newGDomain)
 		!< converts from squared into grid domain
 		class(shr_gridDomainSquared), intent(in) :: self
-		class(shr_iGGridDescriptor), allocatable :: gDescriptor
+		class(shr_gGrid), allocatable :: grid
 		class(shr_igridMask), allocatable :: gEnabledMask
 		class(shr_igridMask), allocatable :: gBorderMask
 
-		gDescriptor = self % getGridDescriptor()
+		grid = self % getGrid()
 		gEnabledMask = self % getEnabledGridMask()
 		gBorderMask = self % getBorderGridMask()
 
-		call newGDomain % init(gdescriptor, gEnabledMask, gBorderMask)
+		call newGDomain % init(grid, gEnabledMask, gBorderMask)
 	end function toGridDomain
 end module shr_gridDomainSquared_mod
