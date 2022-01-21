@@ -35,6 +35,7 @@ module shr_gAxisMapping_mod
     procedure :: getIndexByCoord
     procedure :: getIndexByGridAxisCell
     generic :: getIndex => getIndexByCoord, getIndexByGridAxisCell
+    procedure :: getSize
   end type shr_gAxisMapping
 
 contains
@@ -110,6 +111,13 @@ contains
       endif
     enddo
   end function getIndexByGridAxisCell
+
+
+  integer function getSize(self)
+    !< axis size
+    class(shr_gAxisMapping), intent(in) :: self
+    getSize = self % axis % getSize()
+  end function getSize
 
 
 end module shr_gAxisMapping_mod 
