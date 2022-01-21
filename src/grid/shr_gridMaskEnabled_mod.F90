@@ -35,7 +35,7 @@ contains
     !< convert gmask into gridMaskEnabled
     class(shr_gridMaskEnabled), intent(inout) :: self
     class(shr_igridMask), intent(in) :: gmask
-    self % gridDescriptor = gmask % getGridDescriptor()
+    self % grid = gmask % getGrid()
     self % mask = gmask % get()
   end subroutine initialize_from_GridMask
 

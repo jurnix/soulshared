@@ -22,6 +22,13 @@ module shr_gridMaskBorder_test
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
 
+  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxisMapping_mod, only: shr_gAxisMapping
+  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gGridMap_mod, only: shr_gGridmap
+
+  use shr_gGrid_mod, only: shr_gGrid
+
   implicit none
 
   private
@@ -47,10 +54,14 @@ contains
     real(kind=sp) :: newBounds(4) !< N, S, E, W
     type(shr_gridBounds) :: bounds
     type(shr_gGridDescriptor) :: gDescriptor
+    type(shr_gGridmap) :: gridmap
+    type(shr_gGrid) :: grid
 
     call bounds % init(newBounds)
     call gDescriptor % init(RES, bounds)
-    call getNewGridMask % init(gDescriptor)
+    gridmap = getNewGridmap(gDescriptor)
+    call grid % init(gDescriptor, gridmap)
+    call getNewGridMask % init(grid)
   end function getNewGridMask
 
 
@@ -59,11 +70,42 @@ contains
     real(kind=sp) :: newBounds(4) !< N, S, E, W
     type(shr_gridBounds) :: bounds
     type(shr_gGridDescriptor) :: gDescriptor
+    type(shr_gGridmap) :: gridmap
+    type(shr_gGrid) :: grid
 
     call bounds % init(newBounds)
     call gDescriptor % init(RES, bounds)
-    call getNewGridMaskBorder % init(gDescriptor)
+
+    gridmap = getNewGridmap(gDescriptor)
+    call grid % init(gDescriptor, gridmap)
+
+    call getNewGridMaskBorder % init(grid)
   end function getNewGridMaskBorder
+
+
+  type(shr_gGridMap) function getNewGridmap(gdescriptor)
+    !< create a new gridmap
+    type(shr_gGridDescriptor), intent(in) :: gdescriptor
+    type(shr_gridBounds) :: bounds
+    type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
+    type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
+    real(kind=sp) :: res
+    type(shr_gGridAxes) :: laxis, lonxis
+
+    res = gdescriptor % getResolution()
+    bounds = gdescriptor % getBounds()
+
+    call laxisBounds % init(bounds % getNorth(), bounds % getSouth())
+    call lonxisBounds % init(bounds % getEast(), bounds % getWest())
+
+    call laxis % init(string("lats"), res, laxisBounds)
+    call lonxis % init(string("lons"), res, lonxisBounds)
+
+    call laxisMapping % init(laxis)
+    call lonxisMapping % init(lonxis)
+
+    call getNewGridmap % init(gdescriptor, laxisMapping, lonxisMapping)
+  end function getNEwGridmap
 
 
   type(shr_gGridDescriptor) function getNewGridDesriptor(north, south, east, west)
