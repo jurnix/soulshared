@@ -20,6 +20,12 @@ module shr_gridDomain_test
   use shr_gridMask_stub, only: shr_gridMaskStub
   use shr_gridMask_mod, only: shr_IgridMask, shr_gridMask
   use shr_gridBounds_mod, only: shr_gridBounds
+  use shr_gGrid_mod, only: shr_gGrid
+  use shr_gGridMap_mod, only: shr_gGridMap
+  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisMapping_mod, only: shr_gAxisMapping
+  use shr_strings_mod, only: string
 
   implicit none
 
@@ -55,6 +61,15 @@ module shr_gridDomain_test
   end type
 contains
 
+  type(shr_gGrid) function getNewGrid(gDescriptor)
+    !< creates a new grid
+    type(shr_gGridDescriptor), intent(in) :: gDescriptor
+    type(shr_gGridMap) :: gridmap
+    gridmap = createNewGridmap(gDescriptor)
+    call getNewGrid % init(gDescriptor, gridmap)
+  end function getNewGrid
+
+
   type(shr_gridDomain) function createNewGridDomain(resolution, bounds, emask, bmask)
     !< create a new shr_gridDomain instance
     real(kind=sp), intent(in) :: resolution
@@ -65,6 +80,8 @@ contains
     class(shr_gGridDescriptor), allocatable :: gDesc
     !type(shr_gridBounds) :: sbounds
     class(shr_gridMask), allocatable :: gmEnabled, gmBorder
+    type(shr_gGridMap) :: gridmap
+    type(shr_gGrid) :: grid
 
     !call sbounds % init(bounds)
 
@@ -72,13 +89,40 @@ contains
     !call gDesc % init(resolution, sbounds)
     allocate(gDesc)
     gDesc = createNewGridDescriptor(resolution, bounds)
+    gridmap = createNewGridmap(gDesc)
+    call grid % init(gDesc, gridmap)
 
     allocate(gmEnabled, gmBorder)
-    call gmEnabled % init(gDesc, emask)
-    call gmBorder % init(gDesc, bmask)
+    call gmEnabled % init(grid, emask)
+    call gmBorder % init(grid, bmask)
 
-    call createNewGridDomain % init(gDesc, gmEnabled, gmBorder)
+    call createNewGridDomain % init(grid, gmEnabled, gmBorder)
   end function createNewGridDomain
+
+
+  type(shr_gGridMap) function createNewGridmap(gdescriptor)
+    !< create a new gridmap
+    type(shr_gGridDescriptor), intent(in) :: gdescriptor
+    type(shr_gridBounds) :: bounds
+    real(kind=sp) :: res
+    type(shr_gGridAxes) :: laxis, lonxis
+    type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
+    type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
+
+    res = gdescriptor % getResolution()
+    bounds = gdescriptor % getBounds()
+
+    call laxisBounds % init(bounds % getNorth(), bounds % getSouth())
+    call lonxisBounds % init(bounds % getEast(), bounds % getWest())
+
+    call laxis % init(string("lats"), res, laxisBounds)
+    call lonxis % init(string("lons"), res, lonxisBounds)
+
+    call laxisMapping % init(laxis)
+    call lonxisMapping % init(lonxis)
+
+    call createNewGridmap % init(gdescriptor, laxisMapping, lonxisMapping)
+  end function createNewGridmap
 
 
   type(shr_gGridDescriptor) function createNewGridDescriptor(resolution, bounds)
@@ -98,18 +142,21 @@ contains
     real(kind=sp), intent(in) :: bounds(4) !< n, s, e, w
     logical, intent(in) :: mask(:,:) !< raw mask
     class(shr_gGridDescriptor), allocatable :: gDesc
+    type(shr_gGrid) :: grid
 
     allocate(gDesc)
     gDesc = createNewGridDescriptor(resolution, bounds)
-    call createNewGridMask % init(gDesc, mask)
+    grid = getNewGrid(gDesc)
+    call createNewGridMask % init(grid, mask)
   end function createNewGridMask
 
 
-  function gridMaskSelectStub_select(self, gDescriptor) result (newGMask)
+
+  function gridMaskSelectStub_select(self, grid) result (newGMask)
     !< select a new shr_gridMask according to gDescriptor
     !< new gDscriptor must fit self % gridDescriptor
     class(shr_gridMaskSelectStub), intent(in) :: self
-    class(shr_iGGridDescriptor), intent(in) :: gDescriptor
+    class(shr_gGrid), intent(in) :: grid
     class(shr_igridMask), allocatable :: newGMask !< output
     ! (3.)  (-1.)
     !   x x -  (2.0)
@@ -289,6 +336,8 @@ contains
     class(shr_gridMaskSelectStub), allocatable :: enabledMask
     type(shr_gGridDescriptor) :: gDescrip
 
+    type(shr_gGrid) :: gridToSelect
+
     logical :: emask(2,3), bmask(2,3)
     logical :: lemask(3,4), lbmask(3,4)
 
@@ -321,8 +370,9 @@ contains
     !< x -> enabled (b=false)
     !< - -> disabled (b=false)
     gDescrip = createNewGridDescriptor(1., [2.,0.,2.,-1.])
+    gridToSelect = getNewGrid(gDescrip)
     allocate(selectedGM)
-    selectedGM = d % select(gDescrip)
+    selectedGM = d % select(gridToSelect)
     call self % assert(selectedGM == expected, &
         "selectedGM % select(gm) .eq. expected  = T")
   end subroutine testCaseSelect
