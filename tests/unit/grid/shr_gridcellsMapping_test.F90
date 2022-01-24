@@ -83,9 +83,9 @@ contains
     expGcsTopCenter(2) = shr_gridcell(-1, 1., gcCenter, .true.)
 
     topCenter = shr_coord(1., 1.)
-    foundGcsTopCenter = m % get(topCenter)
-    call self % assertTrue(foundGcsTopCenter, expGcsTopCenter, &
-            "m % get(1,1) .eq. gcs([0.5,1.5], [0.5,0.5]) = T")
+!    foundGcsTopCenter = m % get(topCenter)
+!    call self % assertTrue(foundGcsTopCenter, expGcsTopCenter, &
+!            "m % get(1,1) .eq. gcs([0.5,1.5], [0.5,0.5]) = T")
 
     ! center
     gcCenter = shr_coord(0.5, 1.5)
