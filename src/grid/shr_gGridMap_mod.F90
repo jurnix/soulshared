@@ -45,6 +45,8 @@ module shr_gGridMap_mod
     class(shr_gAxisMapping), allocatable :: latAxMapping, lonAxMapping
   contains
     procedure :: init
+    procedure :: equal
+    generic :: operator(==) => equal
 
     !< getters
     procedure :: getGridDescriptor
@@ -156,6 +158,22 @@ contains
 
     call newGridMap % init(gDescriptor, laxisMapping, lonxisMapping)
   end function shr_gridMapBuilder
+
+
+  logical function equal(self, other)
+    !< true if self and other have the same attributes
+    class(shr_gGridMap), intent(in) :: self
+    class(shr_gGridMap), intent(in) :: other
+    logical :: hasSameGridDescriptor
+    logical :: hasSameLaxisMapping, hasSameLonxisMapping
+
+    hasSameGridDescriptor = (self % gridDescriptor == other % getGridDescriptor())
+    hasSameLaxisMapping = (self % latAxMapping == other % getLatAxis())
+    hasSameLonxisMapping = (self % lonAxMapping == other % getLonAxis())
+
+    equal = (hasSameGridDescriptor .and. &
+          hasSameLaxisMapping .and. hasSameLonxisMapping)
+  end function equal
 
 
 end module shr_gGridMap_mod

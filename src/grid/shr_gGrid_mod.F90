@@ -196,9 +196,11 @@ contains
     !< true if 'self' and 'other' have the same attributes
     class(shr_gGrid), intent(in) :: self
     class(shr_gGrid), intent(in) :: other
+    logical :: hasSameGDescriptor, hasSameGridmap
 
-    !< todo: implementation
-    equal = .false.
+    hasSameGDescriptor = (self % gridDescriptor == other % getGridDescriptor())
+    hasSameGridmap = (self % gridmap == other % getGridmap())
+    equal = (hasSameGDescriptor .and. hasSameGridmap)
   end function equal
 
 

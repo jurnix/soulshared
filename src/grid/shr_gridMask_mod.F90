@@ -292,7 +292,7 @@ contains
     logical, intent(in), optional :: default !< define default value (def: true)
 
     logical :: inDefault
-    type(shr_gGridAxes) :: axis
+    !type(shr_gGridAxes) :: axis
     integer :: nlats, nlons
     type(shr_gridShape) :: gShape
 
@@ -401,7 +401,7 @@ contains
     !< true if all values match 'value'
     class(shr_gridMask), intent(in) :: self
     class(shr_igridMask), intent(in) :: other
-    logical :: hasSameDescriptor, hasSameMask
+    logical :: hasSameGrid, hasSameMask
     type(shr_gridMask) :: ogMask
 
     select type (o => other)
@@ -411,9 +411,9 @@ contains
       gridMask_equal_gridMask = .false.
     end select
 
-    !hasSameDescriptor = (self % gridDescriptor == ogMask % gridDescriptor)
+    hasSameGrid = (self % grid == ogMask % getGrid())
     hasSameMask = all(self % mask .eqv. ogMask % mask)
-    gridMask_equal_gridMask = (hasSameDescriptor .and. hasSameMask)
+    gridMask_equal_gridMask = (hasSameGrid .and. hasSameMask)
   end function gridMask_equal_gridMask
 
 

@@ -36,6 +36,10 @@ module shr_gAxisMapping_mod
     procedure :: getIndexByGridAxisCell
     generic :: getIndex => getIndexByCoord, getIndexByGridAxisCell
     procedure :: getSize
+    procedure :: getgridAxis
+
+    procedure :: equal
+    generic :: operator(==) => equal
   end type shr_gAxisMapping
 
 contains
@@ -119,6 +123,22 @@ contains
     getSize = self % axis % getSize()
   end function getSize
 
+
+  type(shr_gGridAxes) function getGridAxis(self)
+    !< returns axis internal object
+    class(shr_gAxisMapping), intent(in) :: self
+    getGridAxis = self % axis
+  end function getGridAxis
+
+
+  logical function equal(self, other)
+    !< true if self and equal have the same attributes
+    class(shr_gAxisMapping), intent(in) :: self
+    type(shr_gAxisMapping), intent(in) :: other
+    logical :: hasSameGAxis
+    hasSameGAxis = (self % axis == other % getGridAxis())
+    equal = (hasSameGAxis)
+  end function equal
 
 end module shr_gAxisMapping_mod 
 
