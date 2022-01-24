@@ -19,11 +19,20 @@ module shr_gGridMap_mod
   use shr_coord_mod, only: shr_coord
   use shr_gridShape_mod, only: shr_gridShape
 
+  use shr_strings_mod, only: string
+  use shr_precision_mod, only: sp
+  use shr_gridBounds_mod, only: shr_gridBounds
+  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+
   implicit none
 
   private
 
-  public :: shr_gGridMap
+  public :: shr_gGridMap, shr_gridMapBuilder
+
+  character(*), parameter :: LATITUDE_NAME = "latitude"
+  character(*), parameter :: LONGITUDE_NAME = "longitude"
 
   integer, parameter :: SHR_GRIDMAP_POSITION_FIRST = 1
   integer, parameter :: SHR_GRIDMAP_POSITION_LAST = 2
@@ -120,6 +129,33 @@ contains
     getShape % nlats = self % latAxMapping % getSize()
     getShape % nlons = self % lonAxMapping % getSize()
   end function getShape
+
+
+  function shr_gridMapBuilder(gDescriptor) result (newGridMap)
+    !< creates a new gridmap from 'gDescriptor'
+    class(shr_igGridDescriptor), intent(in) :: gDescriptor
+    type(shr_gGridMap) :: newGridMap
+
+    type(shr_gridBounds) :: bounds
+    real(kind=sp) :: resolution
+    type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
+    type(shr_gGridAxes) :: laxis, lonxis
+    type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
+
+    resolution = gDescriptor % getResolution()
+    bounds = gDescriptor % getBounds()
+
+    call laxisBounds % init(bounds % getNorth(), bounds % getSouth())
+    call lonxisBounds % init(bounds % getEast(), bounds % getWest())
+
+    call laxis % init(string(LATITUDE_NAME), resolution, laxisBounds)
+    call lonxis % init(string(LONGITUDE_NAME), resolution, lonxisBounds)
+
+    call laxisMapping % init(laxis)
+    call lonxisMapping % init(lonxis)
+
+    call newGridMap % init(gDescriptor, laxisMapping, lonxisMapping)
+  end function shr_gridMapBuilder
 
 
 end module shr_gGridMap_mod
