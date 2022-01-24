@@ -17,7 +17,7 @@ module shr_gGrid_mod
   use shr_error_mod, only: raiseError
 
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
-  use shr_gGridMap_mod, only: shr_gGridMap
+  use shr_gGridMap_mod, only: shr_gGridMap, shr_gridMapBuilder
   use shr_gridShape_mod, only: shr_gridShape
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
@@ -55,6 +55,9 @@ module shr_gGrid_mod
     procedure :: fitsIn_byGridDescriptor
     procedure :: fitsIn_byGrid
     generic :: fitsIn => fitsIn_byGrid, fitsIn_byGridDescriptor
+
+    procedure :: combine
+    generic :: operator(+) => combine
 
     procedure :: equal
     generic :: operator(==) => equal
@@ -194,7 +197,20 @@ contains
     class(shr_gGrid), intent(in) :: self
     class(shr_gGrid), intent(in) :: other
 
+    !< todo: implementation
     equal = .false.
   end function equal
+
+
+  type(shr_gGrid) function combine(self, other)
+    !< combine 'self' and 'other'
+    class(shr_gGrid), intent(in) :: self
+    class(shr_gGrid), intent(in) :: other
+    class(shr_iGGridDescriptor), allocatable :: newGdesc
+    type(shr_gGridMap) :: newGridMap
+    newGdesc = self % getGridDescriptor() + other % getGridDescriptor()
+    newGridMap = shr_gridMapBuilder(newGdesc)
+    call combine % init(newGdesc, newGridMap)
+  end function combine
 
 end module shr_gGrid_mod
