@@ -272,7 +272,11 @@ contains
 
     ! toChars
     tmpStr = m2 % toString()
-    expStr = string("resolution= 1.0000, bounds=(1.0000, -1.0000, 2.0000, 0.0000)" &
+    write(*,*) "gridMask_test:: tmpStr =", tmpStr % toString()
+    !expStr = string("resolution= 1.0000, bounds=(1.0000, -1.0000, 2.0000, 0.0000)" &
+    expStr = string("resolution= 1.0000, bounds=(1.0000, -1.0000, 2.0000, 0.0000), " // &
+        "lat=(size= 2, axis=lats, resolution=1.0000, bounds=(1.0000, -1.0000)) - " // &
+        "lon=(size= 2, axis=lons, resolution=1.0000, bounds=(2.0000, 0.0000))" &
           // new_line('A') // "'F F'"// new_line('A') // "'T F'")
     call self % assert( tmpStr == expStr, &
         "m2(F F, T F) % toString() .eq. expStr(F F T F) = T")

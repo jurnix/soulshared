@@ -55,6 +55,9 @@ module shr_gGridMap_mod
 
     procedure :: getIndex
     procedure :: getShape
+
+    !<
+    procedure :: toString
   end type shr_gGridMap
 
 contains
@@ -175,5 +178,13 @@ contains
           hasSameLaxisMapping .and. hasSameLonxisMapping)
   end function equal
 
+
+  type(string) function toString(self)
+    !< string representation of shr_gGridMap
+    class(shr_gGridMap), intent(in) :: self
+    toString = self % gridDescriptor % toString() + ", lat=(" +&
+               self % latAxMapping % toString() + ") - lon=(" + &
+               self % lonAxMapping% toSTring() + ")"
+  end function toString
 
 end module shr_gGridMap_mod

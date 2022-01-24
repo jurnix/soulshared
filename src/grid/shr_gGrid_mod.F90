@@ -61,6 +61,8 @@ module shr_gGrid_mod
 
     procedure :: equal
     generic :: operator(==) => equal
+
+    procedure :: toString
   end type shr_gGrid
 
 contains
@@ -214,5 +216,12 @@ contains
     newGridMap = shr_gridMapBuilder(newGdesc)
     call combine % init(newGdesc, newGridMap)
   end function combine
+
+
+  type(string) function toString(self)
+    !< string representation of shr_gGrid
+    class(shr_gGrid), intent(in) :: self
+    toString = self % gridmap % toString()
+  end function toString
 
 end module shr_gGrid_mod

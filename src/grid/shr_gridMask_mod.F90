@@ -555,13 +555,13 @@ contains
     integer :: nlats, ilat
     type(shr_gGridAxes) :: latAxis
     character(:), allocatable :: tmp
-    type(string) :: strDescriptor
+    type(string) :: strGrid
     character(500) :: t
     type(shr_gridShape) :: gshape
-    strDescriptor =  "TODO" !!self % gridDescriptor % toString()
-    !latAxis = self % gridDescriptor % getLatAxis()
+    strGrid =  self % grid % toString()
+
     gshape = self % grid % getShape()
-    nlats =  gshape % getLats() ! latAxis % getSize()
+    nlats =  gshape % getLats()
     tmp = "" ! initialize
     do ilat = 1, nlats-1
       write(t, *) self % mask(ilat, :)
@@ -569,7 +569,7 @@ contains
     end do
     write(t, *) self % mask(nlats, :)
     tmp = tmp // "'" // trim(adjustl(t)) // "'"
-    gridMask_toString = strDescriptor + new_line('A') + string(tmp)
+    gridMask_toString = strGrid + new_line('A') + string(tmp)
   end function gridMask_toString
 
 

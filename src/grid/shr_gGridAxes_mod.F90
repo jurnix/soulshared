@@ -19,6 +19,7 @@ module shr_gGridAxes_mod
   use shr_strings_mod, only: string
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
+  use shr_strings_mod, only: string, real2string
   
   implicit none
 
@@ -47,6 +48,8 @@ module shr_gGridAxes_mod
 
     procedure :: eq_gGridAxes
     generic :: operator(==) => eq_gGridAxes
+
+    procedure :: toString
   end type shr_gGridAxes
 
 contains
@@ -193,19 +196,14 @@ contains
   end function eq_gGridAxes
 
 
-!  type(shr_gridcellsMap) function create_gridcellsMap(self, other) result (newGcMap)
-!    !< TODO - circular dependency found, error on cmake
-!    use shr_gridcellsMap_mod, only: shr_gridcellsMap
-    !< creates a new shr_gridcellsMap 'self' and 'other' to create shr_gridcellsMap
-    !< example: gridcellsMap = latsAxes * lonsAxes
-!    class(shr_gGridAxes), intent(in) :: self
-!    type(shr_gGridAxes), intent(in) :: other
-
-!    real(kind=sp) :: resolution
-
-!    resolution = self % getResolution()
-!    call newGcMap % init(resolution, self, other)
-!  end function create_gridcellsMap
+  type(string) function toString(self)
+    !< string representation of gGridAxes
+    class(shr_gGridAxes), intent(in) :: self
+    type(string) :: strResolution
+    strResolution = real2string(self % resolution)
+    toString = self % name + ", resolution=" + strResolution + ", bounds=" + &
+          self % bounds % toString()
+  end function toString
 
 end module shr_gGridAxes_mod 
 

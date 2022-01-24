@@ -19,6 +19,7 @@ module shr_gAxisMapping_mod
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_strings_mod, only: string, int2string
   
   implicit none
 
@@ -40,6 +41,8 @@ module shr_gAxisMapping_mod
 
     procedure :: equal
     generic :: operator(==) => equal
+
+    procedure :: toString
   end type shr_gAxisMapping
 
 contains
@@ -139,6 +142,15 @@ contains
     hasSameGAxis = (self % axis == other % getGridAxis())
     equal = (hasSameGAxis)
   end function equal
+
+
+  type(string) function toString(self)
+    !< string representation of shr_gAxisMapping
+    class(shr_gAxisMapping), intent(in) :: self
+    type(string) :: strSize
+    strSize = int2string(self % getSize())
+    toString = string("size= ") + strSize + ", axis=" +  self % axis % toString()
+  end function toString
 
 end module shr_gAxisMapping_mod 
 
