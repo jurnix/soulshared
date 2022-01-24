@@ -193,12 +193,11 @@ contains
     class(shr_gridDomain), intent(in) :: self
     type(shr_gridDomain), intent(in) :: other
 
-    class(shr_iGgridDescriptor), allocatable :: cgDescriptor
     class(shr_gridDomain), allocatable :: expandedSelf, expandedOther
     class(shr_gGrid), allocatable :: combinedGrid
 
     !< combine grid descriptors
-    !combinedGrid = (self % getGrid() + other % getGrid())
+    combinedGrid = (self % getGrid() + other % getGrid())
 
     allocate(expandedSelf, expandedOther)
     expandedSelf = self % expand(combinedGrid) !< default enabled = false, defalt border = true
@@ -223,7 +222,7 @@ contains
     orBorderMask = self % getBorderGridMask() .and. other % getBorderGridMask()
 
     grid = self % getGrid()
-    !call newGDomain % init(cgDescriptor, andEnabledMask, orBorderMask)
+    call newGDomain % init(grid, andEnabledMask, orBorderMask)
   end function gridDomain_and
 
 
@@ -299,22 +298,23 @@ contains
     class(shr_gGrid), intent(in) :: newGrid
     class(shr_gridDomain), allocatable :: newGDomain !< output
     class(shr_igridMask), allocatable :: selectedBorder, selectedEnabled
-    type(string) :: tmp
+    !type(string) :: tmp
 
-    tmp = self % maskBorder % toString()
-    write(*,*) "gridDomain_mod:: select:: current border mask =", tmp % toString()
-    tmp = self % maskEnabled % toString()
-    write(*,*) "gridDomain_mod:: select:: current enabled mask =", tmp % toString()
+    !tmp = self % maskBorder % toString()
+    !write(*,*) "gridDomain_mod:: select:: current border mask =", tmp % toString()
+    !tmp = self % maskEnabled % toString()
+    !write(*,*) "gridDomain_mod:: select:: current enabled mask =", tmp % toString()
 
     selectedBorder = self % maskBorder % select(newGrid)
     selectedEnabled = self % maskEnabled % select(newGrid)
 
-    tmp = selectedBorder % toString()
-    write(*,*) "gridDomain_mod:: select:: selected border mask =", tmp % toString()
-    tmp = selectedEnabled % toString()
-    write(*,*) "gridDomain_mod:: select:: selected enabled mask =", tmp % toString()
+    !tmp = selectedBorder % toString()
+    !write(*,*) "gridDomain_mod:: select:: selected border mask =", tmp % toString()
+    !tmp = selectedEnabled % toString()
+    !write(*,*) "gridDomain_mod:: select:: selected enabled mask =", tmp % toString()
     allocate(shr_gridDomain :: newGDomain)
-    !call newGDomain % init(newGDescriptor, selectedEnabled, selectedBorder)
+
+    call newGDomain % init(newgrid, selectedEnabled, selectedBorder)
   end function select
 
 
@@ -368,7 +368,7 @@ contains
     expandedBorder = self % maskBorder % expand(grid, default = .true.)
     expandedEnabled = self % maskEnabled % expand(grid, default = .false.)
 
-    !call newGDomain % init(grid, expandedEnabled, expandedBorder)
+    call newGDomain % init(grid, expandedEnabled, expandedBorder)
   end function expand
 
 end module shr_gridDomain_mod 
