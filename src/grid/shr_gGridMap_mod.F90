@@ -14,7 +14,7 @@
 module shr_gGridMap_mod
 
   use shr_gGridDescriptor_mod, only: shr_igGridDescriptor
-  use shr_gAxisMapping_mod, only: shr_gAxisMapping
+  use shr_gAxisMapping_mod, only: shr_gAxisMapping, shr_igAxisMapping
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_coord_mod, only: shr_coord
   use shr_gridShape_mod, only: shr_gridShape
@@ -42,7 +42,7 @@ module shr_gGridMap_mod
   type :: shr_gGridMap
     class(shr_igGridDescriptor), allocatable :: gridDescriptor
     !< latitude axis mapping
-    class(shr_gAxisMapping), allocatable :: latAxMapping, lonAxMapping
+    class(shr_igAxisMapping), allocatable :: latAxMapping, lonAxMapping
   contains
     procedure :: init
     procedure :: equal
@@ -67,24 +67,26 @@ contains
     !< initialize
     class(shr_gGridMap), intent(inout) :: self
     class(shr_igGridDescriptor), intent(in) :: gridDescriptor
-    type(shr_gAxisMapping), intent(in) :: latAxMapping, lonAxMapping
+    class(shr_igAxisMapping), intent(in) :: latAxMapping, lonAxMapping
     allocate(self % gridDescriptor, source = gridDescriptor)
     allocate(self % latAxMapping, source = latAxMapping)
     allocate(self % lonAxMapping, source = lonAxMapping)
   end subroutine init
 
 
-  type(shr_gAxisMapping) function getLatAxis(self)
+  function getLatAxis(self) result (laxisMapping)
     !< latAxis getter
     class(shr_gGridMap), intent(in) :: self
-    getLatAxis = self % latAxMapping
+    class(shr_igAxisMapping), allocatable :: laxisMapping !< output
+    allocate(laxisMapping, source = self % latAxMapping)
   end function getLatAxis
 
 
-  type(shr_gAxisMapping) function getLonAxis(self)
+  function getLonAxis(self) result (lonxisMapping)
     !< lonAxis getter
     class(shr_gGridMap), intent(in) :: self
-    getLonAxis = self % lonAxMapping
+    class(shr_igAxisMapping), allocatable :: lonxisMapping
+    allocate(lonxisMapping, source = self % lonAxMapping)
   end function getLonAxis
 
 
@@ -170,9 +172,14 @@ contains
     logical :: hasSameGridDescriptor
     logical :: hasSameLaxisMapping, hasSameLonxisMapping
 
+    class(shr_gAxisMapping), allocatable :: tmpAxis
+
     hasSameGridDescriptor = (self % gridDescriptor == other % getGridDescriptor())
-    hasSameLaxisMapping = (self % latAxMapping == other % getLatAxis())
-    hasSameLonxisMapping = (self % lonAxMapping == other % getLonAxis())
+    tmpAxis = other % getLatAxis()
+    hasSameLaxisMapping = (self % latAxMapping == tmpAxis)
+    tmpAxis = other % getLonAxis()
+    hasSameLonxisMapping = (self % lonAxMapping == tmpAxis)
+
     !write(*,*) "shr_gGridMap:: equal:: hasSameGridDescriptor= ", hasSameGridDescriptor
     !write(*,*) "shr_gGridMap:: equal:: hasSameLaxisMapping= ", hasSameLaxisMapping
     !write(*,*) "shr_gGridMap:: equal:: hasSameLonxisMapping= ", hasSameLonxisMapping
