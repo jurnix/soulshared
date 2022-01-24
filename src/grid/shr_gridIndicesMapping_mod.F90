@@ -46,8 +46,8 @@ module shr_gridIndicesMapping_mod
 
   type shr_gridIndicesMapping
     class(shr_iGGridDescriptor), allocatable :: gDescriptor
-    type(shr_gAxisMapping), allocatable :: latMapping
-    type(shr_gAxisMapping), allocatable :: lonMapping
+    !type(shr_gAxisMapping), allocatable :: latMapping
+    !type(shr_gAxisMapping), allocatable :: lonMapping
   contains
     !procedure :: gridIndicesMapping_initialize
     procedure :: gridIndicesMapping_initialize_byGridDescriptor
@@ -68,14 +68,14 @@ contains
     type(shr_gGridAxes) :: latAxis, lonAxis
 
     allocate(self % gDescriptor, source=gDescriptor)
-    latAxis = gDescriptor % getLatAxis()
-    lonAxis = gDescriptor % getLonAxis()
+    !latAxis = gDescriptor % getLatAxis()
+    !lonAxis = gDescriptor % getLonAxis()
 
     ! gridcells mapping indices
-    allocate(self % latMapping)
-    call self % latMapping % init(latAxis)
-    allocate(self % lonMapping)
-    call self % lonMapping % init(lonAxis)
+    !allocate(self % latMapping)
+    !call self % latMapping % init(latAxis)
+    !allocate(self % lonMapping)
+    !call self % lonMapping % init(lonAxis)
   end subroutine gridIndicesMapping_initialize_byGridDescriptor
 
 
@@ -108,21 +108,21 @@ contains
     integer :: icell
 
     !< calculate indices 
-    idxlats = self % latMapping % getIndex(coord % lat)
-    idxlons = self % lonMapping % getIndex(coord % lon)
-    nlats = size(idxlats)
-    nlons = size(idxlons)
+    !idxlats = self % latMapping % getIndex(coord % lat)
+    !idxlons = self % lonMapping % getIndex(coord % lon)
+    !nlats = size(idxlats)
+    !nlons = size(idxlons)
 
-    allocate(gIndices(nlats * nlons))
+    !allocate(gIndices(nlats * nlons))
 
     ! populate output
-    icell = 1
-    do ilat = 1, nlats
-      do ilon = 1, nlons
-        call gIndices(icell) % init(idxlats(ilat), idxlons(ilon))
-        icell = icell + 1 ! next
-      enddo ! nlons
-    enddo ! nlats
+    !icell = 1
+    !do ilat = 1, nlats
+    !  do ilon = 1, nlons
+    !    call gIndices(icell) % init(idxlats(ilat), idxlons(ilon))
+    !    icell = icell + 1 ! next
+    !  enddo ! nlons
+    !enddo ! nlats
   end function getIndexByCoord
 
 

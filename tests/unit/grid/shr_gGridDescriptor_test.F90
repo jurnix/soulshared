@@ -69,14 +69,6 @@ contains
     call self % assert(d % getBounds() == bounds, &
             "d % getBounds() .eq. [1,-1,2,0] = T")
 
-    ! getLatAxis
-    call self % assert(d % getLatAxis() == latAxis, &
-            "d % getLatAxis() .eq. latAxis(1,-1) = T")
-
-    ! getLonAxis
-    call self % assert(d % getLonAxis() == lonAxis, &
-            "d % getLonAxis() .eq. lonAxis(2,0) = T")
-
     ! equal (==)
     call self % assert( d == d, "d .eq. d = T")
 

@@ -98,18 +98,19 @@ contains
     expGcsCenter(4) = shr_gridcell(-1, 1., gcCenter, .true.)
 
     Center = shr_coord(0., 1.)
-    foundGcsCenter = m % get(center)
-    call self % assertTrue(foundGcsCenter, expGcsCenter, &
-            "m % get(1,1) .eq. gcs([0.5,1.5], [0.5,0.5]) = T")
+    !foundGcsCenter = m % get(center)
+    !call self % assertTrue(foundGcsCenter, expGcsCenter, &
+    !        "m % get(1,1) .eq. gcs([0.5,1.5], [0.5,0.5]) = T")
+    call self % assert(.false., "todo (remove) = T")
 
     ! lastGC
     gcCenter = shr_coord(-0.5, 0.5)
     expGcsLast(1) = shr_gridcell(-1, 1., gcCenter, .true.)
 
     lastGC = shr_coord(-0.5, 0.5)
-    foundGcsLast = m % get(lastGC)
-    call self % assertTrue(foundGcsLast, expGcsLast, &
-            "m % get(1,1) .eq. gcs([0.5,1.5], [0.5,0.5]) = T")
+    !foundGcsLast = m % get(lastGC)
+    !call self % assertTrue(foundGcsLast, expGcsLast, &
+    !        "m % get(1,1) .eq. gcs([0.5,1.5], [0.5,0.5]) = T")
     
   end subroutine defineTestCases
 

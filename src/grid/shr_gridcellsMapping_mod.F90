@@ -57,18 +57,18 @@ contains
 
     allocate(self % gDescriptor, source =  gDescriptor)
 
-    latAxis = gDescriptor % getLatAxis()
-    lonAxis = gDescriptor % getLonAxis()
-    res = gDescriptor % getResolution()
+    !latAxis = gDescriptor % getLatAxis()
+    !lonAxis = gDescriptor % getLonAxis()
+    !res = gDescriptor % getResolution()
 
     ! gridcells mapping indices
-    allocate(self % latMapping)
-    call self % latMapping % init(latAxis)
-    allocate(self % lonMapping)
-    call self % lonMapping % init(lonAxis)
-
+    !allocate(self % latMapping)
+    !call self % latMapping % init(latAxis)
+    !allocate(self % lonMapping)
+    !call self % lonMapping % init(lonAxis)
+!
     ! populate gridcells
-    self % gridcells = latAxis % expand(lonAxis)
+    !self % gridcells = latAxis % expand(lonAxis)
   end subroutine gridcellsMapping_initialize_byDescriptor
 
 
@@ -87,21 +87,21 @@ contains
     integer :: icell
 
     !< calculate indices 
-    idxlats = self % latMapping % getIndex(coord % lat)
-    idxlons = self % lonMapping % getIndex(coord % lon)
-    nlats = size(idxlats)
-    nlons = size(idxlons)
+    !idxlats = self % latMapping % getIndex(coord % lat)
+    !idxlons = self % lonMapping % getIndex(coord % lon)
+    !nlats = size(idxlats)
+    !nlons = size(idxlons)
 
-    allocate(gcells(nlats * nlons))
+    !allocate(gcells(nlats * nlons))
 
     ! populate output
-    icell = 1
-    do ilat = 1, nlats
-      do ilon = 1, nlons
-        gcells(icell) = self % gridcells(idxlats(ilat), idxlons(ilon))
-        icell = icell + 1 ! next
-      enddo ! nlons
-    enddo ! nlats
+    !icell = 1
+    !do ilat = 1, nlats
+    !  do ilon = 1, nlons
+    !    gcells(icell) = self % gridcells(idxlats(ilat), idxlons(ilon))
+    !    icell = icell + 1 ! next
+    !  enddo ! nlons
+    !enddo ! nlats
   end function getGridcellsByCoord
 
 end module shr_gridcellsMapping_mod 

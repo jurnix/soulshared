@@ -34,8 +34,6 @@ module shr_gGridDescriptor_mod
     procedure(iface_initialize_simple), deferred :: initialize_simple
     generic :: init => initialize, initialize_simple
 
-    procedure(iface_getLatAxis), deferred :: getLatAxis
-    procedure(iface_getLonAxis), deferred :: getLonAxis
     procedure(iface_fitsIn), deferred :: fitsIn
     procedure(iface_getResolution), deferred :: getResolution
     procedure(iface_getBounds), deferred :: getBounds
@@ -137,8 +135,6 @@ module shr_gGridDescriptor_mod
 
     procedure :: getResolution => gGridDescriptor_getResolution
     procedure :: getBounds => gGridDescriptor_getBounds
-    procedure :: getLatAxis => gGridDescriptor_getLatAxis
-    procedure :: getLonAxis => gGridDescriptor_getLonAxis
 
     procedure :: equal => gGridDescriptor_equal
     !generic :: operator(==) => eq_gridDescriptor
@@ -209,20 +205,6 @@ contains
     class(shr_gGridDescriptor), intent(in) :: self
     gGridDescriptor_getBounds = self % bounds
   end function gGridDescriptor_getBounds
-
-
-  elemental type(shr_gGridAxes) function gGridDescriptor_getLatAxis(self)
-    !< return class bounds
-    class(shr_gGridDescriptor), intent(in) :: self
-    gGridDescriptor_getLatAxis = self % latAxis
-  end function gGridDescriptor_getLatAxis
-
-
-  elemental type(shr_gGridAxes) function gGridDescriptor_getLonAxis(self)
-    !< return class bounds
-    class(shr_gGridDescriptor), intent(in) :: self
-    gGridDescriptor_getLonAxis = self % lonAxis
-  end function gGridDescriptor_getLonAxis
 
 
   elemental impure logical function gGridDescriptor_equal(self, other)

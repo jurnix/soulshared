@@ -72,10 +72,10 @@ contains
     allocate(expIndices(2))
     call expIndices(1) % init(1,1)
     call expIndices(2) % init(1,2)
-    foundIndices = m % getIndex(topCenter)
+    !foundIndices = m % getIndex(topCenter)
 
-    call self % assertTrue(foundIndices, expIndices, &
-            "l % getIndex(1, 2) .eq. ([2,1], [2,2]) = T")
+    !call self % assertTrue(foundIndices, expIndices, &
+    !        "l % getIndex(1, 2) .eq. ([2,1], [2,2]) = T")
 
     deallocate(expIndices)
 
@@ -96,10 +96,10 @@ contains
     lastGC = shr_coord(-0.5, 0.5) 
     allocate(expIndices(1))
     call expIndices(1) % init(2,2)
-    foundIndices = m % getIndex(lastGC)
+    !foundIndices = m % getIndex(lastGC)
 
-    call self % assertTrue(foundIndices, expIndices, &
-            "l % getIndex(-0.5, 0.5) size .eq. ([2,2]) = T")
+    !call self % assertTrue(foundIndices, expIndices, &
+    !        "l % getIndex(-0.5, 0.5) size .eq. ([2,2]) = T")
 
     deallocate(expIndices)
   end subroutine defineTestCases
