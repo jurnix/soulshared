@@ -21,7 +21,7 @@ module shr_gridDomain_test
   use shr_gridMask_mod, only: shr_IgridMask, shr_gridMask
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGrid_mod, only: shr_gGrid
-  use shr_gGridMap_mod, only: shr_gGridMap
+  use shr_gGridMap_mod, only: shr_gGridMap, LATITUDE_NAME, LONGITUDE_NAME
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
@@ -115,8 +115,8 @@ contains
     call laxisBounds % init(bounds % getNorth(), bounds % getSouth())
     call lonxisBounds % init(bounds % getEast(), bounds % getWest())
 
-    call laxis % init(string("lats"), res, laxisBounds)
-    call lonxis % init(string("lons"), res, lonxisBounds)
+    call laxis % init(string(LATITUDE_NAME), res, laxisBounds)
+    call lonxis % init(string(LONGITUDE_NAME), res, lonxisBounds)
 
     call laxisMapping % init(laxis)
     call lonxisMapping % init(lonxis)

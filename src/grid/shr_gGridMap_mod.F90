@@ -29,7 +29,7 @@ module shr_gGridMap_mod
 
   private
 
-  public :: shr_gGridMap, shr_gridMapBuilder
+  public :: shr_gGridMap, shr_gridMapBuilder, LATITUDE_NAME, LONGITUDE_NAME
 
   character(*), parameter :: LATITUDE_NAME = "latitude"
   character(*), parameter :: LONGITUDE_NAME = "longitude"
@@ -173,6 +173,9 @@ contains
     hasSameGridDescriptor = (self % gridDescriptor == other % getGridDescriptor())
     hasSameLaxisMapping = (self % latAxMapping == other % getLatAxis())
     hasSameLonxisMapping = (self % lonAxMapping == other % getLonAxis())
+    !write(*,*) "shr_gGridMap:: equal:: hasSameGridDescriptor= ", hasSameGridDescriptor
+    !write(*,*) "shr_gGridMap:: equal:: hasSameLaxisMapping= ", hasSameLaxisMapping
+    !write(*,*) "shr_gGridMap:: equal:: hasSameLonxisMapping= ", hasSameLonxisMapping
 
     equal = (hasSameGridDescriptor .and. &
           hasSameLaxisMapping .and. hasSameLonxisMapping)

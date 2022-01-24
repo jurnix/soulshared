@@ -201,7 +201,9 @@ contains
     logical :: hasSameGDescriptor, hasSameGridmap
 
     hasSameGDescriptor = (self % gridDescriptor == other % getGridDescriptor())
+    !write(*,*) "shr_gGrid:: equal:: hasSameGDescriptor =", hasSameGDescriptor
     hasSameGridmap = (self % gridmap == other % getGridmap())
+    !write(*,*) "shr_gGrid:: equal:: hasSameGridMap =", hasSameGridmap
     equal = (hasSameGDescriptor .and. hasSameGridmap)
   end function equal
 

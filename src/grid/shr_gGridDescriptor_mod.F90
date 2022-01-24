@@ -110,7 +110,7 @@ module shr_gGridDescriptor_mod
       class(shr_iGGridDescriptor), intent(in) :: self
     end function iface_getBounds
 
-    elemental logical function iface_equal(self, other)
+    elemental impure logical function iface_equal(self, other)
       import :: shr_iGGridDescriptor
       !< ==
       class(shr_iGGridDescriptor), intent(in) :: self
@@ -225,7 +225,7 @@ contains
   end function gGridDescriptor_getLonAxis
 
 
-  elemental logical function gGridDescriptor_equal(self, other)
+  elemental impure logical function gGridDescriptor_equal(self, other)
     !<
     class(shr_gGridDescriptor), intent(in) :: self
     class(shr_iGGridDescriptor), intent(in) :: other

@@ -180,16 +180,23 @@ contains
   end function hasGridAxisCell
 
 
-  elemental logical function eq_gGridAxes(self, other)
+  elemental impure logical function eq_gGridAxes(self, other)
     !< true if 'self' and 'other' have the same attributes
     class(shr_gGridAxes), intent(in) :: self
     type(shr_gGridAxes), intent(in) :: other 
     logical :: hasSameName, hasSameRes, hasSameBounds, hasSameCells
+    !type(string) :: otherStr
 
     hasSameName = (self % name == other % getName())
+    !otherStr = other % getName()
     hasSameRes = (self % resolution == other % getResolution())
     hasSameBounds = (self % bounds == other % getBounds())
     hasSameCells = all(self % cells == other % Cells)
+    !write(*,*) "shr_gGridAxes:: eq_gGridAxes:: hasSameName=", &
+    !        hasSameName, self % name % toString(), otherStr % toString()
+    !write(*,*) "shr_gGridAxes:: eq_gGridAxes:: hasSameRes=", hasSameRes
+    !write(*,*) "shr_gGridAxes:: eq_gGridAxes:: hasSameBounds=", hasSameBounds
+    !write(*,*) "shr_gGridAxes:: eq_gGridAxes:: hasSameCells=", hasSameCells
 
     eq_gGridAxes = (hasSameName .and. hasSameRes .and. &
                     hasSameBounds .and. hasSameCells)
