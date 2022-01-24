@@ -23,26 +23,77 @@ module shr_gAxisMapping_mod
   
   implicit none
 
-  public :: shr_gAxisMapping
+  public :: shr_gAxisMapping, shr_IGAxisMapping
 
   logical, parameter :: ISDEBUG = .false.
 
 
-  type shr_gAxisMapping
+  type, abstract :: shr_IGAxisMapping
+  contains
+!    procedure(iface_init), deferred :: init
+    procedure(iface_getIndexByCoord), deferred :: getIndexByCoord
+    procedure(iface_getIndexByGridAxisCell), deferred :: getIndexByGridAxisCell
+    generic :: getIndex => getIndexByCoord, getIndexByGridAxisCell
+    procedure(iface_getSize), deferred :: getSize
+!    procedure(iface_getGridAxis), deferred :: getGridAxis
+    procedure(iface_equal), deferred :: equal
+    generic :: operator(==) => equal
+    procedure(iface_tostring), deferred :: toString
+  end type shr_IGAxisMapping
+
+  abstract interface
+    type(string) function iface_toString(self)
+      import :: shr_igAxisMapping, string
+      !< string representation of shr_gAxisMapping
+      class(shr_igAxisMapping), intent(in) :: self
+    end function iface_toString
+
+    function iface_getIndexByCoord(self, axisCoord) result (foundIdxs)
+      import :: shr_igAxisMapping, sp
+      !< it returns the index(s) which matches with axisCoord
+      class(shr_igAxisMapping), intent(in) :: self
+      real(kind=sp), intent(in):: axisCoord
+      integer, allocatable :: foundIdxs(:)
+    end function iface_getIndexByCoord
+
+    integer function iface_getIndexByGridAxisCell(self, gAxisCell)
+      import :: shr_igAxisMapping, shr_gGridAxesCell
+      !< it returns the index(s) which matches with gAxisCell
+      !< only 1 index can be returned
+      !< -1 in case is not found
+      class(shr_igAxisMapping), intent(in) :: self
+      type(shr_gGridAxesCell), intent(in) :: gAxisCell
+    end function iface_getIndexByGridAxisCell
+
+    integer function iface_getSize(self)
+      import :: shr_igAxisMapping
+      !< axis size
+      class(shr_igAxisMapping), intent(in) :: self
+    end function iface_getSize
+
+    logical function iface_equal(self, other)
+      import :: shr_igAxisMapping
+      !< true if self and equal have the same attributes
+      class(shr_igAxisMapping), intent(in) :: self
+      class(shr_igAxisMapping), intent(in) :: other
+    end function iface_equal
+  end interface
+
+
+  type, extends(shr_IGAxisMapping) :: shr_gAxisMapping
     type(shr_gGridAxes), allocatable :: axis
   contains
     procedure :: init => gAxisMapping_initialize 
 
-    procedure :: getIndexByCoord
-    procedure :: getIndexByGridAxisCell
-    generic :: getIndex => getIndexByCoord, getIndexByGridAxisCell
-    procedure :: getSize
+    procedure :: getIndexByCoord => gAxisMapping_getIndexByCoord
+    procedure :: getIndexByGridAxisCell => gAxisMapping_getIndexByGridAxisCell
+
+    procedure :: getSize => gAxisMapping_getSize
     procedure :: getgridAxis
 
-    procedure :: equal
-    generic :: operator(==) => equal
+    procedure :: equal => gAxisMapping_equal
 
-    procedure :: toString
+    procedure :: toString => gAxisMapping_toString
   end type shr_gAxisMapping
 
 contains
@@ -55,7 +106,7 @@ contains
   end subroutine gAxisMapping_initialize
 
 
-  function getIndexByCoord(self, axisCoord) result (foundIdxs)
+  function gAxisMapping_getIndexByCoord(self, axisCoord) result (foundIdxs)
     !< it returns the index(s) which matches with axisCoord
     !< Multiple indices can be returned in case it lies in 
     !< the grid axis cells border.
@@ -99,32 +150,32 @@ contains
         foundIdxs = [foundIdxs, [icell]]
       endif
     enddo
-  end function getIndexByCoord
+  end function gAxisMapping_getIndexByCoord
   
   
-  integer function getIndexByGridAxisCell(self, gAxisCell)
+  integer function gAxisMapping_getIndexByGridAxisCell(self, gAxisCell)
     !< it returns the index(s) which matches with gAxisCell
     !< only 1 index can be returned
     !< -1 in case is not found
     class(shr_gAxisMapping), intent(in) :: self
     type(shr_gGridAxesCell), intent(in) :: gAxisCell
     integer :: icell
-    getIndexByGridAxisCell = -1 ! init output
+    gAxisMapping_getIndexByGridAxisCell = -1 ! init output
     do icell = 1, self % axis % getSize()
       !< find gridcell(s) and count
       if (gAxisCell == self % axis % cells(icell)) then
-        getIndexByGridAxisCell = icell
+        gAxisMapping_getIndexByGridAxisCell = icell
         exit !< element found, no need to iterate anymore 
       endif
     enddo
-  end function getIndexByGridAxisCell
+  end function gAxisMapping_getIndexByGridAxisCell
 
 
-  integer function getSize(self)
+  integer function gAxisMapping_getSize(self)
     !< axis size
     class(shr_gAxisMapping), intent(in) :: self
-    getSize = self % axis % getSize()
-  end function getSize
+    gAxisMapping_getSize = self % axis % getSize()
+  end function gAxisMapping_getSize
 
 
   type(shr_gGridAxes) function getGridAxis(self)
@@ -134,23 +185,28 @@ contains
   end function getGridAxis
 
 
-  logical function equal(self, other)
+  logical function gAxisMapping_equal(self, other)
     !< true if self and equal have the same attributes
     class(shr_gAxisMapping), intent(in) :: self
-    type(shr_gAxisMapping), intent(in) :: other
+    class(shr_igAxisMapping), intent(in) :: other
     logical :: hasSameGAxis
-    hasSameGAxis = (self % axis == other % getGridAxis())
-    equal = (hasSameGAxis)
-  end function equal
+    select type(o => other)
+    type is(shr_gAxisMapping)
+      hasSameGAxis = (self % axis == o % getGridAxis())
+    class default
+      hasSameGAxis = .false.
+    end select
+    gAxisMapping_equal = (hasSameGAxis)
+  end function gAxisMapping_equal
 
 
-  type(string) function toString(self)
+  type(string) function gAxisMapping_toString(self)
     !< string representation of shr_gAxisMapping
     class(shr_gAxisMapping), intent(in) :: self
     type(string) :: strSize
     strSize = int2string(self % getSize())
-    toString = string("size= ") + strSize + ", axis=" +  self % axis % toString()
-  end function toString
+    gAxisMapping_toString = string("size= ") + strSize + ", axis=" +  self % axis % toString()
+  end function gAxisMapping_toString
 
 end module shr_gAxisMapping_mod 
 
