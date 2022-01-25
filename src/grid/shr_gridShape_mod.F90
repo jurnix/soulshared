@@ -15,6 +15,7 @@ module shr_gridShape_mod
 
 	implicit none
 
+	public :: shr_gridShape
 
 	type shr_gridShape
 		integer :: nlats !< rows
@@ -22,6 +23,9 @@ module shr_gridShape_mod
 	contains
 		procedure :: getLats
 		procedure :: getLons
+
+		procedure :: equal
+		generic :: operator(==) => equal
 	end type shr_gridShape
 
 contains
@@ -38,5 +42,16 @@ contains
 		class(shr_gridShape), intent(in) :: self
 		getLons = self % nlons
 	end function getLons
+
+
+	logical function equal(self, other)
+		!< true if self and other have the same attributes
+		class(shr_gridShape), intent(in) :: self
+		type(shr_gridShape), intent(in) :: other
+		logical :: hasSameNlats, hasSameNlons
+		hasSameNlats = (self % nlats == other % getLats())
+		hasSameNlons = (self % nlons == other % getLons())
+		equal = (hasSameNlats .and. hasSameNlons)
+	end function equal
 
 end module shr_gridShape_mod
