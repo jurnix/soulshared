@@ -47,8 +47,6 @@ program unittest
   use shr_gGridAxesCell_test, only: testSuitegGridAxesCell
   use shr_gAxisMapping_test, only: testSuitegAxisMapping
   use shr_gAxisCellIndex_test, only: testSuitegAxisCellIndex
-  !use shr_gridcellsMapping_test, only: testSuiteGridcellsMapping
-  !use shr_gridIndicesMapping_test, only: testSuiteGridIndicesMapping
   use shr_gridMask_test, only: testSuiteGridMask
   use shr_gGridMap_test, only: testSuitegGridMap
   use shr_gridMaskBorder_test, only: testSuitegridMaskBorder
@@ -95,8 +93,6 @@ program unittest
   type(testSuitegGridAxesCell) :: tsgGridAxesCell
   type(testSuitegAxisMapping) :: tsgAxisMapping
   type(testSuitegAxisCellIndex) :: tsgAxisCellIndex
-  !type(testSuiteGridcellsMapping) :: tsGridcellsMapping
-  !type(testSuiteGridIndicesMapping) :: tsGridIndicesMapping
   type(testSuiteGridMask) :: tsGridMask
   type(testSuitegGridMap) :: tsgGridMap
   type(testSuitegridMaskBorder) :: tsGridMaskBorder
@@ -142,8 +138,6 @@ program unittest
   call tsgGridAxes % init("gGridAxes test", 20)
   call tsgAxisMapping % init("gAxisMapping test", 20)
   call tsgAxisCellIndex % init("gAxisCellIndex test", 20)
-  !call tsGridcellsMapping % init("gridCellsMapping test", 10)
-  !call tsGridindicesMapping % init("gridIndicesMapping test", 10)
   call tsGridMask % init("gridMask test", 20)
   call tsgGridMap % init("gridMap test", 20)
   call tsGridMaskBorder % init("gridMaskBorder test", 20)
@@ -189,8 +183,6 @@ program unittest
   call tsgGridAxes % run()
   call tsgAxisMapping % run()
   call tsgAxisCellIndex % run()
-  !call tsGridcellsMapping % run()
-  !call tsGridIndicesMapping % run()
   call tsGridMask % run()
   call tsgGridMap % run()
   call tsGridMaskBorder % run()
@@ -236,8 +228,6 @@ program unittest
   call tsgGridAxes % report()
   call tsgAxisMapping % report()
   call tsgAxisCellIndex % report()
-  !call tsGridcellsMapping % report()
-  !call tsGridIndicesMapping % report()
   call tsGridMask % report()
   call tsgGridMap % report()
   call tsGridMaskBorder % report()
@@ -280,9 +270,7 @@ program unittest
       .not. tsgGridAxesCell % isSuccessful() .or. &
       .not. tsgGridAxes % isSuccessful() .or. & 
       .not. tsgAxisMapping % isSuccessful() .or. & 
-      .not. tsgAxisCellIndex % isSuccessful() .or. & 
-      !.not. tsGridcellsMapping % isSuccessful() .or. &
-      !.not. tsGridIndicesMapping % isSuccessful() .or. &
+      .not. tsgAxisCellIndex % isSuccessful() .or. &
       .not. tsGridMask % isSuccessful() .or. &
       .not. tsgGridMap % isSuccessful() .or. &
       .not. tsGridMaskBorder % isSuccessful() .or. &
