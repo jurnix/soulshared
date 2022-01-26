@@ -58,6 +58,8 @@ module shr_gridcell_mod
 
     !< deferred as (==)
     procedure :: equal => gridcell_eq
+
+    procedure :: getCenter
   end type shr_gridcell
 
   interface shr_gridcell
@@ -207,6 +209,10 @@ contains
   end function gridcell_constructor
 
 
-
+  type(shr_coord) function getCenter(self)
+    !< returns the center of the gridcell as a shr_coord
+    class(shr_gridcell), intent(in) :: self
+    getCenter = self % center
+  end function getCenter
 
 end module shr_gridcell_mod
