@@ -24,7 +24,6 @@ module shr_gridMask_mod
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gridShape_mod, only: shr_gridShape
   use shr_coord_mod, only: shr_coord
-  use shr_gridIndicesMapping_mod, only: shr_gridIndicesMapping
 
   use shr_arrayIndices_mod, only: shr_arrayIndices
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
@@ -600,7 +599,7 @@ contains
     class(shr_igridMask), allocatable :: newGMask !< output
 
     logical, allocatable :: newLmask(:,:)
-    type(shr_gridIndicesMapping) :: idxMapping
+    !type(shr_gridIndicesMapping) :: idxMapping
     type(shr_gridBoundIndices) :: gBoundIndices
     type(string) :: tmp
     logical, allocatable :: tmpMask(:,:)
@@ -614,7 +613,7 @@ contains
     !< discover array indices
     !call idxMapping % init(self % getGridDescriptor())
     gDescriptor = grid % getGridDescriptor()
-    gBoundIndices = self % grid % getIndices(gDescriptor)
+    gBoundIndices = self % grid % getIndices(grid)
     !gBoundIndices = self % findIndices(gDescriptor, idxMapping)
     !write(*,*) "gridMAsk_mod:: gridMask_select:: gBoundIndices (n, s, e, w)=", &
     !    gBoundIndices % startRow, gBoundIndices % endRow, &
@@ -701,7 +700,7 @@ contains
 
     type(shr_gridBoundIndices) :: gBoundIndices
     logical, allocatable :: newLMask(:,:)
-    type(shr_gridIndicesMapping) :: idxMapping
+    !type(shr_gridIndicesMapping) :: idxMapping
 
     !< new bounds fit in current gridMask?
     if (.not. grid % fitsIn(self % getGrid()) ) then
@@ -735,8 +734,8 @@ contains
     class(shr_gGrid), allocatable :: argGrid
 
     argGrid = gridMask % getGrid()
-    argGDescriptor = argGrid % getGridDescriptor()
-    gBoundIndices = self % grid % getIndices(argGDescriptor)
+    !argGDescriptor = argGrid % getGridDescriptor()
+    gBoundIndices = self % grid % getIndices(argGrid)
     lmask = gridMask % get()
     call self % set(lmask, gBoundIndices)
   end subroutine gridMask_set_By_Gridmask
