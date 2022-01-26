@@ -62,6 +62,11 @@ module shr_gridBounds_mod
     ! combine
     procedure :: gridBounds_combine
     generic :: operator(+) => gridBounds_combine
+
+    procedure :: getCoordinateNorthEast
+    procedure :: getCoordinateNorthWest
+    procedure :: getCoordinateSouthEast
+    procedure :: getCoordinateSouthWest
   end type shr_gridBounds
 
 contains
@@ -272,6 +277,34 @@ contains
     class(shr_gridBounds), intent(in) :: self
     getWest = self % west
   end function getWest
+
+
+  type(shr_coord) function getCoordinateNorthEast(self) result (c)
+    !< returns coordinate from north east boundary
+    class(shr_gridBounds), intent(in) :: self
+    c = shr_coord(self % getNorth(), self % getEast())
+  end function getCoordinateNorthEast
+
+
+  type(shr_coord) function getCoordinateNorthWest(self) result (c)
+    !< returns coordinate from north West boundary
+    class(shr_gridBounds), intent(in) :: self
+    c = shr_coord(self % getNorth(), self % getWest())
+  end function getCoordinateNorthWest
+
+
+  type(shr_coord) function getCoordinateSouthEast(self) result (c)
+    !< returns coordinate from south east boundary
+    class(shr_gridBounds), intent(in) :: self
+    c = shr_coord(self % getSouth(), self % getEast())
+  end function getCoordinateSouthEast
+
+
+  type(shr_coord) function getCoordinateSouthWest(self) result (c)
+    !< returns coordinate from south west boundary
+    class(shr_gridBounds), intent(in) :: self
+    c = shr_coord(self % getSouth(), self % getWest())
+  end function getCoordinateSouthWest
 
 end module shr_gridBounds_mod
 

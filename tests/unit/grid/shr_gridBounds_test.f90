@@ -13,6 +13,7 @@ module shr_gridBounds_test
   !use shr_precision_mod, only: sp
   use shr_testSuite_mod, only: testSuite
 
+  use shr_precision_mod, only: sp
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_coord_mod, only: shr_coord
 
@@ -25,6 +26,11 @@ module shr_gridBounds_test
 
   contains
     procedure :: define => defineTestCases
+    procedure, private :: testCaseGetCoordinateNorthEast
+    procedure, private :: testCaseGetCoordinateNorthWest
+    procedure, private :: testCaseGetCoordinateSouthEast
+    procedure, private :: testCaseGetCoordinateSouthWest
+
   end type
 contains
 
@@ -109,6 +115,71 @@ contains
     call self % assert(.not. b % isOverlapped(outTouched), &
         "b(3,0,1,-1) % isOverlapped(4,3,1,-1) = F")
 
+    call self % testCaseGetCoordinateNorthEast()
+    call self % testCaseGetCoordinateNorthWest()
+    call self % testCaseGetCoordinateSouthEast()
+    call self % testCaseGetCoordinateSouthWest()
+
   end subroutine defineTestCases
+
+
+  subroutine testCaseGetCoordinateNorthEast(self)
+    !< getCoordinateNorthEast
+    class(testSuiteGridBounds), intent(inout) :: self
+    type(shr_gridBounds) :: gb
+    type(shr_coord) :: foundCoord
+
+    !< setup
+    call gb % init(north=2._sp, south=1._sp, east=4._sp, west=3._sp)
+    foundCoord = gb % getCoordinateNorthEast()
+    !< unit test
+    call self % assert(foundCoord == shr_coord(2._sp, 4._sp), &
+        "gb % getCoordinateNorthEast(n=1,s=2,e=4,w=3) .eq. coorD(2,4) = T")
+  end subroutine testCaseGetCoordinateNorthEast
+
+
+  subroutine testCaseGetCoordinateNorthWest(self)
+    !< getCoordinateNorthEast
+    class(testSuiteGridBounds), intent(inout) :: self
+    type(shr_gridBounds) :: gb
+    type(shr_coord) :: foundCoord
+
+    !< setup
+    call gb % init(north=2._sp, south=1._sp, east=4._sp, west=3._sp)
+    foundCoord = gb % getCoordinateNorthWest()
+    !< unit test
+    call self % assert(foundCoord == shr_coord(2._sp, 3._sp), &
+        "gb % getCoordinateNorthEast(n=2,s=1,e=4,w=3) .eq. coorD(2,3) = T")
+  end subroutine testCaseGetCoordinateNorthWest
+
+
+  subroutine testCaseGetCoordinateSouthEast(self)
+    !< getCoordinateSouthEast
+    class(testSuiteGridBounds), intent(inout) :: self
+    type(shr_gridBounds) :: gb
+    type(shr_coord) :: foundCoord
+
+    !< setup
+    call gb % init(north=2._sp, south=1._sp, east=4._sp, west=3._sp)
+    foundCoord = gb % getCoordinateSouthEast()
+    !< unit test
+    call self % assert(foundCoord == shr_coord(1._sp, 4._sp), &
+        "gb % getCoordinateNorthEast(n=1,s=2,e=4,w=3) .eq. coorD(1,4) = T")
+  end subroutine testCaseGetCoordinateSouthEast
+
+
+  subroutine testCaseGetCoordinateSouthWest(self)
+    !< getCoordinateSouthWest
+    class(testSuiteGridBounds), intent(inout) :: self
+    type(shr_gridBounds) :: gb
+    type(shr_coord) :: foundCoord
+
+    !< setup
+    call gb % init(north=2._sp, south=1._sp, east=4._sp, west=3._sp)
+    foundCoord = gb % getCoordinateSouthWest()
+    !< unit test
+    call self % assert(foundCoord == shr_coord(1._sp, 3._sp), &
+        "gb % getCoordinateNorthEast(n=1,s=2,e=4,w=3) .eq. coorD(1,3) = T")
+  end subroutine testCaseGetCoordinateSouthWest
 
 end module shr_gridBounds_test
