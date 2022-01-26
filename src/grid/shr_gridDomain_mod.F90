@@ -16,8 +16,6 @@ module shr_gridDomain_mod
   use SHR_precision_mod, only: sp
 
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
-  use shr_gridcellsMapping_mod, only: shr_gridcellsMapping
-  use shr_gridIndicesMapping_mod, only: shr_gridIndicesMapping
   use shr_gridMask_mod, only: shr_IgridMask
   use shr_gridMaskEnabled_mod, only: shr_gridMaskEnabled
   use shr_gridMaskBorder_mod, only: shr_gridMaskBorder
@@ -96,8 +94,8 @@ module shr_gridDomain_mod
     class(shr_gGrid), allocatable :: grid
 
     !< todo: refactor XXXmapping into GridMapping(unique interface) :: mapping
-    type(shr_gridcellsMapping), allocatable :: gcsMapping !< gridcells indices
-    type(shr_gridIndicesMapping), allocatable :: idxMapping !< array indices
+    !type(shr_gridcellsMapping), allocatable :: gcsMapping !< gridcells indices
+    !type(shr_gridIndicesMapping), allocatable :: idxMapping !< array indices
     !< todo: refactor maskXXX into GridMaskAvailable :: available
     class(shr_igridMask), allocatable :: maskEnabled !< allowed to modify, sea vs land (?)
     class(shr_igridMask), allocatable :: maskBorder !< non available gridcells due to partitioning
@@ -240,8 +238,8 @@ contains
     if (allocated(self % grid)) deallocate(self % grid)
     if (allocated(self % maskEnabled)) deallocate(self % maskEnabled)
     if (allocated(self % maskBorder)) deallocate(self % maskBorder)
-    if (allocated(self % idxMapping)) deallocate(self % idxMapping)
-    if (allocated(self % gcsMapping)) deallocate(self % gcsMapping)
+    !if (allocated(self % idxMapping)) deallocate(self % idxMapping)
+    !if (allocated(self % gcsMapping)) deallocate(self % gcsMapping)
 
     call self % init(grid, enabled, border)
   end subroutine gridDomain_copy
