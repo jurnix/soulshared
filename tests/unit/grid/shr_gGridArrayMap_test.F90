@@ -1,19 +1,19 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        : shr_gGridMap_test 
+! MODULE        : shr_gGridArrayMap_test 
 !
 !> @author
 !> Albert Jornet Puig
 !
 ! DESCRIPTION:
-!> gGridMap unit tests
+!> gGridArrayMap unit tests
 !------------------------------------------------------------------------------
-module shr_gGridMap_test
+module shr_gGridArrayMap_test
 
   use SHR_testSuite_mod, only: testSuite
   use shr_precision_mod, only: sp
-  use shr_gGridMap_mod, only: shr_gGridMap
+  use shr_gGridArrayMap_mod, only: shr_gGridArrayMap
   use shr_gAxisMapping_stub, only: shr_gAxisMappingEmptyStub
   use shr_gAxisMapping_mod, only: shr_igAxisMapping
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
@@ -27,9 +27,9 @@ module shr_gGridMap_test
   implicit none
 
   private
-  public :: testSuitegGridMap
+  public :: testSuitegGridArrayMap
 
-  type, extends(testSuite) :: testSuitegGridMap
+  type, extends(testSuite) :: testSuitegGridArrayMap
 
     contains
       procedure :: define => defineTestCases
@@ -148,7 +148,7 @@ contains
 
   subroutine defineTestCases(self)
     use iso_c_binding
-    class(testSuitegGridMap), intent(inout) :: self
+    class(testSuitegGridArrayMap), intent(inout) :: self
 
     call self % testToString()
     call self % testGetIndexMultipleGridcells()
@@ -164,8 +164,8 @@ contains
 
   subroutine testToString(self)
     !< toString unit test
-    class(testSuitegGridMap), intent(inout) :: self
-    type(shr_gGridMap) :: g
+    class(testSuitegGridArrayMap), intent(inout) :: self
+    type(shr_gGridArrayMap) :: g
     type(shr_gGridDescriptorFake) :: fakeGridDesc
     type(shr_gAxisMappingFakeLat) :: fakeLaxisLat
     type(shr_gAxisMappingFakeLon) :: fakeLonxisLon
@@ -190,8 +190,8 @@ contains
     !< +-+-+
     !> |x|x|
     !< +-+-+ - (1.)
-    class(testSuitegGridMap), intent(inout) :: self
-    type(shr_gGridMap) :: g
+    class(testSuitegGridArrayMap), intent(inout) :: self
+    type(shr_gGridArrayMap) :: g
     type(shr_gGridDescriptorFake) :: fakeGridDesc
     type(shr_gAxisMappingFakeLat) :: fakeLaxisLat
     type(shr_gAxisMappingFakeLon) :: fakeLonxisLon
@@ -220,8 +220,8 @@ contains
 
   subroutine testEqual(self)
     !< == unit test
-    class(testSuitegGridMap), intent(inout) :: self
-    type(shr_gGridMap) :: g, gother
+    class(testSuitegGridArrayMap), intent(inout) :: self
+    type(shr_gGridArrayMap) :: g, gother
     type(shr_gGridDescriptorFake) :: fakeGridDesc
     type(shr_gAxisMappingFakeLat) :: fakeLaxisLat
     type(shr_gAxisMappingFakeLon) :: fakeLonxisLon
@@ -238,8 +238,8 @@ contains
 
   subroutine testGetShape(self)
     !< == unit test
-    class(testSuitegGridMap), intent(inout) :: self
-    type(shr_gGridMap) :: g, gother
+    class(testSuitegGridArrayMap), intent(inout) :: self
+    type(shr_gGridArrayMap) :: g, gother
     type(shr_gGridDescriptorFake) :: fakeGridDesc
     type(shr_gAxisMappingFakeLat) :: fakeLaxisLat
     type(shr_gAxisMappingFakeLon) :: fakeLonxisLon
@@ -260,5 +260,5 @@ contains
 
   end subroutine testGetShape
 
-end module shr_gGridMap_test
+end module shr_gGridArrayMap_test
 

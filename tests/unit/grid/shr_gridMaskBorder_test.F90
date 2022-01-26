@@ -25,7 +25,7 @@ module shr_gridMaskBorder_test
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
-  use shr_gGridMap_mod, only: shr_gGridmap
+  use shr_gGridArrayMap_mod, only: shr_gGridArrayMap
 
   use shr_gGrid_mod, only: shr_gGrid
 
@@ -54,7 +54,7 @@ contains
     real(kind=sp) :: newBounds(4) !< N, S, E, W
     type(shr_gridBounds) :: bounds
     type(shr_gGridDescriptor) :: gDescriptor
-    type(shr_gGridmap) :: gridmap
+    type(shr_gGridArrayMap) :: gridmap
     type(shr_gGrid) :: grid
 
     call bounds % init(newBounds)
@@ -70,7 +70,7 @@ contains
     real(kind=sp) :: newBounds(4) !< N, S, E, W
     type(shr_gridBounds) :: bounds
     type(shr_gGridDescriptor) :: gDescriptor
-    type(shr_gGridmap) :: gridmap
+    type(shr_gGridArrayMap) :: gridmap
     type(shr_gGrid) :: grid
 
     call bounds % init(newBounds)
@@ -83,7 +83,7 @@ contains
   end function getNewGridMaskBorder
 
 
-  type(shr_gGridMap) function getNewGridmap(gdescriptor)
+  type(shr_gGridArrayMap) function getNewGridmap(gdescriptor)
     !< create a new gridmap
     type(shr_gGridDescriptor), intent(in) :: gdescriptor
     type(shr_gridBounds) :: bounds

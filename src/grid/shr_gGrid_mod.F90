@@ -17,7 +17,7 @@ module shr_gGrid_mod
   use shr_error_mod, only: raiseError
 
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
-  use shr_gGridMap_mod, only: shr_gGridMap, shr_gridMapBuilder, shr_igGridMap
+  use shr_gGridArrayMap_mod, only: shr_gGridArrayMap, shr_gridArrayMapBuilder, shr_igGridArrayMap
   use shr_gridShape_mod, only: shr_gridShape
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
@@ -43,7 +43,7 @@ module shr_gGrid_mod
   !< implementation
   type, extends(shr_igGrid) :: shr_gGrid
     class(shr_igGridDescriptor), allocatable :: gridDescriptor
-    class(shr_igGridMap), allocatable :: gridmap
+    class(shr_igGridArrayMap), allocatable :: gridmap
   contains
     procedure :: init
     !< getters
@@ -77,7 +77,7 @@ contains
     !< initialize
     class(shr_gGrid), intent(inout) :: self
     class(shr_igGridDescriptor), intent(in) :: gridDescriptor
-    class(shr_igGridMap), intent(in) :: gridMap
+    class(shr_igGridArrayMap), intent(in) :: gridMap
     allocate(self % gridDescriptor, source = gridDescriptor)
     allocate(self % gridMap, source = gridMap)
   end subroutine init
@@ -86,7 +86,7 @@ contains
   function getGridMap(self) result (gridMap)
     !< returns gridMap
     class(shr_gGrid), intent(in) :: self
-    class(shr_igGridMap), allocatable :: gridMap !< output
+    class(shr_igGridArrayMap), allocatable :: gridMap !< output
     allocate(gridMap, source = self % gridmap)
   end function getGridMap
 
@@ -210,9 +210,9 @@ contains
     class(shr_gGrid), intent(in) :: self
     class(shr_gGrid), intent(in) :: other
     class(shr_iGGridDescriptor), allocatable :: newGdesc
-    type(shr_gGridMap) :: newGridMap
+    type(shr_gGridArrayMap) :: newGridMap
     newGdesc = self % getGridDescriptor() + other % getGridDescriptor()
-    newGridMap = shr_gridMapBuilder(newGdesc)
+    newGridMap = shr_gridArrayMapBuilder(newGdesc)
     call combine % init(newGdesc, newGridMap)
   end function combine
 
@@ -249,7 +249,7 @@ contains
     end if
 
     !< todo : create new class shr_gGridCellsMap(gDescriptor, gAxis::lat, gAxis::lon)
-    !<    shr_gGridMap should be renamed to shr_gGridArrayMap(gDescriptor, latmapping, lonmapping)
+    !<    shr_gGridArrayMap should be renamed to shr_gGridArrayMap(gDescriptor, latmapping, lonmapping)
 
     !boundaryGcs = self % gridcellsMap % get(boundCoord)
     if (size(boundaryGcs) > 1) then

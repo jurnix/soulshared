@@ -23,7 +23,7 @@ module shr_gridMask_test
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
-  use shr_gGridMap_mod, only: shr_gGridMap
+  use shr_gGridArrayMap_mod, only: shr_gGridArrayMap
   use shr_gGrid_mod, only: shr_gGrid
 
 
@@ -46,13 +46,13 @@ contains
   type(shr_gGrid) function getNewGrid(gDescriptor)
     !< creates a new grid
     type(shr_gGridDescriptor), intent(in) :: gDescriptor
-    type(shr_gGridMap) :: gridmap
+    type(shr_gGridArrayMap) :: gridmap
     gridmap = getNewGridMap(gDescriptor)
     call getNewGrid % init(gDescriptor, gridmap)
   end function getNewGrid
 
 
-  type(shr_gGridMap) function getNewGridMap(gDescriptor)
+  type(shr_gGridArrayMap) function getNewGridMap(gDescriptor)
     !< creates a new gridmap
     type(shr_gGridDescriptor), intent(in) :: gDescriptor
 

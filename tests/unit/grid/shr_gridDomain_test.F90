@@ -21,7 +21,7 @@ module shr_gridDomain_test
   use shr_gridMask_mod, only: shr_IgridMask, shr_gridMask
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGrid_mod, only: shr_gGrid
-  use shr_gGridMap_mod, only: shr_gGridMap, LATITUDE_NAME, LONGITUDE_NAME
+  use shr_gGridArrayMap_mod, only: shr_gGridArrayMap, LATITUDE_NAME, LONGITUDE_NAME
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
@@ -64,7 +64,7 @@ contains
   type(shr_gGrid) function getNewGrid(gDescriptor)
     !< creates a new grid
     type(shr_gGridDescriptor), intent(in) :: gDescriptor
-    type(shr_gGridMap) :: gridmap
+    type(shr_gGridArrayMap) :: gridmap
     gridmap = createNewGridmap(gDescriptor)
     call getNewGrid % init(gDescriptor, gridmap)
   end function getNewGrid
@@ -80,7 +80,7 @@ contains
     class(shr_gGridDescriptor), allocatable :: gDesc
     !type(shr_gridBounds) :: sbounds
     class(shr_gridMask), allocatable :: gmEnabled, gmBorder
-    type(shr_gGridMap) :: gridmap
+    type(shr_gGridArrayMap) :: gridmap
     type(shr_gGrid) :: grid
 
     !call sbounds % init(bounds)
@@ -100,7 +100,7 @@ contains
   end function createNewGridDomain
 
 
-  type(shr_gGridMap) function createNewGridmap(gdescriptor)
+  type(shr_gGridArrayMap) function createNewGridmap(gdescriptor)
     !< create a new gridmap
     type(shr_gGridDescriptor), intent(in) :: gdescriptor
     type(shr_gridBounds) :: bounds

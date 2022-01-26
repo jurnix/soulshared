@@ -19,7 +19,7 @@ module shr_gridMask_stub
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor, shr_gGridDescriptor
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
   use shr_gGrid_mod, only: shr_gGrid
-  use shr_gGridMap_mod, only: shr_gGridMap
+  use shr_gGridArrayMap_mod, only: shr_gGridArrayMap
   use shr_gGridAxes_mod, only: shr_gGridAxes
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
@@ -103,7 +103,7 @@ contains
     class(shr_gridMaskStub), intent(in) :: self
     class(shr_gGrid), allocatable :: newGrid !< output
     class(shr_iGGridDescriptor), allocatable :: newGDescriptor !< output
-    type(shr_gGridMap) :: newGMap
+    type(shr_gGridArrayMap) :: newGMap
     type(shr_gridBounds) :: bounds !< n, s, e, w
     type(shr_gGridAxes) :: laxis, lonxis
     type(shr_gAxisMapping) :: laxisMapping, lonxisMapping

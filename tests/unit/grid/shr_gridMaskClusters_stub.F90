@@ -16,7 +16,7 @@ module shr_gridMaskClusters_stub
   use shr_gridMask_mod, only: shr_IgridMask, shr_gridMask
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
-  use shr_gGridMap_mod, only: shr_gGridMap
+  use shr_gGridArrayMap_mod, only: shr_gGridArrayMap
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
 
@@ -47,7 +47,7 @@ module shr_gridMaskClusters_stub
 
 contains
 
-  type(shr_gGridMap) function getNewGridMap(gDescriptor)
+  type(shr_gGridArrayMap) function getNewGridMap(gDescriptor)
     !< generate new gridmap
     type(shr_gGridDescriptor), intent(in) :: gDescriptor
     real(kind=sp) :: res
@@ -74,7 +74,7 @@ contains
   type(shr_gGrid) function getNewGrid(gDescriptor) result (newGrid)
     !< generate a new grid
     type(shr_gGridDescriptor), intent(in) :: gDescriptor
-    type(shr_gGridMap) :: gmap
+    type(shr_gGridArrayMap) :: gmap
     gmap = getNewGridMap(gDescriptor)
     call newGrid % init(gDescriptor, gmap)
   end function getNewGrid
