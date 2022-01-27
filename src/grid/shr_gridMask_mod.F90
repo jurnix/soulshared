@@ -613,11 +613,13 @@ contains
     !< discover array indices
     !call idxMapping % init(self % getGridDescriptor())
     gDescriptor = grid % getGridDescriptor()
+    tmp = gDescriptor % toString()
+    write(*,*) "shr_gridMask_mod:: gridMask_select:: grid % getGridDescriptor()= ", tmp % toString()
     gBoundIndices = self % grid % getIndices(grid)
     !gBoundIndices = self % findIndices(gDescriptor, idxMapping)
-    !write(*,*) "gridMAsk_mod:: gridMask_select:: gBoundIndices (n, s, e, w)=", &
-    !    gBoundIndices % startRow, gBoundIndices % endRow, &
-    !    gBoundIndices % startCol, gBoundIndices % endCol
+    write(*,*) "gridMAsk_mod:: gridMask_select:: gBoundIndices (n, s, e, w)=", &
+        gBoundIndices % startRow, gBoundIndices % endRow, &
+        gBoundIndices % startCol, gBoundIndices % endCol
 
     allocate(shr_gridMask :: newGMask)
     call newGMask % init(grid, default = .false.)!, newLmask)
