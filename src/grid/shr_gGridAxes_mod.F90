@@ -23,12 +23,75 @@ module shr_gGridAxes_mod
   
   implicit none
 
-  public :: shr_gGridAxes
+  public :: shr_gGridAxes, shr_igGridAxes
 
   logical, parameter :: ISDEBUG = .false.
 
 
-  type shr_gGridAxes
+  type, abstract :: shr_igGridAxes
+  contains
+    procedure(iface_getName), deferred :: getName
+    procedure(iface_getBounds), deferred :: getBounds
+    procedure(iface_getResolution), deferred :: getResolution
+    procedure(iface_getCells), deferred :: getCells
+    procedure(iface_getSize), deferred :: getSize
+    procedure(iface_toString), deferred :: toString
+    procedure(iface_equal), deferred :: equal
+    generic :: operator(==) => equal
+  end type shr_igGridAxes
+
+
+  abstract interface
+    elemental type(string) function iface_getName(self)
+      import :: shr_igGridAxes, string
+      !< it returns the name attribute
+      class(shr_igGridAxes), intent(in) :: self
+    end function iface_getName
+
+
+    elemental type(shr_gGridAxesBounds) function iface_getBounds(self)
+      import :: shr_igGridAxes,  shr_gGridAxesBounds
+      !< it returns the bounds attribute
+      class(shr_igGridAxes), intent(in) :: self
+    end function iface_getBounds
+
+
+    elemental real(kind=sp) function iface_getResolution(self)
+      import :: sp, shr_igGridAxes
+      !< it returns the resolution attribute
+      class(shr_igGridAxes), intent(in) :: self
+    end function iface_getResolution
+
+    function iface_getCells(self, axisCoord) result (gcells)
+      import :: shr_igGridAxes, sp, shr_gGridAxesCell
+      !< given an coordinate from the current axis, it returns itss shr_gGridAxesCell(s)
+      class(shr_igGridAxes), intent(in) :: self
+      real(kind=sp), intent(in) :: axisCoord
+      type(shr_gGridAxesCell), allocatable :: gcells(:)
+    end function iface_getCells
+
+    integer function iface_getSize(self)
+      import :: shr_igGridAxes
+      !< it returns how many grid axes cells has
+      class(shr_igGridAxes), intent(in) :: self
+    end function iface_getSize
+
+    type(string) function iface_toString(self)
+      import :: shr_igGridAxes, string
+      !< string representation of gGridAxes
+      class(shr_igGridAxes), intent(in) :: self
+    end function iface_toString
+
+    elemental impure logical function iface_equal(self, other)
+      import :: shr_igGridAxes
+      !< true if 'self' and 'other' have the same attributes
+      class(shr_igGridAxes), intent(in) :: self
+      class(shr_igGridAxes), intent(in) :: other
+    end function iface_equal
+  end interface
+
+
+  type, extends(shr_igGridAxes) :: shr_gGridAxes
     type(string), allocatable :: name
     real(kind=sp) :: resolution
     type(shr_gGridAxesBounds), allocatable :: bounds
@@ -36,20 +99,20 @@ module shr_gGridAxes_mod
   contains
     procedure :: init => gGridAxes_initialize 
 
-    procedure :: getName
-    procedure :: getBounds
-    procedure :: getResolution
-    procedure :: getSize
+    procedure :: getName => gGridAxes_getName
+    procedure :: getBounds => gGridAxes_getBounds
+    procedure :: getResolution => gGridAxes_getResolution
+    procedure :: getSize => gGridAxes_getSize
 
-    procedure :: expand !< array2d 
+    procedure :: expand !< array2d
+    procedure :: getCells => gGridAxes_getCells
 
     procedure :: hasGridCoord 
     procedure :: hasGridAxisCell
 
-    procedure :: eq_gGridAxes
-    generic :: operator(==) => eq_gGridAxes
+    procedure :: equal => gGridAxes_equal
 
-    procedure :: toString
+    procedure :: toString => gGridAxes_toString
   end type shr_gGridAxes
 
 contains
@@ -101,32 +164,32 @@ contains
   end subroutine gGridAxes_initialize
 
 
-  elemental type(string) function getName(self)
+  elemental type(string) function gGridAxes_getName(self)
     !< it returns the name attribute
     class(shr_gGridAxes), intent(in) :: self
-    getName = self %  name
-  end function getName
+    gGridAxes_getName = self %  name
+  end function gGridAxes_getName
 
 
-  elemental type(shr_gGridAxesBounds) function getBounds(self)
+  elemental type(shr_gGridAxesBounds) function gGridAxes_getBounds(self)
     !< it returns the bounds attribute
     class(shr_gGridAxes), intent(in) :: self
-    getBounds = self % bounds
-  end function getBounds
+    gGridAxes_getBounds = self % bounds
+  end function gGridAxes_getBounds
 
 
-  elemental real(kind=sp) function getResolution(self)
+  elemental real(kind=sp) function gGridAxes_getResolution(self)
     !< it returns the resolution attribute
     class(shr_gGridAxes), intent(in) :: self
-    getResolution = self % resolution
-  end function getResolution
+    gGridAxes_getResolution = self % resolution
+  end function gGridAxes_getResolution
 
 
-  integer function getSize(self)
+  integer function gGridAxes_getSize(self)
     !< it returns how many grid axes cells has
     class(shr_gGridAxes), intent(in) :: self
-    getSize = size(self % cells)
-  end function getSize
+    gGridAxes_getSize = size(self % cells)
+  end function gGridAxes_getSize
 
 
   function expand(self, otherAxes) result (gridcells)
@@ -180,37 +243,65 @@ contains
   end function hasGridAxisCell
 
 
-  elemental impure logical function eq_gGridAxes(self, other)
+  elemental impure logical function gGridAxes_equal(self, other)
     !< true if 'self' and 'other' have the same attributes
     class(shr_gGridAxes), intent(in) :: self
-    type(shr_gGridAxes), intent(in) :: other 
-    logical :: hasSameName, hasSameRes, hasSameBounds, hasSameCells
+    class(shr_igGridAxes), intent(in) :: other
+    logical :: hasSameName, hasSameRes, hasSameBounds
     !type(string) :: otherStr
+
+    if (.not. same_type_as(self, other)) then
+      gGridAxes_equal = .false.
+      return
+    end if
 
     hasSameName = (self % name == other % getName())
     !otherStr = other % getName()
     hasSameRes = (self % resolution == other % getResolution())
     hasSameBounds = (self % bounds == other % getBounds())
-    hasSameCells = all(self % cells == other % Cells)
+
     !write(*,*) "shr_gGridAxes:: eq_gGridAxes:: hasSameName=", &
     !        hasSameName, self % name % toString(), otherStr % toString()
     !write(*,*) "shr_gGridAxes:: eq_gGridAxes:: hasSameRes=", hasSameRes
     !write(*,*) "shr_gGridAxes:: eq_gGridAxes:: hasSameBounds=", hasSameBounds
     !write(*,*) "shr_gGridAxes:: eq_gGridAxes:: hasSameCells=", hasSameCells
 
-    eq_gGridAxes = (hasSameName .and. hasSameRes .and. &
-                    hasSameBounds .and. hasSameCells)
-  end function eq_gGridAxes
+    gGridAxes_equal = (hasSameName .and. hasSameRes .and. &
+                    hasSameBounds )
+  end function gGridAxes_equal
 
 
-  type(string) function toString(self)
+  type(string) function gGridAxes_toString(self)
     !< string representation of gGridAxes
     class(shr_gGridAxes), intent(in) :: self
     type(string) :: strResolution
     strResolution = real2string(self % resolution)
-    toString = self % name + ", resolution=" + strResolution + ", bounds=" + &
+    gGridAxes_toString = self % name + ", resolution=" + strResolution + ", bounds=" + &
           self % bounds % toString()
-  end function toString
+  end function gGridAxes_toString
+
+
+  function gGridAxes_getCells(self, axisCoord) result (gcells)
+    !< given an coordinate from the current axis,
+    !< itreturns an array of  shr_gGridAxesCell(s)
+    class(shr_gGridAxes), intent(in) :: self
+    real(kind=sp), intent(in) :: axisCoord
+    type(shr_gGridAxesCell), allocatable :: gcells(:)
+
+    integer :: ngcs, igc
+    type(shr_gGridAxesCell) :: currentGAcell
+
+
+    ngcs = self % getSize()
+    allocate(gcells(0))
+
+    do igc = 1, ngcs
+      currentGAcell = self % cells(igc)
+      if (currentGAcell % isIn(axisCoord)) then
+        gcells = [gcells, currentGAcell]
+      end if
+    end do
+  end function gGridAxes_getCells
 
 end module shr_gGridAxes_mod 
 
