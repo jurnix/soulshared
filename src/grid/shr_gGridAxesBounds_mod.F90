@@ -53,6 +53,8 @@ contains
     real(kind=sp), intent(in) :: startCoord, endCoord 
 
     if (startCoord <= endCoord) then
+      write(*,*) "shr_gGridAxesBounds_mod:: gGridAxesBounds_initialize:: startCoord, endCoord =", &
+            startCoord, endCoord
       call raiseError(__FILE__, "gGridAxesBounds_initialize", &
               "endCoord must be smaller than startCoord")
     end if
