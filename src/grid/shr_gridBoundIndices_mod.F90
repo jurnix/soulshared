@@ -47,6 +47,16 @@ contains
     !< initialize
     class(shr_gridBoundIndices), intent(inout) :: self
     integer, intent(in) :: startRow, endRow, startCol, endCol
+    if (startRow > endRow) then
+      write(*,*) "shr_gridBoundsIndices_mod:: init:: startRow, endRow =", startRow, endRow
+      call raiseError(__FILE__, "init", &
+        "'endRow' must be bigger than 'startRow' but its not the case")
+    end if
+    if (startCol > endCol) then
+      write(*,*) "shr_gridBoundsIndices_mod:: init:: startCol, endCol =", startCol, endCol
+      call raiseError(__FILE__, "init", &
+          "'endCol' must be bigger than 'startCol' but its not the case")
+    end if
     self % startRow = startRow
     self % endRow = endRow
     self % startCol = startCol
