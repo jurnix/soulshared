@@ -22,6 +22,7 @@ module shr_gGrid_mod
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_gridcell_mod, only: shr_gridcell
+  use shr_gGridCellsMap_mod, only: shr_gGridCellsMap, shr_gGridCellsMapBuilder
 
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_coord_mod, only: shr_coord
@@ -44,6 +45,7 @@ module shr_gGrid_mod
   type, extends(shr_igGrid) :: shr_gGrid
     class(shr_igGridDescriptor), allocatable :: gridDescriptor
     class(shr_igGridArrayMap), allocatable :: gridmap
+    class(shr_gGridCellsMap), allocatable :: gridcellsMap
   contains
     procedure :: init
     !< getters
@@ -80,6 +82,11 @@ contains
     class(shr_igGridArrayMap), intent(in) :: gridMap
     allocate(self % gridDescriptor, source = gridDescriptor)
     allocate(self % gridMap, source = gridMap)
+
+    !< todo: temporary allocate gridcellsMap to pass unit tests
+    !<      Provide as an argument later on
+    allocate(self % gridcellsMap)
+    self % gridcellsMap = shr_gGridCellsMapBuilder(gridDescriptor)
   end subroutine init
 
 
@@ -152,21 +159,22 @@ contains
           "Requested 'grid' bounds do not fit in current gridMask")
     end if
 
-    topLeftGc = grid % getBoundaryGridcell(SHR_GC_BOUNDS_TOP_LEFT)
-    bottomRightGc = grid % getBoundaryGridcell(SHR_GC_BOUNDS_BOTTOM_RIGHT)
+    topLeftGc = grid % getBoundaryGridcell(SHR_GC_BOUNDS_TOP_LEFT) !< north - west
+    bottomRightGc = grid % getBoundaryGridcell(SHR_GC_BOUNDS_BOTTOM_RIGHT) !< south - east
 
-    !< todo: refactor (somehow) top-left and bottom-right coordinates
     !< from bounds get top-left and bottom-right coordinates
     !< center of coordinate (it enforeces to select a unique gIndices)
     !halfRes = gDescriptor % getResolution() / 2.
     !bounds = gDescriptor % getBounds()
-    ! todo: change east vs west, wrong
+
     cTopLeft = topLeftGc % getCenter() !shr_coord( bounds % getNorth() - halfRes, bounds % getEast() - halfres)
     cBottomRight = bottomRightGc % getCenter() !shr_coord( bounds % getSouth() + halfres, bounds % getWest() + halfres)
-    !write(*,*) "gridMask_mod:: findIndices:: topLeft = ", &
+    tmp = cTopLeft % toString()
+    write(*,*) "gridMask_mod:: findIndices:: topLeft = ", tmp % toString()
     !    bounds % getNorth() - halfRes, &
     !    bounds % getEast() - halfres
-    !write(*,*) "gridMask_mod:: findIndices:: bottomright= ", &
+    tmp = cBottomRight % toString()
+    write(*,*) "gridMask_mod:: findIndices:: bottomright= ", tmp % toString()
     !    bounds % getSouth() + halfres, &
     !    bounds % getWest() + halfres
 
@@ -185,8 +193,9 @@ contains
 
     startlat = gIndicesTL(1) % idxLat
     endlat = gIndicesBR(1) % idxLat
-    startlon = gIndicesTL(1) % idxLon
-    endlon =  gIndicesBR(1) % idxLon
+    ! todo: change east vs west, wrong
+    startlon = gIndicesBR(1) % idxLon !< gIndicesTL(1) % idxLon
+    endlon =  gIndicesTL(1) % idxLon !< gIndicesBR(1) % idxLon
     call getIndicesByGrid % init(startlat, endlat, startlon, endlon)
   end function getIndicesByGrid
 
@@ -234,8 +243,9 @@ contains
     class(shr_gGrid), intent(in) :: self
     integer, intent(in) :: position
     type(shr_gridBounds) :: bounds
-    type(shr_coord) :: boundCoord
+    type(shr_coord) :: boundCoord, center
     type(shr_gridcell), allocatable :: boundaryGcs(:)
+    type(shr_gGridCellsMap) :: gcsmap
 
     bounds = self % gridDescriptor % getBounds()
 
@@ -248,11 +258,11 @@ contains
           "Unexpected position requested")
     end if
 
-    !< todo : create new class shr_gGridCellsMap(gDescriptor, gAxis::lat, gAxis::lon)
-    !<    shr_gGridArrayMap should be renamed to shr_gGridArrayMap(gDescriptor, latmapping, lonmapping)
+    boundaryGcs = self % gridcellsMap % getGridCells(boundCoord)
 
     !boundaryGcs = self % gridcellsMap % get(boundCoord)
-    if (size(boundaryGcs) > 1) then
+    if (size(boundaryGcs) /= 1) then
+      write(*,*) "shr_gGrid_mod:: getBoundaryGridcell:: boundaryGcs =", size(boundaryGcs)
       call raiseError(__FILE__, "getBoundaryGridcell", &
           "Found more gridcells(?) than expected(1)")
     end if
