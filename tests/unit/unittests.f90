@@ -49,6 +49,7 @@ program unittest
   use shr_gAxisCellIndex_test, only: testSuitegAxisCellIndex
   use shr_gridMask_test, only: testSuiteGridMask
   use shr_gGridArrayMap_test, only: testSuitegGridArrayMap
+  use shr_gGridCellsMap_test, only: testSuitegGridCellsMap
   use shr_gridMaskBorder_test, only: testSuitegridMaskBorder
   use shr_gridMaskClusters_test, only: testSuitegridMaskClusters
   use shr_gridMaskClustersIterator_test, only: testSuitegridMaskClustersIterator
@@ -95,6 +96,7 @@ program unittest
   type(testSuitegAxisCellIndex) :: tsgAxisCellIndex
   type(testSuiteGridMask) :: tsGridMask
   type(testSuitegGridArrayMap) :: tsgGridArrayMap
+  type(testSuitegGridCellsMap) :: tsgGridCellMap
   type(testSuitegridMaskBorder) :: tsGridMaskBorder
   type(testSuitegridMaskClustersIterator) :: tsgridMaskClustersIterator
   type(testSuitegridMaskClusters) :: tsGridMaskClusters
@@ -140,11 +142,12 @@ program unittest
   call tsgAxisCellIndex % init("gAxisCellIndex test", 20)
   call tsGridMask % init("gridMask test", 20)
   call tsgGridArrayMap % init("gridMap test", 20)
+  call tsgGridCellMap % init("gridcell test", 20)
   call tsGridMaskBorder % init("gridMaskBorder test", 20)
   call tsGridMaskClusters % init("gridMaskClusters test", 20)
   call tsgridMaskClustersIterator % init("gridMaskClustersIterator test", 10)
   call tsGridDescriptor % init("gridDescriptor test", 20)
-  call tsGridBounds % init("grid bounds test", 20)
+  call tsGridBounds % init("grid bounds test", 30)
   call tsGridDomainSquared % init("grid domain squared test", 10)
   call tsGridDomainToSquaredConverter % init("grid domain to squared converter test", 10)
   call tsGridDomain % init("grid domain test", 10)
@@ -185,6 +188,7 @@ program unittest
   call tsgAxisCellIndex % run()
   call tsGridMask % run()
   call tsgGridArrayMap % run()
+  call tsgGridCellMap % run()
   call tsGridMaskBorder % run()
   call tsGridMaskClusters % run()
   call tsgridMaskClustersIterator % run()
@@ -230,6 +234,7 @@ program unittest
   call tsgAxisCellIndex % report()
   call tsGridMask % report()
   call tsgGridArrayMap % report()
+  call tsgGridCellMap % report()
   call tsGridMaskBorder % report()
   call tsGridMaskClusters % report()
   call tsgridMaskClustersIterator % report()
@@ -273,6 +278,7 @@ program unittest
       .not. tsgAxisCellIndex % isSuccessful() .or. &
       .not. tsGridMask % isSuccessful() .or. &
       .not. tsgGridArrayMap % isSuccessful() .or. &
+      .not. tsgGridCellMap % isSuccessful() .or. &
       .not. tsGridMaskBorder % isSuccessful() .or. &
       .not. tsGridMaskClusters % isSuccessful() .or. &
       .not. tsgridMaskClustersIterator % isSuccessful() .or. &
