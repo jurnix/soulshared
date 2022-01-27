@@ -193,7 +193,7 @@ contains
     call g % init(fakeGridDesc, fakeLaxisLat, fakeLonxisLon)
     gstr = g % toString()
     call self % assert(gstr == string("-shr_gGridDescriptorFake-, "// &
-          "lat=(-shr_gAxisMappingFakeLat-) - lon=(-shr_gAxisMappingFakeLon-)"), &
+          "lat=(-shr_gAxisFakeLat-) - lon=(-shr_gAxisFakeLon-)"), &
           "g % toString() .eq. = T")
   end subroutine testToString
 
