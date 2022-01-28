@@ -212,7 +212,6 @@ contains
     type(shr_gGridDescriptorFake) :: fakeGridDesc
     type(shr_gAxisFakeLat) :: fakeLaxisLat
     type(shr_gAxisFakeLon) :: fakeLonxisLon
-    !type(string) :: gstr
     type(shr_coord) :: center
     type(shr_gridcell) :: expgcs(4)
     type(shr_gridcell), allocatable :: foundgcs(:)
@@ -239,19 +238,8 @@ contains
     foundgcs = g % getgridcells(center)
 
     !< test
-    !call self % assertTrueAllocated(foundgcs, "allocated? g % getGridcells(...) = T")
-    !if (status /= 0) return
-
-    !call self % assertTrueSameSize(foundgcs, expgcs, "size? (g % getGridcells(...) vs expgcs ) = T", status)
-    !if (status /= 0) return
-    if (size(foundgcs) /= size(expgcs)) then
-      call self % assert(.false., &
+    call self % assertTrueSameSet(foundgcs, expgcs, &
           "g % getGridcells(3,2) .eq. ([3.5,1.5][3.5,2.5][2.5,1.5][2.5,2.5]) = T")
-    else
-      call self % assert(all(foundgcs == expgcs), &
-          "g % getGridcells(3,2) .eq. ([3.5,1.5][3.5,2.5][2.5,1.5][2.5,2.5]) = T")
-    end if
-
 
   end subroutine testGetGridcells
 

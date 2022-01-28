@@ -117,6 +117,7 @@ contains
     integer :: ilat, ilon
     integer :: nlats, nlons
     integer :: icell
+    type(shr_gridcell), allocatable :: tmpgcs(:)!< output
 
     !< calculate indices
     latCells = self % latax % getCells(coord % lat)
@@ -124,17 +125,13 @@ contains
     nlats = size(latCells)
     nlons = size(lonCells)
 
-!    allocate(gcs(nlats * nlons))
-    gcs = latCells * lonCells
-    ! populate output
-!    icell = 1
-!    do ilat = 1, nlats
-!      do ilon = 1, nlons
-        !call gcs(icell) % init(center, gridBounds)
-        !icell = icell + 1 ! next
+    allocate(gcs(0)) !< empty
+    do ilat = 1, size(latCells)
+      tmpgcs = latCells(ilat) * lonCells
+      gcs = [gcs, tmpgcs]
+    end do
+    !write(*,*) "shr_gGridcellsMap_mod:: gGridCellsMap_getGridcells:: gcs size?", size(gcs)
 
-      !enddo ! nlons
-    !enddo ! nlats
   end function gGridCellsMap_getGridcells
 
 
