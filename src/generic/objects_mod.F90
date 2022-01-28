@@ -184,8 +184,8 @@ contains
       if (IS_DEBUG) write(*,*) "set_mod:: self:: real dp type found"
       self % type = SHR_GENERIC_OBJ_TYPE_RDP
       self % rdpObj => wrap
-    class is (SHR_genericObject)
-      if (IS_DEBUG) write(*,*) "set_mod:: self:: SHR_eqObject_abs type found"
+    class is (shr_equal_iface)
+      if (IS_DEBUG) write(*,*) "set_mod:: self:: 'shr_equal_iface' type found"
       self % type = SHR_GENERIC_OBJ_TYPE_EQO
       self % eqObj => wrap
     class default
