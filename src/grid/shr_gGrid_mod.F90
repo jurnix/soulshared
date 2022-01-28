@@ -137,23 +137,14 @@ contains
     class(shr_gGrid), intent(in) :: self
     class(shr_gGrid), intent(in) :: grid
 
-    real(kind=sp) :: halfres
-    type(shr_gridBounds) :: bounds
     type(shr_coord) :: cTopLeft, cBottomRight
     type(shr_gridcellIndex), allocatable :: gIndicesTL(:), gIndicesBR(:)
-    integer :: startlat, endlat
-    integer :: startlon, endlon
-    class(shr_iGGridDescriptor), allocatable :: currentSelfGDescriptor
-    type(string) :: tmp
+    integer :: tmpidx
+    !integer :: startlat, endlat
+    !integer :: startlon, endlon
+    !type(string) :: tmp
     type(shr_gridcell) :: topLeftGc, bottomRightGc
 
-    currentSelfGDescriptor = self % getGridDescriptor()
-    !tmp = currentSelfGDescriptor % toString()
-    !write(*,*) "gridMask_mod:: findIndices:: current descriptor =", tmp % toString()
-    !tmp = gDescriptor % toString()
-    !write(*,*) "gridMask_mod:: findIndices:: (argument) gDescriptor =", tmp % toString()
-
-    !if (.not. currentSelfGDescriptor % fitsIn(gDescriptor)) then
     if (.not. self % fitsIn(grid)) then
       call raiseError(__FILE__, "findIndices", &
           "Requested 'grid' bounds do not fit in current gridMask")
@@ -162,41 +153,22 @@ contains
     topLeftGc = grid % getBoundaryGridcell(SHR_GC_BOUNDS_TOP_LEFT) !< north - west
     bottomRightGc = grid % getBoundaryGridcell(SHR_GC_BOUNDS_BOTTOM_RIGHT) !< south - east
 
-    !< from bounds get top-left and bottom-right coordinates
-    !< center of coordinate (it enforeces to select a unique gIndices)
-    !halfRes = gDescriptor % getResolution() / 2.
-    !bounds = gDescriptor % getBounds()
-
-    cTopLeft = topLeftGc % getCenter() !shr_coord( bounds % getNorth() - halfRes, bounds % getEast() - halfres)
-    cBottomRight = bottomRightGc % getCenter() !shr_coord( bounds % getSouth() + halfres, bounds % getWest() + halfres)
-    tmp = cTopLeft % toString()
-    write(*,*) "gridMask_mod:: findIndices:: topLeft = ", tmp % toString()
-    !    bounds % getNorth() - halfRes, &
-    !    bounds % getEast() - halfres
-    tmp = cBottomRight % toString()
-    write(*,*) "gridMask_mod:: findIndices:: bottomright= ", tmp % toString()
-    !    bounds % getSouth() + halfres, &
-    !    bounds % getWest() + halfres
+    cTopLeft = topLeftGc % getCenter()
+    cBottomRight = bottomRightGc % getCenter()
 
     !< discover array indices
-    !< find array indices from top-left
-    !gIndicesTL = idxMapping % getIndex(cTopLeft) !< only 1
     gIndicesTL = self % gridmap % getIndex(cTopLeft)
     !write(*,*) "gridMask_mod:: findIndices:: top left indices found = ", size(gIndicesTL)
-    !< find array indices from bottom-right
-    !gIndicesBR = idxMapping % getIndex(cBottomRight) !< only 1
     gIndicesBR = self % gridmap % getIndex(cBottomRight)
     !write(*,*) "gridMask_mod:: findIndices:: bottom right indices found = ", size(gIndicesBR)
 
-    !< todo: initialize shr_gridBoundIncides with 2 coordinates directly
-    !< gBoundIndices(coord1, coord2)
+    !! todo: change east vs west, wrong
+    !< currently swap values
+    tmpidx = gIndicesBR(1) % idxlon
+    gIndicesBR(1) % idxlon = gIndicesTL(1) % idxlon
+    gIndicesTL(1) % idxlon = tmpidx
 
-    startlat = gIndicesTL(1) % idxLat
-    endlat = gIndicesBR(1) % idxLat
-    ! todo: change east vs west, wrong
-    startlon = gIndicesBR(1) % idxLon !< gIndicesTL(1) % idxLon
-    endlon =  gIndicesTL(1) % idxLon !< gIndicesBR(1) % idxLon
-    call getIndicesByGrid % init(startlat, endlat, startlon, endlon)
+    call getIndicesByGrid % init(gIndicesTL(1), gIndicesBR(1))
   end function getIndicesByGrid
 
 

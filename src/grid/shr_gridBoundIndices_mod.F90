@@ -15,6 +15,7 @@ module shr_gridBoundIndices_mod
   use SHR_precision_mod, only: sp
   use SHR_error_mod, only: raiseError
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gridcellIndex_mod, only: shr_gridcellIndex
 
   implicit none
 
@@ -30,7 +31,9 @@ module shr_gridBoundIndices_mod
     integer :: startRow, endRow
     integer :: startCol, endCol
   contains
-    procedure :: init
+    procedure :: init_by_gridcellIndices
+    procedure :: init_by_indices
+    generic :: init => init_by_indices, init_by_gridcellIndices
 
     procedure :: getStartRow
     procedure :: getEndRow
@@ -43,7 +46,29 @@ module shr_gridBoundIndices_mod
 
 contains
 
-  subroutine init(self, startRow, endRow, startCol, endCol)
+  subroutine init_by_gridcellIndices(self, topleft, bottomright)
+    !< initialize using 2 gridcell indices from the grid
+    !< top-left(north-west) gridcell index
+    !< bottom-right(south-east) gridcell index
+    !<
+    !< x - - <---- 1,1 (top-left)
+    !< - - -
+    !< - - x <---- 3,3 (bottom-right)
+    !<
+    class(shr_gridBoundIndices), intent(inout) :: self
+    type(shr_gridcellIndex), intent(in) :: topleft, bottomright
+    integer :: startlat, endlat
+    integer :: startlon, endlon
+
+    startlat = topleft % idxLat
+    endlat = bottomright % idxLat
+    startlon = topleft % idxLon
+    endlon =  bottomright % idxLon
+    call self % init(startlat, endlat, startlon, endlon)
+  end subroutine init_by_gridcellIndices
+
+
+  subroutine init_by_indices(self, startRow, endRow, startCol, endCol)
     !< initialize
     class(shr_gridBoundIndices), intent(inout) :: self
     integer, intent(in) :: startRow, endRow, startCol, endCol
@@ -61,7 +86,7 @@ contains
     self % endRow = endRow
     self % startCol = startCol
     self % endCol = endCol
-  end subroutine init
+  end subroutine init_by_indices
 
 
   integer function getStartRow(self) result (idx)
