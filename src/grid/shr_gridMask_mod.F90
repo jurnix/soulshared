@@ -66,7 +66,6 @@ module shr_gridMask_mod
 
     procedure(iface_toString), deferred :: toString
     procedure(iface_getShape), deferred :: getShape
-    !procedure, private :: findIndices
   end type
 
 
@@ -291,19 +290,13 @@ contains
     logical, intent(in), optional :: default !< define default value (def: true)
 
     logical :: inDefault
-    !type(shr_gGridAxes) :: axis
     integer :: nlats, nlons
     type(shr_gridShape) :: gShape
 
     inDefault = .true.
     if (present(default)) inDefault = default
     allocate(self % grid, source = grid)
-    !allocate(self % grid, source = gridDescriptor)
 
-    !axis = self % gridDescriptor % getLatAxis() !latitudes % getSize()
-    !nlats = axis % getSize()
-    !axis = self % gridDescriptor % getLonAxis() !longitudes % getSize()
-    !nlons = axis % getSize()
     gShape = self % grid % getShape()
     nlats = gShape % getLats()
     nlons = gShape % getLons()
@@ -369,7 +362,6 @@ contains
     allocate(newMask(nrows, ncols))
     newMask(1:nrows, 1:ncols) = self % mask(startRow:endRow, startCol:endCol )
   end function get
-
 
 
   logical function gridMask_equal_scalar_logical(self, value)
@@ -507,11 +499,8 @@ contains
     type(shr_gridShape) :: gshape
 
     gshape = self % grid % getShape()
-    !tmpGAxis = self % gridDescriptor % getLatAxis()
-    nlats = gshape % getLats() ! tmpGAxis % getSize()
-
-    !tmpGAxis = self % gridDescriptor % getLonAxis()
-    nlons = gshape % getLons() !tmpGAxis % getSize()
+    nlats = gshape % getLats()
+    nlons = gshape % getLons()
 
     if (size(mask, dim=1) /= nlats) then
       isValidBy2dArray = .false.
@@ -605,6 +594,7 @@ contains
     logical, allocatable :: tmpMask(:,:)
     class(shr_iGGridDescriptor), allocatable :: gDescriptor
 
+
     if (.not. self % grid % fitsIn(grid) ) then
       call raiseError(__FILE__, "select", &
           "'grid' argument does not fit in the current shr_gridDomain")
@@ -630,65 +620,6 @@ contains
   end function gridMask_select
 
 
-!  type(shr_gridBoundIndices) function findIndices(self, gDescriptor, idxMapping) result (gBoundsIndices)
-!    !< discover array indices given from gDescriptor opposed to self
-!    !< gDescriptor: requested indices (must be included in self)
-!    !< idxMapping: calculate indices
-!    !< todo: move tot shr_gGrid_mod
-!    class(shr_igridMask), intent(in) :: self
-!    class(shr_iGGridDescriptor), intent(in) :: gDescriptor
-!    type(shr_gridIndicesMapping), intent(in) :: idxMapping
-!
-!    real(kind=sp) :: halfres
-!    type(shr_gridBounds) :: bounds
-!    type(shr_coord) :: cTopLeft, cBottomRight
-!    type(shr_gridcellIndex), allocatable :: gIndicesTL(:), gIndicesBR(:)
-!    integer :: startlat, endlat
-!    integer :: startlon, endlon
-!    class(shr_iGGridDescriptor), allocatable :: currentSelfGDescriptor
-!    type(string) :: tmp
-!
-!    currentSelfGDescriptor = self % getGridDescriptor()
-!    !tmp = currentSelfGDescriptor % toString()
-!    !write(*,*) "gridMask_mod:: findIndices:: current descriptor =", tmp % toString()
-!    !tmp = gDescriptor % toString()
-!    !write(*,*) "gridMask_mod:: findIndices:: (argument) gDescriptor =", tmp % toString()
-!
-!    if (.not. currentSelfGDescriptor % fitsIn(gDescriptor)) then
-!      call raiseError(__FILE__, "findIndices", &
-!          "Requested gDescriptor bound does not fit in current gridMask")
-!    end if
-!
-!    !< from bounds get top-left and bottom-right coordinates
-!    !< center of coordinate (it enforeces to select a unique gIndices)
-!    halfRes = gDescriptor % getResolution() / 2.
-!    bounds = gDescriptor % getBounds()
-!    ! todo: change east vs west, wrong
-!    cTopLeft = shr_coord( bounds % getNorth() - halfRes, bounds % getEast() - halfres)
-!    cBottomRight = shr_coord( bounds % getSouth() + halfres, bounds % getWest() + halfres)
-!    !write(*,*) "gridMask_mod:: findIndices:: topLeft = ", &
-!    !    bounds % getNorth() - halfRes, &
-!    !    bounds % getEast() - halfres
-!    !write(*,*) "gridMask_mod:: findIndices:: bottomright= ", &
-!    !    bounds % getSouth() + halfres, &
-!    !    bounds % getWest() + halfres
-!
-!    !< discover array indices
-!    !< find array indices from top-left
-!    gIndicesTL = idxMapping % getIndex(cTopLeft) !< only 1
-!    !write(*,*) "gridMask_mod:: findIndices:: top left indices found = ", size(gIndicesTL)
-!    !< find array indices from bottom-right
-!    gIndicesBR = idxMapping % getIndex(cBottomRight) !< only 1
-!    !write(*,*) "gridMask_mod:: findIndices:: bottom right indices found = ", size(gIndicesBR)
-!
-!    startlat = gIndicesTL(1) % idxLat
-!    endlat = gIndicesBR(1) % idxLat
-!    startlon = gIndicesTL(1) % idxLon
-!    endlon =  gIndicesBR(1) % idxLon
-!    call gBoundsIndices % init(startlat, endlat, startlon, endlon)
-!  end function findIndices
-
-
   function gridMask_expand(self, grid, default) result (newGMask)
     !< returns a new shr_gridMask with an expanded grid
     !< - 'self' must fit into 'gDescriptor'
@@ -702,7 +633,6 @@ contains
 
     type(shr_gridBoundIndices) :: gBoundIndices
     logical, allocatable :: newLMask(:,:)
-    !type(shr_gridIndicesMapping) :: idxMapping
 
     !< new bounds fit in current gridMask?
     if (.not. grid % fitsIn(self % getGrid()) ) then
@@ -713,11 +643,6 @@ contains
     !< temporary mask to initialze mask with proper dimensions
     allocate(shr_gridMask :: newGMask)
     call newGMask % init(grid, default)
-
-    !< find indices from new big to small
-    !call idxMapping % init(gDescriptor)
-    !gBoundIndices = newGMask % findIndices(self % gridDescriptor, idxMapping)
-    !gBoundIndices = newGMask % findIndices(self % gridDescriptor, idxMapping)
 
     !call newGMask % set(self % mask, gBoundIndices)
     call newGMask % set(self) !< todo: set grid mask from 'grid' into newGMask
@@ -736,7 +661,6 @@ contains
     class(shr_gGrid), allocatable :: argGrid
 
     argGrid = gridMask % getGrid()
-    !argGDescriptor = argGrid % getGridDescriptor()
     gBoundIndices = self % grid % getIndices(argGrid)
     lmask = gridMask % get()
     call self % set(lmask, gBoundIndices)

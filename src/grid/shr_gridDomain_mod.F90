@@ -318,25 +318,8 @@ contains
     type(string) :: tmp1, tmp
 
     hasSameGrid = (self % grid == other % getGrid())
-    !write(*,*) "gridDomain_equal:: same grid? ", hasSameGrid
-
-    !< enabled
     hasSameEnabledMask = (self % maskEnabled == other % getEnabledGridMask())
-    !tmp = self % maskEnabled % toString()
-    !tmpGMask = other % getEnabledGridMask()
-    !tmp1 = tmpGMask % toString()
-    !write(*,*) "gridDomain_equal:: same enabled? ", hasSameEnabledMask
-    !write(*,*) "gridDomain_equal:: self enabled mask =", tmp % toString()
-    !write(*,*) "gridDomain_equal:: other enabled mask =", tmp1 % toString()
-
-    !< border
     hasSameBorderMask = (self % maskBorder == other % getBorderGridMask())
-    !write(*,*) "gridDomain_equal:: same border? ", hasSameBorderMask
-    !tmp = self % maskBorder % toString()
-    !tmpGMask = other % getBorderGridMask()
-    !tmp1 = tmpGMask % toString()
-    !write(*,*) "gridDomain_equal:: self border mask =", tmp % toString()
-    !write(*,*) "gridDomain_equal:: other border mask =", tmp1 % toString()
 
     gridDomain_equal = (hasSameGrid .and. hasSameEnabledMask .and. &
                         hasSameBorderMask)
