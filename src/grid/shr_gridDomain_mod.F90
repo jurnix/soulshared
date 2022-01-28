@@ -93,9 +93,6 @@ module shr_gridDomain_mod
   type, extends(shr_igridDomain) :: shr_gridDomain
     class(shr_gGrid), allocatable :: grid
 
-    !< todo: refactor XXXmapping into GridMapping(unique interface) :: mapping
-    !type(shr_gridcellsMapping), allocatable :: gcsMapping !< gridcells indices
-    !type(shr_gridIndicesMapping), allocatable :: idxMapping !< array indices
     !< todo: refactor maskXXX into GridMaskAvailable :: available
     class(shr_igridMask), allocatable :: maskEnabled !< allowed to modify, sea vs land (?)
     class(shr_igridMask), allocatable :: maskBorder !< non available gridcells due to partitioning
@@ -171,10 +168,6 @@ contains
       "Found active gridcells(enabled) but not included in 'border' mask")
     end if
 
-    !allocate(self % gcsMapping)
-    !call self % gcsMapping % init(descriptor)
-    !allocate(self % idxMapping)
-    !call self % idxMapping % init(self % descriptor)
   end subroutine gridDomain_initialize
 
 
@@ -238,8 +231,6 @@ contains
     if (allocated(self % grid)) deallocate(self % grid)
     if (allocated(self % maskEnabled)) deallocate(self % maskEnabled)
     if (allocated(self % maskBorder)) deallocate(self % maskBorder)
-    !if (allocated(self % idxMapping)) deallocate(self % idxMapping)
-    !if (allocated(self % gcsMapping)) deallocate(self % gcsMapping)
 
     call self % init(grid, enabled, border)
   end subroutine gridDomain_copy
