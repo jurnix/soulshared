@@ -29,7 +29,7 @@ module SHR_set_mod
 
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp, dp
-  use SHR_objects_mod, only: shr_genericObject
+  use SHR_objects_mod, only: shr_genericObject, shr_equal_iface
   use SHR_linkedlist_mod, only: linkedlist, linkedListNode
 
   implicit none 
@@ -51,7 +51,7 @@ module SHR_set_mod
   end type set 
 
   interface set 
-    module procedure set_constructor_from_linkedlist, set_constructor_empty
+    module procedure set_constructor_from_linkedlist, set_constructor_empty, set_constructor_from_objects
   end interface set
 
 
@@ -210,5 +210,22 @@ contains
     end subroutine toSet
 
   end function set_constructor_from_linkedlist
+
+
+  type(set) function set_constructor_from_objects(objects) result (newset)
+    !< initialize set with an array of 'objects'
+    class(shr_equal_iface), intent(in), target :: objects(:)
+    integer :: iobj
+    class(*), pointer :: p, persistentObj
+    class(shr_genericObject), allocatable, target :: genObj
+
+    do iobj = 1, size(objects)
+      allocate(persistentObj, source = objects(iobj))
+      p => persistentObj
+      call newset % append(p)
+      !< reference removed, but not from memory
+      nullify(persistentObj)
+    end do
+  end function set_constructor_from_objects
 
 end module SHR_set_mod

@@ -14,6 +14,7 @@ module SHR_testSuite_mod
   use SHR_error_mod, only: raiseError
 
   use shr_objects_mod, only: shr_equal_iface
+  use shr_set_mod, only: set
 
   implicit none
 
@@ -43,6 +44,7 @@ module SHR_testSuite_mod
     generic :: assertTrueAlloc => assertTrueAlloc_r1
     procedure :: assertTrue_r1
     generic :: assertTrue => assertTrue_r1
+    procedure :: assertTrueSameSet
   end type testSuite
 
   interface 
@@ -216,5 +218,18 @@ contains
       call self % assert(all(expected == found), test_name)
     endif 
   end subroutine assertTrue_r1
+
+
+  subroutine assertTrueSameSet(self, expected, found, test_name)
+    !< true if 'expected' and 'found' have the same elements (order does not matter)
+    class(testSuite), intent(inout) :: self
+    class(shr_equal_iface), intent(in) :: expected(:)
+    class(shr_equal_iface), intent(in) :: found(:)
+    character(*), intent(in) :: test_name
+    type(set) :: expectedSet, foundSet
+    expectedSet = set(expected)
+    foundSet = set(found)
+    call self % assert(expectedSet == foundSet, test_name)
+  end subroutine assertTrueSameSet
 
 end module SHR_testSuite_mod
