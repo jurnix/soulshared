@@ -38,10 +38,10 @@ module shr_gGridCellsMap_test
 
     contains
       procedure :: define => defineTestCases
-      procedure, private :: testToString
-      procedure, private :: testGetGridcells
-      procedure ,private :: testEqual
-      procedure, private :: testGetShape
+      procedure, private :: testCaseToString
+      procedure, private :: testCaseGetGridcells
+      procedure ,private :: testCaseEqual
+      procedure, private :: testCaseGetShape
   end type
 
 
@@ -173,14 +173,14 @@ contains
     use iso_c_binding
     class(testSuitegGridCellsMap), intent(inout) :: self
 
-    call self % testToString()
-    call self % testGetGridcells()
-    call self % testEqual()
-    call self % testGetShape()
+    call self % testCaseToString()
+    call self % testCaseGetGridcells()
+    call self % testCaseEqual()
+    call self % testCaseGetShape()
   end subroutine defineTestCases
 
 
-  subroutine testToString(self)
+  subroutine testCaseToString(self)
     !< toString unit test
     class(testSuitegGridCellsMap), intent(inout) :: self
     type(shr_gGridCellsMap) :: g
@@ -195,10 +195,10 @@ contains
     call self % assert(gstr == string("-shr_gGridDescriptorFake-, "// &
           "lat=(-shr_gAxisFakeLat-) - lon=(-shr_gAxisFakeLon-)"), &
           "g % toString() .eq. = T")
-  end subroutine testToString
+  end subroutine testCaseToString
 
 
-  subroutine testGetGridcells(self)
+  subroutine testCaseGetGridcells(self)
     !< getIndex unit test
     !<
     !< 1. 2. 3.
@@ -241,10 +241,10 @@ contains
     call self % assertTrueSameSet(foundgcs, expgcs, &
           "g % getGridcells(3,2) .eq. ([3.5,1.5][3.5,2.5][2.5,1.5][2.5,2.5]) = T")
 
-  end subroutine testGetGridcells
+  end subroutine testCaseGetGridcells
 
 
-  subroutine testEqual(self)
+  subroutine testCaseEqual(self)
     !< == unit test
     class(testSuitegGridCellsMap), intent(inout) :: self
     type(shr_gGridCellsMap) :: g, gother
@@ -259,10 +259,10 @@ contains
     !< test
     call self % assert((g == gother), &
         "g(1., lats=[2,4], lons=[1,3]) .eq. gother(1., lats=[2,4], lons=[1,3]) = T")
-  end subroutine testEqual
+  end subroutine testCaseEqual
 
 
-  subroutine testGetShape(self)
+  subroutine testCaseGetShape(self)
     !< == unit test
     class(testSuitegGridCellsMap), intent(inout) :: self
     type(shr_gGridCellsMap) :: g, gother
@@ -284,7 +284,7 @@ contains
     call self % assert(gshape == gexpected, &
         "g(...) % getShape() .eq. [2,4] = T")
 
-  end subroutine testGetShape
+  end subroutine testCaseGetShape
 
 end module shr_gGridCellsMap_test
 
