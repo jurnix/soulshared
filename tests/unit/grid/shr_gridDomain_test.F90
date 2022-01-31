@@ -31,6 +31,7 @@ module shr_gridDomain_test
 
   private
   public :: testSuitegridDomain
+  public :: createNewGrid, createNewGridDomain, createNewGridDescriptor, createNewGridMap, createNewGridMask
 
 !  type, extends(shr_gridMaskStub) :: shr_gridMaskEnabledStub
 !  contains
@@ -61,13 +62,13 @@ module shr_gridDomain_test
   end type
 contains
 
-  type(shr_gGrid) function getNewGrid(gDescriptor)
+  type(shr_gGrid) function createNewGrid(gDescriptor)
     !< creates a new grid
     type(shr_gGridDescriptor), intent(in) :: gDescriptor
     type(shr_gGridArrayMap) :: gridmap
     gridmap = createNewGridmap(gDescriptor)
-    call getNewGrid % init(gDescriptor, gridmap)
-  end function getNewGrid
+    call createNewGrid % init(gDescriptor, gridmap)
+  end function createNewGrid
 
 
   type(shr_gridDomain) function createNewGridDomain(resolution, bounds, emask, bmask)
@@ -146,7 +147,7 @@ contains
 
     allocate(gDesc)
     gDesc = createNewGridDescriptor(resolution, bounds)
-    grid = getNewGrid(gDesc)
+    grid = createNewGrid(gDesc)
     call createNewGridMask % init(grid, mask)
   end function createNewGridMask
 
@@ -370,7 +371,7 @@ contains
     !< x -> enabled (b=false)
     !< - -> disabled (b=false)
     gDescrip = createNewGridDescriptor(1., [2.,0.,2.,-1.])
-    gridToSelect = getNewGrid(gDescrip)
+    gridToSelect = createNewGrid(gDescrip)
     allocate(selectedGM)
     selectedGM = d % select(gridToSelect)
     call self % assert(selectedGM == expected, &
