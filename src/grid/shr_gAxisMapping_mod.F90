@@ -16,7 +16,7 @@ module shr_gAxisMapping_mod
   use SHR_precision_mod, only: sp
 
   use shr_strings_mod, only: string, real2string
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_strings_mod, only: string, int2string
@@ -81,7 +81,7 @@ module shr_gAxisMapping_mod
 
 
   type, extends(shr_IGAxisMapping) :: shr_gAxisMapping
-    type(shr_gGridAxes), allocatable :: axis
+    type(shr_gAxis), allocatable :: axis
   contains
     procedure :: init => gAxisMapping_initialize 
 
@@ -101,7 +101,7 @@ contains
   subroutine gAxisMapping_initialize(self, gridAxis)
     !< gAxisMapping initialization
     class(shr_gAxisMapping), intent(inout) :: self
-    type(shr_gGridAxes), intent(in) :: gridAxis
+    type(shr_gAxis), intent(in) :: gridAxis
     allocate(self % axis, source = gridAxis)
   end subroutine gAxisMapping_initialize
 
@@ -178,7 +178,7 @@ contains
   end function gAxisMapping_getSize
 
 
-  type(shr_gGridAxes) function getGridAxis(self)
+  type(shr_gAxis) function getGridAxis(self)
     !< returns axis internal object
     class(shr_gAxisMapping), intent(in) :: self
     getGridAxis = self % axis

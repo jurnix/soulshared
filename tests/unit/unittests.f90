@@ -42,7 +42,7 @@ program unittest
   use shr_gridPartition_test, only: testSuiteGridPartition
   use shr_gridcell_test, only: testSuiteGridCell
   use shr_coord_test, only: testSuiteCoord
-  use shr_gGridAxes_test, only: testSuitegGridAxes
+  use shr_gAxis_test, only: testSuitegAxis
   use shr_gGridAxesBounds_test, only: testSuitegGridAxesBounds
   use shr_gGridAxesCell_test, only: testSuitegGridAxesCell
   use shr_gAxisMapping_test, only: testSuitegAxisMapping
@@ -90,7 +90,7 @@ program unittest
   type(testSuiteGridCell) :: tsGridcell
   type(testSuiteCoord) :: tsCoord
   type(testSuitegGridAxesBounds) :: tsgGridAxesBounds
-  type(testSuitegGridAxes) :: tsgGridAxes
+  type(testSuitegAxis) :: tsgAxis
   type(testSuitegGridAxesCell) :: tsgGridAxesCell
   type(testSuitegAxisMapping) :: tsgAxisMapping
   type(testSuitegAxisCellIndex) :: tsgAxisCellIndex
@@ -137,7 +137,7 @@ program unittest
   call tsCoord % init("Coordinate test", 10)
   call tsgGridAxesBounds % init("gGridAxesBounds test", 20)
   call tsgGridAxesCell % init("gGridAxesCell test", 20)
-  call tsgGridAxes % init("gGridAxes test", 20)
+  call tsgAxis % init("gAxis test", 20)
   call tsgAxisMapping % init("gAxisMapping test", 20)
   call tsgAxisCellIndex % init("gAxisCellIndex test", 20)
   call tsGridMask % init("gridMask test", 20)
@@ -183,7 +183,7 @@ program unittest
   call tsCoord % run() 
   call tsgGridAxesBounds % run() 
   call tsgGridAxesCell % run() 
-  call tsgGridAxes % run()
+  call tsgAxis % run()
   call tsgAxisMapping % run()
   call tsgAxisCellIndex % run()
   call tsGridMask % run()
@@ -229,7 +229,7 @@ program unittest
   call tsCoord % report() 
   call tsgGridAxesBounds % report()
   call tsgGridAxesCell % report()
-  call tsgGridAxes % report()
+  call tsgAxis % report()
   call tsgAxisMapping % report()
   call tsgAxisCellIndex % report()
   call tsGridMask % report()
@@ -273,7 +273,7 @@ program unittest
       .not. tsCoord % isSuccessful() .or. &
       .not. tsgGridAxesBounds % isSuccessful() .or. &
       .not. tsgGridAxesCell % isSuccessful() .or. &
-      .not. tsgGridAxes % isSuccessful() .or. & 
+      .not. tsgAxis % isSuccessful() .or. &
       .not. tsgAxisMapping % isSuccessful() .or. & 
       .not. tsgAxisCellIndex % isSuccessful() .or. &
       .not. tsGridMask % isSuccessful() .or. &

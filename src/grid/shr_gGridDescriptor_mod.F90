@@ -16,7 +16,7 @@ module shr_gGridDescriptor_mod
   use SHR_precision_mod, only: sp
 
   use shr_gridBounds_mod, only: shr_gridBounds
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_strings_mod, only: string, real2string
 
@@ -50,13 +50,13 @@ module shr_gGridDescriptor_mod
 
   abstract interface
     elemental subroutine iface_initialize(self, resolution, bounds, latAxis, lonAxis)
-      import :: shr_iGGridDescriptor, sp, shr_gridBounds, shr_gGridAxes
+      import :: shr_iGGridDescriptor, sp, shr_gridBounds, shr_gAxis
       !< grid descriptor initialization
       class(shr_iGGridDescriptor), intent(inout) :: self
       real(kind=sp), intent(in) :: resolution
       type(shr_gridBounds), intent(in) :: bounds
-      type(shr_gGridAxes), intent(in) :: latAxis
-      type(shr_gGridAxes), intent(in) :: lonAxis
+      type(shr_gAxis), intent(in) :: latAxis
+      type(shr_gAxis), intent(in) :: lonAxis
     end subroutine iface_initialize
 
     subroutine iface_initialize_simple(self, resolution, bounds)
@@ -77,14 +77,14 @@ module shr_gGridDescriptor_mod
       class(shr_iGGridDescriptor), allocatable :: newGDescriptor !< output
     end function iface_combine
 
-    elemental type(shr_gGridAxes) function iface_getLatAxis(self)
-      import :: shr_iGGridDescriptor, shr_gGridAxes
+    elemental type(shr_gAxis) function iface_getLatAxis(self)
+      import :: shr_iGGridDescriptor, shr_gAxis
       !< return class bounds
       class(shr_iGGridDescriptor), intent(in) :: self
     end function iface_getLatAxis
 
-    elemental type(shr_gGridAxes) function iface_getLonAxis(self)
-      import :: shr_iGGridDescriptor, shr_gGridAxes
+    elemental type(shr_gAxis) function iface_getLonAxis(self)
+      import :: shr_iGGridDescriptor, shr_gAxis
       !< return class bounds
       class(shr_iGGridDescriptor), intent(in) :: self
     end function iface_getLonAxis
@@ -126,8 +126,8 @@ module shr_gGridDescriptor_mod
   type, extends(shr_iGGridDescriptor) :: shr_gGridDescriptor
     real(kind=sp) :: resolution = -1
     type(shr_gridBounds), allocatable :: bounds
-    type(shr_gGridAxes), allocatable :: latAxis
-    type(shr_gGridAxes), allocatable :: lonAxis
+    type(shr_gAxis), allocatable :: latAxis
+    type(shr_gAxis), allocatable :: lonAxis
   contains
     procedure :: initialize => gGridDescriptor_initialize
     procedure :: initialize_simple => gGridDescriptor_initialize_simple
@@ -154,8 +154,8 @@ contains
     class(shr_gGridDescriptor), intent(inout) :: self
     real(kind=sp), intent(in) :: resolution
     type(shr_gridBounds), intent(in) :: bounds
-    type(shr_gGridAxes), intent(in) :: latAxis
-    type(shr_gGridAxes), intent(in) :: lonAxis
+    type(shr_gAxis), intent(in) :: latAxis
+    type(shr_gAxis), intent(in) :: lonAxis
     self % resolution = resolution
     allocate(self % bounds, source = bounds)
     allocate(self % latAxis, source = latAxis)

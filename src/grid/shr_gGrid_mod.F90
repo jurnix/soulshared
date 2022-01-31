@@ -32,7 +32,7 @@ module shr_gGrid_mod
 
   private
 
-  public :: shr_gGrid
+  public :: shr_gGrid, shr_igGrid
 
   integer, parameter :: SHR_GC_BOUNDS_TOP_LEFT = 1
   integer, parameter :: SHR_GC_BOUNDS_BOTTOM_RIGHT = 2

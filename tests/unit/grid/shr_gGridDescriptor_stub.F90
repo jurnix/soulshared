@@ -14,7 +14,7 @@ module shr_gGridDescriptor_stub
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
   !< dependencies
   use shr_precision_mod, only: sp
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxis_mod, only: shr_gAxis
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_strings_mod, only: string
 
@@ -51,8 +51,8 @@ contains
     class(shr_gGridDescriptorEmptyStub), intent(inout) :: self
     real(kind=sp), intent(in) :: resolution
     type(shr_gridBounds), intent(in) :: bounds
-    type(shr_gGridAxes), intent(in) :: latAxis
-    type(shr_gGridAxes), intent(in) :: lonAxis
+    type(shr_gAxis), intent(in) :: latAxis
+    type(shr_gAxis), intent(in) :: lonAxis
   end subroutine initialize
 
 
@@ -76,13 +76,13 @@ contains
   end function getBounds
 
 
-  elemental type(shr_gGridAxes) function getLatAxis(self)
+  elemental type(shr_gAxis) function getLatAxis(self)
     !< return class bounds
     class(shr_gGridDescriptorEmptyStub), intent(in) :: self
   end function getLatAxis
 
 
-  elemental type(shr_gGridAxes) function getLonAxis(self)
+  elemental type(shr_gAxis) function getLonAxis(self)
     !< return class bounds
     class(shr_gGridDescriptorEmptyStub), intent(in) :: self
   end function getLonAxis

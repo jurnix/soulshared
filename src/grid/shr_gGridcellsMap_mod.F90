@@ -14,7 +14,7 @@
 module shr_gGridCellsMap_mod
 
   use shr_gGridDescriptor_mod, only: shr_igGridDescriptor
-  use shr_gAxisMapping_mod, only: shr_gAxisMapping, shr_gGridAxes
+  use shr_gAxisMapping_mod, only: shr_gAxisMapping
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_coord_mod, only: shr_coord
   use shr_gridShape_mod, only: shr_gridShape
@@ -23,7 +23,7 @@ module shr_gGridCellsMap_mod
   use shr_strings_mod, only: string
   use shr_precision_mod, only: sp
   use shr_gridBounds_mod, only: shr_gridBounds
-  use shr_gGridAxes_mod, only: shr_gGridAxes, shr_igGridAxes
+  use shr_gAxis_mod, only: shr_gAxis, shr_igAxis
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
 
@@ -48,7 +48,7 @@ module shr_gGridCellsMap_mod
   type :: shr_gGridCellsMap
     class(shr_igGridDescriptor), allocatable :: gridDescriptor
     !< grid axis
-    class(shr_igGridAxes), allocatable :: latax, lonax
+    class(shr_igAxis), allocatable :: latax, lonax
   contains
     procedure :: init
     procedure :: equal => gGridCellsMap_equal
@@ -73,7 +73,7 @@ contains
     !< initialize
     class(shr_gGridCellsMap), intent(inout) :: self
     class(shr_igGridDescriptor), intent(in) :: gridDescriptor
-    class(shr_igGridAxes), intent(in) :: latAx, lonAx
+    class(shr_igAxis), intent(in) :: latAx, lonAx
     allocate(self % gridDescriptor, source = gridDescriptor)
     allocate(self % latAx, source = latAx)
     allocate(self % lonAx, source = lonAx)
@@ -83,7 +83,7 @@ contains
   function gGridCellsMap_getLatAxis(self) result (laxis)
     !< latAxis getter
     class(shr_gGridCellsMap), intent(in) :: self
-    class(shr_igGridAxes), allocatable :: laxis !< output
+    class(shr_igAxis), allocatable :: laxis !< output
     allocate(laxis, source = self % latAx)
   end function gGridCellsMap_getLatAxis
 
@@ -91,7 +91,7 @@ contains
   function gGridCellsMap_getLonAxis(self) result (lonxis)
     !< lonAxis getter
     class(shr_gGridCellsMap), intent(in) :: self
-    class(shr_igGridAxes), allocatable :: lonxis
+    class(shr_igAxis), allocatable :: lonxis
     allocate(lonxis, source = self % lonax)
   end function gGridCellsMap_getLonAxis
 
@@ -177,7 +177,7 @@ contains
     logical :: hasSameGridDescriptor
     logical :: hasSameLaxis, hasSameLonxis
 
-    class(shr_igGridAxes), allocatable :: tmpAxis
+    class(shr_igAxis), allocatable :: tmpAxis
 
     if (.not. same_type_as(self, other)) then
       !< unexpected type found
@@ -217,7 +217,7 @@ contains
     type(shr_gridBounds) :: bounds
     real(kind=sp) :: resolution
     type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
-    type(shr_gGridAxes) :: laxis, lonxis
+    type(shr_gAxis) :: laxis, lonxis
 
     resolution = gDescriptor % getResolution()
     bounds = gDescriptor % getBounds()

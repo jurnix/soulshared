@@ -15,7 +15,7 @@ module shr_gridMask_test
   use SHR_testSuite_mod, only: testSuite
 
   use shr_strings_mod, only: string
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
   use shr_gridMask_mod, only: shr_gridMask
@@ -56,7 +56,7 @@ contains
     !< creates a new gridmap
     type(shr_gGridDescriptor), intent(in) :: gDescriptor
 
-    type(shr_gGridAxes) :: laxis, lonxis
+    type(shr_gAxis) :: laxis, lonxis
     real(kind=sp) :: res
     type(shr_gridBounds) :: bounds
     type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds

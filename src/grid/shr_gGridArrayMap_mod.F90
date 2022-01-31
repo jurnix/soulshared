@@ -23,7 +23,7 @@ module shr_gGridArrayMap_mod
   use shr_strings_mod, only: string
   use shr_precision_mod, only: sp
   use shr_gridBounds_mod, only: shr_gridBounds
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
 
   implicit none
@@ -208,7 +208,7 @@ contains
     type(shr_gridBounds) :: bounds
     real(kind=sp) :: resolution
     type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
-    type(shr_gGridAxes) :: laxis, lonxis
+    type(shr_gAxis) :: laxis, lonxis
     type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
 
     resolution = gDescriptor % getResolution()

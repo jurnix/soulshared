@@ -22,7 +22,7 @@ module shr_gridMaskBorder_test
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
 
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxis_mod, only: shr_gAxis
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gGridArrayMap_mod, only: shr_gGridArrayMap
@@ -90,7 +90,7 @@ contains
     type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
     type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
     real(kind=sp) :: res
-    type(shr_gGridAxes) :: laxis, lonxis
+    type(shr_gAxis) :: laxis, lonxis
 
     res = gdescriptor % getResolution()
     bounds = gdescriptor % getBounds()

@@ -22,7 +22,7 @@ module shr_gridDomain_test
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGrid_mod, only: shr_gGrid
   use shr_gGridArrayMap_mod, only: shr_gGridArrayMap, LATITUDE_NAME, LONGITUDE_NAME
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
   use shr_strings_mod, only: string
@@ -105,7 +105,7 @@ contains
     type(shr_gGridDescriptor), intent(in) :: gdescriptor
     type(shr_gridBounds) :: bounds
     real(kind=sp) :: res
-    type(shr_gGridAxes) :: laxis, lonxis
+    type(shr_gAxis) :: laxis, lonxis
     type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
     type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
 

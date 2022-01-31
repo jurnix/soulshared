@@ -14,8 +14,8 @@ module shr_gGridCellsMap_test
   use SHR_testSuite_mod, only: testSuite
   use shr_precision_mod, only: sp
   use shr_gGridCellsMap_mod, only: shr_gGridCellsMap
-  use shr_gGridAxes_mod, only: shr_igGridAxes
-  use shr_gGridAxes_stub, only: shr_gGridAxesEmptyStub
+  use shr_gAxis_mod, only: shr_igAxis
+  use shr_gAxis_stub, only: shr_gAxisEmptyStub
 
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
   use shr_gGridDescriptor_stub, only: shr_gGridDescriptorEmptyStub
@@ -45,7 +45,7 @@ module shr_gGridCellsMap_test
   end type
 
 
-  type, extends(shr_gGridAxesEmptyStub) :: shr_gAxisFakeLat
+  type, extends(shr_gAxisEmptyStub) :: shr_gAxisFakeLat
   contains
     procedure :: toString => gAxisFakeLat_toString
     procedure :: getCells => gAxisFakeLat_getCells
@@ -54,7 +54,7 @@ module shr_gGridCellsMap_test
   end type shr_gAxisFakeLat
 
 
-  type, extends(shr_gGridAxesEmptyStub) :: shr_gAxisFakeLon
+  type, extends(shr_gAxisEmptyStub) :: shr_gAxisFakeLon
   contains
     procedure :: toString => gAxisFakeLon_toString
     procedure :: getCells => gAxisFakeLon_getCells
@@ -75,7 +75,7 @@ contains
   elemental logical function gAxisFakeLat_equal(self, other)
     !< true if self and equal have the same attributes
     class(shr_gAxisFakeLat), intent(in) :: self
-    class(shr_igGridAxes), intent(in) :: other
+    class(shr_igAxis), intent(in) :: other
     gAxisFakeLat_equal = .true.
   end function gAxisFakeLat_equal
 
@@ -83,7 +83,7 @@ contains
   elemental logical function gAxisFakeLon_equal(self, other)
     !< true if self and equal have the same attributes
     class(shr_gAxisFakeLon), intent(in) :: self
-    class(shr_igGridAxes), intent(in) :: other
+    class(shr_igAxis), intent(in) :: other
     gAxisFakeLon_equal = .true.
   end function gAxisFakeLon_equal
 

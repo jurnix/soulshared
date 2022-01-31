@@ -17,7 +17,7 @@ module shr_gGridDescriptor_test
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor, shr_iGGridDescriptor
   use shr_strings_mod, only: string
   use shr_gridBounds_mod, only: shr_gridBounds
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
 
   implicit none
@@ -40,8 +40,8 @@ contains
     class(shr_iGGridDescriptor), allocatable :: idesc
     type(shr_gGridDescriptor) :: combined
 
-    type(shr_gGridAxes) :: latAxis
-    type(shr_gGridAxes) :: lonAxis
+    type(shr_gAxis) :: latAxis
+    type(shr_gAxis) :: lonAxis
     type(shr_gridBounds) :: bounds
 
     type(shr_gGridAxesBounds) :: latBounds, lonBounds

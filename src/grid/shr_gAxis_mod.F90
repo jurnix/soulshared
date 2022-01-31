@@ -1,34 +1,35 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Sophie Land Surface Model 
 !------------------------------------------------------------------------------
-! MODULE        : shr_gGridAxes_mod 
+! MODULE        : shr_gAxis_mod 
 !
 !> @author
 !> Albert Jornet Puig
 !
 ! DESCRIPTION:
 !>
-!> gGridAxes defines a grid axes.
+!> gAxis defines a grid axes.
 !> 
 !------------------------------------------------------------------------------
-module shr_gGridAxes_mod 
+module shr_gAxis_mod 
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
   use shr_arrayDim_mod, only: shr_arrayRspDim
   use shr_strings_mod, only: string
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
   use shr_strings_mod, only: string, real2string
   
   implicit none
 
-  public :: shr_gGridAxes, shr_igGridAxes
+  public :: shr_gAxis, shr_igAxis
 
   logical, parameter :: ISDEBUG = .false.
 
 
-  type, abstract :: shr_igGridAxes
+  type, abstract :: shr_igAxis
   contains
     procedure(iface_getName), deferred :: getName
     procedure(iface_getBounds), deferred :: getBounds
@@ -38,88 +39,88 @@ module shr_gGridAxes_mod
     procedure(iface_toString), deferred :: toString
     procedure(iface_equal), deferred :: equal
     generic :: operator(==) => equal
-  end type shr_igGridAxes
+  end type shr_igAxis
 
 
   abstract interface
     elemental type(string) function iface_getName(self)
-      import :: shr_igGridAxes, string
+      import :: shr_igAxis, string
       !< it returns the name attribute
-      class(shr_igGridAxes), intent(in) :: self
+      class(shr_igAxis), intent(in) :: self
     end function iface_getName
 
 
     elemental type(shr_gGridAxesBounds) function iface_getBounds(self)
-      import :: shr_igGridAxes,  shr_gGridAxesBounds
+      import :: shr_igAxis,  shr_gGridAxesBounds
       !< it returns the bounds attribute
-      class(shr_igGridAxes), intent(in) :: self
+      class(shr_igAxis), intent(in) :: self
     end function iface_getBounds
 
 
     elemental real(kind=sp) function iface_getResolution(self)
-      import :: sp, shr_igGridAxes
+      import :: sp, shr_igAxis
       !< it returns the resolution attribute
-      class(shr_igGridAxes), intent(in) :: self
+      class(shr_igAxis), intent(in) :: self
     end function iface_getResolution
 
     function iface_getCells(self, axisCoord) result (gcells)
-      import :: shr_igGridAxes, sp, shr_gGridAxesCell
+      import :: shr_igAxis, sp, shr_gGridAxesCell
       !< given an coordinate from the current axis, it returns itss shr_gGridAxesCell(s)
-      class(shr_igGridAxes), intent(in) :: self
+      class(shr_igAxis), intent(in) :: self
       real(kind=sp), intent(in) :: axisCoord
       type(shr_gGridAxesCell), allocatable :: gcells(:)
     end function iface_getCells
 
     integer function iface_getSize(self)
-      import :: shr_igGridAxes
+      import :: shr_igAxis
       !< it returns how many grid axes cells has
-      class(shr_igGridAxes), intent(in) :: self
+      class(shr_igAxis), intent(in) :: self
     end function iface_getSize
 
     type(string) function iface_toString(self)
-      import :: shr_igGridAxes, string
-      !< string representation of gGridAxes
-      class(shr_igGridAxes), intent(in) :: self
+      import :: shr_igAxis, string
+      !< string representation of gAxis
+      class(shr_igAxis), intent(in) :: self
     end function iface_toString
 
     elemental impure logical function iface_equal(self, other)
-      import :: shr_igGridAxes
+      import :: shr_igAxis
       !< true if 'self' and 'other' have the same attributes
-      class(shr_igGridAxes), intent(in) :: self
-      class(shr_igGridAxes), intent(in) :: other
+      class(shr_igAxis), intent(in) :: self
+      class(shr_igAxis), intent(in) :: other
     end function iface_equal
   end interface
 
 
-  type, extends(shr_igGridAxes) :: shr_gGridAxes
+  type, extends(shr_igAxis) :: shr_gAxis
     type(string), allocatable :: name
     real(kind=sp) :: resolution
     type(shr_gGridAxesBounds), allocatable :: bounds
     type(shr_gGridAxesCell), allocatable :: cells(:)
   contains
-    procedure :: init => gGridAxes_initialize 
+    procedure :: init => gAxis_initialize 
 
-    procedure :: getName => gGridAxes_getName
-    procedure :: getBounds => gGridAxes_getBounds
-    procedure :: getResolution => gGridAxes_getResolution
-    procedure :: getSize => gGridAxes_getSize
+    procedure :: getName => gAxis_getName
+    procedure :: getBounds => gAxis_getBounds
+    procedure :: getResolution => gAxis_getResolution
+    procedure :: getSize => gAxis_getSize
 
     procedure :: expand !< array2d
-    procedure :: getCells => gGridAxes_getCells
+    procedure :: getCells => gAxis_getCells
 
     procedure :: hasGridCoord 
     procedure :: hasGridAxisCell
 
-    procedure :: equal => gGridAxes_equal
+    procedure :: equal => gAxis_equal
 
-    procedure :: toString => gGridAxes_toString
-  end type shr_gGridAxes
+    procedure :: toString => gAxis_toString
+  end type shr_gAxis
 
 contains
 
-  subroutine gGridAxes_initialize(self, name, resolution, bounds)
-    !< gGridAxes initialization
-    class(shr_gGridAxes), intent(inout) :: self
+  subroutine gAxis_initialize(self, name, resolution, bounds)
+    !< gAxis initialization
+    class(shr_gAxis), intent(inout) :: self
     type(string), intent(in) :: name !< grid axes name
     real(kind=sp), intent(in) :: resolution !< axes cell width ( always +)
     type(shr_gGridAxesBounds), intent(in) :: bounds !< axes boundaries
@@ -131,7 +132,7 @@ contains
     integer :: nCells !< total number of axes cells
 
     if (resolution <= 0) then
-      call raiseError(__FILE__, "gGridAxes_initialize", &
+      call raiseError(__FILE__, "gAxis_initialize", &
               "'resolution cannot be 0 or negative'")
     endif
 
@@ -161,35 +162,35 @@ contains
       call self % cells(icell) % init(center, cellBounds)
       deallocate(cellBounds) !< reuse
     enddo
-  end subroutine gGridAxes_initialize
+  end subroutine gAxis_initialize
 
 
-  elemental type(string) function gGridAxes_getName(self)
+  elemental type(string) function gAxis_getName(self)
     !< it returns the name attribute
-    class(shr_gGridAxes), intent(in) :: self
-    gGridAxes_getName = self %  name
-  end function gGridAxes_getName
+    class(shr_gAxis), intent(in) :: self
+    gAxis_getName = self %  name
+  end function gAxis_getName
 
 
-  elemental type(shr_gGridAxesBounds) function gGridAxes_getBounds(self)
+  elemental type(shr_gGridAxesBounds) function gAxis_getBounds(self)
     !< it returns the bounds attribute
-    class(shr_gGridAxes), intent(in) :: self
-    gGridAxes_getBounds = self % bounds
-  end function gGridAxes_getBounds
+    class(shr_gAxis), intent(in) :: self
+    gAxis_getBounds = self % bounds
+  end function gAxis_getBounds
 
 
-  elemental real(kind=sp) function gGridAxes_getResolution(self)
+  elemental real(kind=sp) function gAxis_getResolution(self)
     !< it returns the resolution attribute
-    class(shr_gGridAxes), intent(in) :: self
-    gGridAxes_getResolution = self % resolution
-  end function gGridAxes_getResolution
+    class(shr_gAxis), intent(in) :: self
+    gAxis_getResolution = self % resolution
+  end function gAxis_getResolution
 
 
-  integer function gGridAxes_getSize(self)
+  integer function gAxis_getSize(self)
     !< it returns how many grid axes cells has
-    class(shr_gGridAxes), intent(in) :: self
-    gGridAxes_getSize = size(self % cells)
-  end function gGridAxes_getSize
+    class(shr_gAxis), intent(in) :: self
+    gAxis_getSize = size(self % cells)
+  end function gAxis_getSize
 
 
   function expand(self, otherAxes) result (gridcells)
@@ -200,8 +201,8 @@ contains
     !< example: gridcells(:,:) = latsAxes(1d) % expand( lonsAxes(1d) )
     !<
     use shr_gridcell_mod, only: shr_gridcell
-    class(shr_gGridAxes), intent(in) :: self
-    type(shr_gGridAxes), intent(in) :: otherAxes
+    class(shr_gAxis), intent(in) :: self
+    type(shr_gAxis), intent(in) :: otherAxes
     type(shr_gridcell), allocatable :: gridcells(:,:) !< output
 
     integer :: ilat, ilon
@@ -222,7 +223,7 @@ contains
 
   logical function hasGridCoord(self, axisCoord)
     !< true if gridCoord is found inside gridAxes bounds
-    class(shr_gGridAxes), intent(in) :: self
+    class(shr_gAxis), intent(in) :: self
     real(kind=sp), intent(in):: axisCoord
     hasGridCoord = self % bounds % isIn(axisCoord) 
   end function hasGridCoord
@@ -230,7 +231,7 @@ contains
 
   logical function hasGridAxisCell(self, gridAxisCell)
     !< true if gridAxisCell is found 
-    class(shr_gGridAxes), intent(in) :: self
+    class(shr_gAxis), intent(in) :: self
     type(shr_gGridAxesCell), intent(in):: gridAxisCell
     integer :: icell
     hasGridAxisCell = .false.
@@ -243,15 +244,15 @@ contains
   end function hasGridAxisCell
 
 
-  elemental impure logical function gGridAxes_equal(self, other)
+  elemental impure logical function gAxis_equal(self, other)
     !< true if 'self' and 'other' have the same attributes
-    class(shr_gGridAxes), intent(in) :: self
-    class(shr_igGridAxes), intent(in) :: other
+    class(shr_gAxis), intent(in) :: self
+    class(shr_igAxis), intent(in) :: other
     logical :: hasSameName, hasSameRes, hasSameBounds
     !type(string) :: otherStr
 
     if (.not. same_type_as(self, other)) then
-      gGridAxes_equal = .false.
+      gAxis_equal = .false.
       return
     end if
 
@@ -260,31 +261,31 @@ contains
     hasSameRes = (self % resolution == other % getResolution())
     hasSameBounds = (self % bounds == other % getBounds())
 
-    !write(*,*) "shr_gGridAxes:: eq_gGridAxes:: hasSameName=", &
+    !write(*,*) "shr_gAxis:: eq_gAxis:: hasSameName=", &
     !        hasSameName, self % name % toString(), otherStr % toString()
-    !write(*,*) "shr_gGridAxes:: eq_gGridAxes:: hasSameRes=", hasSameRes
-    !write(*,*) "shr_gGridAxes:: eq_gGridAxes:: hasSameBounds=", hasSameBounds
-    !write(*,*) "shr_gGridAxes:: eq_gGridAxes:: hasSameCells=", hasSameCells
+    !write(*,*) "shr_gAxis:: eq_gAxis:: hasSameRes=", hasSameRes
+    !write(*,*) "shr_gAxis:: eq_gAxis:: hasSameBounds=", hasSameBounds
+    !write(*,*) "shr_gAxis:: eq_gAxis:: hasSameCells=", hasSameCells
 
-    gGridAxes_equal = (hasSameName .and. hasSameRes .and. &
+    gAxis_equal = (hasSameName .and. hasSameRes .and. &
                     hasSameBounds )
-  end function gGridAxes_equal
+  end function gAxis_equal
 
 
-  type(string) function gGridAxes_toString(self)
-    !< string representation of gGridAxes
-    class(shr_gGridAxes), intent(in) :: self
+  type(string) function gAxis_toString(self)
+    !< string representation of gAxis
+    class(shr_gAxis), intent(in) :: self
     type(string) :: strResolution
     strResolution = real2string(self % resolution)
-    gGridAxes_toString = self % name + ", resolution=" + strResolution + ", bounds=" + &
+    gAxis_toString = self % name + ", resolution=" + strResolution + ", bounds=" + &
           self % bounds % toString()
-  end function gGridAxes_toString
+  end function gAxis_toString
 
 
-  function gGridAxes_getCells(self, axisCoord) result (gcells)
+  function gAxis_getCells(self, axisCoord) result (gcells)
     !< given an coordinate from the current axis,
     !< itreturns an array of  shr_gGridAxesCell(s)
-    class(shr_gGridAxes), intent(in) :: self
+    class(shr_gAxis), intent(in) :: self
     real(kind=sp), intent(in) :: axisCoord
     type(shr_gGridAxesCell), allocatable :: gcells(:)
 
@@ -301,7 +302,7 @@ contains
         gcells = [gcells, currentGAcell]
       end if
     end do
-  end function gGridAxes_getCells
+  end function gAxis_getCells
 
-end module shr_gGridAxes_mod 
+end module shr_gAxis_mod 
 

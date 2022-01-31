@@ -21,7 +21,7 @@ module shr_gridMaskClusters_stub
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
 
   use shr_precision_mod, only: sp
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxis_mod, only: shr_gAxis
 
   use shr_gGrid_mod, only: shr_gGrid
   use shr_strings_mod, only: string
@@ -51,7 +51,7 @@ contains
     !< generate new gridmap
     type(shr_gGridDescriptor), intent(in) :: gDescriptor
     real(kind=sp) :: res
-    type(shr_gGridAxes) :: laxis, lonxis
+    type(shr_gAxis) :: laxis, lonxis
     type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
     type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
     type(shr_gridBounds) :: bounds

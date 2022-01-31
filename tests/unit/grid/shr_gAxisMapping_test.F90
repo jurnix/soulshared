@@ -16,7 +16,7 @@ module shr_gAxisMapping_test
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
 
   use shr_strings_mod, only:string
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
 
@@ -39,7 +39,7 @@ contains
     type(shr_gAxisMapping) :: axisMapping, revMapping
 
     type(string) :: latname
-    type(shr_gGridAxes) :: lats, revLats
+    type(shr_gAxis) :: lats, revLats
     type(shr_gGridAxesBounds) :: bounds, revBounds, lastCellBounds
     type(shr_gGridAxesCell) :: lastAxisCell
     integer, allocatable :: idx(:)

@@ -9,11 +9,11 @@
 ! DESCRIPTION:
 !> gGridAxes unit tests
 !------------------------------------------------------------------------------
-module shr_gGridAxes_test
+module shr_gAxis_test
 
   use SHR_testSuite_mod, only: testSuite
   use shr_strings_mod, only: string
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
 
   use shr_gridcell_mod, only: shr_gridcell
@@ -22,9 +22,9 @@ module shr_gGridAxes_test
   implicit none
 
   private
-  public :: testSuitegGridAxes
+  public :: testSuitegAxis
 
-  type, extends(testSuite) :: testSuitegGridAxes
+  type, extends(testSuite) :: testSuitegAxis
 
     contains
       procedure :: define => defineTestCases
@@ -34,8 +34,8 @@ contains
 
   subroutine defineTestCases(self)
     use iso_c_binding
-    class(testSuitegGridAxes), intent(inout) :: self
-    type(shr_gGridAxes) :: lats, lons
+    class(testSuitegAxis), intent(inout) :: self
+    type(shr_gAxis) :: lats, lons
     type(shr_gGridAxesBounds) :: bounds, lonBounds
     type(string) :: latname, lonName 
     type(shr_gridcell), allocatable :: gridcells(:,:)
@@ -104,5 +104,5 @@ contains
 
   end subroutine defineTestCases
 
-end module shr_gGridAxes_test
+end module shr_gAxis_test
 
