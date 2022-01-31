@@ -14,7 +14,7 @@ module shr_gAxis_test
   use SHR_testSuite_mod, only: testSuite
   use shr_strings_mod, only: string
   use shr_gAxis_mod, only: shr_gAxis
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
 
   use shr_gridcell_mod, only: shr_gridcell
   use shr_coord_mod, only: shr_coord
@@ -36,7 +36,7 @@ contains
     use iso_c_binding
     class(testSuitegAxis), intent(inout) :: self
     type(shr_gAxis) :: lats, lons
-    type(shr_gGridAxesBounds) :: bounds, lonBounds
+    type(shr_gAxisBounds) :: bounds, lonBounds
     type(string) :: latname, lonName 
     type(shr_gridcell), allocatable :: gridcells(:,:)
     integer, parameter :: EMPTY_GID = -1 !< undefined global gridcell id

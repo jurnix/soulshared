@@ -16,7 +16,7 @@ module shr_gridMask_mod
   use SHR_precision_mod, only: sp
 
   use shr_strings_mod, only: string, int2string, stringCollection
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_gGrid_mod, only: shr_gGrid
@@ -494,7 +494,7 @@ contains
     class(shr_gridMask), intent(in) :: self
     logical, intent(in) :: mask(:,:)
 
-    type(shr_gGridAxes) :: tmpGAxis
+    type(shr_gAxis) :: tmpGAxis
     integer :: nlats, nlons
     type(shr_gridShape) :: gshape
 
@@ -541,7 +541,7 @@ contains
     !<
     class(shr_gridMask), intent(in) :: self
     integer :: nlats, ilat
-    type(shr_gGridAxes) :: latAxis
+    type(shr_gAxis) :: latAxis
     character(:), allocatable :: tmp
     type(string) :: strGrid
     character(500) :: t

@@ -9,17 +9,17 @@
 ! DESCRIPTION:
 !> gGridAxesBounds unit tests
 !------------------------------------------------------------------------------
-module shr_gGridAxesBounds_test
+module shr_gAxisBounds_test
   use SHR_testSuite_mod, only: testSuite
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_gridBounds_mod, only: shr_gridBounds
 
   implicit none
 
   private
-  public :: testSuitegGridAxesBounds
+  public :: testSuitegAxisBounds
 
-  type, extends(testSuite) :: testSuitegGridAxesBounds
+  type, extends(testSuite) :: testSuitegAxisBounds
 
     contains
       procedure :: define => defineTestCases
@@ -29,12 +29,12 @@ contains
 
   subroutine defineTestCases(self)
     use iso_c_binding
-    class(testSuitegGridAxesBounds), intent(inout) :: self
+    class(testSuitegAxisBounds), intent(inout) :: self
 
-    type(shr_gGridAxesBounds) :: lats, lons
+    type(shr_gAxisBounds) :: lats, lons
     type(shr_gridBounds) :: gridBounds
 
-    type(shr_gGridAxesBounds) :: upperLats, lowLats, outLats
+    type(shr_gAxisBounds) :: upperLats, lowLats, outLats
 
     call lats % init(90., -90.)
     call lons % init(180., -180.)
@@ -82,5 +82,5 @@ contains
 
   end subroutine defineTestCases
 
-end module shr_gGridAxesBounds_test
+end module shr_gAxisBounds_test
 

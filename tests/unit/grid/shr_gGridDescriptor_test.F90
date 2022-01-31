@@ -18,7 +18,7 @@ module shr_gGridDescriptor_test
   use shr_strings_mod, only: string
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gAxis_mod, only: shr_gAxis
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
 
   implicit none
 
@@ -44,7 +44,7 @@ contains
     type(shr_gAxis) :: lonAxis
     type(shr_gridBounds) :: bounds
 
-    type(shr_gGridAxesBounds) :: latBounds, lonBounds
+    type(shr_gAxisBounds) :: latBounds, lonBounds
     type(string) :: latName, lonName
 
 

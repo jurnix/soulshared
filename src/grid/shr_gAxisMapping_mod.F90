@@ -18,7 +18,7 @@ module shr_gAxisMapping_mod
   use shr_strings_mod, only: string, real2string
   use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_strings_mod, only: string, int2string
   
   implicit none
@@ -127,7 +127,7 @@ contains
     integer, allocatable :: foundIdxs(:)
     integer :: icell
     logical :: hasAxisCoord
-    type(shr_gGridAxesBounds), allocatable :: axisBounds
+    type(shr_gAxisBounds), allocatable :: axisBounds
     type(string), allocatable :: axisBoundsStr, givenVal
 
     if (.not. self % axis % hasGridCoord(axisCoord)) then

@@ -17,7 +17,7 @@ module shr_gAxis_mod
 
   use shr_arrayDim_mod, only: shr_arrayRspDim
   use shr_strings_mod, only: string
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
 
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
   use shr_strings_mod, only: string, real2string
@@ -50,8 +50,8 @@ module shr_gAxis_mod
     end function iface_getName
 
 
-    elemental type(shr_gGridAxesBounds) function iface_getBounds(self)
-      import :: shr_igAxis,  shr_gGridAxesBounds
+    elemental type(shr_gAxisBounds) function iface_getBounds(self)
+      import :: shr_igAxis,  shr_gAxisBounds
       !< it returns the bounds attribute
       class(shr_igAxis), intent(in) :: self
     end function iface_getBounds
@@ -95,7 +95,7 @@ module shr_gAxis_mod
   type, extends(shr_igAxis) :: shr_gAxis
     type(string), allocatable :: name
     real(kind=sp) :: resolution
-    type(shr_gGridAxesBounds), allocatable :: bounds
+    type(shr_gAxisBounds), allocatable :: bounds
     type(shr_gGridAxesCell), allocatable :: cells(:)
   contains
     procedure :: init => gAxis_initialize 
@@ -123,11 +123,11 @@ contains
     class(shr_gAxis), intent(inout) :: self
     type(string), intent(in) :: name !< grid axes name
     real(kind=sp), intent(in) :: resolution !< axes cell width ( always +)
-    type(shr_gGridAxesBounds), intent(in) :: bounds !< axes boundaries
+    type(shr_gAxisBounds), intent(in) :: bounds !< axes boundaries
 
     type(shr_arrayRspDim) :: arrayDim !< used to generate axes cells
     integer :: icell !< iterator
-    type(shr_gGridAxesBounds), allocatable :: cellBounds
+    type(shr_gAxisBounds), allocatable :: cellBounds
     real(kind=sp) :: center, cellStart, cellEnd
     integer :: nCells !< total number of axes cells
 
@@ -172,7 +172,7 @@ contains
   end function gAxis_getName
 
 
-  elemental type(shr_gGridAxesBounds) function gAxis_getBounds(self)
+  elemental type(shr_gAxisBounds) function gAxis_getBounds(self)
     !< it returns the bounds attribute
     class(shr_gAxis), intent(in) :: self
     gAxis_getBounds = self % bounds

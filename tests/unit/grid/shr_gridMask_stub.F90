@@ -21,7 +21,7 @@ module shr_gridMask_stub
   use shr_gGrid_mod, only: shr_gGrid
   use shr_gGridArrayMap_mod, only: shr_gGridArrayMap
   use shr_gAxis_mod, only: shr_gAxis
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
 
   implicit none
@@ -91,7 +91,7 @@ contains
   end function get
 
 
-  type(shr_gGridAxesBounds) function getNewAxisBounds(start, end)
+  type(shr_gAxisBounds) function getNewAxisBounds(start, end)
     !< creates a new gridaxisbounds
     real(kind=sp), intent(in) :: start, end
     call getNewAxisBounds % init(start, end)
@@ -107,7 +107,7 @@ contains
     type(shr_gridBounds) :: bounds !< n, s, e, w
     type(shr_gAxis) :: laxis, lonxis
     type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
-    type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
+    type(shr_gAxisBounds) :: laxisBounds, lonxisBounds
     call bounds % init(4.,0.,3.,0.)
     allocate(shr_gGridDescriptor :: newGDescriptor)
     call newGDescriptor % init(1., bounds)

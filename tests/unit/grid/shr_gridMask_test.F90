@@ -16,7 +16,7 @@ module shr_gridMask_test
 
   use shr_strings_mod, only: string
   use shr_gAxis_mod, only: shr_gAxis
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
   use shr_gridMask_mod, only: shr_gridMask
   use shr_gridBounds_mod, only: shr_gridBounds
@@ -59,7 +59,7 @@ contains
     type(shr_gAxis) :: laxis, lonxis
     real(kind=sp) :: res
     type(shr_gridBounds) :: bounds
-    type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
+    type(shr_gAxisBounds) :: laxisBounds, lonxisBounds
     type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
     res = gDescriptor % getResolution()
     bounds = gDescriptor % getBounds()

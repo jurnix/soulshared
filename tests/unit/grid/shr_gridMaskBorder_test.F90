@@ -24,7 +24,7 @@ module shr_gridMaskBorder_test
 
   use shr_gAxis_mod, only: shr_gAxis
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_gGridArrayMap_mod, only: shr_gGridArrayMap
 
   use shr_gGrid_mod, only: shr_gGrid
@@ -87,7 +87,7 @@ contains
     !< create a new gridmap
     type(shr_gGridDescriptor), intent(in) :: gdescriptor
     type(shr_gridBounds) :: bounds
-    type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
+    type(shr_gAxisBounds) :: laxisBounds, lonxisBounds
     type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
     real(kind=sp) :: res
     type(shr_gAxis) :: laxis, lonxis

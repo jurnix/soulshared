@@ -13,7 +13,7 @@ module shr_gAxis_stub
 
   use shr_gAxis_mod, only: shr_igAxis
   use shr_strings_mod, only: string
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_precision_mod, only: sp
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
 
@@ -41,7 +41,7 @@ contains
   end function getName
 
 
-  elemental type(shr_gGridAxesBounds) function getBounds(self)
+  elemental type(shr_gAxisBounds) function getBounds(self)
     !< it returns the bounds attribute
     class(shr_gAxisEmptyStub), intent(in) :: self
   end function getBounds

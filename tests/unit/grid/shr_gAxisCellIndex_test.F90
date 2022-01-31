@@ -15,7 +15,7 @@ module shr_gAxisCellIndex_test
 
   use shr_gAxisCellIndex_mod, only: shr_gAxisCellIndex
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
 
   implicit none
 
@@ -35,7 +35,7 @@ contains
     class(testSuitegAxisCellIndex), intent(inout) :: self
     type(shr_gGridAxesCell) :: acell
     type(shr_gAxisCellIndex) :: idxcell 
-    type(shr_gGridAxesBounds) :: bounds
+    type(shr_gAxisBounds) :: bounds
 
     call bounds % init(2., -2.)
     call acell % init(0., bounds)

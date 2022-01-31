@@ -14,7 +14,7 @@ module shr_gridBoundIndices_mod
 
   use SHR_precision_mod, only: sp
   use SHR_error_mod, only: raiseError
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
 
   implicit none

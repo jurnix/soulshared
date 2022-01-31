@@ -21,7 +21,7 @@ module shr_gGridCellsMap_test
   use shr_gGridDescriptor_stub, only: shr_gGridDescriptorEmptyStub
   use shr_strings_mod, only: string
   use shr_gridShape_mod, only: shr_gridShape
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
 
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
@@ -113,7 +113,7 @@ contains
     class(shr_gAxisFakeLat), intent(in) :: self
     real(kind=sp), intent(in) :: axisCoord
     type(shr_gGridAxesCell), allocatable :: gcells(:)
-    type(shr_gGridAxesBounds) :: axisBounds
+    type(shr_gAxisBounds) :: axisBounds
 
     allocate(gcells(2))
     call axisBounds % init(3., 2.)
@@ -129,7 +129,7 @@ contains
     class(shr_gAxisFakeLon), intent(in) :: self
     real(kind=sp), intent(in) :: axisCoord
     type(shr_gGridAxesCell), allocatable :: gcells(:)
-    type(shr_gGridAxesBounds) :: axisBounds
+    type(shr_gAxisBounds) :: axisBounds
 
     allocate(gcells(2))
     call axisBounds % init(2., 1.)

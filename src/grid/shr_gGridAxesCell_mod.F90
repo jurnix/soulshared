@@ -15,7 +15,7 @@ module shr_gGridAxesCell_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_coord_mod, only: shr_coord
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gridcell_mod, only: shr_gridcell
@@ -28,7 +28,7 @@ module shr_gGridAxesCell_mod
 
 
   type shr_gGridAxesCell
-    type(shr_gGridAxesBounds), allocatable :: bounds
+    type(shr_gAxisBounds), allocatable :: bounds
     real(kind=sp) :: center
   contains
     procedure :: init => gGridAxesCell_initialize
@@ -49,7 +49,7 @@ contains
     !< startCoord > endCoord
     class(shr_gGridAxesCell), intent(inout) :: self
     real(kind=sp), intent(in) :: center
-    type(shr_gGridAxesBounds), intent(in) :: bounds
+    type(shr_gAxisBounds), intent(in) :: bounds
     self % center = center
     allocate(self % bounds, source = bounds)
   end subroutine gGridAxesCell_initialize
@@ -77,7 +77,7 @@ contains
   elemental function getBounds(self) result (bounds)
     !< returns self % bounds
     class(shr_gGridAxesCell), intent(in) :: self
-    type(shr_gGridAxesBounds) :: bounds !< output
+    type(shr_gAxisBounds) :: bounds !< output
     bounds = self % bounds
   end function getBounds
 
@@ -95,7 +95,7 @@ contains
     type(shr_gGridAxesCell), intent(in) :: lon
     type(shr_coord) :: ccenter
     real(kind=sp) :: resolution
-    type(shr_gGridAxesBounds) :: latBounds
+    type(shr_gAxisBounds) :: latBounds
 
     ccenter = shr_coord(lat % getCenter(), lon % getCenter())
     latBounds = lat % getBounds()

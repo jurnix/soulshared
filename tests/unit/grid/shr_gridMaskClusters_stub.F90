@@ -17,7 +17,7 @@ module shr_gridMaskClusters_stub
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
   use shr_gGridArrayMap_mod, only: shr_gGridArrayMap
-  use shr_gGridAxesBounds_mod, only: shr_gGridAxesBounds
+  use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_gAxisMapping_mod, only: shr_gAxisMapping
 
   use shr_precision_mod, only: sp
@@ -52,7 +52,7 @@ contains
     type(shr_gGridDescriptor), intent(in) :: gDescriptor
     real(kind=sp) :: res
     type(shr_gAxis) :: laxis, lonxis
-    type(shr_gGridAxesBounds) :: laxisBounds, lonxisBounds
+    type(shr_gAxisBounds) :: laxisBounds, lonxisBounds
     type(shr_gAxisMapping) :: laxisMapping, lonxisMapping
     type(shr_gridBounds) :: bounds
     res = gDescriptor % getResolution()

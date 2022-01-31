@@ -15,7 +15,7 @@ module shr_gAxisCellIndex_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
-  use shr_gGridAxes_mod, only: shr_gGridAxes
+  !use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
   
   implicit none
