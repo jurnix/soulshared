@@ -16,7 +16,7 @@ module shr_gAxisMapping_stub
   !< dependencies
   use shr_precision_mod, only: sp
   use shr_strings_mod, only: string
-  use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
+  use shr_gAxisCell_mod, only: shr_gAxisCell
 
   implicit none
 
@@ -57,7 +57,7 @@ contains
     !< only 1 index can be returned
     !< -1 in case is not found
     class(shr_gAxisMappingEmptyStub), intent(in) :: self
-    type(shr_gGridAxesCell), intent(in) :: gAxisCell
+    type(shr_gAxisCell), intent(in) :: gAxisCell
   end function getIndexByGridAxisCell
 
 

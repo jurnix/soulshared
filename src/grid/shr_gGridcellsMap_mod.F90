@@ -25,7 +25,7 @@ module shr_gGridCellsMap_mod
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gAxis_mod, only: shr_gAxis, shr_igAxis
   use shr_gAxisBounds_mod, only: shr_gAxisBounds
-  use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
+  use shr_gAxisCell_mod, only: shr_gAxisCell
 
   use shr_gGridArrayMap_mod, only: LATITUDE_NAME, LONGITUDE_NAME
 
@@ -112,7 +112,7 @@ contains
     type(shr_coord), intent(in) :: coord
     type(shr_gridcell), allocatable :: gcs(:)!< output
 
-    type(shr_gGridAxesCell), allocatable :: latCells(:), lonCells(:)
+    type(shr_gAxisCell), allocatable :: latCells(:), lonCells(:)
     integer, allocatable :: idxlats(:), idxlons(:)
     integer :: ilat, ilon
     integer :: nlats, nlons

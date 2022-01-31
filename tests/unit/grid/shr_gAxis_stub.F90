@@ -15,7 +15,7 @@ module shr_gAxis_stub
   use shr_strings_mod, only: string
   use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_precision_mod, only: sp
-  use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
+  use shr_gAxisCell_mod, only: shr_gAxisCell
 
   implicit none
 
@@ -57,7 +57,7 @@ contains
     !< given an coordinate from the current axis, it returns itss shr_gAxisCell(s)
     class(shr_gAxisEmptyStub), intent(in) :: self
     real(kind=sp), intent(in) :: axisCoord
-    type(shr_gGridAxesCell), allocatable :: gcells(:)
+    type(shr_gAxisCell), allocatable :: gcells(:)
   end function getCells
 
 

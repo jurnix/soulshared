@@ -22,7 +22,7 @@ module shr_gGridCellsMap_test
   use shr_strings_mod, only: string
   use shr_gridShape_mod, only: shr_gridShape
   use shr_gAxisBounds_mod, only: shr_gAxisBounds
-  use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
+  use shr_gAxisCell_mod, only: shr_gAxisCell
 
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_coord_mod, only: shr_coord
@@ -103,7 +103,7 @@ contains
 
 
   function gAxisFakeLat_getCells(self, axisCoord) result (gcells)
-    !< given an coordinate from the current axis, it returns itss shr_gGridAxesCell(s)
+    !< given an coordinate from the current axis, it returns itss shr_gAxisCell(s)
     !< 1. 2. 3.
     !<   |   |
     !<   x   x  - 4.
@@ -112,7 +112,7 @@ contains
     !<
     class(shr_gAxisFakeLat), intent(in) :: self
     real(kind=sp), intent(in) :: axisCoord
-    type(shr_gGridAxesCell), allocatable :: gcells(:)
+    type(shr_gAxisCell), allocatable :: gcells(:)
     type(shr_gAxisBounds) :: axisBounds
 
     allocate(gcells(2))
@@ -125,10 +125,10 @@ contains
 
 
   function gAxisFakeLon_getCells(self, axisCoord) result (gcells)
-    !< given an coordinate from the current axis, it returns itss shr_gGridAxesCell(s)
+    !< given an coordinate from the current axis, it returns itss shr_gAxisCell(s)
     class(shr_gAxisFakeLon), intent(in) :: self
     real(kind=sp), intent(in) :: axisCoord
-    type(shr_gGridAxesCell), allocatable :: gcells(:)
+    type(shr_gAxisCell), allocatable :: gcells(:)
     type(shr_gAxisBounds) :: axisBounds
 
     allocate(gcells(2))

@@ -15,8 +15,7 @@ module shr_gAxisCellIndex_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
-  !use shr_gAxis_mod, only: shr_gAxis
-  use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
+  use shr_gAxisCell_mod, only: shr_gAxisCell
   
   implicit none
 
@@ -26,7 +25,7 @@ module shr_gAxisCellIndex_mod
 
 
   type shr_gAxisCellIndex
-    type(shr_gGridAxesCell), allocatable :: cell
+    type(shr_gAxisCell), allocatable :: cell
     integer :: index
   contains
     procedure :: init => gAxisIndex_initialize 
@@ -40,7 +39,7 @@ contains
   subroutine gAxisIndex_initialize(self, index, axisCell)
     !< gAxisIndex initialization
     class(shr_gAxisCellIndex), intent(inout) :: self
-    type(shr_gGridAxesCell), intent(in) :: axisCell
+    type(shr_gAxisCell), intent(in) :: axisCell
     integer, intent(in) :: index
     allocate(self % cell, source = axisCell)
     self % index = index
@@ -54,12 +53,11 @@ contains
   end function getIndex
 
 
-  type(shr_gGridAxesCell) function getAxisCell(self)
+  type(shr_gAxisCell) function getAxisCell(self)
     !< returns axis cell
     class(shr_gAxisCellIndex), intent(in) :: self
     getAxisCell = self % cell
   end function getAxisCell
-
 
 end module shr_gAxisCellIndex_mod 
 

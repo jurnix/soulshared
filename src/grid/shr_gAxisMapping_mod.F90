@@ -17,7 +17,7 @@ module shr_gAxisMapping_mod
 
   use shr_strings_mod, only: string, real2string
   use shr_gAxis_mod, only: shr_gAxis
-  use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
+  use shr_gAxisCell_mod, only: shr_gAxisCell
   use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_strings_mod, only: string, int2string
   
@@ -57,12 +57,12 @@ module shr_gAxisMapping_mod
     end function iface_getIndexByCoord
 
     integer function iface_getIndexByGridAxisCell(self, gAxisCell)
-      import :: shr_igAxisMapping, shr_gGridAxesCell
+      import :: shr_igAxisMapping, shr_gAxisCell
       !< it returns the index(s) which matches with gAxisCell
       !< only 1 index can be returned
       !< -1 in case is not found
       class(shr_igAxisMapping), intent(in) :: self
-      type(shr_gGridAxesCell), intent(in) :: gAxisCell
+      type(shr_gAxisCell), intent(in) :: gAxisCell
     end function iface_getIndexByGridAxisCell
 
     integer function iface_getSize(self)
@@ -158,7 +158,7 @@ contains
     !< only 1 index can be returned
     !< -1 in case is not found
     class(shr_gAxisMapping), intent(in) :: self
-    type(shr_gGridAxesCell), intent(in) :: gAxisCell
+    type(shr_gAxisCell), intent(in) :: gAxisCell
     integer :: icell
     gAxisMapping_getIndexByGridAxisCell = -1 ! init output
     do icell = 1, self % axis % getSize()

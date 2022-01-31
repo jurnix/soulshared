@@ -14,7 +14,7 @@ module shr_gAxisCellIndex_test
   use SHR_testSuite_mod, only: testSuite
 
   use shr_gAxisCellIndex_mod, only: shr_gAxisCellIndex
-  use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
+  use shr_gAxisCell_mod, only: shr_gAxisCell
   use shr_gAxisBounds_mod, only: shr_gAxisBounds
 
   implicit none
@@ -33,7 +33,7 @@ contains
   subroutine defineTestCases(self)
     use iso_c_binding
     class(testSuitegAxisCellIndex), intent(inout) :: self
-    type(shr_gGridAxesCell) :: acell
+    type(shr_gAxisCell) :: acell
     type(shr_gAxisCellIndex) :: idxcell 
     type(shr_gAxisBounds) :: bounds
 

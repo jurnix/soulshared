@@ -19,7 +19,7 @@ module shr_gAxis_mod
   use shr_strings_mod, only: string
   use shr_gAxisBounds_mod, only: shr_gAxisBounds
 
-  use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
+  use shr_gAxisCell_mod, only: shr_gAxisCell
   use shr_strings_mod, only: string, real2string
   
   implicit none
@@ -64,11 +64,11 @@ module shr_gAxis_mod
     end function iface_getResolution
 
     function iface_getCells(self, axisCoord) result (gcells)
-      import :: shr_igAxis, sp, shr_gGridAxesCell
-      !< given an coordinate from the current axis, it returns itss shr_gGridAxesCell(s)
+      import :: shr_igAxis, sp, shr_gAxisCell
+      !< given an coordinate from the current axis, it returns itss shr_gAxisCell(s)
       class(shr_igAxis), intent(in) :: self
       real(kind=sp), intent(in) :: axisCoord
-      type(shr_gGridAxesCell), allocatable :: gcells(:)
+      type(shr_gAxisCell), allocatable :: gcells(:)
     end function iface_getCells
 
     integer function iface_getSize(self)
@@ -96,7 +96,7 @@ module shr_gAxis_mod
     type(string), allocatable :: name
     real(kind=sp) :: resolution
     type(shr_gAxisBounds), allocatable :: bounds
-    type(shr_gGridAxesCell), allocatable :: cells(:)
+    type(shr_gAxisCell), allocatable :: cells(:)
   contains
     procedure :: init => gAxis_initialize 
 
@@ -232,7 +232,7 @@ contains
   logical function hasGridAxisCell(self, gridAxisCell)
     !< true if gridAxisCell is found 
     class(shr_gAxis), intent(in) :: self
-    type(shr_gGridAxesCell), intent(in):: gridAxisCell
+    type(shr_gAxisCell), intent(in):: gridAxisCell
     integer :: icell
     hasGridAxisCell = .false.
     do icell = 1, self % getSize()
@@ -284,13 +284,13 @@ contains
 
   function gAxis_getCells(self, axisCoord) result (gcells)
     !< given an coordinate from the current axis,
-    !< itreturns an array of  shr_gGridAxesCell(s)
+    !< itreturns an array of  shr_gAxisCell(s)
     class(shr_gAxis), intent(in) :: self
     real(kind=sp), intent(in) :: axisCoord
-    type(shr_gGridAxesCell), allocatable :: gcells(:)
+    type(shr_gAxisCell), allocatable :: gcells(:)
 
     integer :: ngcs, igc
-    type(shr_gGridAxesCell) :: currentGAcell
+    type(shr_gAxisCell) :: currentGAcell
 
 
     ngcs = self % getSize()

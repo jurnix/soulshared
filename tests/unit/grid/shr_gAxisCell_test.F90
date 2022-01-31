@@ -1,17 +1,17 @@
 !------------------------------------------------------------------------------
 !    Pekin University - Land Surface Model 
 !------------------------------------------------------------------------------
-! MODUL      : shr_gGridAxesCell_test 
+! MODUL      : shr_gAxisCell_test
 !
 !> @author
 !> Albert Jornet Puig
 !
 ! DESCRIPTION:
-!> gGridAxesCell unit tests
+!> gAxisCell unit tests
 !------------------------------------------------------------------------------
-module shr_gGridAxesCell_test
+module shr_gAxisCell_test
   use SHR_testSuite_mod, only: testSuite
-  use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
+  use shr_gAxisCell_mod, only: shr_gAxisCell
   use shr_gAxisBounds_mod, only: shr_gAxisBounds
   use shr_gridcell_mod, only: shr_gridcell
   use shr_coord_mod, only: shr_coord
@@ -19,9 +19,9 @@ module shr_gGridAxesCell_test
   implicit none
 
   private
-  public :: testSuitegGridAxesCell
+  public :: testSuitegAxisCell
 
-  type, extends(testSuite) :: testSuitegGridAxesCell
+  type, extends(testSuite) :: testSuitegAxisCell
 
     contains
       procedure :: define => defineTestCases
@@ -31,10 +31,10 @@ contains
 
   subroutine defineTestCases(self)
     use iso_c_binding
-    class(testSuitegGridAxesCell), intent(inout) :: self
+    class(testSuitegAxisCell), intent(inout) :: self
 
     type(shr_gAxisBounds) :: boundary
-    type(shr_gGridAxesCell) :: c, other
+    type(shr_gAxisCell) :: c, other
     type(shr_gridcell) :: newGc
     type(shr_coord) :: center
 
@@ -57,7 +57,7 @@ contains
     call self % assert(.not. (c % isIn(20.)), &
             "c([10, -10], 0) % isIn(20) = F")
 
-    !procedure(==) :: equal_gGridAxesCell
+    !procedure(==) :: equal_gAxisCell
     call boundary % init(60., 40.)
     call other % init(50., boundary)
 
@@ -75,5 +75,5 @@ contains
 
   end subroutine defineTestCases
 
-end module shr_gGridAxesCell_test
+end module shr_gAxisCell_test
 

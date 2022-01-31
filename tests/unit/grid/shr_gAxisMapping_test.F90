@@ -17,7 +17,7 @@ module shr_gAxisMapping_test
 
   use shr_strings_mod, only:string
   use shr_gAxis_mod, only: shr_gAxis
-  use shr_gGridAxesCell_mod, only: shr_gGridAxesCell
+  use shr_gAxisCell_mod, only: shr_gAxisCell
   use shr_gAxisBounds_mod, only: shr_gAxisBounds
 
   implicit none
@@ -41,7 +41,7 @@ contains
     type(string) :: latname
     type(shr_gAxis) :: lats, revLats
     type(shr_gAxisBounds) :: bounds, revBounds, lastCellBounds
-    type(shr_gGridAxesCell) :: lastAxisCell
+    type(shr_gAxisCell) :: lastAxisCell
     integer, allocatable :: idx(:)
     integer :: gcidx !< expected 
 
