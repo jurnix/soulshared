@@ -16,8 +16,8 @@
 
 #:set OPERATOR_TYPES = list(zip(OPERATOR_NAMES, OPERATOR_SYMBOLS))
 
-
-#:set MAXRANK = 7
+! use MAXRANK = 7 in release mode
+#:set MAXRANK = 3
 
 #:set NEXTRANK = int(MAXRANK) + 1
 
