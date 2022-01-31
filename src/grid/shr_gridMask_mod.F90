@@ -19,7 +19,7 @@ module shr_gridMask_mod
   use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
-  use shr_gGrid_mod, only: shr_gGrid
+  use shr_gGrid_mod, only: shr_igGrid
 
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gridShape_mod, only: shr_gridShape
@@ -71,18 +71,18 @@ module shr_gridMask_mod
 
   abstract interface
     subroutine iface_gridMask_initialize_by_larray(self, grid, lmask)
-      import :: shr_igridMask, shr_gGrid
+      import :: shr_igridMask, shr_igGrid
       !< gridMask initialization
       class(shr_igridMask), intent(inout) :: self
-      class(shr_gGrid), intent(in) :: grid
+      class(shr_igGrid), intent(in) :: grid
       logical, intent(in) :: lmask(:,:)
     end subroutine iface_gridMask_initialize_by_larray
 
     subroutine iface_gridMask_initialize(self, grid, default)
-      import :: shr_igridMask, shr_gGrid
+      import :: shr_igridMask, shr_igGrid
       !< gridMask initialization
       class(shr_igridMask), intent(inout) :: self
-      class(shr_gGrid), intent(in) :: grid
+      class(shr_igGrid), intent(in) :: grid
       logical, intent(in), optional :: default !< define default value (def: true)
     end subroutine iface_gridMask_initialize
 
@@ -97,10 +97,10 @@ module shr_gridMask_mod
     end function iface_get
 
     function iface_getGrid(self) result(newGDescriptor)
-      import :: shr_IgridMask, shr_gGrid
+      import :: shr_IgridMask, shr_igGrid
       !< returns self gridDescriptor
       class(shr_IgridMask), intent(in) :: self
-      class(shr_gGrid), allocatable :: newGDescriptor !< output
+      class(shr_igGrid), allocatable :: newGDescriptor !< output
     end function iface_getGrid
 
     logical function iface_equal_scalar_logical(self, value)
@@ -125,23 +125,23 @@ module shr_gridMask_mod
     end function iface_equal_gridMask
 
     function iface_expand(self, grid, default) result (newGMask)
-      import :: shr_igridMask, shr_gGrid
+      import :: shr_igridMask, shr_igGrid
       !< returns a new shr_gridMask with an expanded grid
       !< - 'self' must fit into 'gDescriptor'
       !< - mask remains the same
       !< default argument define which values to set for new mask cells
       class(shr_igridMask), intent(in) :: self
-      class(shr_gGrid), intent(in) :: grid
+      class(shr_igGrid), intent(in) :: grid
       logical, intent(in), optional :: default
       class(shr_igridMask), allocatable :: newGMask !< output
     end function iface_expand
 
     function iface_select(self, grid) result (newGMask)
-      import :: shr_igridMask, shr_gGrid
+      import :: shr_igridMask, shr_igGrid
       !< select a new shr_gridMask according to grid
       !< new grid must fit self % grid
       class(shr_igridMask), intent(in) :: self
-      class(shr_gGrid), intent(in) :: grid
+      class(shr_igGrid), intent(in) :: grid
       class(shr_igridMask), allocatable :: newGMask !< output
     end function iface_select
 
@@ -200,7 +200,7 @@ module shr_gridMask_mod
 
   type, extends(shr_IgridMask) :: shr_gridMask
     !< grid descriptor
-    class(shr_gGrid), allocatable :: grid
+    class(shr_igGrid), allocatable :: grid
 
     logical, allocatable :: mask(:,:)
   contains
@@ -257,7 +257,7 @@ contains
     !< gridMask initialization
     !< lmask shape must be consistent with gridDescriptor
     class(shr_gridMask), intent(inout) :: self
-    class(shr_gGrid), intent(in) :: grid
+    class(shr_igGrid), intent(in) :: grid
     logical, intent(in) :: lmask(:,:)
 
     integer :: lshape(2), inMaskShape(2)
@@ -286,7 +286,7 @@ contains
   subroutine gridMask_initialize(self, grid, default)
     !< gridMask initialization
     class(shr_gridMask), intent(inout) :: self
-    class(shr_gGrid), intent(in) :: grid
+    class(shr_igGrid), intent(in) :: grid
     logical, intent(in), optional :: default !< define default value (def: true)
 
     logical :: inDefault
@@ -526,7 +526,7 @@ contains
   function gridMask_getGrid(self) result (newGrid)
     !< returns self grid
     class(shr_gridMask), intent(in) :: self
-    class(shr_gGrid), allocatable :: newGrid !< output
+    class(shr_igGrid), allocatable :: newGrid !< output
     allocate(newGrid, source = self % grid)
   end function gridMask_getGrid
 
@@ -584,7 +584,7 @@ contains
     !< the output gridMask will have 'gDescriptor' as grid descriptor
     !< and the mask values matching 'self'
     class(shr_gridMask), intent(in) :: self
-    class(shr_gGrid), intent(in) :: grid
+    class(shr_igGrid), intent(in) :: grid
     class(shr_igridMask), allocatable :: newGMask !< output
 
     logical, allocatable :: newLmask(:,:)
@@ -627,7 +627,7 @@ contains
     !< default optional argument define which values get for new mask cells
     class(shr_gridMask), intent(in) :: self
     !type(shr_gridBounds), intent(in) :: bounds
-    class(shr_gGrid), intent(in) :: grid
+    class(shr_igGrid), intent(in) :: grid
     logical, intent(in), optional :: default
     class(shr_igridMask), allocatable :: newGMask
 
@@ -658,7 +658,7 @@ contains
     clasS(shr_iGGridDescriptor), allocatable :: argGDescriptor
     type(shr_gridBoundIndices) :: gBoundIndices
     logical, allocatable :: lmask(:,:)
-    class(shr_gGrid), allocatable :: argGrid
+    class(shr_igGrid), allocatable :: argGrid
 
     argGrid = gridMask % getGrid()
     gBoundIndices = self % grid % getIndices(argGrid)

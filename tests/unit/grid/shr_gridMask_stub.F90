@@ -18,7 +18,7 @@ module shr_gridMask_stub
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor, shr_gGridDescriptor
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
-  use shr_gGrid_mod, only: shr_gGrid
+  use shr_gGrid_mod, only: shr_igGrid, shr_gGrid
   use shr_gGridArrayMap_mod, only: shr_gGridArrayMap
   use shr_gAxis_mod, only: shr_gAxis
   use shr_gAxisBounds_mod, only: shr_gAxisBounds
@@ -62,14 +62,14 @@ contains
   subroutine initialize_by_larray(self, grid, lmask)
     !< gridMask initialization
     class(shr_gridMaskStub), intent(inout) :: self
-    class(shr_gGrid), intent(in) :: grid
+    class(shr_igGrid), intent(in) :: grid
     logical, intent(in) :: lmask(:,:)
   end subroutine initialize_by_larray
 
   subroutine initialize(self, grid, default)
     !< gridMask initialization
     class(shr_gridMaskStub), intent(inout) :: self
-    class(shr_gGrid), intent(in) :: grid
+    class(shr_igGrid), intent(in) :: grid
     logical, intent(in), optional :: default !< define default value (def: true)
   end subroutine initialize
 
@@ -101,7 +101,7 @@ contains
   function getGrid(self) result(newGrid)
     !< returns self gridDescriptor
     class(shr_gridMaskStub), intent(in) :: self
-    class(shr_gGrid), allocatable :: newGrid !< output
+    class(shr_igGrid), allocatable :: newGrid !< output
     class(shr_iGGridDescriptor), allocatable :: newGDescriptor !< output
     type(shr_gGridArrayMap) :: newGMap
     type(shr_gridBounds) :: bounds !< n, s, e, w
@@ -123,7 +123,7 @@ contains
 
     call newGMap % init(newGDescriptor, laxisMapping, lonxisMapping)
 
-    allocate(newGrid)
+    allocate(shr_gGrid :: newGrid)
     call newGrid % init(newGDescriptor, newGMap)
   end function getGrid
 
@@ -161,7 +161,7 @@ contains
     !< - 'self' must fit into 'gDescriptor'
     !< - mask remains the same
     class(shr_gridMaskStub), intent(in) :: self
-    class(shr_gGrid), intent(in) :: grid
+    class(shr_igGrid), intent(in) :: grid
     logical, intent(in), optional :: default
     class(shr_igridMask), allocatable :: newGMask !< output
   end function expand
@@ -171,7 +171,7 @@ contains
     !< select a new shr_gridMask according to gDescriptor
     !< new gDscriptor must fit self % gridDescriptor
     class(shr_gridMaskStub), intent(in) :: self
-    class(shr_gGrid), intent(in) :: grid
+    class(shr_igGrid), intent(in) :: grid
     class(shr_igridMask), allocatable :: newGMask !< output
   end function select
 

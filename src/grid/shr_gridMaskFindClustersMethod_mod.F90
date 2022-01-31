@@ -18,7 +18,7 @@ module shr_gridMaskFindClustersMethod_mod
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
   use shr_maskClusters_mod, only: shr_maskClusters_2d
   use shr_mask_mod, only: shr_mask2d
-  use shr_gGrid_mod, only: shr_gGrid
+  use shr_gGrid_mod, only: shr_igGrid
 
   implicit none
 
@@ -80,7 +80,7 @@ contains
     logical, allocatable :: lmask(:,:)
     integer :: nclusters, icluster
     type(shr_mask2d) :: tmpMaskCluster
-    class(shr_gGrid), allocatable :: grid
+    class(shr_igGrid), allocatable :: grid
 
     allocate(self % mask, source = gridMask)
     allocate(self % clusters)

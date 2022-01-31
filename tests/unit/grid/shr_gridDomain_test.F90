@@ -20,7 +20,7 @@ module shr_gridDomain_test
   use shr_gridMask_stub, only: shr_gridMaskStub
   use shr_gridMask_mod, only: shr_IgridMask, shr_gridMask
   use shr_gridBounds_mod, only: shr_gridBounds
-  use shr_gGrid_mod, only: shr_gGrid
+  use shr_gGrid_mod, only: shr_gGrid, shr_igGrid
   use shr_gGridArrayMap_mod, only: shr_gGridArrayMap, LATITUDE_NAME, LONGITUDE_NAME
   use shr_gAxis_mod, only: shr_gAxis
   use shr_gAxisBounds_mod, only: shr_gAxisBounds
@@ -156,7 +156,7 @@ contains
     !< select a new shr_gridMask according to gDescriptor
     !< new gDscriptor must fit self % gridDescriptor
     class(shr_gridMaskSelectStub), intent(in) :: self
-    class(shr_gGrid), intent(in) :: grid
+    class(shr_igGrid), intent(in) :: grid
     class(shr_igridMask), allocatable :: newGMask !< output
     ! (3.)  (-1.)
     !   x x -  (2.0)

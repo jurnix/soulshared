@@ -22,7 +22,7 @@ module shr_gridDomain_mod
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_coord_mod, only: shr_coord
   use shr_strings_mod, only: string
-  use shr_gGrid_mod, only: shr_gGrid
+  use shr_gGrid_mod, only: shr_igGrid
 
   implicit none
 
@@ -46,13 +46,13 @@ module shr_gridDomain_mod
 
   abstract interface
     subroutine iface_initialize(self, grid, enabled, border)
-      import :: shr_igridDomain, shr_gGrid, shr_igridMask
+      import :: shr_igridDomain, shr_igGrid, shr_igridMask
       !< grid domain initialization
       !< enabled and border must have the same shape as descriptor
       !< enabled mask must be included in border mask
       !< todo: upgrade enabled and border into class to combine them 'gridDomainEnabledCells'
       class(shr_igridDomain), intent(inout) :: self
-      class(shr_gGrid), intent(in) :: grid
+      class(shr_igGrid), intent(in) :: grid
       class(shr_igridMask), intent(in) :: enabled !< def: all enabled
       class(shr_igridMask), intent(in) :: border !< def: all enabled
     end subroutine iface_initialize
@@ -75,10 +75,10 @@ module shr_gridDomain_mod
     end function iface_filter
 
     function iface_getGrid(self) result (grid)
-      import :: shr_igridDomain, shr_gGrid
+      import :: shr_igridDomain, shr_igGrid
       !< returns self shr_gridDescriptor
       class(shr_igridDomain), intent(in) :: self
-      class(shr_gGrid), allocatable :: grid
+      class(shr_igGrid), allocatable :: grid
     end function iface_getGrid
 
     subroutine iface_copy(self, other)
@@ -91,7 +91,7 @@ module shr_gridDomain_mod
 
 
   type, extends(shr_igridDomain) :: shr_gridDomain
-    class(shr_gGrid), allocatable :: grid
+    class(shr_igGrid), allocatable :: grid
 
     !< todo: refactor maskXXX into GridMaskAvailable :: available
     class(shr_igridMask), allocatable :: maskEnabled !< allowed to modify, sea vs land (?)
@@ -131,7 +131,7 @@ contains
     !< enabled mask must be included in border mask
     !< todo: upgrade enabled and border into class to combine them 'gridDomainEnabledCells'
     class(shr_gridDomain), intent(inout) :: self
-    class(shr_gGrid), intent(in) :: grid
+    class(shr_igGrid), intent(in) :: grid
     class(shr_igridMask), intent(in) :: enabled !< def: all enabled
     class(shr_igridMask), intent(in) :: border !< def: all enabled
 
@@ -185,7 +185,7 @@ contains
     type(shr_gridDomain), intent(in) :: other
 
     class(shr_gridDomain), allocatable :: expandedSelf, expandedOther
-    class(shr_gGrid), allocatable :: combinedGrid
+    class(shr_igGrid), allocatable :: combinedGrid
 
     !< combine grid descriptors
     combinedGrid = (self % getGrid() + other % getGrid())
@@ -207,7 +207,7 @@ contains
     type(shr_gridDomain), intent(in) :: other
 
     class(shr_IgridMask), allocatable :: andEnabledMask, orBorderMask
-    class(shr_gGrid), allocatable :: grid
+    class(shr_igGrid), allocatable :: grid
 
     andEnabledMask = self % getEnabledGridMask() .or. other % getEnabledGridMask()
     orBorderMask = self % getBorderGridMask() .and. other % getBorderGridMask()
@@ -221,7 +221,7 @@ contains
     !< copy values from other to self
     class(shr_gridDomain), intent(inout) :: self
     class(shr_igridDomain), intent(in) :: other
-    class(shr_gGrid), allocatable :: grid
+    class(shr_igGrid), allocatable :: grid
     class(shr_IgridMask), allocatable :: enabled, border
 
     grid = other % getGrid()
@@ -239,7 +239,7 @@ contains
   function gridDomain_getGrid(self) result (grid)
     !< returns self shr_gridDescriptor
     class(shr_gridDomain), intent(in) :: self
-    class(shr_gGrid), allocatable :: grid
+    class(shr_igGrid), allocatable :: grid
     allocate(grid, source = self % grid)
   end function gridDomain_getGrid
 
@@ -269,7 +269,7 @@ contains
     class(shr_igridDomain), allocatable :: newGDomain
     class(shr_igridMask), allocatable :: newMaskBorders
     class(shr_igridMask), allocatable :: newMaskEnabled
-    class(shr_gGrid), allocatable :: newGrid
+    class(shr_igGrid), allocatable :: newGrid
 
     newMaskBorders = (self % maskBorder .and. newGMask)
     newMaskEnabled = (self % maskEnabled .and. newGMask)
@@ -284,7 +284,7 @@ contains
     !< Selects from 'self' a new shr_gridDomain 'newGMask'
     !< 'newGMask' must fit into the 'self'
     class(shr_gridDomain), intent(in) :: self
-    class(shr_gGrid), intent(in) :: newGrid
+    class(shr_igGrid), intent(in) :: newGrid
     class(shr_gridDomain), allocatable :: newGDomain !< output
     class(shr_igridMask), allocatable :: selectedBorder, selectedEnabled
     !type(string) :: tmp
@@ -333,7 +333,7 @@ contains
     !< - enabled mask: new mask cells set to false
     !< - border mask: new mask cells set to true
     class(shr_gridDomain), intent(in) :: self
-    class(shr_gGrid), intent(in) :: grid
+    class(shr_igGrid), intent(in) :: grid
 
     class(shr_IgridMask), allocatable :: expandedBorder, expandedEnabled
 

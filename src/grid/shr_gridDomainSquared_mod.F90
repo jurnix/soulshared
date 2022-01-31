@@ -17,7 +17,7 @@ module shr_gridDomainSquared_mod
 	use shr_gridDomain_mod, only: shr_gridDomain
 	use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
 	use shr_gridMask_mod, only: shr_igridMask, shr_gridMask
-	use shr_gGrid_mod, only: shr_gGrid
+	use shr_gGrid_mod, only: shr_igGrid
 
 	implicit none
 
@@ -35,7 +35,7 @@ contains
 	subroutine gridDomainSquared_initialize(self, grid, enabled)
 		!< initialize gridDomainSquared
 		class(shr_gridDomainSquared), intent(inout) :: self
-		class(shr_gGrid), intent(in) :: grid
+		class(shr_igGrid), intent(in) :: grid
 		class(shr_igridMask), intent(in) :: enabled
 
 		class(shr_igridMask), allocatable :: maskBounds
@@ -48,7 +48,7 @@ contains
 	type(shr_gridDomain) function toGridDomain(self) result (newGDomain)
 		!< converts from squared into grid domain
 		class(shr_gridDomainSquared), intent(in) :: self
-		class(shr_gGrid), allocatable :: grid
+		class(shr_igGrid), allocatable :: grid
 		class(shr_igridMask), allocatable :: gEnabledMask
 		class(shr_igridMask), allocatable :: gBorderMask
 
