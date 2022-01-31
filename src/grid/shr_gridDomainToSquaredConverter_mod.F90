@@ -31,7 +31,7 @@
 module shr_gridDomainToSquaredConverter_mod
 
 	use shr_error_mod, only: raiseError
-	use shr_gridDomain_mod, only: shr_gridDomain, shr_igridDomain
+	use shr_gridDomain_mod, only: shr_igridDomain
 	use shr_gridDomainSquared_mod, only: shr_gridDomainSquared
 	use shr_gridMask_mod, only: shr_igridMask, shr_gridMask_cast
 
@@ -44,7 +44,7 @@ module shr_gridDomainToSquaredConverter_mod
   implicit none
 
 	type :: shr_gridDomainToSquaredConverter
-    type(shr_gridDomain), allocatable :: domain
+    class(shr_iGridDomain), allocatable :: domain
 		type(shr_gridDomainSquared), allocatable :: squares(:)
 	contains
 		procedure :: init => gridDomainToSquaredConverter_initialize
@@ -63,7 +63,7 @@ contains
 	  !< initialize self
 	  !< domain is divided into multiple squared domains
 	  class(shr_gridDomainToSquaredConverter), intent(inout) :: self
-	  type(shr_gridDomain), intent(in) :: domain
+	  class(shr_igridDomain), intent(in) :: domain
 		class(shr_IGridMaskFindClustersMethod), intent(inout) :: clustersMethod
 
 		class(shr_igridMask), allocatable :: maskBounds

@@ -26,7 +26,7 @@ module shr_gridDomain_mod
 
   implicit none
 
-  public :: shr_gridDomain
+  public :: shr_gridDomain, shr_iGridDomain
 
   logical, parameter :: ISDEBUG = .false.
 
