@@ -10,72 +10,50 @@
 !>
 !> Converts shr_gridDomain into (multiple) shr_gridDomainSquared(s)
 !>
-!> Example:
-!>
-!> (gridDomain) 			found								gridDomainSquared
-!>
-!> - x x -					-> 1st - x x -  ->  x x
-!> x x - -					-> 2d  x x - -  ->  x x
-!> - - - -     ->
-!> x x x x					-> 3rd x x x x  ->  x x x x
-!> x x x x 								 x x x x 			x x x x
-!>
-!> gridDomainSquare include the correct gridDescriptor.
-!> They can be put into place in case those are combined.
-!>
-!> Such feature is useful when writing/reading netcdf data.
-!> Due to parallelism the grid is divided for each proc.
-!> This causes non regular grids. Consequently IO data must be written
-!> into chunks.
 !------------------------------------------------------------------------------
 module shr_gridDomainToSquaredConverter_mod
 
 	use shr_error_mod, only: raiseError
-	use shr_gridDomain_mod, only: shr_igridDomain
+	use shr_gridDomain_mod, only: shr_igridDomain, shr_gridDomain
 	use shr_gridDomainSquared_mod, only: shr_gridDomainSquared
-	use shr_gridMask_mod, only: shr_igridMask, shr_gridMask_cast
-
-	use shr_gridMaskFindClustersMethod_mod, only: shr_IGridMaskFindClustersMethod, shr_ObjTogridMaskClusters_cast
-	use shr_gridMaskFindClustersIterator_mod, only: shr_gridMaskFindClustersIterator
-
-	use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
+	use shr_gridMask_mod, only: shr_igridMask
 	use shr_gGrid_mod, only: shr_igGrid
+
 
   implicit none
 
+
 	type :: shr_gridDomainToSquaredConverter
-    class(shr_iGridDomain), allocatable :: domain
+    class(shr_iGridDomain), allocatable :: domains(:)
 		type(shr_gridDomainSquared), allocatable :: squares(:)
 	contains
 		procedure :: init => gridDomainToSquaredConverter_initialize
+		procedure, private :: convert
 		procedure, private :: isDomainSquared
-
-		procedure, private :: toSquaredDomain !< single
-		procedure, private :: toSquaredDomains !< many
-		generic :: convert => toSquaredDomain, toSquaredDomains
-
+		procedure, private :: toSingleSquaredDomain !< single
+		procedure, private :: toManySquaredDomains !< many
 		procedure :: get => getSquaredDomains
   end type shr_gridDomainToSquaredConverter
 
+
 contains
 
-  subroutine gridDomainToSquaredConverter_initialize(self, domain, clustersMethod)
+  subroutine gridDomainToSquaredConverter_initialize(self, domains)
 	  !< initialize self
 	  !< domain is divided into multiple squared domains
 	  class(shr_gridDomainToSquaredConverter), intent(inout) :: self
-	  class(shr_igridDomain), intent(in) :: domain
-		class(shr_IGridMaskFindClustersMethod), intent(inout) :: clustersMethod
+	  class(shr_igridDomain), intent(in) :: domains(:)
 
-		class(shr_igridMask), allocatable :: maskBounds
-
-	  allocate(self % domain, source = domain)
-
-		!< partition grid mask into multiple squared grid domains
-		maskBounds = self % domain % getBorderGridMask()
-		call clustersMethod % init(maskBounds)
-
-	  self % squares = self % toSquaredDomains(clustersMethod)
+		call self % convert(domains)
 	end subroutine gridDomainToSquaredConverter_initialize
+
+
+	subroutine convert(self, domains)
+		!< convert each domain to squared domain
+		class(shr_gridDomainToSquaredConverter), intent(inout) :: self
+		class(shr_igridDomain), intent(in) :: domains(:)
+		self % squares = self % toManySquaredDomains(domains)
+	end subroutine convert
 
 
 	logical function isDomainSquared(self, domain)
@@ -83,14 +61,14 @@ contains
 		class(shr_gridDomainToSquaredConverter), intent(in) :: self
 		class(shr_igridDomain), intent(in) :: domain
 		class(shr_igridMask), allocatable :: maskBounds
-		maskBounds = self % domain % getBorderGridMask()
+		maskBounds = domain % getBorderGridMask()
 		isDomainSquared = maskBounds % any()
 	end function isDomainSquared
 
 
-	function toSquaredDomain(self, domain) result (newDMSquared)
+	function toSingleSquaredDomain(self, domain) result (newDMSquared)
 	  !< 'domain' is transformed into shr_gridDomainSquared
-		!< 'domain' must be squared'
+		!< 'domain' must be squared' otherwise an error is raised
 		class(shr_gridDomainToSquaredConverter), intent(in) :: self
 		class(shr_igridDomain), intent(in) :: domain
 		type(shr_gridDomainSquared) :: newDMSquared !< output
@@ -99,57 +77,28 @@ contains
 		class(shr_igridMask), allocatable :: gMaskEnabled
 
 		if (.not. self % isDomainSquared(domain)) then
-			call raiseError(__FILE__, "toSquaredDomain", &
+			call raiseError(__FILE__, "toSingleSquaredDomain", &
 						"Given domain must be squared. But It is not!")
 		end if
 
 		grid = domain % getGrid()
 		gMaskEnabled = domain % getEnabledGridMask()
 		call newDMSquared % init(grid, gMaskEnabled)
-	end function toSquaredDomain
+	end function toSingleSquaredDomain
 
 
-	function toSquaredDomains(self, clustersMethod) result (sqDomains)
-		!< in case it is not squared:
-		!< -it returns multiple domains with squared property
-		!<  (the domain is partitioned into multiple squared grid domains)
-		!< otherwise it returns the new gridDomainSquared
-
+	function toManySquaredDomains(self, domains) result (newDMSquared)
+		!< convert multiple domains into gridDomainSquared
 		class(shr_gridDomainToSquaredConverter), intent(in) :: self
-		class(shr_IGridMaskFindClustersMethod), intent(in) :: clustersMethod
-		type(shr_gridDomainSquared), allocatable :: sqDomains(:) !< output
-
-		class(shr_igridDomain), allocatable :: subDomain
-		type(shr_gridMaskFindClustersIterator) :: clustersIterator
-		class(shr_igridMask), allocatable :: newGMaskClustered
-		class(*) , allocatable :: obj
-
-		integer :: ndomains, idomain
-		class(shr_igridMask), allocatable :: maskBounds
-		logical, allocatable :: mask2d(:,:)
-
-		if (self % isDomainSquared(self % domain)) then
-			allocate(sqDomains(1))
-			sqDomains = self % toSquaredDomain(self % domain)
-			return
-		end if
-
-		ndomains = clustersMethod % getSize()
-		allocate(sqDomains(ndomains))
-
-		call clustersIterator % init(clustersMethod)
-		idomain = 1
-		do while (clustersIterator % hasNext())
-		  obj = clustersIterator % getNext()
-			!< change type
-			call shr_gridMask_cast(obj, newGMaskClustered)
-			subDomain = self % domain % filter(newGMaskClustered)
-			sqDomains(idomain) = self % toSquaredDomain(subdomain)
-
-			idomain = idomain + 1
-		enddo
-
-	end function toSquaredDomains
+		class(shr_igridDomain), intent(in) :: domains(:)
+		type(shr_gridDomainSquared), allocatable :: newDMSquared(:) !< output
+		integer :: idom, ndoms
+		ndoms = size(domains)
+		allocate(newDMSquared(ndoms))
+		do idom = 1, ndoms
+			newDMSquared(idom) = self % toSingleSquaredDomain(domains(idom))
+		end do
+	end function toManySquaredDomains
 
 
 	function getSquaredDomains(self) result (sqDomains)
