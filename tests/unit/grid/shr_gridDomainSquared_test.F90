@@ -80,6 +80,9 @@ contains
     !< result
     call self % assert(expectedDomain == foundDomain, &
         "shr_gridDomainSquared(...) .eq. shr_gridDomain(...) = T")
+
+    call self % assert(sqdomain == sqdomain, &
+        "gridDomainSquared(...) .eq. gridDomainSquared(...) = T")
   end subroutine defineTestCases
 
 end module shr_gridDomainSquared_test

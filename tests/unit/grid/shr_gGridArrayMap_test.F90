@@ -239,7 +239,7 @@ contains
   subroutine testGetShape(self)
     !< == unit test
     class(testSuitegGridArrayMap), intent(inout) :: self
-    type(shr_gGridArrayMap) :: g, gother
+    type(shr_gGridArrayMap) :: g
     type(shr_gGridDescriptorFake) :: fakeGridDesc
     type(shr_gAxisMappingFakeLat) :: fakeLaxisLat
     type(shr_gAxisMappingFakeLon) :: fakeLonxisLon

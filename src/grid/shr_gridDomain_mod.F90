@@ -42,6 +42,9 @@ module shr_gridDomain_mod
 
     procedure(iface_copy), deferred :: copy
     generic :: assignment(=) => copy
+
+    procedure(iface_equal), deferred :: equal
+    generic :: operator(==) => equal
   end type shr_iGridDomain
 
   abstract interface
@@ -57,7 +60,7 @@ module shr_gridDomain_mod
       class(shr_igridMask), intent(in) :: border !< def: all enabled
     end subroutine iface_initialize
 
-    function iface_getGridMask(self) result (mask)
+    pure function iface_getGridMask(self) result (mask)
       import :: shr_igridDomain, shr_igridMask
       !< returns mask
       class(shr_igridDomain), intent(in) :: self
@@ -74,7 +77,7 @@ module shr_gridDomain_mod
       class(shr_igridDomain), allocatable :: newGDomain
     end function iface_filter
 
-    function iface_getGrid(self) result (grid)
+    pure function iface_getGrid(self) result (grid)
       import :: shr_igridDomain, shr_igGrid
       !< returns self shr_gridDescriptor
       class(shr_igridDomain), intent(in) :: self
@@ -87,6 +90,13 @@ module shr_gridDomain_mod
       class(shr_igridDomain), intent(inout) :: self
       class(shr_igridDomain), intent(in) :: other
     end subroutine iface_copy
+
+    elemental impure logical function iface_equal(self, other)
+      import :: shr_igridDomain
+      !< true if self and other have the same attributes
+      class(shr_igridDomain), intent(in) :: self
+      class(shr_igridDomain), intent(in) :: other
+    end function iface_equal
   end interface
 
 
@@ -114,8 +124,7 @@ module shr_gridDomain_mod
     procedure :: gridDomain_and
     generic :: operator(.and.) => gridDomain_and
 
-    procedure :: gridDomain_equal
-    generic :: operator(==) => gridDomain_equal
+    procedure :: equal => gridDomain_equal
 
     procedure :: expand
     procedure :: filter => gridDomain_filter
@@ -236,7 +245,7 @@ contains
   end subroutine gridDomain_copy
 
 
-  function gridDomain_getGrid(self) result (grid)
+  pure function gridDomain_getGrid(self) result (grid)
     !< returns self shr_gridDescriptor
     class(shr_gridDomain), intent(in) :: self
     class(shr_igGrid), allocatable :: grid
@@ -244,7 +253,7 @@ contains
   end function gridDomain_getGrid
 
 
-  function gridDomain_getEnabledGridMask(self) result (emask)
+  pure function gridDomain_getEnabledGridMask(self) result (emask)
     !< returns maskEnabled mask
     class(shr_gridDomain), intent(in) :: self
     class(shr_igridMask), allocatable :: emask !< output
@@ -252,7 +261,7 @@ contains
   end function gridDomain_getEnabledGridMask
 
 
-  function gridDomain_getBorderGridMask(self) result (bmask)
+  pure function gridDomain_getBorderGridMask(self) result (bmask)
     !< returns maskEnabled mask
     class(shr_gridDomain), intent(in) :: self
     class(shr_igridMask), allocatable :: bmask
@@ -307,15 +316,20 @@ contains
   end function select
 
 
-  logical function gridDomain_equal(self, other)
+  elemental impure logical function gridDomain_equal(self, other)
     !< true if self and other have the same attributes
     class(shr_gridDomain), intent(in) :: self
-    class(shr_gridDomain), intent(in) :: other
+    class(shr_igridDomain), intent(in) :: other
 
     logical :: hasSameGrid
     logical :: hasSameEnabledMask, hasSameBorderMask
     class(shr_IgridMask), allocatable :: tmpGMask
     type(string) :: tmp1, tmp
+
+    if (.not. same_type_as(self, other)) then
+      gridDomain_equal = .false.
+      return
+    end if
 
     hasSameGrid = (self % grid == other % getGrid())
     hasSameEnabledMask = (self % maskEnabled == other % getEnabledGridMask())
