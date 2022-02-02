@@ -14,6 +14,7 @@
 module shr_gridDomainToSquaredConverter_mod
 
 	use shr_error_mod, only: raiseError
+	use shr_strings_mod, only: string
 	use shr_gridDomain_mod, only: shr_igridDomain, shr_gridDomain
 	use shr_gridDomainSquared_mod, only: shr_gridDomainSquared
 	use shr_gridMask_mod, only: shr_igridMask
@@ -62,7 +63,7 @@ contains
 		class(shr_igridDomain), intent(in) :: domain
 		class(shr_igridMask), allocatable :: maskBounds
 		maskBounds = domain % getBorderGridMask()
-		isDomainSquared = maskBounds % any()
+		isDomainSquared = (.not. maskBounds % any())
 	end function isDomainSquared
 
 
@@ -75,8 +76,14 @@ contains
 
 		class(shr_igGrid), allocatable :: grid
 		class(shr_igridMask), allocatable :: gMaskEnabled
+		clasS(shr_igridMask), allocatable :: maskBounds
+		type(string), allocatable :: tmp
 
 		if (.not. self % isDomainSquared(domain)) then
+			maskBounds = domain % getBorderGridMask()
+			allocate(tmp)
+			tmp = maskBounds % toString()
+			write(*,*) "border mask found =", tmp % toString()
 			call raiseError(__FILE__, "toSingleSquaredDomain", &
 						"Given domain must be squared. But It is not!")
 		end if
@@ -104,13 +111,13 @@ contains
 	function getSquaredDomains(self) result (sqDomains)
 		!< it returns the squared domains
 		class(shr_gridDomainToSquaredConverter), intent(in) :: self
-		type(shr_gridDomainSquared), allocatable :: sqDomains(:)
+		class(shr_gridDomainSquared), allocatable :: sqDomains(:)
 		integer :: idom, ndoms
 		!< deep copy
 		ndoms = size(self % squares)
 		allocate(sqDomains(ndoms))
 		do idom = 1, ndoms
-			allocate(sqDomains(idom), source = self % squares(idom))
+			sqDomains(idom) = self % squares(idom)
 		end do
 	end function getSquaredDomains
 
