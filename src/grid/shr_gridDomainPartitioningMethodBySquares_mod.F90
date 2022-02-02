@@ -44,9 +44,12 @@ module shr_gridDomainPartitioningMethodBySquares_mod
 
   implicit none
 
-  public :: shr_gridDomainPartitioningMethodBySquares
+  public :: shr_gridDomainPartitioningMethodBySquares, GRID_DOMAIN_PARTITION_SQUARED
 
   logical, parameter :: ISDEBUG = .false.
+
+  character(*), parameter :: GRID_DOMAIN_PARTITION_SQUARED = "squared"
+
 
 
   type, extends(shr_gridDomainPartitioningMethod) :: shr_gridDomainPartitioningMethodBySquares
@@ -58,6 +61,7 @@ module shr_gridDomainPartitioningMethodBySquares_mod
     procedure :: init
     procedure :: calculate
     procedure, private :: calculate_clusters
+    procedure :: get
   end type shr_gridDomainPartitioningMethodBySquares
 
 contains
@@ -68,7 +72,6 @@ contains
     class(shr_iGridDomain), intent(in) :: domain
     allocate(self % domain, source = domain)
     allocate(shr_gridMaskSimpleSquaresFindClustersMethod :: self % squaredPartitioning)
-
     call self % calculate()
   end subroutine init
 
@@ -76,7 +79,6 @@ contains
   subroutine calculate(self)
     !< compute partitions
     class(shr_gridDomainPartitioningMethodBySquares), intent(inout) :: self
-
     self % newDomains = self % calculate_clusters(self % squaredPartitioning)
   end subroutine calculate
 
@@ -95,8 +97,6 @@ contains
     class(*) , allocatable :: obj
 
     integer :: ndomains, idomain
-    class(shr_igridMask), allocatable :: maskBounds
-    logical, allocatable :: mask2d(:,:)
 
     ndomains = clustersMethod % getSize()
     allocate(shr_gridDomain :: gDomains(ndomains))
@@ -113,6 +113,14 @@ contains
     enddo
 
   end function calculate_clusters
+
+
+  function get(self) result (newDomains)
+    !< it returns partitioned domains
+    class(shr_gridDomainPartitioningMethodBySquares), intent(in) :: self
+    class(shr_igridDomain), allocatable :: newDomains(:) !< output
+    allocate(newDomains, source = self % newDomains)
+  end function get
 
 end module shr_gridDomainPartitioningMethodBySquares_mod
 
