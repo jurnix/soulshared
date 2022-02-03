@@ -8,7 +8,8 @@
 !
 ! DESCRIPTION:
 !>
-!>
+!> Abstract class to handle a method to split a shr_gridDomain into
+!> several parts
 !> 
 !------------------------------------------------------------------------------
 module shr_gridDomainPartitioningMethod_abs
@@ -34,17 +35,17 @@ module shr_gridDomainPartitioningMethod_abs
 
   abstract interface
 
-    subroutine iface_init(self, domain)
-      import :: shr_gridDomainPartitioningMethod, shr_iGridDomain
+    subroutine iface_init(self)
+      import :: shr_gridDomainPartitioningMethod
       !< initialize
       class(shr_gridDomainPartitioningMethod), intent(inout) :: self
-      class(shr_iGridDomain), intent(in) :: domain
     end subroutine iface_init
 
-    subroutine iface_calculate(self)
-      import :: shr_gridDomainPartitioningMethod
+    subroutine iface_calculate(self, domain)
+      import :: shr_gridDomainPartitioningMethod, shr_iGridDomain
       !< compute partitions
       class(shr_gridDomainPartitioningMethod), intent(inout) :: self
+      class(shr_iGridDomain), intent(in) :: domain
     end subroutine iface_calculate
 
     function iface_get(self) result (newDomains)

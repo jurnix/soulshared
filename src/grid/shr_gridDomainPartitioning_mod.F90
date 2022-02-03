@@ -46,16 +46,11 @@ contains
     !< initializa partitioning
     class(shr_gridDomainPartitioning), intent(inout) :: self
     class(shr_igridDomain), intent(in) :: gdomain
-    type(string), intent(in) :: method
+    class(shr_gridDomainPartitioningMethod), intent(in) :: method
 
-    if (method == GRID_DOMAIN_PARTITION_SQUARED) then
-      allocate(shr_gridDomainPartitioningMethodBySquares :: self % partitionMethod)
-    else
-      call raiseError(__FILE__, "init", &
-          "Partitioning method not found")
-    end if
-    call self % partitionMethod % init(gdomain)
-    call self % partitionMethod % calculate()
+    allocate(self % partitionMethod, source = method)
+    call self % partitionMethod % calculate(gdomain)
+    allocate(self % domains, source = self % partitionMethod % get())
   end subroutine init
 
 
@@ -63,7 +58,7 @@ contains
     !< get domains found after partition
     class(shr_gridDomainPartitioning), intent(in) :: self
     class(shr_igridDomain), allocatable :: gdomains(:) !< output
-    allocate(gdomains, source = self % partitionMethod % get())
+    allocate(gdomains, source = self % domains)
   end function getDomains
 
 end module shr_gridDomainPartitioning_mod

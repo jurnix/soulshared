@@ -66,19 +66,18 @@ module shr_gridDomainPartitioningMethodBySquares_mod
 
 contains
 
-  subroutine init(self, domain)
+  subroutine init(self)
     !< initialize
     class(shr_gridDomainPartitioningMethodBySquares), intent(inout) :: self
-    class(shr_iGridDomain), intent(in) :: domain
-    allocate(self % domain, source = domain)
     allocate(shr_gridMaskSimpleSquaresFindClustersMethod :: self % squaredPartitioning)
-    call self % calculate()
   end subroutine init
 
 
-  subroutine calculate(self)
+  subroutine calculate(self, domain)
     !< compute partitions
     class(shr_gridDomainPartitioningMethodBySquares), intent(inout) :: self
+    class(shr_iGridDomain), intent(in) :: domain
+    allocate(self % domain, source = domain)
     self % newDomains = self % calculate_clusters(self % squaredPartitioning)
   end subroutine calculate
 
