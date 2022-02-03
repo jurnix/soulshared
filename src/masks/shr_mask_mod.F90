@@ -55,6 +55,7 @@ module shr_mask_mod
 		procedure :: set => mask2d_set
 		procedure :: filter => mask2d_filter !< new mask with selected indices
 		procedure :: toString => mask2d_toString
+		procedure :: count => mask2d_count
 
 		procedure :: mask2d_eq
 		generic :: operator(==) => mask2d_eq
@@ -327,7 +328,7 @@ contains
 
 
 	type(string) function mask2d_toString(self) result (s)
-		!<
+		!< string representation of shr_mask2d
 		class(shr_mask2d), intent(in) :: self
 		integer :: irow, nRows
 		character(200) :: tmpStr
@@ -338,5 +339,12 @@ contains
 			s = s + "'" + trim(adjustl(tmpStr)) + "'" + new_line('A')
 		end do
 	end function mask2d_toString
+
+
+	integer function mask2d_count(self) result (c)
+		!< count how many true cells found
+		class(shr_mask2d), intent(in) :: self
+		c = count(self % lmask)
+	end function mask2d_count
 
 end module shr_mask_mod

@@ -176,6 +176,12 @@ contains
     rmask(2,:) = [.false., .true., .false.]
     call m1 % init(rmask)
     call self % assert(.not. m2 == m1 , "m2 .eq. m1 = F" )
+
+    !< count
+    rmask(1,:) = [.true., .false., .true.]
+    rmask(2,:) = [.false., .false., .false.]
+    call m2 % init(rmask)
+    call self % assert( m2 % count() == 2 , "m2 % count(TFTFFF) .eq. 2 = T" )
   end subroutine testMask2d
 
 
