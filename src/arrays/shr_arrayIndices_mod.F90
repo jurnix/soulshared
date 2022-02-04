@@ -20,8 +20,18 @@ module shr_arrayIndices_mod
 
   private
 
-  public :: shr_arrayIndices
+  public :: shr_arrayIndices, shr_arrayGridcellIndex
 
+  !< describes the indices of a gridcell
+  type shr_arrayGridcellIndex
+    integer :: row, col
+  contains
+    procedure :: arrayGridcellIndex_equal
+    procedure :: arrayGridcellIndex_equal_byArray
+    generic :: operator(==) => arrayGridcellIndex_equal, arrayGridcellIndex_equal_byArray
+  end type
+
+  !< describes several indices from the same axis
   type shr_arrayAxisIndices
     integer :: start
     integer :: end
@@ -35,6 +45,7 @@ module shr_arrayIndices_mod
   end type shr_arrayAxisIndices
 
 
+  !< describes a region of a grid
   type shr_arrayIndices
     type(shr_arrayAxisIndices), allocatable :: cols, rows
   contains
@@ -113,5 +124,29 @@ contains
     class(shr_arrayIndices), intent(in) :: self
     getRows = self % rows
   end function getRows
+
+
+  elemental logical function arrayGridcellIndex_equal(self, other)
+    !< true if 'self' and 'other' have the same attributes
+    class(shr_arrayGridcellIndex), intent(in) :: self
+    class(shr_arrayGridcellIndex), intent(in) :: other
+    logical :: hasSameRow, hasSameCol
+    hasSameRow = (self % row == other % row)
+    hasSameCol = (self % col == other % col)
+    arrayGridcellIndex_equal = (hasSameRow .and. hasSameCol)
+  end function arrayGridcellIndex_equal
+
+
+  logical function arrayGridcellIndex_equal_byArray(self, other)
+    !< true if 'self' and 'other' have the same attributes
+    class(shr_arrayGridcellIndex), intent(in) :: self
+    integer, intent(in) :: other(2) !< row, col
+    integer, parameter :: ROW_IDX = 1
+    integer, parameter :: COL_IDX = 2
+    logical :: hasSameRow, hasSameCol
+    hasSameRow = (self % row == other(ROW_IDX))
+    hasSameCol = (self % col == other(COL_IDX))
+    arrayGridcellIndex_equal_byArray = (hasSameRow .and. hasSameCol)
+  end function arrayGridcellIndex_equal_byArray
 
 end module shr_arrayIndices_mod
