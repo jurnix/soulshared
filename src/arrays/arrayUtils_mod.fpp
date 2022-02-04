@@ -29,7 +29,8 @@ module SHR_arrayUtils_mod
 
   public :: trimArrayIndex
 
-  public :: closestNumber2Index, PREFER_FIRST, PREFER_LAST, unique, initArrayRange, shr_arrayCalculatorIndices
+  public :: closestNumber2Index, PREFER_FIRST, PREFER_LAST, unique, initArrayRange
+  public :: shr_arrayCalculatorIndices
 
 
   integer, parameter :: PREFER_FIRST = 1
