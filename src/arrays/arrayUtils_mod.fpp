@@ -21,6 +21,7 @@ module SHR_arrayUtils_mod
   use SHR_precision_mod, only: sp, dp, eqReal
   use SHR_error_mod, only: raiseError 
   use SHR_strings_mod, only: string
+  use shr_arrayIndices_mod, only: shr_arrayGridcellIndex
 
   implicit none
 
@@ -28,7 +29,7 @@ module SHR_arrayUtils_mod
 
   public :: trimArrayIndex
 
-  public :: closestNumber2Index, PREFER_FIRST, PREFER_LAST, unique, initArrayRange
+  public :: closestNumber2Index, PREFER_FIRST, PREFER_LAST, unique, initArrayRange, shr_arrayCalculatorIndices
 
 
   integer, parameter :: PREFER_FIRST = 1
@@ -233,5 +234,46 @@ contains
       endif
     enddo
   end function trimArrayIndex
+
+
+  function shr_arrayCalculatorIndices(dim1, dim2, gindex) result (arrayIndices)
+    !< it calculates the corresponding indices for a 2d array from a unique value 'gloIndex'
+    !< - Unique value is a global index starting from top-left down to the bottom-right
+    !< - gloindex is a value in-between 1 to dim1*dim2
+    !<
+    !<
+    !< arrayCalculatorIndices(3,4,7)
+    !< dim1 = 3, dim2 = 4
+    !< x x x x -> 7 (2,3) =>  7-1/4 = 1, 7-1 mod 4 = 2 =>
+    !< x x x x -> 11 (3,3) => 11-1/4 = 2, 11 mod 4 = 2 =>
+    !< x x x x -> 1 (1,1) => 1-1/4 = 0, 1-1 mod 4 = 0 =>
+    !<						12 (3,4) => 12-1/4 = 2, 12-1 mod 4 = 3 =>
+    !<
+    !< Mapped indices:
+    !<
+    !< 1  2  3  4
+    !< 5  6  7  8
+    !< 9 10 11 12
+    !<
+    integer, intent(in) :: dim1, dim2 !< array dimensions
+    integer, intent(in) :: gindex !< global index
+    type(shr_arrayGridcellIndex) :: arrayIndices !< dim1, dim2
+    integer :: ncells
+
+    ncells = dim1 * dim2
+
+    if (gindex < 0) then
+      call raiseError(__FILE__, "arrayCalculatorIndices", &
+          "Given 'gindex' is outside bounds (<0)")
+    endif
+
+    if (gindex > ncells) then
+      call raiseError(__FILE__, "arrayCalculatorIndices", &
+      "Given 'gindex' is outside bounds (> dim1 * dim2)")
+    endif
+
+    arrayIndices % row = int((gindex - 1) / dim2) + 1
+    arrayIndices % col = mod((gindex - 1), dim2) + 1
+  end function shr_arrayCalculatorIndices
 
 end module SHR_arrayUtils_mod
