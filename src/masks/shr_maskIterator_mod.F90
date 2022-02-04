@@ -14,8 +14,9 @@
 module shr_maskIterator_mod
 
 	use shr_error_mod, only: raiseError
-	use shr_mask_mod, only: shr_mask2d
+	use shr_mask_mod, only: shr_imask2d
 	use shr_iterator_mod, only: shr_iterator_abs
+	use shr_logical_mod, only: shr_logical_cast
 	use shr_arrayUtils_mod, only: shr_arrayCalculatorIndices
 	use shr_arrayIndices_mod, only: shr_arrayGridcellIndex
 
@@ -24,12 +25,13 @@ module shr_maskIterator_mod
 	public :: shr_maskIterator
 
 	type, extends(shr_iterator_abs) :: shr_maskIterator
-		type(shr_mask2d), allocatable :: mask
+		class(shr_imask2d), allocatable :: mask
 		integer :: icounter = 0
 	contains
 		procedure :: init
 		procedure :: hasNext
 		procedure :: getNext
+		procedure :: getLogicalNext
 	end type shr_maskIterator
 
 contains
@@ -37,7 +39,7 @@ contains
 	subroutine init(self, mask)
 		!< initialization
 		class(shr_maskIterator), intent(inout) :: self
-		type(shr_mask2d), intent(in) :: mask
+		class(shr_imask2d), intent(in) :: mask
 		allocate(self % mask, source = mask)
 		self % icounter = 0
 	end subroutine init
@@ -80,5 +82,14 @@ contains
 		!< move next
 		self % icounter = self % icounter + 1
 	end function getNext
+
+
+	logical function getLogicalNext(self) result (l)
+		!< wrapper of getNext with expected output type (logical)
+		class(shr_maskIterator), intent(inout) :: self
+		class(*), allocatable :: obj
+		obj = self % getNext()
+		l = shr_logical_cast(obj)
+	end function getLogicalNext
 
 end module shr_maskIterator_mod
