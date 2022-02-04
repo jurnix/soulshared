@@ -16,6 +16,7 @@ module shr_mask_mod
 	use shr_error_mod, only: raiseError
 	use shr_strings_mod, only: string
 	use shr_maskIndices_mod, only: shr_maskIndices_1d, shr_maskIndices_2d
+	use shr_arrayIndices_mod, only: shr_arrayGridcellIndex
 
 	implicit none
 
@@ -49,9 +50,12 @@ module shr_mask_mod
 		procedure :: mask2d_initialize_bySize!(4)
 		procedure :: mask2d_initialize_byArray!(4)
 		generic :: init =>  mask2d_initialize_bySize, mask2d_initialize_byArray
+		procedure :: getShape => mask2d_getShape
 		procedure :: getSize => mask2d_getSize
 
-		procedure :: get => mask2d_get
+		procedure :: mask2d_get_byGridcellIndex
+		procedure :: mask2d_get
+		generic :: get => mask2d_get_byGridcellIndex, mask2d_get
 		procedure :: set => mask2d_set
 		procedure :: filter => mask2d_filter !< new mask with selected indices
 		procedure :: toString => mask2d_toString
@@ -163,6 +167,18 @@ contains
 	end subroutine mask1d_set
 
 
+	function mask2d_get_byGridcellIndex(self, arrayGridcellIndex) result (l)
+		!< gets unique value requested by
+		class(shr_mask2d), intent(in) :: self
+		type(shr_arrayGridcellIndex) :: arrayGridcellIndex
+		logical :: l !< output
+		integer :: col, row
+		row = arrayGridcellIndex % row
+		col = arrayGridcellIndex % col
+		l = self % lmask(row, col)
+	end function mask2d_get_byGridcellIndex
+
+
 	function mask2d_get(self, mIndices) result (m)
 		!< returns internal mask
 		class(shr_mask2d), intent(in) :: self
@@ -185,7 +201,7 @@ contains
 			inColStart = colIdx % start
 			inColEnd = colIdx % end
 		else
-			sh = self % getSize()
+			sh = self % getShape()
 			inColEnd = sh(COL_SHAPE_INDEX)
 			inRowEnd = sh(ROW_SHAPE_INDEX)
 		end if
@@ -237,7 +253,7 @@ contains
 			inColStart = colIdx % start
 			inColEnd = colIdx % end
 		else
-			sh = self % getSize()
+			sh = self % getShape()
 			inColEnd = sh(COL_SHAPE_INDEX)
 			inRowEnd = sh(ROW_SHAPE_INDEX)
 		end if
@@ -295,18 +311,25 @@ contains
 		inColEnd = colIdx % end
 
 		!< initialize output with same size as lmask
-		sz = self % getSize()
+		sz = self % getShape()
 		call m % init(sz(ROW_SHAPE_INDEX), sz(COL_SHAPE_INDEX), default = .false.)
 		!< copy values
 		m % lmask(inRowStart:inRowEnd, inColStart:inColEnd) = tmp
 	end function mask2d_filter
 
 
-	function mask2d_getSize(self) result (s)
+	function mask2d_getShape(self) result (s)
 		!< get 'mask' shape
 		class(shr_mask2d), intent(in) :: self
-		integer, allocatable :: s(:) !< row=1, col=2
+		integer :: s(2) !< row=1, col=2
 		s = shape(self % lmask)
+	end function mask2d_getShape
+
+
+	integer function mask2d_getSize(self) result (s)
+		!< gets lmask size
+		class(shr_mask2d), intent(in) :: self
+		s = size(self % lmask)
 	end function mask2d_getSize
 
 

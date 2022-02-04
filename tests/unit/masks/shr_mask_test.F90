@@ -104,7 +104,7 @@ contains
     rmask(1,:) = [.true., .true., .true.]
     rmask(2,:) = [.false., .false., .false.]
     call m2 % init(rmask)
-    call self % assert(all(m2 % getSize() == [2,3]), &
+    call self % assert(all(m2 % getShape() == [2,3]), &
           "m2 % getSize() .eq. (2,3) = T" )
 
 
