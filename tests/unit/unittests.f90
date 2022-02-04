@@ -36,6 +36,7 @@ program unittest
   use arrayRsp_test, only: testSuiteArrayRsp
   use shr_arrayGridFullRsp_test, only: testSuiteArrayGridFullRsp
   use shr_arrayContainerAllocatable_test, only: testSuiteArrayContainerAllocatable
+  use shr_arrayIndices_test, only: testSuiteArrayIndices
 
   ! grid related
   use shr_grid_test, only: testSuiteGrid
@@ -85,6 +86,8 @@ program unittest
   type(testSuiteArrayRsp) :: tsArrayRsp
   type(testSuiteArrayGridFullRsp) :: tsArrayGridFullRsp
   type(testSuiteArrayContainerAllocatable) :: tsArrayContainerAllocatable
+  type(testSuiteArrayIndices) :: tsArrayIndices
+
   type(testSuiteGrid) :: tsGrid
   type(testSuiteGridPartition) :: tsGridPartition
   type(testSuiteGridCell) :: tsGridcell
@@ -130,6 +133,7 @@ program unittest
   call tsArrayRsp % init("ArrayRsp test", 20)
   call tsArrayGridFullRsp % init("ArrayGridFullRsp test", 20)
   call tsArrayContainerAllocatable % init("ArrayContainerAllocatable test", 20)
+  call tsArrayIndices % init("tsArrayIndices test", 10)
 
   call tsGrid % init("Grid test", 40)
   call tsGridPartition % init("Grid partition test", 20)
@@ -176,7 +180,9 @@ program unittest
   call tsArrayRealDim % run() 
   call tsArrayContainerAllocatable % run() 
   call tsArrayRsp % run() 
-  call tsArrayGridFullRsp % run() 
+  call tsArrayGridFullRsp % run()
+  call tsArrayIndices % run()
+
   call tsGrid % run() 
   call tsGridPartition % run() 
   call tsGridCell % run() 
@@ -222,7 +228,9 @@ program unittest
   call tsArrayRealDim % report() 
   call tsArrayContainerAllocatable % report() 
   call tsArrayRsp % report() 
-  call tsArrayGridFullRsp % report() 
+  call tsArrayGridFullRsp % report()
+  call tsArrayIndices % report()
+
   call tsGrid % report() 
   call tsGridPartition % report() 
   call tsGridcell % report() 
@@ -263,10 +271,13 @@ program unittest
       .not. tsMask % isSuccessful() .or. &
       .not. tsMaskIndices % isSuccessful() .or. &
       .not. tsMaskClusters % isSuccessful() .or. &
+
       .not. tsArrayRealDim % isSuccessful() .or. &
       .not. tsArrayContainerAllocatable % isSuccessful() .or. &
       .not. tsArrayRsp % isSuccessful() .or. &
       .not. tsArrayGridFullRsp % isSuccessful() .or. &
+      .not. tsArrayIndices % isSuccessful() .or. &
+
       .not. tsGrid % isSuccessful() .or. &
       .not. tsGridPartition % isSuccessful() .or. &
       .not. tsGridcell % isSuccessful() .or. &
