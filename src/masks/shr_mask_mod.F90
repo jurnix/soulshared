@@ -20,6 +20,7 @@ module shr_mask_mod
 
 	implicit none
 
+	public :: shr_imask2d
 	public :: shr_mask1d, shr_mask2d
 
 
@@ -44,7 +45,58 @@ module shr_mask_mod
 	end type shr_mask1d
 
 
-	type :: shr_mask2d
+	type, abstract :: shr_imask2d
+	contains
+		procedure(iface_getShape), deferred :: getShape
+		procedure(iface_getSize), deferred :: getSize
+
+		procedure(iface_get_byGridcellIndex), deferred :: getByGridcellIndex
+		procedure(iface_get_maskIndices), deferred :: getByMaskIndices
+		procedure(iface_get_simple), deferred :: getSimple
+		generic :: get => getByGridcellIndex, getByMaskIndices, getSimple
+	end type shr_imask2d
+
+
+	abstract interface
+		function iface_getShape(self) result (s)
+			import :: shr_imask2d
+			!< get 'mask' shape
+			class(shr_imask2d), intent(in) :: self
+			integer :: s(2) !< row=1, col=2
+		end function iface_getShape
+
+		integer function iface_getSize(self) result (s)
+			import :: shr_imask2d
+			!< gets lmask size
+			class(shr_imask2d), intent(in) :: self
+		end function iface_getSize
+
+		function iface_get_byGridcellIndex(self, arrayGridcellIndex) result (l)
+			import :: shr_imask2d, shr_arrayGridcellIndex
+			!< gets unique value requested by
+			class(shr_imask2d), intent(in) :: self
+			type(shr_arrayGridcellIndex) :: arrayGridcellIndex
+			logical :: l !< output
+		end function iface_get_byGridcellIndex
+
+		function iface_get_maskIndices(self, mIndices) result (m)
+			import :: shr_imask2d, shr_maskIndices_2d
+			!< returns internal mask
+			class(shr_imask2d), intent(in) :: self
+			type(shr_maskIndices_2d), intent(in) :: mIndices
+			logical, allocatable :: m(:,:) !< output
+		end function iface_get_maskIndices
+
+		function iface_get_simple(self) result (m)
+			import :: shr_imask2d
+			!< returns internal mask
+			class(shr_imask2d), intent(in) :: self
+			logical, allocatable :: m(:,:) !< output
+		end function iface_get_simple
+	end interface
+
+
+	type, extends(shr_imask2d) :: shr_mask2d
 		logical, allocatable :: lmask(:,:)
 	contains
 		procedure :: mask2d_initialize_bySize!(4)
@@ -53,9 +105,10 @@ module shr_mask_mod
 		procedure :: getShape => mask2d_getShape
 		procedure :: getSize => mask2d_getSize
 
-		procedure :: mask2d_get_byGridcellIndex
-		procedure :: mask2d_get
-		generic :: get => mask2d_get_byGridcellIndex, mask2d_get
+		procedure :: getByGridcellIndex => mask2d_get_byGridcellIndex
+		procedure :: getByMaskIndices => mask2d_get_maskIndices
+		procedure :: getSimple => mask2d_get_simple
+
 		procedure :: set => mask2d_set
 		procedure :: filter => mask2d_filter !< new mask with selected indices
 		procedure :: toString => mask2d_toString
@@ -179,10 +232,9 @@ contains
 	end function mask2d_get_byGridcellIndex
 
 
-	function mask2d_get(self, mIndices) result (m)
+	function mask2d_get_simple(self) result (m)
 		!< returns internal mask
 		class(shr_mask2d), intent(in) :: self
-		type(shr_maskIndices_2d), intent(in), optional :: mIndices
 		logical, allocatable :: m(:,:) !< output
 
 		integer :: inColStart, inColEnd
@@ -190,21 +242,13 @@ contains
 		type(shr_maskIndices_1d) :: colIdx, rowIdx
 		integer :: colSize, rowSize
 		integer, allocatable :: sh(:)
+
 		inColStart = 1
 		inRowStart = 1
+		sh = self % getShape()
+		inColEnd = sh(COL_SHAPE_INDEX)
+		inRowEnd = sh(ROW_SHAPE_INDEX)
 
-		if (present(mIndices)) then
-			colIdx = mIndices % getCol()
-			rowIdx = mIndices % getRow()
-			inRowStart = rowIdx % start
-			inRowEnd = rowIdx % end
-			inColStart = colIdx % start
-			inColEnd = colIdx % end
-		else
-			sh = self % getShape()
-			inColEnd = sh(COL_SHAPE_INDEX)
-			inRowEnd = sh(ROW_SHAPE_INDEX)
-		end if
 		colSize = inColEnd - inColStart + 1
 		rowSize = inRowEnd - inRowStart + 1
 		allocate(m(rowSize, colSize))
@@ -214,7 +258,38 @@ contains
 		!write(*,*) "mask2d_get:: self % lmask shape? ", shape(self % lmask)
 		!write(*,*) "mask2d_get:: m shape? ", shape(m)
 		m = self % lmask(inRowStart:inRowEnd, inColStart:inColEnd)
-	end function mask2d_get
+	end function mask2d_get_simple
+
+
+	function mask2d_get_maskIndices(self, mIndices) result (m)
+		!< returns internal mask
+		class(shr_mask2d), intent(in) :: self
+		type(shr_maskIndices_2d), intent(in) :: mIndices
+		logical, allocatable :: m(:,:) !< output
+
+		integer :: inColStart, inColEnd
+		integer :: inRowStart, inRowEnd
+		type(shr_maskIndices_1d) :: colIdx, rowIdx
+		integer :: colSize, rowSize
+		integer, allocatable :: sh(:)
+
+		colIdx = mIndices % getCol()
+		rowIdx = mIndices % getRow()
+		inRowStart = rowIdx % start
+		inRowEnd = rowIdx % end
+		inColStart = colIdx % start
+		inColEnd = colIdx % end
+
+		colSize = inColEnd - inColStart + 1
+		rowSize = inRowEnd - inRowStart + 1
+		allocate(m(rowSize, colSize))
+		!write(*,*) "mask2d_get:: rowSize, colSize = ", rowSize, colSize
+		!write(*,*) "mask2d_get:: row = ", inRowStart, inRowEnd
+		!write(*,*) "mask2d_get:: col = ", inColStart, inColEnd
+		!write(*,*) "mask2d_get:: self % lmask shape? ", shape(self % lmask)
+		!write(*,*) "mask2d_get:: m shape? ", shape(m)
+		m = self % lmask(inRowStart:inRowEnd, inColStart:inColEnd)
+	end function mask2d_get_maskIndices
 
 
 	subroutine mask2d_set(self, rmask, mIndices)
