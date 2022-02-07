@@ -9,6 +9,47 @@
 ! DESCRIPTION:
 !>
 !> shr_gridDomain is partitioned into the same number of consecutive gridcells
+!> x x x x (3)
+!> x x x x --->  4x4 positions to divide into 3
+!> x x x x
+!> x x x x
+!> 
+!> 1st
+!> x x x x
+!> x b b b
+!> 
+!> 2nd
+!> b x x x
+!> x x b b
+!> 
+!> 3rd
+!> 
+!> b b x x
+!> x x x x
+!> 
+!> ---------------------------------------------------------------------
+!> 
+!> x x x x (3)
+!> x - x x --->  14 positions to divide into 3
+!> x x - x
+!> x x x x
+!> 
+!> 
+!> gridDomain
+!> 1st
+!> 
+!> 
+!> x x x x   -> gridmask	(x x x x)
+!> 
+!> 2nd
+!> 
+!> x - x x   -> gridmask	(x - x x)
+!> x x b b		(x x    )
+!> 
+!> 3rd
+!> 
+!> b b - x   -> gridmask	(    - x)
+!> x x x x		(x x x x)
 !>
 !>
 !------------------------------------------------------------------------------
@@ -49,6 +90,8 @@ contains
   subroutine init(self, current, total)
     !< initialize with custom arguments
     class(shr_gridDomainPartitioningMethodBySameNumberOfGridcells), intent(inout) :: self
+    integer, intent(in) :: current, total
+
     allocate(self % current, self % total)
     self % current = current
     self % total = total
@@ -59,9 +102,12 @@ contains
     !< compute partitions
     class(shr_gridDomainPartitioningMethodBySameNumberOfGridcells), intent(inout) :: self
     class(shr_iGridDomain), intent(in) :: domain
+    class(shr_IgridMask), allocatable :: emask
     allocate(self % gdomain, source = domain)
 
-    !nenabled = domain % countEnabledGridcells()
+    !emask = self % gdomain % getEnabledGridMask()
+    !call gridMaskSplit % init(emask, method=equal)
+    !call gridMaskSplit % calculate()
 
   end subroutine calculate
 
