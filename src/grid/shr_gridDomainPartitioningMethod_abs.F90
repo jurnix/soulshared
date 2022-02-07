@@ -28,18 +28,11 @@ module shr_gridDomainPartitioningMethod_abs
 
   type, abstract :: shr_gridDomainPartitioningMethod
   contains
-    procedure(iface_init), deferred :: init
     procedure(iface_calculate), deferred :: calculate
     procedure(iface_get), deferred :: get
   end type shr_gridDomainPartitioningMethod
 
   abstract interface
-
-    subroutine iface_init(self)
-      import :: shr_gridDomainPartitioningMethod
-      !< initialize
-      class(shr_gridDomainPartitioningMethod), intent(inout) :: self
-    end subroutine iface_init
 
     subroutine iface_calculate(self, domain)
       import :: shr_gridDomainPartitioningMethod, shr_iGridDomain
