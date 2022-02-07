@@ -47,6 +47,15 @@ contains
     type(string), intent(in) :: type
     type(shr_gridPartition), intent(in) :: partitions
 
+    ! structure
+    !type(shr_gridDomain) :: gloDomain
+    !type(shr_gridDomainPartitioning) :: gdPartitioning
+
+!    gloDomain = gridDomainFactory(resolution, bounds, type)
+
+!    call partitionMethod % init(current, total)
+!    call gdPartitioning % init(gloDomain, method=partitionMethod same Number of gridcells)
+!    self % domains = gdPartitioning % get()
   end subroutine init
 
 end module shr_soulsharedGrid_mod
