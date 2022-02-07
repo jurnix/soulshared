@@ -18,7 +18,7 @@ module shr_maskSplit_mod
 	use shr_strings_mod, only: string
 
 	use shr_mask_mod, only: shr_mask2d
-	!use shr_maskIndices_mod, only: shr_maskIndices_1d, shr_maskIndices_2d
+	use shr_maskIterator_mod, only: shr_maskIterator
 
 
 	implicit none
@@ -56,16 +56,18 @@ contains
 	subroutine calculate(self)
 		!< Computes all parts
 		class(shr_maskSplit), intent(inout) :: self
-		!type(shr_maskIterator) :: miterator
+		type(shr_maskIterator) :: miterator
 		integer :: count
 
+		nenabled = self % mask % count()
+
 		count = 0
-		!do while(miterator % hasNext())
-		!	lval = miterator % getNext()
-			!if (lval) then
-		!		count = count + 1
-		!	end if
-		!end do
+		do while(miterator % hasNext())
+			lval = miterator % getNext()
+			if (lval) then
+				count = count + 1
+			end if
+		end do
 	end subroutine calculate
 
 
