@@ -58,6 +58,8 @@ program unittest
   use shr_gridMaskBorder_test, only: testSuitegridMaskBorder
   use shr_gridMaskClusters_test, only: testSuitegridMaskClusters
   use shr_gridMaskClustersIterator_test, only: testSuitegridMaskClustersIterator
+  use shr_gridMaskFindEnabledEqualSplitMethod_test, only: testSuiteGridMaskFindEnabledEqualMethod
+  use shr_gridMaskFindEnabledEqualSplitIterator_test, only: testSuiteGridMaskFindEnabledEqualIterator
   use shr_gGridDescriptor_test, only: testSuitegGridDescriptor
   use shr_gridBounds_test, only: testSuiteGridBounds
   use shr_gridDomainSquared_test, only: testSuitegridDomainSquared
@@ -110,6 +112,8 @@ program unittest
   type(testSuitegridMaskBorder) :: tsGridMaskBorder
   type(testSuitegridMaskClustersIterator) :: tsgridMaskClustersIterator
   type(testSuitegridMaskClusters) :: tsGridMaskClusters
+  type(testSuiteGridMaskFindEnabledEqualMethod) :: tsGridMaskFindEnabledEqualMethod
+  type(testSuiteGridMaskFindEnabledEqualIterator) :: tsGridMaskFindEnabledEqualIterator
   type(testSuitegGridDescriptor) :: tsGridDescriptor
   type(testSuiteGridBounds) :: tsGridBounds
   type(testSuitegridDomainSquared) :: tsGridDomainSquared
@@ -160,6 +164,8 @@ program unittest
   call tsGridMaskBorder % init("gridMaskBorder test", 20)
   call tsGridMaskClusters % init("gridMaskClusters test", 20)
   call tsgridMaskClustersIterator % init("gridMaskClustersIterator test", 10)
+  call tsGridMaskFindEnabledEqualMethod % init("gridMaskFindEnabledEqualMethod test", 10)
+  call tsGridMaskFindEnabledEqualIterator % init("gridMaskFindEnabledEqualIterator", 10)
   call tsGridDescriptor % init("gridDescriptor test", 20)
   call tsGridBounds % init("grid bounds test", 30)
   call tsGridDomainSquared % init("grid domain squared test", 10)
@@ -211,6 +217,8 @@ program unittest
   call tsGridMaskBorder % run()
   call tsGridMaskClusters % run()
   call tsgridMaskClustersIterator % run()
+  call tsGridMaskFindEnabledEqualMethod % run()
+  call tsGridMaskFindEnabledEqualIterator % run()
   call tsGridDescriptor % run()
   call tsGridBounds % run()
   call tsGridDomainSquared % run()
@@ -262,6 +270,8 @@ program unittest
   call tsGridMaskBorder % report()
   call tsGridMaskClusters % report()
   call tsgridMaskClustersIterator % report()
+  call tsGridMaskFindEnabledEqualMethod % report()
+  call tsGridMaskFindEnabledEqualIterator % report()
   call tsGridDescriptor % report()
   call tsGridBounds % report()
   call tsGridDomainSquared % report()
@@ -312,6 +322,8 @@ program unittest
       .not. tsGridMaskBorder % isSuccessful() .or. &
       .not. tsGridMaskClusters % isSuccessful() .or. &
       .not. tsgridMaskClustersIterator % isSuccessful() .or. &
+      .not. tsGridMaskFindEnabledEqualMethod % isSuccessful() .or. &
+      .not. tsGridMaskFindEnabledEqualIterator % isSuccessful() .or. &
       .not. tsGridDescriptor % isSuccessful() .or. &
       .not. tsGridBounds % isSuccessful() .or. &
       .not. tsGridDomainSquared % isSuccessful() .or. &
