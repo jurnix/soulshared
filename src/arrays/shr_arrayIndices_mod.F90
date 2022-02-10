@@ -14,6 +14,7 @@
 
 module shr_arrayIndices_mod
 
+  use shr_error_mod, only: raiseError
   use SHR_precision_mod, only: sp, dp!, eqReal
 
   implicit none
@@ -21,6 +22,7 @@ module shr_arrayIndices_mod
   private
 
   public :: shr_arrayIndices, shr_arrayGridcellIndex
+  public :: arrayGridcellIndex_cast
 
   !< describes the indices of a gridcell
   type shr_arrayGridcellIndex
@@ -29,6 +31,8 @@ module shr_arrayIndices_mod
     procedure :: arrayGridcellIndex_equal
     procedure :: arrayGridcellIndex_equal_byArray
     generic :: operator(==) => arrayGridcellIndex_equal, arrayGridcellIndex_equal_byArray
+    procedure :: getRow => arrayGridcellIndex_getRow
+    procedure :: getCol => arrayGridcellIndex_getCol
   end type
 
   !< describes several indices from the same axis
@@ -148,5 +152,35 @@ contains
     hasSameCol = (self % col == other(COL_IDX))
     arrayGridcellIndex_equal_byArray = (hasSameRow .and. hasSameCol)
   end function arrayGridcellIndex_equal_byArray
+
+
+  elemental impure function arrayGridcellIndex_cast(obj) result (newArrayGCIndex)
+    !< cast from unlimited polymorphic into shr_arrayGridcellIndex
+    class(*), intent(in) :: obj
+    type(shr_arrayGridcellIndex) :: newArrayGCIndex
+    select type(o => obj)
+    type is (shr_arrayGridcellIndex)
+      newArrayGCIndex = o
+    class default
+      call raiseError(__FILE__, "arrayGridcellIndex_cast", &
+          "Unexpected type found instead of 'shr_arrayGridcellIndex'")
+    end select
+  end function arrayGridcellIndex_cast
+
+
+  elemental pure function arrayGridcellIndex_getCol(self) result (col)
+    !< returns 'col' attribute
+    class(shr_arrayGridcellIndex), intent(in) :: self
+    integer :: col !< output
+    col = self % col
+  end function arrayGridcellIndex_getCol
+
+
+  elemental pure function arrayGridcellIndex_getRow(self) result (row)
+    !< returns 'row' attribute
+    class(shr_arrayGridcellIndex), intent(in) :: self
+    integer :: row !< output
+    row = self % row
+  end function arrayGridcellIndex_getRow
 
 end module shr_arrayIndices_mod
