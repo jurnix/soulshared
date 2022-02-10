@@ -38,6 +38,7 @@ module shr_gridDomain_mod
     procedure(iface_getGridMask), deferred :: getBorderGridMask
     procedure(iface_getGridMask), deferred :: getEnabledGridMask
     procedure(iface_filter), deferred :: filter
+    procedure(iface_select), deferred :: select
     procedure(iface_getGrid), deferred :: getGrid
 
     procedure(iface_copy), deferred :: copy
@@ -97,6 +98,15 @@ module shr_gridDomain_mod
       class(shr_igridDomain), intent(in) :: self
       class(shr_igridDomain), intent(in) :: other
     end function iface_equal
+
+    function iface_select(self, newGrid) result (newGDomain)
+      import :: shr_igridDomain, shr_igGrid
+      !< Selects from 'self' a new shr_gridDomain 'newGMask'
+      !< 'newGMask' must fit into the 'self'
+      class(shr_igridDomain), intent(in) :: self
+      class(shr_igGrid), intent(in) :: newGrid
+      class(shr_igridDomain), allocatable :: newGDomain !< output
+    end function iface_select
   end interface
 
 
@@ -128,7 +138,7 @@ module shr_gridDomain_mod
 
     procedure :: expand
     procedure :: filter => gridDomain_filter
-    procedure :: select
+    procedure :: select => gridDomain_select
   end type shr_gridDomain
 
 contains
@@ -289,12 +299,12 @@ contains
   end function gridDomain_filter
 
 
-   function select(self, newGrid) result (newGDomain)
+   function gridDomain_select(self, newGrid) result (newGDomain)
     !< Selects from 'self' a new shr_gridDomain 'newGMask'
     !< 'newGMask' must fit into the 'self'
     class(shr_gridDomain), intent(in) :: self
     class(shr_igGrid), intent(in) :: newGrid
-    class(shr_gridDomain), allocatable :: newGDomain !< output
+    class(shr_igridDomain), allocatable :: newGDomain !< output
     class(shr_igridMask), allocatable :: selectedBorder, selectedEnabled
     !type(string) :: tmp
 
@@ -313,7 +323,7 @@ contains
     allocate(shr_gridDomain :: newGDomain)
 
     call newGDomain % init(newgrid, selectedEnabled, selectedBorder)
-  end function select
+  end function gridDomain_select
 
 
   elemental impure logical function gridDomain_equal(self, other)
