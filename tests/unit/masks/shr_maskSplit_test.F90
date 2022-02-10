@@ -9,11 +9,11 @@
 ! DESCRIPTION:
 !> shr_maskSplit unit tests
 !------------------------------------------------------------------------------
-module shr_maskSplit_test
+module shr_maskEnabledEqualSplit_test
 
   use shr_testSuite_mod, only: testSuite
 
-  use shr_maskSplit_mod, only: shr_maskSplit
+  use shr_maskEnabledEqualSplit_mod, only: shr_maskEnabledEqualSplit
   use shr_mask_mod, only: shr_mask2d
   use shr_strings_mod, only: string !< debug only
 
@@ -21,9 +21,9 @@ module shr_maskSplit_test
   implicit none
 
   private
-  public :: testSuiteMaskSplit
+  public :: testSuiteMaskEnabledEqualSplit
 
-  type, extends(testSuite) :: testSuiteMaskSplit
+  type, extends(testSuite) :: testSuiteMaskEnabledEqualSplit
 
   contains
     procedure :: define => defineTestCases
@@ -34,7 +34,7 @@ contains
 
   subroutine defineTestCases(self)
     use iso_c_binding
-    class(testSuiteMaskSplit), intent(inout) :: self
+    class(testSuiteMaskEnabledEqualSplit), intent(inout) :: self
 
     !< basic subroutines
     call self % testCaseMaskSplitFullEnabled()
@@ -49,8 +49,8 @@ contains
     !> x x x x  			-> 	x x	- -	-> - - x x  -> - - - -
     !> x x x x						- - - -		 x x x -		 - - - x
     !> x x x x						- - - -		 - - - -		 x x x x
-    class(testSuiteMaskSplit), intent(inout) :: self
-    type(shr_maskSplit) :: maskSplit
+    class(testSuiteMaskEnabledEqualSplit), intent(inout) :: self
+    type(shr_maskEnabledEqualSplit) :: maskSplit
     type(shr_mask2d) :: fullMask
 
     type(shr_mask2d) :: expMasks(3)
@@ -95,8 +95,8 @@ contains
     !> - - x x  			-> 	x x x x		-> - - - -   -> - - - -
     !> - - x -						- - - -			 x x x x			- - - -
     !> x - x x						- - - -			 x - - -			-	x	x x
-    class(testSuiteMaskSplit), intent(inout) :: self
-    type(shr_maskSplit) :: maskSplit
+    class(testSuiteMaskEnabledEqualSplit), intent(inout) :: self
+    type(shr_maskEnabledEqualSplit) :: maskSplit
     type(shr_mask2d) :: fullMask
 
     type(shr_mask2d) :: expMasks(3)
@@ -147,4 +147,4 @@ contains
   end subroutine testCaseMaskSplitSomeEnabled
 
 
-end module shr_maskSplit_test
+end module shr_maskEnabledEqualSplit_test

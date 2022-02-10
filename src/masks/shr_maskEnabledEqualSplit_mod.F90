@@ -33,7 +33,7 @@
 !> x - x x						- - - -			 x - - -			-	x	x x
 !> 
 !------------------------------------------------------------------------------
-module shr_maskSplit_mod
+module shr_maskEnabledEqualSplit_mod
 
 	use shr_error_mod, only: raiseError
 	use shr_strings_mod, only: string
@@ -46,10 +46,10 @@ module shr_maskSplit_mod
 
 	implicit none
 
-	public :: shr_maskSplit
+	public :: shr_maskEnabledEqualSplit
 
 
-	type :: shr_maskSplit
+	type :: shr_maskEnabledEqualSplit
 		!< input
 		integer, allocatable :: total
 		type(shr_mask2d), allocatable :: mask
@@ -59,13 +59,13 @@ module shr_maskSplit_mod
 		procedure :: init
 		procedure :: calculate
 		procedure :: get
-	end type shr_maskSplit
+	end type shr_maskEnabledEqualSplit
 
 contains
 
 	subroutine init(self, total, mask)
 		!< initialization
-		class(shr_maskSplit), intent(inout) :: self
+		class(shr_maskEnabledEqualSplit), intent(inout) :: self
 		integer, intent(in) :: total
 		type(shr_mask2d), intent(in) :: mask
 		allocate(self % mask)
@@ -78,7 +78,7 @@ contains
 
 	subroutine calculate(self)
 		!< Computes all parts
-		class(shr_maskSplit), intent(inout) :: self
+		class(shr_maskEnabledEqualSplit), intent(inout) :: self
 
 		!integer :: i
 		integer :: nrows, ncols
@@ -146,9 +146,9 @@ contains
 
 	function get(self) result (masks)
 		!< it returns splitted masks
-		class(shr_maskSplit), intent(inout) :: self
+		class(shr_maskEnabledEqualSplit), intent(inout) :: self
 		type(shr_mask2d), allocatable :: masks(:)
 		allocate(masks, source = self % parts)
 	end function get
 
-end module shr_maskSplit_mod
+end module shr_maskEnabledEqualSplit_mod

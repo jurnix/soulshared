@@ -33,7 +33,7 @@ program unittest
   use shr_maskIndices_test, only: testSuiteMaskIndices
   use shr_maskClusters_test, only: testSuiteMaskClusters
   use shr_maskIterator_test, only: testSuiteMaskIterator
-  use shr_maskSplit_test, only: testSuiteMaskSplit
+  use shr_maskEnabledEqualSplit_test, only: testSuiteMaskEnabledEqualSplit
 
   ! array
   use shr_arrayRealDim_test, only: testSuiteArrayRealDim
@@ -87,7 +87,7 @@ program unittest
   type(testSuiteMaskIndices) :: tsMaskIndices
   type(testSuiteMaskClusters) :: tsMaskClusters
   type(testSuiteMaskIterator) :: tsMaskIterator
-  type(testSuiteMaskSplit) :: tsMaskSplit
+  type(testSuiteMaskEnabledEqualSplit) :: tsMaskEnabledEqualSplit
 
   type(testSuiteArrayRealDim) :: tsArrayRealDim
   type(testSuiteArrayRsp) :: tsArrayRsp
@@ -137,7 +137,7 @@ program unittest
   call tsMaskIndices % init("MaskIndices test", 20)
   call tsMaskClusters % init("Mask Clusters test", 30)
   call tsMaskIterator % init("Mask iterator test", 10)
-  call tsMaskSplit % init("Mask split test", 10)
+  call tsMaskEnabledEqualSplit % init("Mask enabled equal split test", 10)
 
   call tsArrayRealDim % init("ArrayRealDim test", 30)
   call tsArrayRsp % init("ArrayRsp test", 20)
@@ -188,7 +188,7 @@ program unittest
   call tsMaskIndices % run()
   call tsMaskClusters % run()
   call tsMaskIterator % run()
-  call tsMaskSplit % run()
+  call tsMaskEnabledEqualSplit % run()
 
   call tsArrayRealDim % run() 
   call tsArrayContainerAllocatable % run() 
@@ -239,7 +239,7 @@ program unittest
   call tsMaskIndices % report()
   call tsMaskClusters % report()
   call tsMaskIterator % report()
-  call tsMaskSplit % report()
+  call tsMaskEnabledEqualSplit % report()
 
   call tsArrayRealDim % report() 
   call tsArrayContainerAllocatable % report() 
@@ -289,7 +289,7 @@ program unittest
       .not. tsMaskIndices % isSuccessful() .or. &
       .not. tsMaskClusters % isSuccessful() .or. &
       .not. tsMaskIterator % isSuccessful() .or. &
-      .not. tsMaskSplit % isSuccessful() .or. &
+      .not. tsMaskEnabledEqualSplit % isSuccessful() .or. &
 
       .not. tsArrayRealDim % isSuccessful() .or. &
       .not. tsArrayContainerAllocatable % isSuccessful() .or. &
