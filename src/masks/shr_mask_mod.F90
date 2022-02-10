@@ -109,7 +109,10 @@ module shr_mask_mod
 		procedure :: getByMaskIndices => mask2d_get_maskIndices
 		procedure :: getSimple => mask2d_get_simple
 
-		procedure :: set => mask2d_set
+		procedure :: setByMaskIndices => mask2d_set_maskIndices
+		procedure :: setByGridcellIndex => mask2d_set_byGridcellIndex
+		generic :: set => setByGridcellIndex, setByMaskIndices
+
 		procedure :: filter => mask2d_filter !< new mask with selected indices
 		procedure :: toString => mask2d_toString
 		procedure :: count => mask2d_count
@@ -292,7 +295,7 @@ contains
 	end function mask2d_get_maskIndices
 
 
-	subroutine mask2d_set(self, rmask, mIndices)
+	subroutine mask2d_set_maskIndices(self, rmask, mIndices)
 		!< sets internal mask
 		!< if mIndices defined then:
 		!< - rmask must have the same shape
@@ -333,7 +336,19 @@ contains
 			inRowEnd = sh(ROW_SHAPE_INDEX)
 		end if
 		self % lmask(inRowStart:inRowEnd, inColStart:inColEnd) = rmask
-	end subroutine mask2d_set
+	end subroutine mask2d_set_maskIndices
+
+
+	subroutine mask2d_set_byGridcellIndex(self, arrayGridcellIndex, value)
+		!< define 'value' into arrayGridcellIndex position
+		class(shr_mask2d), intent(inout) :: self
+		type(shr_arrayGridcellIndex), intent(in) :: arrayGridcellIndex
+		logical, intent(in) :: value
+		integer :: row, col
+		row = arrayGridcellIndex % row
+		col = arrayGridcellIndex % col
+		self % lmask(row, col) = value
+	end subroutine mask2d_set_byGridcellIndex
 
 
 	subroutine mask2d_initialize_bySize(self, nrows, ncols, default)
