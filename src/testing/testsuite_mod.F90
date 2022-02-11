@@ -119,7 +119,7 @@ contains
     !ilogical, optional, intent(out) :: test_failed
 
     integer :: n, ntests
-    character(len=80) :: str, str1
+    character(len=90) :: str, str1
 
     ntests = self % currTests !size(slef % results)
 

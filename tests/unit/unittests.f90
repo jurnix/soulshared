@@ -65,6 +65,8 @@ program unittest
   use shr_gridDomainSquared_test, only: testSuitegridDomainSquared
   use shr_gridDomainToSquaredConverter_test, only: testSuitegridDomainToSquaredConverter
   use shr_gridDomain_test, only: testSuitegridDomain
+  use shr_gridDomainPartitioningMethodBySameNumberOfGridcells_test, only: &
+              testSuitegridDomainPartitioningMethodBySameNumberOfGridcells
 
   implicit none
 
@@ -119,6 +121,7 @@ program unittest
   type(testSuitegridDomainSquared) :: tsGridDomainSquared
   type(testSuitegridDomainToSquaredConverter) :: tsGridDomainToSquaredConverter
   type(testSuitegridDomain) :: tsGridDomain
+  type(testSuitegridDomainPartitioningMethodBySameNumberOfGridcells) :: tsGridDomainPMNofGridcells
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -171,6 +174,7 @@ program unittest
   call tsGridDomainSquared % init("grid domain squared test", 10)
   call tsGridDomainToSquaredConverter % init("grid domain to squared converter test", 10)
   call tsGridDomain % init("grid domain test", 10)
+  call tsGridDomainPMNofGridcells % init("grid domain partitioning method by number of gridcells test", 10)
   
 
   ! run all tests 
@@ -224,7 +228,7 @@ program unittest
   call tsGridDomainSquared % run()
   call tsGridDomainToSquaredConverter % run()
   call tsGridDomain % run()
-
+  call tsGridDomainPMNofGridcells % run()
 
   ! show results
   call tsDatetime % report()
@@ -277,6 +281,7 @@ program unittest
   call tsGridDomainSquared % report()
   call tsGridDomainToSquaredConverter % report()
   call tsGridDomain % report()
+  call tsGridDomainPMNofGridcells % report()
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -328,7 +333,8 @@ program unittest
       .not. tsGridBounds % isSuccessful() .or. &
       .not. tsGridDomainSquared % isSuccessful() .or. &
       .not. tsGridDomainToSquaredConverter % isSuccessful() .or. &
-      .not. tsGridDomain % isSuccessful() &
+      .not. tsGridDomain % isSuccessful() .or. &
+      .not. tsGridDomainPMNofGridcells % isSuccessful() &
       ) stop 1
 
 end program unittest
