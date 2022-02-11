@@ -42,6 +42,7 @@ module shr_maskEnabledEqualSplit_mod
 	use shr_mask_mod, only: shr_mask2d
 	use shr_mask_mod, only: ROW_SHAPE_INDEX, COL_SHAPE_INDEX
 	use shr_maskIndices_mod, only: shr_maskIndices_2d
+	use shr_maths_mod, only: absoluteDivision
 
 
 	implicit none
@@ -87,7 +88,6 @@ contains
 		logical, allocatable :: lmask(:,:)
 		integer :: dims(2)
 		integer, allocatable :: nparts(:)
-		integer :: remain
 
 		type(shr_arrayGridcellIndex) :: cArrayIndex
 		type(shr_mask2d), allocatable :: gcsParts(:)
@@ -98,12 +98,8 @@ contains
 		!< equal partition
 		!< distribute remaining values equally
 		!< 11 into 4 parts -> 3, 3, 3, 2
-		allocate(nparts(self % total))
 		nenabled = self % mask % count()
-		nparts(:) = int(nenabled / self % total)
-		!< distribute remaining values equally
-		remain = mod(nenabled, self % total)
-		nparts(1:remain) = nparts(1:remain) + 1
+		nparts = absoluteDivision(nenabled, self % total)
 
 		lmask = self % mask % get()
 		dims = self % mask % getShape()
