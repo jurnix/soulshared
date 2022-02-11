@@ -20,7 +20,7 @@ module SHR_maths_mod
 
   private
 
-  public :: linearInterpolation
+  public :: linearInterpolation, absoluteDivision
 
 
 contains
@@ -76,5 +76,20 @@ contains
   end function linearInterpolation
 
 
+  function absoluteDivision(value, nparts) result (groups)
+    !< Division of 'total' / 'parts'
+    !> Given a 'value',  remaining values are distributed equally
+    !< 11 into 4 parts -> 3, 3, 3, 2
+    integer, intent(in) :: value
+    integer, intent(in) :: nparts
+    integer, allocatable :: groups(:) !< output
+    integer :: remain
+
+    allocate(groups(nparts))
+    groups(:) = int(value / nparts)
+    !< distribute remaining values equally
+    remain = mod(value, nparts)
+    groups(1:remain) = groups(1:remain) + 1
+  end function absoluteDivision
 
 end module SHR_maths_mod

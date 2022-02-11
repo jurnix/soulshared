@@ -13,6 +13,7 @@
 program unittest
 
   use datetime_test, only: testSuiteDatetime
+  use shr_maths_test, only: testSuiteMaths
   use tst_test, only: testSuiteTst
   use strings_test, only: testSuiteStrings
   use dict_test, only: testSuiteDict
@@ -72,6 +73,7 @@ program unittest
 
   ! declare each test
   type(testSuiteDatetime) :: tsDatetime
+  type(testSuiteMaths) :: tsMath
   type(testSuiteTst) :: tsTst
   type(testSuiteStrings) :: tsStrings
   type(testSuiteDict) :: tsDict
@@ -125,6 +127,7 @@ program unittest
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
+  call tsMath % init("Math test", 10)
   call tsTst % init("Ternary search tree test", 30)
   call tsStrings % init("Strings test", 70)
   call tsDict % init("Dict test", 10)
@@ -179,6 +182,7 @@ program unittest
 
   ! run all tests 
   call tsDatetime % run()
+  call tsMath % run()
   call tsTst % run() 
   call tsStrings % run() 
   call tsDict % run() 
@@ -232,6 +236,7 @@ program unittest
 
   ! show results
   call tsDatetime % report()
+  call tsMath % report()
   call tsTst % report() 
   call tsStrings % report() 
   call tsDict % report() 
@@ -285,6 +290,7 @@ program unittest
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
+      .not. tsMath % isSuccessful() .or. &
       .not. tsTst % isSuccessful() .or. &
       .not. tsStrings % isSuccessful() .or. & 
       .not. tsDict % isSuccessful() .or. &
