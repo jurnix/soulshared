@@ -26,9 +26,15 @@ module shr_gridDomain_mod
 
   implicit none
 
-  public :: shr_gridDomain, shr_iGridDomain
+  public :: shr_gridDomain, shr_iGridDomain, shr_gridDomainWrap
 
   logical, parameter :: ISDEBUG = .false.
+
+  !< Wrapper to use for shr_igridDomain arrays
+  type :: shr_gridDomainWrap
+    class(shr_igridDomain), allocatable :: gdomain
+  contains
+  end type shr_gridDomainWrap
 
 
   type, abstract :: shr_iGridDomain
@@ -46,6 +52,8 @@ module shr_gridDomain_mod
 
     procedure(iface_equal), deferred :: equal
     generic :: operator(==) => equal
+
+    procedure(iface_toString), deferred :: toString
   end type shr_iGridDomain
 
   abstract interface
@@ -107,6 +115,13 @@ module shr_gridDomain_mod
       class(shr_igGrid), intent(in) :: newGrid
       class(shr_igridDomain), allocatable :: newGDomain !< output
     end function iface_select
+
+    function iface_toString(self) result (str)
+      import :: shr_igridDomain, string
+      !< string representation
+      class(shr_igridDomain), intent(in) :: self
+      type(string) :: str !< output
+    end function iface_toString
   end interface
 
 
@@ -139,6 +154,8 @@ module shr_gridDomain_mod
     procedure :: expand
     procedure :: filter => gridDomain_filter
     procedure :: select => gridDomain_select
+
+    procedure :: toString => gridDomain_toString
   end type shr_gridDomain
 
 contains
@@ -333,8 +350,6 @@ contains
 
     logical :: hasSameGrid
     logical :: hasSameEnabledMask, hasSameBorderMask
-    class(shr_IgridMask), allocatable :: tmpGMask
-    type(string) :: tmp1, tmp
 
     if (.not. same_type_as(self, other)) then
       gridDomain_equal = .false.
@@ -366,6 +381,16 @@ contains
 
     call newGDomain % init(grid, expandedEnabled, expandedBorder)
   end function expand
+
+
+  function gridDomain_toString(self) result (str)
+    !< string representation
+    class(shr_gridDomain), intent(in) :: self
+    type(string) :: str !< output
+    str = self % grid % toString() + ", " + new_line('A') + &
+          self % maskEnabled % toString() + ", " + new_line('A') + &
+          self % maskBorder % toString()
+  end function gridDomain_toString
 
 end module shr_gridDomain_mod 
 
