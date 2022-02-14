@@ -428,6 +428,7 @@ contains
 		!< (both must be initialized)
 		class(shr_mask2d), intent(in) :: self
 		type(shr_mask2d), intent(in) :: other
+		!< allocated?
 		if (.not. allocated(self % lmask))  then
 			mask2d_eq = .false.
 			return
@@ -436,6 +437,12 @@ contains
 			mask2d_eq = .false.
 			return
 		end if
+		!< same shape
+		if (any(shape(self % lmask) /= shape(other % lmask))) then
+			mask2d_eq = .false.
+			return
+		end if
+		!< same values?
 		mask2d_eq = all(self % lmask .eqv. other % lmask)
 	end function mask2d_eq
 

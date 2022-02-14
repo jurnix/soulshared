@@ -177,6 +177,15 @@ contains
     call m1 % init(rmask)
     call self % assert(.not. m2 == m1 , "m2 .eq. m1 = F" )
 
+    !< same object but different shapes
+    rmask(1,:) = [.true., .false., .true.]
+    rmask(2,:) = [.false., .false., .false.]
+    smask(1,:) = [.true., .false.]
+    smask(2,:) = [.false., .false.]
+    call m2 % init(rmask)
+    call m1 % init(smask)
+    call self % assert(.not. (m2 == m1), "m2(TTF,FFF) .eq. m1(TF,FF) = F" )
+
     !< count
     rmask(1,:) = [.true., .false., .true.]
     rmask(2,:) = [.false., .false., .false.]
