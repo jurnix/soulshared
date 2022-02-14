@@ -20,7 +20,7 @@ module shr_gridMaskFindEnabledEqualSplitIterator_mod
   use SHR_precision_mod, only: sp
 
   use shr_Iterator_mod, only: shr_iterator_abs
-  use shr_gridMask_mod, only: shr_gridMask
+  use shr_gridMask_mod, only: shr_gridMask, shr_IgridMask
   use shr_gridMaskFindEnabledEqualSplitMethod_mod, only: shr_gridMaskFindEnabledEqualSplitMethod
 
   implicit none
@@ -67,7 +67,7 @@ contains
     !< returns current object
     class(shr_gridMaskFindEnabledEqualSplitIterator), intent(inout) :: self
     class(*), allocatable :: obj
-    type(shr_gridMask) :: gmask
+    class(shr_igridMask), allocatable :: gmask
 
     if (.not. self % hasNext()) then
       call raiseError(__FILE__, "getNext", &
@@ -75,7 +75,7 @@ contains
     end if
 
     self % counter = self % counter + 1
-    gmask = self % gmEnabledEqualSplit % get(self % counter)
+    allocate(gmask, source = self % gmEnabledEqualSplit % get(self % counter))
 
     !< copy
     allocate(obj, source = gmask)
