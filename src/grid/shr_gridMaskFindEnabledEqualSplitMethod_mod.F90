@@ -8,7 +8,8 @@
 !
 ! DESCRIPTION:
 !>
-!> shr_gridMask wrapper to shr_maskClusters_2d
+!> Convert each found shr_Mask2d into shr_gridMask
+!> (shr_gridMask wrapper to shr_maskEnabledEqualSplit)
 !>
 !------------------------------------------------------------------------------
 module shr_gridMaskFindEnabledEqualSplitMethod_mod
@@ -82,15 +83,16 @@ contains
   end function getSize
 
 
-  type(shr_gridMask) function get(self, pos)
+  function get(self, pos) result (newGM)
     !< it returns selected gridMask requested for position 'pos'
     class(shr_gridMaskFindEnabledEqualSplitMethod), intent(in) :: self
+    class(shr_igridMask), allocatable :: newGM
     integer, intent(in) :: pos
     if (self % getSize() < pos) then
       call raiseError(__FILE__, "get", &
           "Requested element position not found")
     end if
-    get = self % groups(pos)
+    allocate(newGM, source = self % groups(pos))
   end function get
 
 
