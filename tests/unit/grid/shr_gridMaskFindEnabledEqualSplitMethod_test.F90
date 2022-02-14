@@ -127,8 +127,8 @@ contains
     logical :: lmask(3,4)
     real(kind=sp), parameter :: BOUNDS(4) = [3., 0., 4., 0.]
     real(kind=sp), parameter :: RES = 1.0
-    type(string) :: tmpstr
-    type(shr_gridMask) :: tmpMask
+    !type(string) :: tmpstr
+    !type(shr_gridMask) :: tmpMask
 
     !< setup
     lmask = .true.
@@ -165,9 +165,9 @@ contains
     call self % assert(gmSplit % get(2) == expectedMasks(2), &
         "gmSplit(...) % get(2) .eq. mask(...) = T")
 
-    tmpMask = gmSplit % get(3)
-    tmpStr = tmpMask % toString()
-    write(*,*) "gmSplit % get(3) =", tmpStr % toString()
+    !tmpMask = gmSplit % get(3)
+    !tmpStr = tmpMask % toString()
+    !write(*,*) "gmSplit % get(3) =", tmpStr % toString()
     call self % assert(gmSplit % get(3) == expectedMasks(3), &
         "gmSplit(...) % get(3) .eq. mask(...) = T")
 
