@@ -68,6 +68,7 @@ program unittest
   use shr_gridDomain_test, only: testSuitegridDomain
   use shr_gridDomainPartitioningMethodBySameNumberOfGridcells_test, only: &
               testSuitegridDomainPartitioningMethodBySameNumberOfGridcells
+  use shr_gridDomainPartitioningMethodBySquares_test, only: testSuitegridDomainPartitioningMethodBySquares
 
   implicit none
 
@@ -124,6 +125,7 @@ program unittest
   type(testSuitegridDomainToSquaredConverter) :: tsGridDomainToSquaredConverter
   type(testSuitegridDomain) :: tsGridDomain
   type(testSuitegridDomainPartitioningMethodBySameNumberOfGridcells) :: tsGridDomainPMNofGridcells
+  type(testSuitegridDomainPartitioningMethodBySquares) :: tsGridDomainPMofSquares
 
   ! declare tests
   call tsDatetime % init("Datetime test", 330)
@@ -178,6 +180,7 @@ program unittest
   call tsGridDomainToSquaredConverter % init("grid domain to squared converter test", 10)
   call tsGridDomain % init("grid domain test", 10)
   call tsGridDomainPMNofGridcells % init("grid domain partitioning method by number of gridcells test", 10)
+  call tsGridDomainPMofSquares % init("grid domain partitioning method by squares", 10)
   
 
   ! run all tests 
@@ -233,6 +236,7 @@ program unittest
   call tsGridDomainToSquaredConverter % run()
   call tsGridDomain % run()
   call tsGridDomainPMNofGridcells % run()
+  call tsGridDomainPMofSquares % run()
 
   ! show results
   call tsDatetime % report()
@@ -287,6 +291,7 @@ program unittest
   call tsGridDomainToSquaredConverter % report()
   call tsGridDomain % report()
   call tsGridDomainPMNofGridcells % report()
+  call tsGridDomainPMofSquares % report()
 
   ! crash if any of the tests fail
   if (.not. tsDatetime % isSuccessful() .or. &
@@ -340,7 +345,8 @@ program unittest
       .not. tsGridDomainSquared % isSuccessful() .or. &
       .not. tsGridDomainToSquaredConverter % isSuccessful() .or. &
       .not. tsGridDomain % isSuccessful() .or. &
-      .not. tsGridDomainPMNofGridcells % isSuccessful() &
+      .not. tsGridDomainPMNofGridcells % isSuccessful() .or. &
+      .not. tsGridDomainPMofSquares % isSuccessful() &
       ) stop 1
 
 end program unittest
