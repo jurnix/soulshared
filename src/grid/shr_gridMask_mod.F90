@@ -28,6 +28,8 @@ module shr_gridMask_mod
   use shr_arrayIndices_mod, only: shr_arrayIndices
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
 
+  use shr_mask_mod, only: shr_mask2d
+
   implicit none
 
   public :: shr_gridMask, shr_IgridMask, shr_gridMask_cast
@@ -394,6 +396,7 @@ contains
     class(shr_igridMask), intent(in) :: other
     logical :: hasSameGrid, hasSameMask
     type(shr_gridMask) :: ogMask
+    type(shr_mask2d) :: selfmask, othermask
 
     select type (o => other)
     type is (shr_gridMask)
@@ -403,7 +406,9 @@ contains
     end select
 
     hasSameGrid = (self % grid == ogMask % getGrid())
-    hasSameMask = all(self % mask .eqv. ogMask % mask)
+    call selfmask % init(self % mask)
+    call othermask % init(ogMask % mask)
+    hasSameMask = (selfmask == othermask) !all(self % mask .eqv. ogMask % mask)
     gridMask_equal_gridMask = (hasSameGrid .and. hasSameMask)
   end function gridMask_equal_gridMask
 
