@@ -134,6 +134,11 @@ contains
 					currentPart = currentPart + 1
 					count = 0
 				end if
+
+				!< no more parts?
+				if (currentPart > self % total) then
+					return
+				end if
 			enddo !< for each mask column
 		enddo !< for each mask row
 
