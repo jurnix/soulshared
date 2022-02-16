@@ -30,9 +30,8 @@ module shr_gGridDescriptor_mod
   !< interface
   type, abstract :: shr_iGGridDescriptor
   contains
-    procedure(iface_initialize), deferred :: initialize
     procedure(iface_initialize_simple), deferred :: initialize_simple
-    generic :: init => initialize, initialize_simple
+    generic :: init => initialize_simple
 
     procedure(iface_fitsIn), deferred :: fitsIn
     procedure(iface_getResolution), deferred :: getResolution
@@ -49,15 +48,6 @@ module shr_gGridDescriptor_mod
 
 
   abstract interface
-    elemental subroutine iface_initialize(self, resolution, bounds, latAxis, lonAxis)
-      import :: shr_iGGridDescriptor, sp, shr_gridBounds, shr_gAxis
-      !< grid descriptor initialization
-      class(shr_iGGridDescriptor), intent(inout) :: self
-      real(kind=sp), intent(in) :: resolution
-      type(shr_gridBounds), intent(in) :: bounds
-      type(shr_gAxis), intent(in) :: latAxis
-      type(shr_gAxis), intent(in) :: lonAxis
-    end subroutine iface_initialize
 
     subroutine iface_initialize_simple(self, resolution, bounds)
       import :: shr_iGGridDescriptor, sp, shr_gridBounds
@@ -126,12 +116,8 @@ module shr_gGridDescriptor_mod
   type, extends(shr_iGGridDescriptor) :: shr_gGridDescriptor
     real(kind=sp) :: resolution = -1
     type(shr_gridBounds), allocatable :: bounds
-    type(shr_gAxis), allocatable :: latAxis
-    type(shr_gAxis), allocatable :: lonAxis
   contains
-    procedure :: initialize => gGridDescriptor_initialize
     procedure :: initialize_simple => gGridDescriptor_initialize_simple
-    !generic :: init => gGridDescriptor_initialize, gGridDescriptor_initialize_simple
 
     procedure :: getResolution => gGridDescriptor_getResolution
     procedure :: getBounds => gGridDescriptor_getBounds
@@ -149,47 +135,14 @@ module shr_gGridDescriptor_mod
 contains
 
 
-  elemental subroutine gGridDescriptor_initialize(self, resolution, bounds, latAxis, lonAxis)
-    !< grid descriptor initialization
-    class(shr_gGridDescriptor), intent(inout) :: self
-    real(kind=sp), intent(in) :: resolution
-    type(shr_gridBounds), intent(in) :: bounds
-    type(shr_gAxis), intent(in) :: latAxis
-    type(shr_gAxis), intent(in) :: lonAxis
-    self % resolution = resolution
-    allocate(self % bounds, source = bounds)
-    allocate(self % latAxis, source = latAxis)
-    allocate(self % lonAxis, source = lonAxis)
-  end subroutine gGridDescriptor_initialize
-
-
   subroutine gGridDescriptor_initialize_simple(self, resolution, bounds)
     !< initialize with fundamental arguments
     class(shr_gGridDescriptor), intent(inout) :: self
     real(kind=sp), intent(in) :: resolution
     type(shr_gridBounds), intent(in) :: bounds
 
-    type(shr_gAxisBounds)  :: latAxisBounds, lonAxisBounds
-    type(string) :: latName, lonName
-
     self % resolution = resolution
     allocate(self % bounds, source = bounds)
-
-    !write(*,*) "gGridDescriptor_mod:: gGridDescriptor_initialize_simple :: n, s =", bounds % north, bounds % south
-    !write(*,*) "gGridDescriptor_mod:: gGridDescriptor_initialize_simple :: e, w =", bounds % east, bounds % west
-
-    call latAxisBounds % init(bounds % north, bounds % south)
-    call lonAxisBounds % init(bounds % east, bounds % west)
-
-    latName = string("latitude")
-    allocate(self % latAxis)
-    call self % latAxis % init(latName, resolution, latAxisBounds)
-    !write(*,*) "gGridDescriptor_mod:: gGridDescriptor_initialize_simple :: lats size =", self % latAxis % getSize()
-
-    lonName = string("longitude")
-    allocate(self % lonAxis)
-    call self % lonAxis % init(lonName, resolution, lonAxisBounds)
-    !write(*,*) "gGridDescriptor_mod:: gGridDescriptor_initialize_simple :: lons size =", self % lonAxis % getSize()
   end subroutine gGridDescriptor_initialize_simple
 
 
@@ -212,7 +165,7 @@ contains
     class(shr_gGridDescriptor), intent(in) :: self
     class(shr_iGGridDescriptor), intent(in) :: other
     type(shr_gGridDescriptor) :: gDesc
-    logical :: hasSameRes, hasSameLat, hasSameLon, hasSameBounds
+    logical :: hasSameRes, hasSameBounds
 
     select type(o => other)
     type is (shr_gGridDescriptor)
@@ -223,11 +176,8 @@ contains
     end select
 
     hasSameRes = (self % resolution == gDesc % resolution)
-    hasSameLat = (self % latAxis == gDesc % latAxis)
-    hasSameLon = (self % lonAxis == gDesc % lonAxis)
     hasSameBounds = (self % bounds == gDesc % bounds)
-    gGridDescriptor_equal = (hasSameRes .and. hasSameLat .and. &
-                          hasSameLon .and. hasSameBounds)
+    gGridDescriptor_equal = (hasSameRes .and. hasSameBounds)
   end function gGridDescriptor_equal
 
 

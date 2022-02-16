@@ -17,8 +17,6 @@ module shr_gGridDescriptor_test
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor, shr_iGGridDescriptor
   use shr_strings_mod, only: string
   use shr_gridBounds_mod, only: shr_gridBounds
-  use shr_gAxis_mod, only: shr_gAxis
-  use shr_gAxisBounds_mod, only: shr_gAxisBounds
 
   implicit none
 
@@ -40,26 +38,12 @@ contains
     class(shr_iGGridDescriptor), allocatable :: idesc
     type(shr_gGridDescriptor) :: combined
 
-    type(shr_gAxis) :: latAxis
-    type(shr_gAxis) :: lonAxis
     type(shr_gridBounds) :: bounds
-
-    type(shr_gAxisBounds) :: latBounds, lonBounds
-    type(string) :: latName, lonName
-
-
-    call latBounds % init(1., -1.)
-    latname = string("latitude")
-    call latAxis % init(latName, 1., latBounds)
-
-    call lonBounds % init(2., 0.)
-    lonName = string("longitude")
-    call lonAxis % init(lonName, 1., lonBounds)
 
     call bounds % init(1., -1., 2., 0.) !< n, s, e, w
 
-    call d % init(1., bounds, latAxis, lonAxis)
-    call self % assert(.true., "d(1, ..., [1,-1,2,0]) = T")
+    call d % init(1., bounds)
+    call self % assert(.true., "d(1, [1,-1,2,0]) = T")
 
     ! getResolution
     call self % assert(d % getResolution() == 1., &
@@ -72,9 +56,9 @@ contains
     ! equal (==)
     call self % assert( d == d, "d .eq. d = T")
 
-    call other % init(1., bounds, latAxis, latAxis)
+    call other % init(0.5, bounds)
     call self % assert( .not. (other == d), &
-            "bounds(..., lat, lat) .eq. d(..., lat, lon) = T")
+            "bounds(1., [...]) .eq. d(0.5, [...]) = T")
 
     ! simple initalization
     call dsimple % init(1., bounds)
