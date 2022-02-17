@@ -218,7 +218,7 @@ contains
     !< in case of conflict:
     !< enabled > disabled > border
     class(shr_gridDomain), intent(in) :: self
-    type(shr_gridDomain), intent(in) :: other
+    class(shr_gridDomain), intent(in) :: other
 
     class(shr_gridDomain), allocatable :: expandedSelf, expandedOther
     class(shr_igGrid), allocatable :: combinedGrid
@@ -392,5 +392,5 @@ contains
           self % maskBorder % toString()
   end function gridDomain_toString
 
-end module shr_gridDomain_mod 
+end module shr_gridDomain_mod
 
