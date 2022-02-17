@@ -19,7 +19,7 @@ module shr_gridMask_mod
   use shr_gAxis_mod, only: shr_gAxis
   use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
-  use shr_gGrid_mod, only: shr_igGrid
+  use shr_gGrid_mod, only: shr_igGrid, shr_igGridBuilder
 
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gridShape_mod, only: shr_gridShape
@@ -29,6 +29,7 @@ module shr_gridMask_mod
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
 
   use shr_mask_mod, only: shr_mask2d
+  use shr_gGridMapCoords_mod, only: shr_gGridMapCoords, shr_gGridMapCoordsBuilder
 
   implicit none
 
@@ -61,6 +62,7 @@ module shr_gridMask_mod
 
     procedure(iface_expand), deferred :: expand
     procedure(iface_select), deferred :: select
+    procedure(iface_shrink), deferred :: shrink
 
     procedure(iface_set_by_lmask), deferred :: set_by_lmask
     procedure(iface_set_by_gridmask), deferred :: set_by_gridMask
@@ -197,6 +199,13 @@ module shr_gridMask_mod
       class(shr_igridMask), intent(in) :: self
       integer :: shape(2)
     end function iface_getShape
+
+    function iface_shrink(self) result (newGM)
+      import :: shr_igridMask
+      !< gridmask is shrink down to its enabled cells
+      class(shr_igridMask), intent(in) :: self
+      class(shr_igridMask), allocatable :: newGM !< output
+    end function iface_shrink
   end interface
 
 
@@ -251,6 +260,7 @@ module shr_gridMask_mod
     procedure :: expand => gridMask_expand
     procedure :: toString => gridMask_toString
     procedure :: getShape => gridMask_getShape
+    procedure :: shrink => gridMask_shrink
   end type shr_gridMask
 
 contains
@@ -758,6 +768,70 @@ contains
     shape(1) = size(self % mask, dim=1)
     shape(2) = size(self % mask, dim=2)
   end function gridMask_getShape
+
+
+  function gridMask_shrink(self) result (newGM)
+    !< gridmask is shrink down to its enabled cells
+    !<
+    !< (3) (0)      (3)   (0)
+    !<  x x x (3)  -> x x x (3)
+    !<  - - - (1)           (2)
+    !<
+    class(shr_gridMask), intent(in) :: self
+    class(shr_igridMask), allocatable :: newGM !< output
+
+    logical, allocatable :: lrows(:)
+    logical, allocatable :: lcols(:)
+    integer :: nrows, ncols
+    integer :: icol, irow
+    class(shr_igGrid), allocatable :: newGrid
+    logical, allocatable :: newLMask(:,:)
+    type(shr_gridBoundIndices) :: newGridBoundIndices
+    integer, allocatable :: northidx(:), southidx(:)
+    integer, allocatable :: westidx(:), eastidx(:)
+    type(shr_gGridMapCoords) :: gridMapCoords
+    type(shr_gridBounds) :: gridBounds
+    real(kind=sp) :: resolution
+    class(shr_igGrid), allocatable :: newGGrid
+
+    !< find mask indicies for new borders
+    nrows = size(self % mask, dim=1)
+    ncols = size(self % mask, dim=2)
+    allocate(lrows(nrows), lcols(ncols))
+    !< squeeze each dimension
+    !> for each row
+    do irow = 1, nrows
+      lrows(irow) = any(self % mask(irow, :))
+    end do
+    !< for each col
+    do icol = 1, ncols
+      lcols(icol) = any(self % mask(:, icol))
+    end do
+
+    !< find enabled grid cell bounds
+    !< north, south
+    northidx = findloc(lrows, .true.)
+    southidx = findloc(lrows, .true., back=.true.)
+    !< east, west
+    westidx = findloc(lcols, .true.)
+    eastidx = findloc(lcols, .true., back=.true.)
+    call newGridBoundIndices % init(northidx(1), southidx(1), eastidx(1), westidx(1))
+
+    !< convert indices into coordinates
+    gridMapCoords = shr_gGridMapCoordsBuilder(self % grid % getGridDescriptor())
+    gridBounds = gridMapCoords % getCoord(newGridBoundIndices)
+
+    !< resize grid with new bounds (coordinates)
+    resolution = self % grid % getResolution()
+
+    newGGrid =  shr_igGridBuilder(resolution, gridBounds)
+
+    !< select lmask gridcells with new bounds (indices)
+    newLMask = self % get(newGridBoundIndices)
+
+    call newGM % init(newGrid, newLMask)
+  end function gridMask_shrink
+
 
 end module shr_gridMask_mod
 

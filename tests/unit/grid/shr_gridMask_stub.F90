@@ -50,6 +50,7 @@ module shr_gridMask_stub
 
     procedure :: expand
     procedure :: select
+    procedure :: shrink
     procedure :: set_by_gridmask
     procedure :: set_by_lmask
     procedure :: toString
@@ -238,6 +239,18 @@ contains
     class(shr_gridMaskStub), intent(in) :: self
     integer :: shape(2)
   end function getShape
+
+
+  function shrink(self) result (newGM)
+    !< gridmask is shrink down to its enabled cells
+    !<
+    !< (3) (0)      (3)   (0)
+    !<  x x x (3)  -> x x x (3)
+    !<  - - - (1)           (2)
+    !<
+    class(shr_gridMaskStub), intent(in) :: self
+    class(shr_igridMask), allocatable :: newGM !< output
+  end function shrink
 
 end module shr_gridMask_stub
 
