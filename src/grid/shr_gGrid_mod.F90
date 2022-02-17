@@ -16,9 +16,10 @@ module shr_gGrid_mod
   use shr_precision_mod, only: sp
   use shr_error_mod, only: raiseError
 
-  use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
+  use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor, shr_gGridDescriptor
   use shr_gGridArrayMap_mod, only: shr_gGridArrayMap, shr_gridArrayMapBuilder, shr_igGridArrayMap
   use shr_gridShape_mod, only: shr_gridShape
+  use shr_gridBounds_mod, only: shr_gridBounds
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_gridcell_mod, only: shr_gridcell
@@ -32,7 +33,7 @@ module shr_gGrid_mod
 
   private
 
-  public :: shr_gGrid, shr_igGrid
+  public :: shr_gGrid, shr_igGrid, shr_igGridBuilder
 
   integer, parameter :: SHR_GC_BOUNDS_TOP_LEFT = 1
   integer, parameter :: SHR_GC_BOUNDS_BOTTOM_RIGHT = 2
@@ -45,6 +46,7 @@ module shr_gGrid_mod
     procedure(iface_getGridDescriptor), deferred :: getGridDescriptor
     procedure(iface_getshape), deferred :: getShape
     procedure(iface_toString), deferred :: toString
+    procedure(iface_getResolution), deferred :: getResolution
 
     procedure(iface_getIndicesByGrid), deferred :: getIndicesByGrid
     generic :: getIndices => getIndicesByGrid
@@ -140,6 +142,13 @@ module shr_gGrid_mod
       class(shr_igGrid), intent(in) :: other
       class(shr_igGrid), allocatable :: newGrid
     end function iface_combine
+
+    function iface_getResolution(self) result (res)
+      import :: shr_igGrid, sp
+      !< return grid resolution
+      class(shr_igGrid), intent(in) :: self
+      real(kind=sp) :: res !< output
+    end function iface_getResolution
   end interface
 
 
@@ -154,6 +163,7 @@ module shr_gGrid_mod
     procedure :: getGridDescriptor
     procedure :: getGridMap
 
+    procedure :: getResolution => gGrid_getResolution
     procedure :: getShape !< gridShape
 
     !procedure :: getIndices !< by coordinates, returns shr_gridcellIndex
@@ -358,5 +368,32 @@ contains
     end if
     newgc = boundaryGcs(1)
   end function getBoundaryGridcell
+
+
+  function gGrid_getResolution(self) result (res)
+    !< return grid resolution
+    class(shr_gGrid), intent(in) :: self
+    real(kind=sp) :: res !< output
+    res = self % gridDescriptor % getResolution()
+  end function gGrid_getResolution
+
+
+  function shr_igGridBuilder(resolution, bounds) result (newGGrid)
+    !< build a new igGrid
+    real(kind=sp), intent(in) :: resolution
+    type(shr_gridBounds), intent(in) :: bounds
+    class(shr_igGrid), allocatable :: newGGrid !< output
+
+    class(shr_iGGridDescriptor), allocatable :: newGdescriptor
+    class(shr_igGridArrayMap), allocatable :: newGridArrayMap
+
+    allocate(shr_gGridDescriptor :: newGdescriptor)
+    call newGdescriptor % init(resolution, bounds)
+
+    newGridArrayMap = shr_gridArrayMapBuilder(newGdescriptor)
+
+    allocate(shr_gGrid :: newGGrid)
+    call newGGrid % init(newGdescriptor, newGridArrayMap)
+  end function shr_igGridBuilder
 
 end module shr_gGrid_mod
