@@ -28,6 +28,7 @@ module shr_gAxis_stub
     procedure :: getBounds
     procedure :: getResolution
     procedure :: getCells
+    procedure :: getCell
     procedure :: getSize
     procedure :: toString
     procedure :: equal
@@ -78,6 +79,15 @@ contains
     class(shr_gAxisEmptyStub), intent(in) :: self
     class(shr_igAxis), intent(in) :: other
   end function equal
+
+
+  function getCell(self, position) result (gcell)
+    !< given an coordinate from the current axis,
+    !< itreturns an array of  shr_gAxisCell(s)
+    class(shr_gAxisEmptyStub), intent(in) :: self
+    integer, intent(in) :: position
+    type(shr_gAxisCell) :: gcell
+  end function getCell
 
 end module shr_gAxis_stub
 

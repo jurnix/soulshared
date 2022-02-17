@@ -35,6 +35,7 @@ module shr_gAxis_mod
     procedure(iface_getBounds), deferred :: getBounds
     procedure(iface_getResolution), deferred :: getResolution
     procedure(iface_getCells), deferred :: getCells
+    procedure(iface_getCell_byPosition), deferred :: getCell
     procedure(iface_getSize), deferred :: getSize
     procedure(iface_toString), deferred :: toString
     procedure(iface_equal), deferred :: equal
@@ -89,6 +90,16 @@ module shr_gAxis_mod
       class(shr_igAxis), intent(in) :: self
       class(shr_igAxis), intent(in) :: other
     end function iface_equal
+
+
+    function iface_getCell_byPosition(self, position) result (gcell)
+      import :: shr_igAxis, shr_gAxisCell
+      !< given an coordinate from the current axis,
+      !< itreturns an array of  shr_gAxisCell(s)
+      class(shr_igAxis), intent(in) :: self
+      integer, intent(in) :: position
+      type(shr_gAxisCell) :: gcell
+    end function iface_getCell_byPosition
   end interface
 
 
@@ -114,6 +125,7 @@ module shr_gAxis_mod
     procedure :: equal => gAxis_equal
 
     procedure :: toString => gAxis_toString
+    procedure :: getCell => gAxis_getCell_byPosition
   end type shr_gAxis
 
 contains
@@ -303,6 +315,17 @@ contains
       end if
     end do
   end function gAxis_getCells
+
+
+  function gAxis_getCell_byPosition(self, position) result (gcell)
+    !< given an coordinate from the current axis,
+    !< itreturns an array of  shr_gAxisCell(s)
+    class(shr_gAxis), intent(in) :: self
+    integer, intent(in) :: position
+    type(shr_gAxisCell) :: gcell
+    gcell = self % cells(position)
+  end function gAxis_getCell_byPosition
+
 
 end module shr_gAxis_mod 
 
