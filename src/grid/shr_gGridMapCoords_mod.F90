@@ -49,7 +49,7 @@ module shr_gGridMapCoords_mod
     procedure, private :: getCoord_byGridBoundIndices
     generic :: getCoord => getCoord_byGridIndex, getCoord_byGridBoundIndices
 
-    procedure :: getGridcell
+    procedure, private :: getGridcell
   end type shr_gGridMapCoords
 
 contains
@@ -111,12 +111,12 @@ contains
     !< north index
     northWestGCI % idxlat = gbIndices % getStartRow()
     !< west index
-    northWestGCI % idxlon = gbIndices % getStartCol()
+    northWestGCI % idxlon = gbIndices % getEndCol()
 
     !< south index
     southEastGCI % idxlat = gbIndices % getEndRow()
     !< east index
-    southEastGCI % idxlon = gbIndices % getEndCol()
+    southEastGCI % idxlon = gbIndices % getStartCol()
 
     !< into coordinates
     seGC = self % getGridcell(southEastGCI)
