@@ -39,6 +39,7 @@ module shr_gridMask_test
   contains
     procedure :: define => defineTestCases
     procedure, private :: testCaseExpandWithDefault
+    procedure, private :: testCaseShrink
   end type 
 
 contains
@@ -363,6 +364,7 @@ contains
         "m(1,0,2,0, (FT,FF)) % expand(1,-1,2,0) .eq. mask(FT,TT) = T")
 
     call self % testCaseExpandWithDefault()
+    call self % testCaseShrink()
 
   end subroutine defineTestCases
 
@@ -427,6 +429,13 @@ contains
         "gm(3,1,2,-1, (FTF,TTF)) % expand(3,0,3,-1) .eq. mask(FTFF,TTFF,FFFF) = T")
   end subroutine testCaseExpandWithDefault
 
+
+  subroutine testCaseShrink(self)
+    !< test case for expand method with default argument enabled
+    class(testSuitegridMask), intent(inout) :: self
+
+    call self % assert(.false., "gridMask % shrink() TODO  = T")
+  end subroutine testCaseShrink
 
 end module shr_gridMask_test
 
