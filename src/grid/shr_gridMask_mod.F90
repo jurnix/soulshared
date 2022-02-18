@@ -787,8 +787,8 @@ contains
     class(shr_igGrid), allocatable :: newGrid
     logical, allocatable :: newLMask(:,:)
     type(shr_gridBoundIndices) :: newGridBoundIndices
-    integer, allocatable :: northidx(:), southidx(:)
-    integer, allocatable :: westidx(:), eastidx(:)
+    integer, allocatable :: startRowIdx(:), endRowIdx(:)
+    integer, allocatable :: startColIdx(:), endColIdx(:)
     type(shr_gGridMapCoords) :: gridMapCoords
     type(shr_gridBounds) :: gridBounds
     real(kind=sp) :: resolution
@@ -810,12 +810,12 @@ contains
 
     !< find enabled grid cell bounds
     !< north, south
-    northidx = findloc(lrows, .true.)
-    southidx = findloc(lrows, .true., back=.true.)
+    startRowIdx = findloc(lrows, .true.)
+    endRowIdx = findloc(lrows, .true., back=.true.)
     !< east, west
-    westidx = findloc(lcols, .true.)
-    eastidx = findloc(lcols, .true., back=.true.)
-    call newGridBoundIndices % init(northidx(1), southidx(1), eastidx(1), westidx(1))
+    startColIdx = findloc(lcols, .true.)
+    endColIdx = findloc(lcols, .true., back=.true.)
+    call newGridBoundIndices % init(startRowIdx(1), endRowIdx(1), startColIdx(1), endColIdx(1))
 
     !< convert indices into coordinates
     gridMapCoords = shr_gGridMapCoordsBuilder(self % grid % getGridDescriptor())
