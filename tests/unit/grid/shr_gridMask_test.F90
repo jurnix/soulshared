@@ -23,7 +23,7 @@ module shr_gridMask_test
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
   use shr_gridcellIndex_mod, only: shr_gridcellIndex
   use shr_gridBoundIndices_mod, only: shr_gridBoundIndices
-  use shr_gGridArrayMap_mod, only: shr_gGridArrayMap
+  use shr_gGridArrayMap_mod, only: shr_gGridArrayMap, LATITUDE_NAME, LONGITUDE_NAME
   use shr_gGrid_mod, only: shr_gGrid
 
 
@@ -68,8 +68,8 @@ contains
     call laxisBounds % init(bounds % getNorth(), bounds % getSouth())
     call lonxisBounds % init(bounds % getEast(), bounds % getWest())
 
-    call laxis % init(string("lats"), res, laxisBounds)
-    call lonxis % init(string("lons"), res, lonxisBounds)
+    call laxis % init(string(LATITUDE_NAME), res, laxisBounds)
+    call lonxis % init(string(LONGITUDE_NAME), res, lonxisBounds)
 
     call laxisMapping % init(laxis)
     call lonxisMapping % init(lonxis)
@@ -276,8 +276,8 @@ contains
     write(*,*) "gridMask_test:: tmpStr =", tmpStr % toString()
     !expStr = string("resolution= 1.0000, bounds=(1.0000, -1.0000, 2.0000, 0.0000)" &
     expStr = string("resolution= 1.0000, bounds=(1.0000, -1.0000, 2.0000, 0.0000), " // &
-        "lat=(size= 2, axis=lats, resolution=1.0000, bounds=(1.0000, -1.0000)) - " // &
-        "lon=(size= 2, axis=lons, resolution=1.0000, bounds=(2.0000, 0.0000))" &
+        "lat=(size= 2, axis="//LATITUDE_NAME//", resolution=1.0000, bounds=(1.0000, -1.0000)) - " // &
+        "lon=(size= 2, axis="//LONGITUDE_NAME//", resolution=1.0000, bounds=(2.0000, 0.0000))" &
           // new_line('A') // "'F F'"// new_line('A') // "'T F'")
     call self % assert( tmpStr == expStr, &
         "m2(F F, T F) % toString() .eq. expStr(F F T F) = T")
@@ -431,10 +431,63 @@ contains
 
 
   subroutine testCaseShrink(self)
-    !< test case for expand method with default argument enabled
+    !< test case for Shrink method
+    !
+    ! from [5,0,3,-1]
+    !
+    ! (3) (2) (1) (0) (-1)
+    !  |   |   |   |   |
+    !  +---+---+---+---+  (5.)
+    !  | F | F | F | F |
+    !  +---+---+---+---+  (4.)
+    !  | F | F | T | F |
+    !  +---+---+---+---+  (3.)
+    !  | F | F | T | F |
+    !  +---+---+---+---+  (2.)
+    !  | F | T | T | F |
+    !  +---+---+---+---+  (1.)
+    !  | F | F | F | F |
+    !  +---+---+---+---+  (0.)
+    !
+    ! To: [4,0,2,0]
+    !
+    ! (2) (1) (0)
+    !  |   |   |
+    !  +---+---+  (4.)
+    !  | F | T |
+    !  +---+---+  (3.)
+    !  | F | T |
+    !  +---+---+  (2.)
+    !  | T | T |
+    !  +---+---+  (1.)
+    !
     class(testSuitegridMask), intent(inout) :: self
+    logical :: lmask(5,4), shmask(3,2)
+    type(shr_gridMask) :: gm
+    class(shr_gridMask), allocatable :: foundGM
+    class(shr_gridMask), allocatable :: expectedGM
+    type(string) :: tmp
 
-    call self % assert(.false., "gridMask % shrink() TODO  = T")
+    !< setup
+    lmask = .false.
+    lmask(2,3) = .true.
+    lmask(3,3) = .true.
+    lmask(4,2:3) = .true.
+    gm = getNewGridMask(1.0, [5., 0., 3., -1.], lmask)
+
+    allocate(expectedGM)
+    shmask = .true.
+    shmask(1,1) = .false.
+    shmask(2,1) = .false.
+    expectedGM = getNewGridMask(1.0, [4.,1.,2.,0.], shmask)
+
+    !< run
+    foundGM = gm % shrink()
+    tmp = foundGM % toString()
+    write(*,*) "found =", tmp % toString()
+    tmp = expectedGM % toString()
+    write(*,*) "expected =", tmp % toString()
+    call self % assert(foundGM == expectedGM, "gm(...) % shrink() .eq. gm(FT,FT,TT) = T")
   end subroutine testCaseShrink
 
 end module shr_gridMask_test

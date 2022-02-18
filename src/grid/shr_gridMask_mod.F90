@@ -792,7 +792,6 @@ contains
     type(shr_gGridMapCoords) :: gridMapCoords
     type(shr_gridBounds) :: gridBounds
     real(kind=sp) :: resolution
-    class(shr_igGrid), allocatable :: newGGrid
 
     !< find mask indicies for new borders
     nrows = size(self % mask, dim=1)
@@ -824,11 +823,12 @@ contains
     !< resize grid with new bounds (coordinates)
     resolution = self % grid % getResolution()
 
-    newGGrid =  shr_igGridBuilder(resolution, gridBounds)
+    newGrid =  shr_igGridBuilder(resolution, gridBounds)
 
     !< select lmask gridcells with new bounds (indices)
     newLMask = self % get(newGridBoundIndices)
 
+    allocate(shr_gridMask :: newGM)
     call newGM % init(newGrid, newLMask)
   end function gridMask_shrink
 
