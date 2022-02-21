@@ -36,6 +36,7 @@ module shr_gridMaskFindEnabledEqualSplitMethod_test
     procedure :: define => defineTestCases
     procedure, private :: testCaseSplitInFive
     procedure, private :: testCaseSplitInTwo
+    procedure, private :: testCaseSplitInTwoLastEnabled
   end type 
 
 contains
@@ -109,6 +110,7 @@ contains
     class(testSuiteGridMaskFindEnabledEqualMethod), intent(inout) :: self
     call self % testCaseSplitInFive()
     call self % testCaseSplitInTwo()
+    call self % testCaseSplitInTwoLastEnabled()
   end subroutine defineTestCases
 
 
@@ -224,6 +226,53 @@ contains
         "gmSplit(...) % get(2) .eq. mask(...) = T")
 
   end subroutine testCaseSplitInTwo
+
+
+  subroutine testCaseSplitInTwoLastEnabled(self)
+    !<
+    !< (2) (3 3) only used for proper alignment
+    !<                                        1st        2nd
+    !< (3) x x - x    x x - x               T T T T    F F F F
+    !<     - - - x ->         -> - - - x =  F F F F -> T T T T
+    !< (0) x x - -               x x - -    F F F F    T T T T
+    !<
+    class(testSuiteGridMaskFindEnabledEqualMethod), intent(inout) :: self
+    type(shr_gridMaskFindEnabledEqualSplitMethod) :: gmSplit
+    type(shr_gridMask) :: gmask
+    type(shr_gridMask) :: expectedMasks(2)
+    logical :: lmask(3,4)
+    real(kind=sp), parameter :: BOUNDS(4) = [3., 0., 4., 0.]
+    real(kind=sp), parameter :: RES = 1.0
+
+    !< setup
+    lmask = .false.
+    lmask(1,:) = [.true., .true., .false., .true.]
+    lmask(2,:) = [.false., .false., .false., .true.]
+    lmask(3,:) = [.true., .true., .false., .false.]
+    gmask = createNewGridMask(RES, BOUNDS, lmask)
+
+    !<
+    lmask = .false.
+    lmask(1,:) = .true.
+    expectedMasks(1) = createNewGridMask(RES, BOUNDS, lmask)
+    lmask(1,:) = .false.
+    lmask(2:3,:) = .true.
+
+    expectedMasks(2) = createNewGridMask(RES, BOUNDS, lmask)
+
+    call gmSplit % init(2, gmask)
+
+    !> tests
+    call self % assert(gmSplit % getSize() == 2, &
+        "gmSplit(...) % getSize() .eq. 2 = T")
+
+    call self % assert(gmSplit % get(1) == expectedMasks(1), &
+        "gmSplit(...) % get(1) .eq. mask(...) = T")
+
+    call self % assert(gmSplit % get(2) == expectedMasks(2), &
+        "gmSplit(...) % get(2) .eq. mask(...) = T")
+
+  end subroutine testCaseSplitInTwoLastEnabled
 
 end module shr_gridMaskFindEnabledEqualSplitMethod_test
 
