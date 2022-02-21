@@ -179,7 +179,7 @@ program unittest
   call tsGridMaskBorder % init("gridMaskBorder test", 20)
   call tsGridMaskClusters % init("gridMaskClusters test", 20)
   call tsgridMaskClustersIterator % init("gridMaskClustersIterator test", 10)
-  call tsGridMaskFindEnabledEqualMethod % init("gridMaskFindEnabledEqualMethod test", 10)
+  call tsGridMaskFindEnabledEqualMethod % init("gridMaskFindEnabledEqualMethod test", 20)
   call tsGridMaskFindEnabledEqualIterator % init("gridMaskFindEnabledEqualIterator", 10)
   call tsGridDescriptor % init("gridDescriptor test", 20)
   call tsGridBounds % init("grid bounds test", 30)
