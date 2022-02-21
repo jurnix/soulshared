@@ -114,7 +114,8 @@ contains
     use iso_c_binding
     class(testSuitegridMask), intent(inout) :: self
 
-    type(shr_gridMask) :: m, other, m1, m2
+    class(shr_gridMask), allocatable :: m
+    type(shr_gridMask) :: other, m1, m2
 
     logical :: expMask(2,2), rawMask(2,2), rawSmallMask(1,2)
     logical :: expBigMask(4,4)
@@ -153,6 +154,7 @@ contains
     ! | 2,1 | 2,2 |
     ! *-----+-----+
     !
+    allocate(m)
     m = getNewGridMask(RES, [1.,-1.,2.,0.])
     call self % assert(m % countEnabled() == 4, "m % count() .eq. 4 = T")
 

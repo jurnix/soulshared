@@ -48,6 +48,9 @@ module shr_gridMask_stub
     procedure :: and_gridMask
     procedure :: any
 
+    procedure :: reverse_gridmask_func
+    procedure :: reverse
+
     procedure :: expand
     procedure :: select
     procedure :: shrink
@@ -251,6 +254,19 @@ contains
     class(shr_gridMaskStub), intent(in) :: self
     class(shr_igridMask), allocatable :: newGM !< output
   end function shrink
+
+
+  function reverse_gridMask_func(self) result (newGM)
+    !< bitwise complement (.not.)
+    class(shr_gridMaskStub), intent(in) :: self
+    class(shr_igridMask), allocatable :: newGM
+  end function reverse_gridMask_func
+
+
+  subroutine reverse(self)
+    !< modify mask bitwise complement (.not.)
+    class(shr_gridMaskStub), intent(inout) :: self
+  end subroutine reverse
 
 end module shr_gridMask_stub
 

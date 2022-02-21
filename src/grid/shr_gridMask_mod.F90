@@ -64,6 +64,10 @@ module shr_gridMask_mod
     procedure(iface_select), deferred :: select
     procedure(iface_shrink), deferred :: shrink
 
+    procedure(iface_reverse_gridMask), deferred :: reverse
+    procedure(iface_reverse_gridMask_func), deferred :: reverse_gridMask_func
+    generic :: operator(.not.) => reverse_gridMask_func
+
     procedure(iface_set_by_lmask), deferred :: set_by_lmask
     procedure(iface_set_by_gridmask), deferred :: set_by_gridMask
     generic :: set => set_by_gridMask, set_by_lmask
@@ -206,6 +210,19 @@ module shr_gridMask_mod
       class(shr_igridMask), intent(in) :: self
       class(shr_igridMask), allocatable :: newGM !< output
     end function iface_shrink
+
+    subroutine iface_reverse_gridMask(self)
+      import :: shr_igridMask
+      !< modify mask bitwise complement (.not.)
+      class(shr_igridMask), intent(inout) :: self
+    end subroutine iface_reverse_gridMask
+
+    function iface_reverse_gridMask_func(self) result (newGM)
+      import :: shr_igridMask
+      !< bitwise complement (.not.)
+      class(shr_igridMask), intent(in) :: self
+      class(shr_igridMask), allocatable :: newGM
+    end function iface_reverse_gridMask_func
   end interface
 
 
@@ -244,9 +261,9 @@ module shr_gridMask_mod
     procedure :: or_gridMask => gridMask_or_gridMask
     procedure :: and_gridMask => gridMask_and_gridMask
 
-    procedure :: reverse_gridMask_func
     procedure :: reverse => reverse_gridMask
-    generic :: operator(.not.) => reverse_gridMask_func
+    procedure :: reverse_gridMask_func => gridMask_reverse_gridMask_func
+    !generic :: operator(.not.) => reverse_gridMask_func
 
     procedure, private :: isValidMask => isValidBy2dArray
 
@@ -466,12 +483,15 @@ contains
   end subroutine reverse_gridMask
 
 
-  type(shr_gridMask) function reverse_gridMask_func(self) result (newGM)
+  function gridMask_reverse_gridMask_func(self) result (newGM)
     !< bitwise complement (.not.)
     class(shr_gridMask), intent(in) :: self
-    call newGM % init(self % getGrid())
-    newGM % mask = .not. (self % mask)
-  end function reverse_gridMask_func
+    class(shr_igridMask), allocatable :: newGM
+    logical, allocatable :: tmpLMask(:,:)
+    allocate(shr_gridMask :: newGM)
+    tmpLMask = .not. (self % mask)
+    call newGM % init(self % getGrid(), tmpLMask)
+  end function gridMask_reverse_gridMask_func
 
 
   subroutine copy_gridMask(self, other)
