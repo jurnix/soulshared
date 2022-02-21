@@ -334,7 +334,6 @@ contains
     class(shr_gridDomain), allocatable :: expected
 
     !< to init gridDomain
-    class(shr_gridMaskSelectStub), allocatable :: enabledMask
     type(shr_gGridDescriptor) :: gDescrip
 
     type(shr_gGrid) :: gridToSelect
@@ -377,5 +376,64 @@ contains
     call self % assert(selectedGM == expected, &
         "selectedGM % select(gm) .eq. expected  = T")
   end subroutine testCaseSelect
+
+
+  subroutine testCaseSelectMidSection(self)
+    !< 'select' unit test
+    !< same enabled and border masks
+    !>
+    !>    (5)   (1)
+    !> (4) x x - x      select
+    !>     x - - x  ->  x - - x
+    !>     x x - -      x x - -
+    !> (0) - - x -                              - - x -
+    class(testSuitegridDomain), intent(inout) :: self
+    class(shr_gridDomain), allocatable :: d, selectedGM
+    !< expected output
+    class(shr_gridDomain), allocatable :: expected
+
+    !< to init gridDomain
+    type(shr_gGridDescriptor) :: gDescrip
+
+    type(shr_gGrid) :: gridToSelect
+
+    logical :: emask(2,3), bmask(2,3)
+    logical :: lemask(3,4), lbmask(3,4)
+
+    !< setup
+    !< enabled
+    emask(1,:) = [.true., .true., .false.]
+    emask(2,:) = [.false., .false., .false.]
+    !< border
+    bmask(1,:) = [.false., .false., .false.]
+    bmask(2,:) = [.true., .true., .true.]
+    allocate(expected)
+    expected = createNewGridDomain(1.0, [2., 0., 2., -1.], emask, bmask)
+
+    lemask(1,:) = [.false., .true., .true., .false.]
+    lemask(2,:) = [.true., .true., .true., .false.]
+    lemask(3,:) = [.true., .false., .false., .false.]
+    !< border
+    lbmask(1,:) = [.false., .false., .false., .false.]
+    lbmask(2,:) = [.false., .false., .false., .false.]
+    lbmask(3,:) = [.false., .true., .true., .true.]
+    allocate(d)
+    d = createNewGridDomain(1.0, [3.,0.,3.,-1.], lemask, lbmask)
+    !procedure :: select
+    ! (3.)  (-1.)    (2.) (-1.)
+    !< - x x - (3.)
+    !< x x x -      -> x x - (2.0)
+    !< x b b b (0.)    b b b (0.)
+    !
+    !< b -> border (true)
+    !< x -> enabled (b=false)
+    !< - -> disabled (b=false)
+    gDescrip = createNewGridDescriptor(1., [2.,0.,2.,-1.])
+    gridToSelect = createNewGrid(gDescrip)
+    allocate(selectedGM)
+    selectedGM = d % select(gridToSelect)
+    call self % assert(selectedGM == expected, &
+        "selectedGM % select(gm) .eq. expected  = T")
+  end subroutine testCaseSelectMidSection
 
 end module shr_gridDomain_test
