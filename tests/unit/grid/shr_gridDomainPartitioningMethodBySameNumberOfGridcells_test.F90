@@ -17,7 +17,7 @@ module shr_gridDomainPartitioningMethodBySameNumberOfGridcells_test
 
   !< factory methods
   use shr_precision_mod, only: sp
-  use shr_gridDomain_mod, only: shr_gridDomain, shr_iGridDomain
+  use shr_gridDomain_mod, only: shr_gridDomain, shr_iGridDomain, shr_gridDomainWrap
   use shr_strings_mod, only: string
   use shr_gGridDescriptor_mod, only: shr_gGridDescriptor
   use shr_gridMask_mod, only: shr_gridMask
@@ -150,7 +150,7 @@ contains
     type(shr_gridDomainPartitioningMethodBySameNumberOfGridcells) :: gdpartition
     logical, allocatable :: emask(:,:), bmask(:,:)
     type(shr_gridDomain) :: gdomain
-    class(shr_igridDomain), allocatable :: results(:)
+    class(shr_gridDomain), allocatable :: results(:)
     real(kind=sp), parameter :: BOUNDS(4) = [4., 0., 5., 1.]
     real(kind=sp), parameter :: RES = 1.0
     type(shr_gridDomain) :: expected(3)
