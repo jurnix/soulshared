@@ -121,23 +121,22 @@ contains
 			do icol = 1, ncols
 				cArrayIndex % row = irow
 				cArrayIndex % col = icol
+				!< enable each gridcell for current part
 				call self % parts(currentPart) % set(cArrayIndex, .true.)
 
-				!< count enabled gridcells
+				!< count found enabled gridcells
 				if (lmask(irow, icol)) then
 					count = count + 1
 				end if
 
 				!< is part at the end?
 				if (nparts(currentPart) == count ) then
-					!< yes, move to next part
-					currentPart = currentPart + 1
+					!< is the very last group?
+					if (size(self % parts) > currentPart) then
+					  !< no, so move to next part
+					  currentPart = currentPart + 1
+					end if
 					count = 0
-				end if
-
-				!< no more parts?
-				if (currentPart > self % total) then
-					return
 				end if
 			enddo !< for each mask column
 		enddo !< for each mask row
