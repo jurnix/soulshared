@@ -24,7 +24,7 @@ module shr_soulsharedGrid_mod
 
   private
 
-  character(*), parameter :: SHR_GRID_TYPE_SQUARED = "squared"
+  character(*), parameter :: SHR_GRID_TYPE_REGULAR_SQUARED = "squared"
 
   public :: shr_soulsharedGrid
 
@@ -45,10 +45,11 @@ contains
     real(kind=sp), intent(in) :: bounds(4) !< n, s, e, w
     type(string), intent(in) :: type
 
-    if (type == SHR_GRID_TYPE_SQUARED) then
+    if (type == SHR_GRID_TYPE_REGULAR_SQUARED) then
       self % gridDomain = shr_gridDomainBuilder(resolution, bounds)
     else
-      call raiseError(__FILE__, "init", "Unknown/unsupported grid type")
+      call raiseError(__FILE__, "init", &
+          "Unknown/unsupported grid type")
     end if
 
 !    call partitionMethod % init(current, total)
