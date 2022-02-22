@@ -15,18 +15,22 @@ module shr_gridDomain_mod
   use SHR_error_mod, only: raiseError
   use SHR_precision_mod, only: sp
 
-  use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor
-  use shr_gridMask_mod, only: shr_IgridMask
+  use shr_gGridDescriptor_mod, only: shr_iGGridDescriptor, shr_gGridDescriptor
+  use shr_gridMask_mod, only: shr_IgridMask, shr_gridMask
   use shr_gridMaskEnabled_mod, only: shr_gridMaskEnabled
   use shr_gridMaskBorder_mod, only: shr_gridMaskBorder
   use shr_gridBounds_mod, only: shr_gridBounds
   use shr_coord_mod, only: shr_coord
   use shr_strings_mod, only: string
-  use shr_gGrid_mod, only: shr_igGrid
+  use shr_gGrid_mod, only: shr_igGrid, shr_gGrid
+
+  !< builder
+  use shr_gGridArrayMap_mod, only: shr_gGridArrayMap, shr_igGridArrayMap, shr_gridArrayMapBuilder
+
 
   implicit none
 
-  public :: shr_gridDomain, shr_iGridDomain, shr_gridDomainWrap
+  public :: shr_gridDomain, shr_iGridDomain, shr_gridDomainWrap, shr_gridDomainBuilder
 
   logical, parameter :: ISDEBUG = .false.
 
@@ -391,6 +395,42 @@ contains
           self % maskEnabled % toString() + ", " + new_line('A') + &
           self % maskBorder % toString()
   end function gridDomain_toString
+
+
+  function shr_gridDomainBuilder(resolution, bounds) result (newGridDomain)
+    !< grid domain builder from resolution and bounds
+    real(kind=sp), intent(in) :: resolution
+    real(kind=sp), intent(in) :: bounds(4) !< n, s, e, w
+    class(shr_iGridDomain), allocatable :: newGridDomain !< output
+
+    class(shr_iGGridDescriptor), allocatable :: gridDescriptor
+    class(shr_igGridArrayMap), allocatable :: gridArrayMap
+    class(shr_igGrid), allocatable :: grid
+    class(shr_IgridMask), allocatable :: enabledGM, borderGM
+    type(shr_gridBounds) :: gbounds
+
+    call gbounds % init(bounds)
+
+    !< build grid
+    !<   - build grid descriptor, build grid map
+    !<   - build grid array map
+    allocate(shr_GGridDescriptor :: gridDescriptor)
+    call gridDescriptor % init(resolution, gbounds)
+
+    allocate(shr_gGridArrayMap :: gridArrayMap)
+    gridArrayMap = shr_gridArrayMapBuilder(gridDescriptor)
+
+    allocate(shr_gGrid :: grid)
+    call grid % init(gridDescriptor, gridArrayMap)
+
+    !< build enabled gridmask (default all true)
+    allocate(shr_gridMask :: enabledGM)
+    call enabledGM % init(grid, default = .true.)
+
+    !< build border gridmask (default all false)
+    allocate(shr_gridMask :: borderGM)
+    call borderGM % init(grid, default = .true.)
+  end function shr_gridDomainBuilder
 
 end module shr_gridDomain_mod
 
