@@ -124,7 +124,6 @@ program unittest
   type(testSuitegridMaskClustersIterator) :: tsgridMaskClustersIterator
   type(testSuitegridMaskClusters) :: tsGridMaskClusters
   type(testSuiteGridMaskFindEnabledEqualMethod) :: tsGridMaskFindEnabledEqualMethod
-  type(testSuiteGridMaskFindEnabledEqualIterator) :: tsGridMaskFindEnabledEqualIterator
   type(testSuitegGridDescriptor) :: tsGridDescriptor
   type(testSuiteGridBounds) :: tsGridBounds
   type(testSuitegridDomainSquared) :: tsGridDomainSquared
@@ -180,7 +179,6 @@ program unittest
   call tsGridMaskClusters % init("gridMaskClusters test", 20)
   call tsgridMaskClustersIterator % init("gridMaskClustersIterator test", 10)
   call tsGridMaskFindEnabledEqualMethod % init("gridMaskFindEnabledEqualMethod test", 20)
-  call tsGridMaskFindEnabledEqualIterator % init("gridMaskFindEnabledEqualIterator", 10)
   call tsGridDescriptor % init("gridDescriptor test", 20)
   call tsGridBounds % init("grid bounds test", 30)
   call tsGridDomainSquared % init("grid domain squared test", 10)
@@ -237,7 +235,6 @@ program unittest
   call tsGridMaskClusters % run()
   call tsgridMaskClustersIterator % run()
   call tsGridMaskFindEnabledEqualMethod % run()
-  call tsGridMaskFindEnabledEqualIterator % run()
   call tsGridDescriptor % run()
   call tsGridBounds % run()
   call tsGridDomainSquared % run()
@@ -293,7 +290,6 @@ program unittest
   call tsGridMaskClusters % report()
   call tsgridMaskClustersIterator % report()
   call tsGridMaskFindEnabledEqualMethod % report()
-  call tsGridMaskFindEnabledEqualIterator % report()
   call tsGridDescriptor % report()
   call tsGridBounds % report()
   call tsGridDomainSquared % report()
@@ -349,7 +345,6 @@ program unittest
       .not. tsGridMaskClusters % isSuccessful() .or. &
       .not. tsgridMaskClustersIterator % isSuccessful() .or. &
       .not. tsGridMaskFindEnabledEqualMethod % isSuccessful() .or. &
-      .not. tsGridMaskFindEnabledEqualIterator % isSuccessful() .or. &
       .not. tsGridDescriptor % isSuccessful() .or. &
       .not. tsGridBounds % isSuccessful() .or. &
       .not. tsGridDomainSquared % isSuccessful() .or. &
