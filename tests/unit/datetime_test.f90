@@ -1720,7 +1720,7 @@ contains
     call self % assert(clock1day % isInAbsoluteBounds(datetime(1900,1,1)), &
             "datetime(1-6) % isInAbsoluteBounds(1) .  == T")
 
-    call self % assert(.not. clock1day % isInAbsoluteBounds(datetime(1900,1,7)), &
+    call self % assert(.not. clock1day % isInAbsoluteBounds(datetime(1901,1,7)), &
             "datetime(1-6) % isInAbsoluteBounds(7) == F")
 
 
